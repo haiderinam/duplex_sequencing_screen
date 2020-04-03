@@ -1,0 +1,205 @@
+---
+title: "growthrate_plots_ENU"
+author: "Haider Inam"
+date: "4/2/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+####Please change required directories this chunk if compiling in R rather than RmD
+```{r}
+#Inputs:
+conc_for_predictions=0.8
+net_gr_wodrug=0.05
+#Reading required tables
+# twinstrand_maf_merge=read.csv("../output/twinstrand_maf_merge.csv",header = T,stringsAsFactors = F)
+twinstrand_maf_merge=read.csv("output/twinstrand_maf_merge.csv",header = T,stringsAsFactors = F)
+
+# twinstrand_simple_melt_merge=read.csv("../output/twinstrand_simple_melt_merge.csv",header = T,stringsAsFactors = F)
+twinstrand_simple_melt_merge=read.csv("output/twinstrand_simple_melt_merge.csv",header = T,stringsAsFactors = F)
+```
+
+```{r,include=F}
+# rm(list=ls())
+library(knitr)
+library(tictoc)
+library(workflowr)
+library(VennDiagram)
+library(dplyr)
+library(foreach)
+library(doParallel)
+library(ggplot2)
+library(reshape2)
+library(RColorBrewer)
+library(devtools)
+library(ggsignif)
+library(plotly)
+library(BiocManager)
+library(drc)
+# library(ensembldb) #Loading this with Dplyr commands seems to throw an error in Rmd
+# library(EnsDb.Hsapiens.v86) #Loading this with Dplyr commands seems to throw an error in Rmd
+
+######################Cleanup for GGPlot2#########################################
+cleanup=theme_bw() +
+  theme(plot.title = element_text(hjust=.5),
+        panel.grid.major = element_blank(),
+        panel.grid.major.y = element_blank(),
+        panel.background = element_blank(),
+        axis.line = element_line(color = "black"),
+        axis.text = element_text(face="bold",color="black",size="11"),
+        text=element_text(size=11,face="bold"),
+        axis.title=element_text(face="bold",size="11"))
+```
+
+
+####Looking at the required depth for ENU
+####Seeing if the non-model, raw IC50s match observed dose response in data better
+####Plot mean of the distributions for expected vs observed IC50s
+Changes I've made so far: added annotations for the mutants that we didn't otherwise see in the normal data. Added some annodations for the ENU experiment time point and spike in frequencies.
+```{r}
+# ###In this section, all I'm doing is importing the twinstrand_maf_merge dataframe and annotating mutants. This is essentially copied over from the sections above but is present in the same chunks so that I don't have to go looking at chunks...
+# twinstrand_maf=read.table("Twinstrand/prj00053-2019-12-02.deliverables/all.mut",sep="\t",header = T,stringsAsFactors = F)
+# names=read.table("Twinstrand/prj00053-2019-12-02.deliverables/manifest.tsv",sep="\t",header = T,stringsAsFactors = F)
+# twinstrand_maf_merge=merge(twinstrand_maf,names,by.x = "Sample",by.y = "TwinstrandId")
+# ###These mutations include the mutations found in the normal data and ALSO mutants found only in the ENU data
+# twinstrand_maf_merge=twinstrand_maf_merge%>%
+#   mutate(mutant=case_when(End==130872896 & ALT=="T" ~ "T315I",
+#                           End==130862970 & ALT=="C" ~ "Y253H",
+#                           End==130862977 & ALT=="T" ~ "E255V",
+#                           End==130873004 & ALT=="C" ~ "M351T",
+#                           End==130862962 & ALT=="A" ~ "G250E",
+#                           End==130874969 & ALT=="C" ~ "H396P",
+#                           End==130862955 & ALT=="G" ~ "L248V",
+#                           End==130874969 & ALT=="G" ~ "H396R",
+#                           End==130862971 & ALT=="T" ~ "Y253F",
+#                           End==130862969 & ALT=="T" ~ "Q252H",
+#                           End==130862976 & ALT=="A" ~ "E255K",
+#                           End==130872901 & ALT=="C" ~ "F317L",
+#                           End==130873027 & ALT=="C" ~ "F359L",
+#                           End==130873027 & ALT=="G" ~ "F359V",
+#                           End==130873027 & ALT=="A" ~ "F359I",
+#                           End==130873016 & ALT=="G" ~ "E355G",
+#                           End==130873016 & ALT=="C" ~ "E355A",
+#                           End==130878519 & ALT=="A" ~ "E459K",
+#                           End==130872911 & ALT=="G" ~ "Y320C",
+#                           End==130872133 & ALT=="G" ~ "D276G",
+#                           End==130862969 & ALT=="C" ~ "Q252H", ###The mutants below were found only in the ENU mutagenized pools
+#                           End==130872885 & ALT=="G" ~ "F311L",
+#                           End==130873028 & ALT=="G" ~ "F359C",
+#                           End==130874971 & ALT=="C" ~ "A397P",
+#                           End==130862854 & ALT=="G" ~ "H214R",
+#                           End==130872146 & ALT=="C" ~ "V280syn",
+#                           End==130872161 & ALT=="T" ~ "K285N",
+#                           End==130872923 & ALT=="G" ~ "L324R",
+#                           End==130872983 & ALT=="T" ~ "A344D"))
+# 
+# twinstrand_maf_merge$totalcells=0
+# twinstrand_maf_merge$totalcells[twinstrand_maf_merge$experiment=="M3"&twinstrand_maf_merge$time_point=="D0"]=493000
+# twinstrand_maf_merge$totalcells[twinstrand_maf_merge$experiment=="M3"&twinstrand_maf_merge$time_point=="D3"]=1295000
+# twinstrand_maf_merge$totalcells[twinstrand_maf_merge$experiment=="M3"&twinstrand_maf_merge$time_point=="D6"]=13600000
+# ##########M5##########
+# twinstrand_maf_merge$totalcells[twinstrand_maf_merge$experiment=="M5"&twinstrand_maf_merge$time_point=="D0"]=588000
+# twinstrand_maf_merge$totalcells[twinstrand_maf_merge$experiment=="M5"&twinstrand_maf_merge$time_point=="D3"]=1299000
+# twinstrand_maf_merge$totalcells[twinstrand_maf_merge$experiment=="M5"&twinstrand_maf_merge$time_point=="D6"]=11294000
+# ##########M7##########
+# twinstrand_maf_merge$totalcells[twinstrand_maf_merge$experiment=="M7"&twinstrand_maf_merge$time_point=="D0"]=611000
+# twinstrand_maf_merge$totalcells[twinstrand_maf_merge$experiment=="M7"&twinstrand_maf_merge$time_point=="D3"]=857000
+# twinstrand_maf_merge$totalcells[twinstrand_maf_merge$experiment=="M7"&twinstrand_maf_merge$time_point=="D6"]=14568000
+# ##########M4##########
+# twinstrand_maf_merge$totalcells[twinstrand_maf_merge$experiment=="M4"&twinstrand_maf_merge$time_point=="D0"]=405000
+# twinstrand_maf_merge$totalcells[twinstrand_maf_merge$experiment=="M4"&twinstrand_maf_merge$time_point=="D3"]=980000
+# twinstrand_maf_merge$totalcells[twinstrand_maf_merge$experiment=="M4"&twinstrand_maf_merge$time_point=="D6"]=1783000
+# ##########M6##########
+# twinstrand_maf_merge$totalcells[twinstrand_maf_merge$experiment=="M6"&twinstrand_maf_merge$time_point=="D0"]=510000
+# twinstrand_maf_merge$totalcells[twinstrand_maf_merge$experiment=="M6"&twinstrand_maf_merge$time_point=="D3"]=798000
+# twinstrand_maf_merge$totalcells[twinstrand_maf_merge$experiment=="M6"&twinstrand_maf_merge$time_point=="D6"]=842000
+# ##########ENU3##########
+# twinstrand_maf_merge$totalcells[twinstrand_maf_merge$experiment=="Enu_3"&twinstrand_maf_merge$time_point=="D0"]=166000
+# twinstrand_maf_merge$totalcells[twinstrand_maf_merge$experiment=="Enu_3"&twinstrand_maf_merge$time_point=="D3"]=1282000
+# twinstrand_maf_merge$totalcells[twinstrand_maf_merge$experiment=="Enu_3"&twinstrand_maf_merge$time_point=="D6"]=97200000
+# ##########ENU4##########
+# twinstrand_maf_merge$totalcells[twinstrand_maf_merge$experiment=="Enu_4"&twinstrand_maf_merge$time_point=="D0"]=316000
+# twinstrand_maf_merge$totalcells[twinstrand_maf_merge$experiment=="Enu_4"&twinstrand_maf_merge$time_point=="D3"]=1264000
+# twinstrand_maf_merge$totalcells[twinstrand_maf_merge$experiment=="Enu_4"&twinstrand_maf_merge$time_point=="D6"]=40000000
+# 
+# 
+# # a=twinstrand_maf_merge%>%select(Annotation,CustomerName,experiment,REF,ALT,Depth,AltDepth,mutant,time_point)%>%filter(grepl("ENU",Annotation,ignore.case = T),time_point%in%c("D0","D3","D6"))%>%arrange(desc(AltDepth))
+# 
+# 
+# 
+# #Adding columns for experiment names, experiment frequencies, and time
+# twinstrand_maf_merge$experiment[twinstrand_maf_merge$CustomerName%in%c("M3D0","M3D3","M3D6")]="M3"
+# twinstrand_maf_merge$experiment[twinstrand_maf_merge$CustomerName%in%c("M4D0","M4D3","M4D6")]="M4"
+# twinstrand_maf_merge$experiment[twinstrand_maf_merge$CustomerName%in%c("M5D0","M5D3","M5D6")]="M5"
+# twinstrand_maf_merge$experiment[twinstrand_maf_merge$CustomerName%in%c("M6D0","M6D3","M6D6")]="M6"
+# twinstrand_maf_merge$experiment[twinstrand_maf_merge$CustomerName%in%c("M7D0","M7D3","M7D6")]="M7"
+# twinstrand_maf_merge$experiment[twinstrand_maf_merge$CustomerName%in%c("Enu3_D3","Enu3_D6")]="Enu_3"
+# twinstrand_maf_merge$experiment[twinstrand_maf_merge$CustomerName%in%c("Enu4_D0","Enu4_D3","Enu4_D6")]="Enu_4" ##Updated this line for ENU
+# 
+# twinstrand_maf_merge$Spike_in_freq[twinstrand_maf_merge$CustomerName%in%c("M3D0","M3D3","M3D6")]=1000
+# twinstrand_maf_merge$Spike_in_freq[twinstrand_maf_merge$CustomerName%in%c("M4D0","M4D3","M4D6")]=5000
+# twinstrand_maf_merge$Spike_in_freq[twinstrand_maf_merge$CustomerName%in%c("M5D0","M5D3","M5D6")]=1000
+# twinstrand_maf_merge$Spike_in_freq[twinstrand_maf_merge$CustomerName%in%c("M6D0","M6D3","M6D6")]=5000
+# twinstrand_maf_merge$Spike_in_freq[twinstrand_maf_merge$CustomerName%in%c("M7D0","M7D3","M7D6")]=1000
+# twinstrand_maf_merge$Spike_in_freq[twinstrand_maf_merge$CustomerName%in%c("Enu3_D3","Enu3_D6")]=1000
+# twinstrand_maf_merge$Spike_in_freq[twinstrand_maf_merge$CustomerName%in%c("Enu4_D0","Enu4_D3","Enu4_D6")]=1000 ##Updated this line for ENU
+# 
+# twinstrand_maf_merge$time_point[twinstrand_maf_merge$CustomerName%in%c("M3D0","M6D0","Enu4_D0")]="D0"
+# twinstrand_maf_merge$time_point[twinstrand_maf_merge$CustomerName%in%c("M3D3","M4D3","M5D3","M6D3","M7D3","Enu3_D3","Enu4_D3")]="D3"
+# twinstrand_maf_merge$time_point[twinstrand_maf_merge$CustomerName%in%c("M3D6","M4D6","M5D6","M6D6","M7D6","Enu3_D6","Enu4_D6")]="D6"
+# 
+# 
+# twinstrand_maf_merge=twinstrand_maf_merge%>%mutate(totalmutant=AltDepth/Depth*totalcells)
+
+ggplot(twinstrand_maf_merge%>%filter(!mutant=="NA",!experiment%in%c("Enu_3","Enu_4")),aes(x=time_point,y=AltDepth,color=factor(experiment)))+geom_point()+facet_wrap(~mutant)+cleanup
+#!!!
+
+a=twinstrand_maf_merge%>%dplyr::select(Annotation,CustomerName,experiment,REF,ALT,Depth,AltDepth,mutant)%>%filter(grepl("ENU",Annotation,ignore.case = T),grepl("D0",Annotation,ignore.case = T),experiment=="Enu_4")%>%arrange(desc(AltDepth))
+# ggplot(a,aes(x=mutant,y=))#!!!!!!!!Continuefromhere!
+# b=twinstrand_maf_merge%>%select(Annotation,CustomerName,experiment,REF,ALT,Depth,AltDepth,mutant)%>%filter(grepl("M6D0",CustomerName,ignore.case = T))%>%arrange(desc(AltDepth))
+
+  plotly=ggplot(twinstrand_maf_merge%>%filter(grepl("ENU",Annotation,ignore.case = T),experiment=="Enu_4"),aes(x=time_point,y=AltDepth,color=factor(experiment)))+geom_point()+facet_wrap(~mutant)+cleanup
+  ggplotly(plotly)
+sum(a$AltDepth)-20134 ###reads that were resistant clones.
+  plotly=ggplot(twinstrand_maf_merge%>%filter(grepl("ENU",Annotation,ignore.case = T),experiment=="Enu_3"),aes(x=time_point,y=AltDepth,color=factor(experiment)))+geom_point()+facet_wrap(~mutant)+cleanup
+  ggplotly(plotly)
+  
+###The main thing I'm realizing from the ENU data is that the more frequent mutants DEFINITELY start to dominate during the latter days. Most resistant mutants have a lower depth of coverage later into the days. Only the mutants of highest resistance like T315I and G250E actually have an increase in MAF.
+a=twinstrand_maf_merge%>%filter(tki_resistant_mutation=="True",!mutant=="NA",Spike_in_freq==1000,experiment%in%c("Enu_3","Enu_4"))
+plotly=ggplot(twinstrand_maf_merge%>%filter(tki_resistant_mutation=="True",!mutant=="NA",Spike_in_freq==1000,experiment%in%c("Enu_3","Enu_4")),aes(x=time_point,y=totalmutant,color=factor(experiment)))+geom_point()+facet_wrap(~mutant)+scale_y_continuous(trans = "log10")+cleanup
+ggplotly(plotly)
+```
+
+
+Generating mean growth rate across mutants to see if that improves clinical abundance predictions. Short answer: no it doesn't based on our current specs
+```{r}
+a=twinstrand_simple_melt_merge%>%
+  mutate(netgr_obs=case_when(experiment=="M6"~netgr_obs+.03,
+                                   experiment=="M5"~netgr_obs+.015,
+                                   experiment%in%c("M3","M5","M4","M7")~netgr_obs))
+
+a_new=a%>%filter(experiment%in%c("M3"),duration%in%("d3d6"))
+a_new=a_new%>%filter(!netgr_obs%in%NA)%>%
+  dplyr::select(mutant,netgr_obs)
+
+# mean_netgr=twinstrand_simple_melt_merge%>%group_by(mutant)%>%summarize(netgr_pred=mean(netgr_obs,na.rm=T))
+# a_new=mean_netgr
+
+mean_netgr=twinstrand_simple_melt_merge%>%group_by(mutant)%>%summarize(netgr_mean=mean(netgr_obs,na.rm=T))
+a_new=mean_netgr
+```
+
+Checking if ENU mutants follow expected IC50s
+```{r}
+enu_plots=twinstrand_simple_melt_merge%>%filter(experiment%in%c("Enu_4","Enu_3"),duration%in%"d3d6")
+#hardcoding adjustments to the growth rates
+enu_plots$netgr_obs[enu_plots$experiment=="Enu_3"]=enu_plots$netgr_obs[enu_plots$experiment=="Enu_3"]-.011
+
+plotly=ggplot(enu_plots,aes(x=netgr_pred,y=netgr_obs,label=mutant))+geom_text()+facet_wrap(~experiment)+geom_abline()+cleanup
+ggplotly(plotly)
+plotly=ggplot(enu_plots,aes(x=netgr_pred,y=netgr_obs,label=mutant,fill=factor(experiment)))+geom_text()+geom_abline()+cleanup
+ggplotly(plotly)
+```
