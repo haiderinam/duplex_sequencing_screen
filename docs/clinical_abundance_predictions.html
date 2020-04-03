@@ -1,0 +1,951 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta charset="utf-8" />
+<meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+
+<meta name="author" content="Haider Inam" />
+
+
+<title>clinical_abundance_predictions</title>
+
+<script src="site_libs/jquery-1.11.3/jquery.min.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link href="site_libs/bootstrap-3.3.5/css/cosmo.min.css" rel="stylesheet" />
+<script src="site_libs/bootstrap-3.3.5/js/bootstrap.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/html5shiv.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/respond.min.js"></script>
+<script src="site_libs/jqueryui-1.11.4/jquery-ui.min.js"></script>
+<link href="site_libs/tocify-1.9.1/jquery.tocify.css" rel="stylesheet" />
+<script src="site_libs/tocify-1.9.1/jquery.tocify.js"></script>
+<script src="site_libs/navigation-1.1/tabsets.js"></script>
+<link href="site_libs/highlightjs-9.12.0/textmate.css" rel="stylesheet" />
+<script src="site_libs/highlightjs-9.12.0/highlight.js"></script>
+<script src="site_libs/htmlwidgets-1.5.1/htmlwidgets.js"></script>
+<script src="site_libs/plotly-binding-4.9.1/plotly.js"></script>
+<script src="site_libs/typedarray-0.1/typedarray.min.js"></script>
+<link href="site_libs/crosstalk-1.0.0/css/crosstalk.css" rel="stylesheet" />
+<script src="site_libs/crosstalk-1.0.0/js/crosstalk.min.js"></script>
+<link href="site_libs/plotly-htmlwidgets-css-1.49.4/plotly-htmlwidgets.css" rel="stylesheet" />
+<script src="site_libs/plotly-main-1.49.4/plotly-latest.min.js"></script>
+<link href="site_libs/font-awesome-5.1.0/css/all.css" rel="stylesheet" />
+<link href="site_libs/font-awesome-5.1.0/css/v4-shims.css" rel="stylesheet" />
+
+<style type="text/css">code{white-space: pre;}</style>
+<style type="text/css">
+  pre:not([class]) {
+    background-color: white;
+  }
+</style>
+<script type="text/javascript">
+if (window.hljs) {
+  hljs.configure({languages: []});
+  hljs.initHighlightingOnLoad();
+  if (document.readyState && document.readyState === "complete") {
+    window.setTimeout(function() { hljs.initHighlighting(); }, 0);
+  }
+}
+</script>
+
+
+
+<style type="text/css">
+h1 {
+  font-size: 34px;
+}
+h1.title {
+  font-size: 38px;
+}
+h2 {
+  font-size: 30px;
+}
+h3 {
+  font-size: 24px;
+}
+h4 {
+  font-size: 18px;
+}
+h5 {
+  font-size: 16px;
+}
+h6 {
+  font-size: 12px;
+}
+.table th:not([align]) {
+  text-align: left;
+}
+</style>
+
+
+
+
+<style type = "text/css">
+.main-container {
+  max-width: 940px;
+  margin-left: auto;
+  margin-right: auto;
+}
+code {
+  color: inherit;
+  background-color: rgba(0, 0, 0, 0.04);
+}
+img {
+  max-width:100%;
+}
+.tabbed-pane {
+  padding-top: 12px;
+}
+.html-widget {
+  margin-bottom: 20px;
+}
+button.code-folding-btn:focus {
+  outline: none;
+}
+summary {
+  display: list-item;
+}
+</style>
+
+
+<style type="text/css">
+/* padding for bootstrap navbar */
+body {
+  padding-top: 51px;
+  padding-bottom: 40px;
+}
+/* offset scroll position for anchor links (for fixed navbar)  */
+.section h1 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.section h2 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.section h3 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.section h4 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.section h5 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.section h6 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.dropdown-submenu {
+  position: relative;
+}
+.dropdown-submenu>.dropdown-menu {
+  top: 0;
+  left: 100%;
+  margin-top: -6px;
+  margin-left: -1px;
+  border-radius: 0 6px 6px 6px;
+}
+.dropdown-submenu:hover>.dropdown-menu {
+  display: block;
+}
+.dropdown-submenu>a:after {
+  display: block;
+  content: " ";
+  float: right;
+  width: 0;
+  height: 0;
+  border-color: transparent;
+  border-style: solid;
+  border-width: 5px 0 5px 5px;
+  border-left-color: #cccccc;
+  margin-top: 5px;
+  margin-right: -10px;
+}
+.dropdown-submenu:hover>a:after {
+  border-left-color: #ffffff;
+}
+.dropdown-submenu.pull-left {
+  float: none;
+}
+.dropdown-submenu.pull-left>.dropdown-menu {
+  left: -100%;
+  margin-left: 10px;
+  border-radius: 6px 0 6px 6px;
+}
+</style>
+
+<script>
+// manage active state of menu based on current page
+$(document).ready(function () {
+  // active menu anchor
+  href = window.location.pathname
+  href = href.substr(href.lastIndexOf('/') + 1)
+  if (href === "")
+    href = "index.html";
+  var menuAnchor = $('a[href="' + href + '"]');
+
+  // mark it active
+  menuAnchor.parent().addClass('active');
+
+  // if it's got a parent navbar menu mark it active as well
+  menuAnchor.closest('li.dropdown').addClass('active');
+});
+</script>
+
+<!-- tabsets -->
+
+<style type="text/css">
+.tabset-dropdown > .nav-tabs {
+  display: inline-table;
+  max-height: 500px;
+  min-height: 44px;
+  overflow-y: auto;
+  background: white;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.tabset-dropdown > .nav-tabs > li.active:before {
+  content: "";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li.active:before {
+  content: "&#xe258;";
+  border: none;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open:before {
+  content: "";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs > li.active {
+  display: block;
+}
+
+.tabset-dropdown > .nav-tabs > li > a,
+.tabset-dropdown > .nav-tabs > li > a:focus,
+.tabset-dropdown > .nav-tabs > li > a:hover {
+  border: none;
+  display: inline-block;
+  border-radius: 4px;
+  background-color: transparent;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li {
+  display: block;
+  float: none;
+}
+
+.tabset-dropdown > .nav-tabs > li {
+  display: none;
+}
+</style>
+
+<!-- code folding -->
+
+
+
+<style type="text/css">
+
+#TOC {
+  margin: 25px 0px 20px 0px;
+}
+@media (max-width: 768px) {
+#TOC {
+  position: relative;
+  width: 100%;
+}
+}
+
+@media print {
+.toc-content {
+  /* see https://github.com/w3c/csswg-drafts/issues/4434 */
+  float: right;
+}
+}
+
+.toc-content {
+  padding-left: 30px;
+  padding-right: 40px;
+}
+
+div.main-container {
+  max-width: 1200px;
+}
+
+div.tocify {
+  width: 20%;
+  max-width: 260px;
+  max-height: 85%;
+}
+
+@media (min-width: 768px) and (max-width: 991px) {
+  div.tocify {
+    width: 25%;
+  }
+}
+
+@media (max-width: 767px) {
+  div.tocify {
+    width: 100%;
+    max-width: none;
+  }
+}
+
+.tocify ul, .tocify li {
+  line-height: 20px;
+}
+
+.tocify-subheader .tocify-item {
+  font-size: 0.90em;
+}
+
+.tocify .list-group-item {
+  border-radius: 0px;
+}
+
+
+</style>
+
+
+
+</head>
+
+<body>
+
+
+<div class="container-fluid main-container">
+
+
+<!-- setup 3col/9col grid for toc_float and main content  -->
+<div class="row-fluid">
+<div class="col-xs-12 col-sm-4 col-md-3">
+<div id="TOC" class="tocify">
+</div>
+</div>
+
+<div class="toc-content col-xs-12 col-sm-8 col-md-9">
+
+
+
+
+<div class="navbar navbar-default  navbar-fixed-top" role="navigation">
+  <div class="container">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="index.html">duplex_sequencing_screen</a>
+    </div>
+    <div id="navbar" class="navbar-collapse collapse">
+      <ul class="nav navbar-nav">
+        <li>
+  <a href="index.html">Home</a>
+</li>
+<li>
+  <a href="about.html">About</a>
+</li>
+<li>
+  <a href="license.html">License</a>
+</li>
+      </ul>
+      <ul class="nav navbar-nav navbar-right">
+        <li>
+  <a href="https://github.com/haiderinam/duplex_sequencing_screen">
+    <span class="fa fa-github"></span>
+     
+    Source code
+  </a>
+</li>
+      </ul>
+    </div><!--/.nav-collapse -->
+  </div><!--/.container -->
+</div><!--/.navbar -->
+
+<!-- Add a small amount of space between sections. -->
+<style type="text/css">
+div.section {
+  padding-top: 12px;
+}
+</style>
+
+<div class="fluid-row" id="header">
+
+
+
+<h1 class="title toc-ignore">clinical_abundance_predictions</h1>
+<h4 class="author">Haider Inam</h4>
+<h4 class="date">4/3/2020</h4>
+
+</div>
+
+
+<p>
+<button type="button" class="btn btn-default btn-workflowr btn-workflowr-report" data-toggle="collapse" data-target="#workflowr-report">
+<span class="glyphicon glyphicon-list" aria-hidden="true"></span> workflowr <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span>
+</button>
+</p>
+<div id="workflowr-report" class="collapse">
+<ul class="nav nav-tabs">
+<li class="active">
+<a data-toggle="tab" href="#summary">Summary</a>
+</li>
+<li>
+<a data-toggle="tab" href="#checks"> Checks <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> </a>
+</li>
+<li>
+<a data-toggle="tab" href="#versions">Past versions</a>
+</li>
+</ul>
+<div class="tab-content">
+<div id="summary" class="tab-pane fade in active">
+<p>
+<strong>Last updated:</strong> 2020-04-03
+</p>
+<p>
+<strong>Checks:</strong> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> 7 <span class="glyphicon glyphicon-exclamation-sign text-danger" aria-hidden="true"></span> 0
+</p>
+<p>
+<strong>Knit directory:</strong> <code>duplex_sequencing_screen/</code> <span class="glyphicon glyphicon-question-sign" aria-hidden="true" title="This is the local directory in which the code in this file was executed."> </span>
+</p>
+<p>
+This reproducible <a href="http://rmarkdown.rstudio.com">R Markdown</a> analysis was created with <a
+  href="https://github.com/jdblischak/workflowr">workflowr</a> (version 1.6.0). The <em>Checks</em> tab describes the reproducibility checks that were applied when the results were created. The <em>Past versions</em> tab lists the development history.
+</p>
+<hr>
+</div>
+<div id="checks" class="tab-pane fade">
+<div id="workflowr-checks" class="panel-group">
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRMarkdownfilestronguptodate"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>R Markdown file:</strong> up-to-date </a>
+</p>
+</div>
+<div id="strongRMarkdownfilestronguptodate" class="panel-collapse collapse">
+<div class="panel-body">
+<p>Great! Since the R Markdown file has been committed to the Git repository, you know the exact version of the code that produced these results.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongEnvironmentstrongempty"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Environment:</strong> empty </a>
+</p>
+</div>
+<div id="strongEnvironmentstrongempty" class="panel-collapse collapse">
+<div class="panel-body">
+<p>Great job! The global environment was empty. Objects defined in the global environment can affect the analysis in your R Markdown file in unknown ways. For reproduciblity it’s best to always run the code in an empty environment.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongSeedstrongcodesetseed20200402code"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Seed:</strong> <code>set.seed(20200402)</code> </a>
+</p>
+</div>
+<div id="strongSeedstrongcodesetseed20200402code" class="panel-collapse collapse">
+<div class="panel-body">
+<p>The command <code>set.seed(20200402)</code> was run prior to running the code in the R Markdown file. Setting a seed ensures that any results that rely on randomness, e.g. subsampling or permutations, are reproducible.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongSessioninformationstrongrecorded"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Session information:</strong> recorded </a>
+</p>
+</div>
+<div id="strongSessioninformationstrongrecorded" class="panel-collapse collapse">
+<div class="panel-body">
+<p>Great job! Recording the operating system, R version, and package versions is critical for reproducibility.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongCachestrongnone"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Cache:</strong> none </a>
+</p>
+</div>
+<div id="strongCachestrongnone" class="panel-collapse collapse">
+<div class="panel-body">
+<p>Nice! There were no cached chunks for this analysis, so you can be confident that you successfully produced the results during this run.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongFilepathsstrongrelative"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>File paths:</strong> relative </a>
+</p>
+</div>
+<div id="strongFilepathsstrongrelative" class="panel-collapse collapse">
+<div class="panel-body">
+<p>Great job! Using relative paths to the files within your workflowr project makes it easier to run your code on other machines.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomhaiderinamduplexsequencingscreentree52f688491dab228a6e8343b7838132b266d795b8targetblank52f6884a"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Repository version:</strong> <a href="https://github.com/haiderinam/duplex_sequencing_screen/tree/52f688491dab228a6e8343b7838132b266d795b8" target="_blank">52f6884</a> </a>
+</p>
+</div>
+<div id="strongRepositoryversionstrongahrefhttpsgithubcomhaiderinamduplexsequencingscreentree52f688491dab228a6e8343b7838132b266d795b8targetblank52f6884a" class="panel-collapse collapse">
+<div class="panel-body">
+<p>
+Great! You are using Git for version control. Tracking code development and connecting the code version to the results is critical for reproducibility. The version displayed above was the version of the Git repository at the time these results were generated. <br><br> Note that you need to be careful to ensure that all relevant files for the analysis have been committed to Git prior to generating the results (you can use <code>wflow_publish</code> or <code>wflow_git_commit</code>). workflowr only checks the R Markdown file, but you know if there are other scripts or data files that it depends on. Below is the status of the Git repository when the results were generated:
+</p>
+<pre><code>
+Ignored files:
+    Ignored:    .Rproj.user/
+
+Untracked files:
+    Untracked:  data/Combined_data_frame_IC_Mutprob_abundance.csv
+    Untracked:  data/Twinstrand/
+    Untracked:  data/heatmap_concat_data.csv
+    Untracked:  grant_fig.pdf
+    Untracked:  grant_fig_v2.pdf
+    Untracked:  output/ic50data_all_conc.csv
+
+Unstaged changes:
+    Deleted:    data/README.md
+
+</code></pre>
+<p>
+Note that any generated files, e.g. HTML, png, CSS, etc., are not included in this status report because it is ok for generated content to have uncommitted changes.
+</p>
+</div>
+</div>
+</div>
+</div>
+<hr>
+</div>
+<div id="versions" class="tab-pane fade">
+
+<p>
+These are the previous versions of the R Markdown and HTML files. If you’ve configured a remote Git repository (see <code>?wflow_git_remote</code>), click on the hyperlinks in the table below to view them.
+</p>
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+File
+</th>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+<th>
+Message
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+Rmd
+</td>
+<td>
+<a href="https://github.com/haiderinam/duplex_sequencing_screen/blob/52f688491dab228a6e8343b7838132b266d795b8/analysis/clinical_abundance_predictions.Rmd" target="_blank">52f6884</a>
+</td>
+<td>
+haiderinam
+</td>
+<td>
+2020-04-03
+</td>
+<td>
+wflow_publish(“analysis/*.Rmd“)
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<hr>
+</div>
+</div>
+</div>
+<p>Formatting the data to have mutant and observed net growth rate Also involves growth rate corrections</p>
+<pre class="r"><code>twinstrand_simple_melt_merge=twinstrand_simple_melt_merge%&gt;%
+  mutate(drug_effect_obs=case_when(experiment==&quot;M6&quot;~drug_effect_obs+.03,
+                                   experiment==&quot;M5&quot;~drug_effect_obs+.015,
+                                   experiment==&quot;Enu_3&quot;~drug_effect_obs-.011,
+                                   experiment%in%c(&quot;M3&quot;,&quot;M5&quot;,&quot;M4&quot;,&quot;M7&quot;)~drug_effect_obs)) #Therefore including both spike-in experiments and ENU mutagenized conditions.</code></pre>
+<p>Predicting clinical abundance using a glm around mutation bias and netgr</p>
+<pre class="r"><code>#Using the mean of all experiments:
+mean_netgr=twinstrand_simple_melt_merge%&gt;%group_by(mutant)%&gt;%summarize(netgr_mean=mean(netgr_obs,na.rm=T))
+
+compicmut2=merge(compicmut,mean_netgr,by.x =&quot;Compound&quot;,by.y=&quot;mutant&quot;)
+# compicmut2$IC50=compicmut2$netgr
+compicmut=compicmut2
+#Notice that value here is your fitted IC50s
+################Predictions using pooled IC50s################
+fit5_pooled&lt;-glm.nb(Abundance ~ netgr_mean+log10(Mutation.Probability), data=compicmut)
+summary(fit5_pooled)</code></pre>
+<pre><code>
+Call:
+glm.nb(formula = Abundance ~ netgr_mean + log10(Mutation.Probability), 
+    data = compicmut, init.theta = 8.765424144, link = log)
+
+Deviance Residuals: 
+    Min       1Q   Median       3Q      Max  
+-2.2168  -1.1178   0.2745   0.6486   1.3254  
+
+Coefficients:
+                            Estimate Std. Error z value Pr(&gt;|z|)    
+(Intercept)                   4.8322     0.8173   5.912 3.38e-09 ***
+netgr_mean                   15.4445     6.5181   2.369  0.01781 *  
+log10(Mutation.Probability)   0.7779     0.2052   3.792  0.00015 ***
+---
+Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
+
+(Dispersion parameter for Negative Binomial(8.7654) family taken to be 1)
+
+    Null deviance: 49.011  on 17  degrees of freedom
+Residual deviance: 19.947  on 15  degrees of freedom
+AIC: 117.22
+
+Number of Fisher Scoring iterations: 1
+
+              Theta:  8.77 
+          Std. Err.:  5.87 
+
+ 2 x log-likelihood:  -109.224 </code></pre>
+<pre class="r"><code>Data_fit=data.frame(cbind(compicmut,fit5_pooled$fitted.values)) ###Need to check that doing a cbind this way makes the right mutants go to the right row in compicmut. Pretty sure it does.
+x=ggplot(data =Data_fit,aes(fit5_pooled.fitted.values,Abundance))
+x+stat_function(fun=function(x)x, geom=&quot;line&quot;, aes(colour=&quot;square&quot;,size=1.0))+geom_point(aes(size=1))+theme_classic()+theme(axis.text.x = element_text(size=15),axis.text.y = element_text(size=15))</code></pre>
+<p><img src="figure/clinical_abundance_predictions.Rmd/unnamed-chunk-3-1.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code># ggplot(compicmut,aes(x=IC50,y=(drug_effect_obs^.5),label=Compound))+geom_text()
+
+################Predictions using individual IC50s################
+fit5&lt;-glm.nb(Abundance ~ IC50+log10(Mutation.Probability), data=compicmut) #Best 2 variable model
+summary(fit5)</code></pre>
+<pre><code>
+Call:
+glm.nb(formula = Abundance ~ IC50 + log10(Mutation.Probability), 
+    data = compicmut, init.theta = 8.493014642, link = log)
+
+Deviance Residuals: 
+     Min        1Q    Median        3Q       Max  
+-1.88350  -0.86451   0.08648   0.42176   1.67167  
+
+Coefficients:
+                             Estimate Std. Error z value Pr(&gt;|z|)    
+(Intercept)                 5.247e+00  7.707e-01   6.809 9.84e-12 ***
+IC50                        1.045e-04  4.022e-05   2.598  0.00939 ** 
+log10(Mutation.Probability) 8.310e-01  2.040e-01   4.074 4.62e-05 ***
+---
+Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
+
+(Dispersion parameter for Negative Binomial(8.493) family taken to be 1)
+
+    Null deviance: 48.126  on 17  degrees of freedom
+Residual deviance: 18.618  on 15  degrees of freedom
+AIC: 116.2
+
+Number of Fisher Scoring iterations: 1
+
+              Theta:  8.49 
+          Std. Err.:  5.17 
+
+ 2 x log-likelihood:  -108.201 </code></pre>
+<pre class="r"><code>Data_fit=data.frame(cbind(Data_fit,fit5$fitted.values))
+x=ggplot(data =Data_fit,aes(fit5.fitted.values,Abundance))
+x+stat_function(fun=function(x)x, geom=&quot;line&quot;, aes(colour=&quot;square&quot;,size=1.0))+geom_point(aes(size=1))+theme_classic()+theme(axis.text.x = element_text(size=15),axis.text.y = element_text(size=15))</code></pre>
+<p><img src="figure/clinical_abundance_predictions.Rmd/unnamed-chunk-3-2.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>#########Plotting predictions from inidivual IC50s and pooled experiments on the same plane#########
+x=ggplot(data =Data_fit,aes(fit5.fitted.values,Abundance,label=Compound))
+plotly=x+stat_function(fun=function(x)x, geom=&quot;line&quot;, aes(colour=&quot;square&quot;,size=1.0))+geom_text(aes(size=1,color=&quot;blue&quot;))+geom_text((aes(x=fit5_pooled.fitted.values,size=1.0,color=&quot;green&quot;)))+theme_classic()+theme(axis.text.x = element_text(size=15),axis.text.y = element_text(size=15))
+ggplotly(plotly)</code></pre>
+<div id="htmlwidget-fd1faa9d2fe860c55d6c" style="width:672px;height:480px;" class="plotly html-widget"></div>
+<script type="application/json" data-for="htmlwidget-fd1faa9d2fe860c55d6c">{"x":{"data":[{"x":[3.979739845667,4.35556856367866,4.73139728169033,5.10722599970199,5.48305471771365,5.85888343572532,6.23471215373698,6.61054087174865,6.98636958976031,7.36219830777197,7.73802702578364,8.1138557437953,8.48968446180696,8.86551317981863,9.24134189783029,9.61717061584196,9.99299933385362,10.3688280518653,10.7446567698769,11.1204854878886,11.4963142059003,11.8721429239119,12.2479716419236,12.6238003599353,12.9996290779469,13.3754577959586,13.7512865139703,14.1271152319819,14.5029439499936,14.8787726680052,15.2546013860169,15.6304301040286,16.0062588220402,16.3820875400519,16.7579162580636,17.1337449760752,17.5095736940869,17.8854024120986,18.2612311301102,18.6370598481219,19.0128885661336,19.3887172841452,19.7645460021569,20.1403747201685,20.5162034381802,20.8920321561919,21.2678608742035,21.6436895922152,22.0195183102269,22.3953470282385,22.7711757462502,23.1470044642619,23.5228331822735,23.8986619002852,24.2744906182968,24.6503193363085,25.0261480543202,25.4019767723318,25.7778054903435,26.1536342083552,26.5294629263668,26.9052916443785,27.2811203623902,27.6569490804018,28.0327777984135,28.4086065164251,28.7844352344368,29.1602639524485,29.5360926704601,29.9119213884718,30.2877501064835,30.6635788244951,31.0394075425068,31.4152362605185,31.7910649785301,32.1668936965418,32.5427224145534,32.9185511325651,33.2943798505768,33.6702085685884,34.0460372866001,34.4218660046118,34.7976947226234,35.1735234406351,35.5493521586468,35.9251808766584,36.3010095946701,36.6768383126817,37.0526670306934,37.4284957487051,37.8043244667167,38.1801531847284,38.5559819027401,38.9318106207517,39.3076393387634,39.6834680567751,40.0592967747867,40.4351254927984,40.8109542108101,41.1867829288217,41.5626116468334],"y":[3.979739845667,4.35556856367866,4.73139728169033,5.10722599970199,5.48305471771365,5.85888343572532,6.23471215373698,6.61054087174865,6.98636958976031,7.36219830777197,7.73802702578364,8.1138557437953,8.48968446180696,8.86551317981863,9.24134189783029,9.61717061584196,9.99299933385362,10.3688280518653,10.7446567698769,11.1204854878886,11.4963142059003,11.8721429239119,12.2479716419236,12.6238003599353,12.9996290779469,13.3754577959586,13.7512865139703,14.1271152319819,14.5029439499936,14.8787726680052,15.2546013860169,15.6304301040286,16.0062588220402,16.3820875400519,16.7579162580636,17.1337449760752,17.5095736940869,17.8854024120986,18.2612311301102,18.6370598481219,19.0128885661336,19.3887172841452,19.7645460021569,20.1403747201685,20.5162034381802,20.8920321561919,21.2678608742035,21.6436895922152,22.0195183102269,22.3953470282385,22.7711757462502,23.1470044642619,23.5228331822735,23.8986619002852,24.2744906182968,24.6503193363085,25.0261480543202,25.4019767723318,25.7778054903435,26.1536342083552,26.5294629263668,26.9052916443785,27.2811203623902,27.6569490804018,28.0327777984135,28.4086065164251,28.7844352344368,29.1602639524485,29.5360926704601,29.9119213884718,30.2877501064835,30.6635788244951,31.0394075425068,31.4152362605185,31.7910649785301,32.1668936965418,32.5427224145534,32.9185511325651,33.2943798505768,33.6702085685884,34.0460372866001,34.4218660046118,34.7976947226234,35.1735234406351,35.5493521586468,35.9251808766584,36.3010095946701,36.6768383126817,37.0526670306934,37.4284957487051,37.8043244667167,38.1801531847284,38.5559819027401,38.9318106207517,39.3076393387634,39.6834680567751,40.0592967747867,40.4351254927984,40.8109542108101,41.1867829288217,41.5626116468334],"text":["colour: square<br />size: 1<br />y:  3.979740<br />fit5.fitted.values:  3.979740<br />Abundance:  3.979740","colour: square<br />size: 1<br />y:  4.355569<br />fit5.fitted.values:  4.355569<br />Abundance:  4.355569","colour: square<br />size: 1<br />y:  4.731397<br />fit5.fitted.values:  4.731397<br />Abundance:  4.731397","colour: square<br />size: 1<br />y:  5.107226<br />fit5.fitted.values:  5.107226<br />Abundance:  5.107226","colour: square<br />size: 1<br />y:  5.483055<br />fit5.fitted.values:  5.483055<br />Abundance:  5.483055","colour: square<br />size: 1<br />y:  5.858883<br />fit5.fitted.values:  5.858883<br />Abundance:  5.858883","colour: square<br />size: 1<br />y:  6.234712<br />fit5.fitted.values:  6.234712<br />Abundance:  6.234712","colour: square<br />size: 1<br />y:  6.610541<br />fit5.fitted.values:  6.610541<br />Abundance:  6.610541","colour: square<br />size: 1<br />y:  6.986370<br />fit5.fitted.values:  6.986370<br />Abundance:  6.986370","colour: square<br />size: 1<br />y:  7.362198<br />fit5.fitted.values:  7.362198<br />Abundance:  7.362198","colour: square<br />size: 1<br />y:  7.738027<br />fit5.fitted.values:  7.738027<br />Abundance:  7.738027","colour: square<br />size: 1<br />y:  8.113856<br />fit5.fitted.values:  8.113856<br />Abundance:  8.113856","colour: square<br />size: 1<br />y:  8.489684<br />fit5.fitted.values:  8.489684<br />Abundance:  8.489684","colour: square<br />size: 1<br />y:  8.865513<br />fit5.fitted.values:  8.865513<br />Abundance:  8.865513","colour: square<br />size: 1<br />y:  9.241342<br />fit5.fitted.values:  9.241342<br />Abundance:  9.241342","colour: square<br />size: 1<br />y:  9.617171<br />fit5.fitted.values:  9.617171<br />Abundance:  9.617171","colour: square<br />size: 1<br />y:  9.992999<br />fit5.fitted.values:  9.992999<br />Abundance:  9.992999","colour: square<br />size: 1<br />y: 10.368828<br />fit5.fitted.values: 10.368828<br />Abundance: 10.368828","colour: square<br />size: 1<br />y: 10.744657<br />fit5.fitted.values: 10.744657<br />Abundance: 10.744657","colour: square<br />size: 1<br />y: 11.120485<br />fit5.fitted.values: 11.120485<br />Abundance: 11.120485","colour: square<br />size: 1<br />y: 11.496314<br />fit5.fitted.values: 11.496314<br />Abundance: 11.496314","colour: square<br />size: 1<br />y: 11.872143<br />fit5.fitted.values: 11.872143<br />Abundance: 11.872143","colour: square<br />size: 1<br />y: 12.247972<br />fit5.fitted.values: 12.247972<br />Abundance: 12.247972","colour: square<br />size: 1<br />y: 12.623800<br />fit5.fitted.values: 12.623800<br />Abundance: 12.623800","colour: square<br />size: 1<br />y: 12.999629<br />fit5.fitted.values: 12.999629<br />Abundance: 12.999629","colour: square<br />size: 1<br />y: 13.375458<br />fit5.fitted.values: 13.375458<br />Abundance: 13.375458","colour: square<br />size: 1<br />y: 13.751287<br />fit5.fitted.values: 13.751287<br />Abundance: 13.751287","colour: square<br />size: 1<br />y: 14.127115<br />fit5.fitted.values: 14.127115<br />Abundance: 14.127115","colour: square<br />size: 1<br />y: 14.502944<br />fit5.fitted.values: 14.502944<br />Abundance: 14.502944","colour: square<br />size: 1<br />y: 14.878773<br />fit5.fitted.values: 14.878773<br />Abundance: 14.878773","colour: square<br />size: 1<br />y: 15.254601<br />fit5.fitted.values: 15.254601<br />Abundance: 15.254601","colour: square<br />size: 1<br />y: 15.630430<br />fit5.fitted.values: 15.630430<br />Abundance: 15.630430","colour: square<br />size: 1<br />y: 16.006259<br />fit5.fitted.values: 16.006259<br />Abundance: 16.006259","colour: square<br />size: 1<br />y: 16.382088<br />fit5.fitted.values: 16.382088<br />Abundance: 16.382088","colour: square<br />size: 1<br />y: 16.757916<br />fit5.fitted.values: 16.757916<br />Abundance: 16.757916","colour: square<br />size: 1<br />y: 17.133745<br />fit5.fitted.values: 17.133745<br />Abundance: 17.133745","colour: square<br />size: 1<br />y: 17.509574<br />fit5.fitted.values: 17.509574<br />Abundance: 17.509574","colour: square<br />size: 1<br />y: 17.885402<br />fit5.fitted.values: 17.885402<br />Abundance: 17.885402","colour: square<br />size: 1<br />y: 18.261231<br />fit5.fitted.values: 18.261231<br />Abundance: 18.261231","colour: square<br />size: 1<br />y: 18.637060<br />fit5.fitted.values: 18.637060<br />Abundance: 18.637060","colour: square<br />size: 1<br />y: 19.012889<br />fit5.fitted.values: 19.012889<br />Abundance: 19.012889","colour: square<br />size: 1<br />y: 19.388717<br />fit5.fitted.values: 19.388717<br />Abundance: 19.388717","colour: square<br />size: 1<br />y: 19.764546<br />fit5.fitted.values: 19.764546<br />Abundance: 19.764546","colour: square<br />size: 1<br />y: 20.140375<br />fit5.fitted.values: 20.140375<br />Abundance: 20.140375","colour: square<br />size: 1<br />y: 20.516203<br />fit5.fitted.values: 20.516203<br />Abundance: 20.516203","colour: square<br />size: 1<br />y: 20.892032<br />fit5.fitted.values: 20.892032<br />Abundance: 20.892032","colour: square<br />size: 1<br />y: 21.267861<br />fit5.fitted.values: 21.267861<br />Abundance: 21.267861","colour: square<br />size: 1<br />y: 21.643690<br />fit5.fitted.values: 21.643690<br />Abundance: 21.643690","colour: square<br />size: 1<br />y: 22.019518<br />fit5.fitted.values: 22.019518<br />Abundance: 22.019518","colour: square<br />size: 1<br />y: 22.395347<br />fit5.fitted.values: 22.395347<br />Abundance: 22.395347","colour: square<br />size: 1<br />y: 22.771176<br />fit5.fitted.values: 22.771176<br />Abundance: 22.771176","colour: square<br />size: 1<br />y: 23.147004<br />fit5.fitted.values: 23.147004<br />Abundance: 23.147004","colour: square<br />size: 1<br />y: 23.522833<br />fit5.fitted.values: 23.522833<br />Abundance: 23.522833","colour: square<br />size: 1<br />y: 23.898662<br />fit5.fitted.values: 23.898662<br />Abundance: 23.898662","colour: square<br />size: 1<br />y: 24.274491<br />fit5.fitted.values: 24.274491<br />Abundance: 24.274491","colour: square<br />size: 1<br />y: 24.650319<br />fit5.fitted.values: 24.650319<br />Abundance: 24.650319","colour: square<br />size: 1<br />y: 25.026148<br />fit5.fitted.values: 25.026148<br />Abundance: 25.026148","colour: square<br />size: 1<br />y: 25.401977<br />fit5.fitted.values: 25.401977<br />Abundance: 25.401977","colour: square<br />size: 1<br />y: 25.777805<br />fit5.fitted.values: 25.777805<br />Abundance: 25.777805","colour: square<br />size: 1<br />y: 26.153634<br />fit5.fitted.values: 26.153634<br />Abundance: 26.153634","colour: square<br />size: 1<br />y: 26.529463<br />fit5.fitted.values: 26.529463<br />Abundance: 26.529463","colour: square<br />size: 1<br />y: 26.905292<br />fit5.fitted.values: 26.905292<br />Abundance: 26.905292","colour: square<br />size: 1<br />y: 27.281120<br />fit5.fitted.values: 27.281120<br />Abundance: 27.281120","colour: square<br />size: 1<br />y: 27.656949<br />fit5.fitted.values: 27.656949<br />Abundance: 27.656949","colour: square<br />size: 1<br />y: 28.032778<br />fit5.fitted.values: 28.032778<br />Abundance: 28.032778","colour: square<br />size: 1<br />y: 28.408607<br />fit5.fitted.values: 28.408607<br />Abundance: 28.408607","colour: square<br />size: 1<br />y: 28.784435<br />fit5.fitted.values: 28.784435<br />Abundance: 28.784435","colour: square<br />size: 1<br />y: 29.160264<br />fit5.fitted.values: 29.160264<br />Abundance: 29.160264","colour: square<br />size: 1<br />y: 29.536093<br />fit5.fitted.values: 29.536093<br />Abundance: 29.536093","colour: square<br />size: 1<br />y: 29.911921<br />fit5.fitted.values: 29.911921<br />Abundance: 29.911921","colour: square<br />size: 1<br />y: 30.287750<br />fit5.fitted.values: 30.287750<br />Abundance: 30.287750","colour: square<br />size: 1<br />y: 30.663579<br />fit5.fitted.values: 30.663579<br />Abundance: 30.663579","colour: square<br />size: 1<br />y: 31.039408<br />fit5.fitted.values: 31.039408<br />Abundance: 31.039408","colour: square<br />size: 1<br />y: 31.415236<br />fit5.fitted.values: 31.415236<br />Abundance: 31.415236","colour: square<br />size: 1<br />y: 31.791065<br />fit5.fitted.values: 31.791065<br />Abundance: 31.791065","colour: square<br />size: 1<br />y: 32.166894<br />fit5.fitted.values: 32.166894<br />Abundance: 32.166894","colour: square<br />size: 1<br />y: 32.542722<br />fit5.fitted.values: 32.542722<br />Abundance: 32.542722","colour: square<br />size: 1<br />y: 32.918551<br />fit5.fitted.values: 32.918551<br />Abundance: 32.918551","colour: square<br />size: 1<br />y: 33.294380<br />fit5.fitted.values: 33.294380<br />Abundance: 33.294380","colour: square<br />size: 1<br />y: 33.670209<br />fit5.fitted.values: 33.670209<br />Abundance: 33.670209","colour: square<br />size: 1<br />y: 34.046037<br />fit5.fitted.values: 34.046037<br />Abundance: 34.046037","colour: square<br />size: 1<br />y: 34.421866<br />fit5.fitted.values: 34.421866<br />Abundance: 34.421866","colour: square<br />size: 1<br />y: 34.797695<br />fit5.fitted.values: 34.797695<br />Abundance: 34.797695","colour: square<br />size: 1<br />y: 35.173523<br />fit5.fitted.values: 35.173523<br />Abundance: 35.173523","colour: square<br />size: 1<br />y: 35.549352<br />fit5.fitted.values: 35.549352<br />Abundance: 35.549352","colour: square<br />size: 1<br />y: 35.925181<br />fit5.fitted.values: 35.925181<br />Abundance: 35.925181","colour: square<br />size: 1<br />y: 36.301010<br />fit5.fitted.values: 36.301010<br />Abundance: 36.301010","colour: square<br />size: 1<br />y: 36.676838<br />fit5.fitted.values: 36.676838<br />Abundance: 36.676838","colour: square<br />size: 1<br />y: 37.052667<br />fit5.fitted.values: 37.052667<br />Abundance: 37.052667","colour: square<br />size: 1<br />y: 37.428496<br />fit5.fitted.values: 37.428496<br />Abundance: 37.428496","colour: square<br />size: 1<br />y: 37.804324<br />fit5.fitted.values: 37.804324<br />Abundance: 37.804324","colour: square<br />size: 1<br />y: 38.180153<br />fit5.fitted.values: 38.180153<br />Abundance: 38.180153","colour: square<br />size: 1<br />y: 38.555982<br />fit5.fitted.values: 38.555982<br />Abundance: 38.555982","colour: square<br />size: 1<br />y: 38.931811<br />fit5.fitted.values: 38.931811<br />Abundance: 38.931811","colour: square<br />size: 1<br />y: 39.307639<br />fit5.fitted.values: 39.307639<br />Abundance: 39.307639","colour: square<br />size: 1<br />y: 39.683468<br />fit5.fitted.values: 39.683468<br />Abundance: 39.683468","colour: square<br />size: 1<br />y: 40.059297<br />fit5.fitted.values: 40.059297<br />Abundance: 40.059297","colour: square<br />size: 1<br />y: 40.435125<br />fit5.fitted.values: 40.435125<br />Abundance: 40.435125","colour: square<br />size: 1<br />y: 40.810954<br />fit5.fitted.values: 40.810954<br />Abundance: 40.810954","colour: square<br />size: 1<br />y: 41.186783<br />fit5.fitted.values: 41.186783<br />Abundance: 41.186783","colour: square<br />size: 1<br />y: 41.562612<br />fit5.fitted.values: 41.562612<br />Abundance: 41.562612"],"type":"scatter","mode":"lines","line":{"width":17.1421753925017,"color":"rgba(97,156,255,1)","dash":"solid"},"hoveron":"points","name":"square","legendgroup":"square","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[10.2208267314604,18.1727884626785,10.6965885382064,10.7655112503512,16.2491577434264,13.4786536102162,6.57630128630619,4.17418095282523,6.33092560058006,20.4882911956593,7.2129301207837,10.6169682321108,7.33932366801874,12.0912255489523,9.49248906385681,41.5626116468334,5.56666749548525,20.981653764176],"y":[4,22,11,13,6,12,8,5,11,33,2,6,4,23,10,38,6,18],"text":["D276G","E255K","E255V","E355G","E459K","F317L","F359C","F359I","F359V","G250E","H396P","H396R","L248V","M351T","Q252H","T315I","Y253F","Y253H"],"hovertext":["size: 1<br />colour: blue<br />fit5.fitted.values: 10.220827<br />Abundance:  4<br />Compound: D276G","size: 1<br />colour: blue<br />fit5.fitted.values: 18.172788<br />Abundance: 22<br />Compound: E255K","size: 1<br />colour: blue<br />fit5.fitted.values: 10.696589<br />Abundance: 11<br />Compound: E255V","size: 1<br />colour: blue<br />fit5.fitted.values: 10.765511<br />Abundance: 13<br />Compound: E355G","size: 1<br />colour: blue<br />fit5.fitted.values: 16.249158<br />Abundance:  6<br />Compound: E459K","size: 1<br />colour: blue<br />fit5.fitted.values: 13.478654<br />Abundance: 12<br />Compound: F317L","size: 1<br />colour: blue<br />fit5.fitted.values:  6.576301<br />Abundance:  8<br />Compound: F359C","size: 1<br />colour: blue<br />fit5.fitted.values:  4.174181<br />Abundance:  5<br />Compound: F359I","size: 1<br />colour: blue<br />fit5.fitted.values:  6.330926<br />Abundance: 11<br />Compound: F359V","size: 1<br />colour: blue<br />fit5.fitted.values: 20.488291<br />Abundance: 33<br />Compound: G250E","size: 1<br />colour: blue<br />fit5.fitted.values:  7.212930<br />Abundance:  2<br />Compound: H396P","size: 1<br />colour: blue<br />fit5.fitted.values: 10.616968<br />Abundance:  6<br />Compound: H396R","size: 1<br />colour: blue<br />fit5.fitted.values:  7.339324<br />Abundance:  4<br />Compound: L248V","size: 1<br />colour: blue<br />fit5.fitted.values: 12.091226<br />Abundance: 23<br />Compound: M351T","size: 1<br />colour: blue<br />fit5.fitted.values:  9.492489<br />Abundance: 10<br />Compound: Q252H","size: 1<br />colour: blue<br />fit5.fitted.values: 41.562612<br />Abundance: 38<br />Compound: T315I","size: 1<br />colour: blue<br />fit5.fitted.values:  5.566667<br />Abundance:  6<br />Compound: Y253F","size: 1<br />colour: blue<br />fit5.fitted.values: 20.981654<br />Abundance: 18<br />Compound: Y253H"],"textfont":{"size":17.1421753925017,"color":"rgba(248,118,109,1)"},"type":"scatter","mode":"text","hoveron":"points","name":"blue","legendgroup":"blue","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[10.0112744664543,18.0014070803134,8.74852588686893,8.71004426282232,14.0689796049634,12.5916339653712,4.93094507686692,3.979739845667,6.05044752580511,25.3376061091898,9.18983687059281,13.0868998932904,9.09567960774891,18.4186612632219,9.34563615502999,29.6917138952111,6.52117349891302,19.7589116210634],"y":[4,22,11,13,6,12,8,5,11,33,2,6,4,23,10,38,6,18],"text":["D276G","E255K","E255V","E355G","E459K","F317L","F359C","F359I","F359V","G250E","H396P","H396R","L248V","M351T","Q252H","T315I","Y253F","Y253H"],"hovertext":["fit5_pooled.fitted.values: 10.011274<br />size: 1<br />colour: green<br />fit5.fitted.values: 10.011274<br />Abundance:  4<br />Compound: D276G","fit5_pooled.fitted.values: 18.001407<br />size: 1<br />colour: green<br />fit5.fitted.values: 18.001407<br />Abundance: 22<br />Compound: E255K","fit5_pooled.fitted.values:  8.748526<br />size: 1<br />colour: green<br />fit5.fitted.values:  8.748526<br />Abundance: 11<br />Compound: E255V","fit5_pooled.fitted.values:  8.710044<br />size: 1<br />colour: green<br />fit5.fitted.values:  8.710044<br />Abundance: 13<br />Compound: E355G","fit5_pooled.fitted.values: 14.068980<br />size: 1<br />colour: green<br />fit5.fitted.values: 14.068980<br />Abundance:  6<br />Compound: E459K","fit5_pooled.fitted.values: 12.591634<br />size: 1<br />colour: green<br />fit5.fitted.values: 12.591634<br />Abundance: 12<br />Compound: F317L","fit5_pooled.fitted.values:  4.930945<br />size: 1<br />colour: green<br />fit5.fitted.values:  4.930945<br />Abundance:  8<br />Compound: F359C","fit5_pooled.fitted.values:  3.979740<br />size: 1<br />colour: green<br />fit5.fitted.values:  3.979740<br />Abundance:  5<br />Compound: F359I","fit5_pooled.fitted.values:  6.050448<br />size: 1<br />colour: green<br />fit5.fitted.values:  6.050448<br />Abundance: 11<br />Compound: F359V","fit5_pooled.fitted.values: 25.337606<br />size: 1<br />colour: green<br />fit5.fitted.values: 25.337606<br />Abundance: 33<br />Compound: G250E","fit5_pooled.fitted.values:  9.189837<br />size: 1<br />colour: green<br />fit5.fitted.values:  9.189837<br />Abundance:  2<br />Compound: H396P","fit5_pooled.fitted.values: 13.086900<br />size: 1<br />colour: green<br />fit5.fitted.values: 13.086900<br />Abundance:  6<br />Compound: H396R","fit5_pooled.fitted.values:  9.095680<br />size: 1<br />colour: green<br />fit5.fitted.values:  9.095680<br />Abundance:  4<br />Compound: L248V","fit5_pooled.fitted.values: 18.418661<br />size: 1<br />colour: green<br />fit5.fitted.values: 18.418661<br />Abundance: 23<br />Compound: M351T","fit5_pooled.fitted.values:  9.345636<br />size: 1<br />colour: green<br />fit5.fitted.values:  9.345636<br />Abundance: 10<br />Compound: Q252H","fit5_pooled.fitted.values: 29.691714<br />size: 1<br />colour: green<br />fit5.fitted.values: 29.691714<br />Abundance: 38<br />Compound: T315I","fit5_pooled.fitted.values:  6.521173<br />size: 1<br />colour: green<br />fit5.fitted.values:  6.521173<br />Abundance:  6<br />Compound: Y253F","fit5_pooled.fitted.values: 19.758912<br />size: 1<br />colour: green<br />fit5.fitted.values: 19.758912<br />Abundance: 18<br />Compound: Y253H"],"textfont":{"size":17.1421753925017,"color":"rgba(0,186,56,1)"},"type":"scatter","mode":"text","hoveron":"points","name":"green","legendgroup":"green","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null}],"layout":{"margin":{"t":26.2283105022831,"r":7.30593607305936,"b":48.4184308841843,"l":45.4960564549606},"plot_bgcolor":"rgba(255,255,255,1)","paper_bgcolor":"rgba(255,255,255,1)","font":{"color":"rgba(0,0,0,1)","family":"","size":14.6118721461187},"xaxis":{"domain":[0,1],"automargin":true,"type":"linear","autorange":false,"range":[2.10059625560868,43.4417552368917],"tickmode":"array","ticktext":["10","20","30","40"],"tickvals":[10,20,30,40],"categoryorder":"array","categoryarray":["10","20","30","40"],"nticks":null,"ticks":"outside","tickcolor":"rgba(51,51,51,1)","ticklen":3.65296803652968,"tickwidth":0.66417600664176,"showticklabels":true,"tickfont":{"color":"rgba(77,77,77,1)","family":"","size":19.9252801992528},"tickangle":-0,"showline":true,"linecolor":"rgba(0,0,0,1)","linewidth":0.66417600664176,"showgrid":false,"gridcolor":null,"gridwidth":0,"zeroline":false,"anchor":"y","title":{"text":"fit5.fitted.values","font":{"color":"rgba(0,0,0,1)","family":"","size":14.6118721461187}},"hoverformat":".2f"},"yaxis":{"domain":[0,1],"automargin":true,"type":"linear","autorange":false,"range":[0.0218694176583312,43.540742229175],"tickmode":"array","ticktext":["10","20","30","40"],"tickvals":[10,20,30,40],"categoryorder":"array","categoryarray":["10","20","30","40"],"nticks":null,"ticks":"outside","tickcolor":"rgba(51,51,51,1)","ticklen":3.65296803652968,"tickwidth":0.66417600664176,"showticklabels":true,"tickfont":{"color":"rgba(77,77,77,1)","family":"","size":19.9252801992528},"tickangle":-0,"showline":true,"linecolor":"rgba(0,0,0,1)","linewidth":0.66417600664176,"showgrid":false,"gridcolor":null,"gridwidth":0,"zeroline":false,"anchor":"x","title":{"text":"Abundance","font":{"color":"rgba(0,0,0,1)","family":"","size":14.6118721461187}},"hoverformat":".2f"},"shapes":[{"type":"rect","fillcolor":null,"line":{"color":null,"width":0,"linetype":[]},"yref":"paper","xref":"paper","x0":0,"x1":1,"y0":0,"y1":1}],"showlegend":true,"legend":{"bgcolor":"rgba(255,255,255,1)","bordercolor":"transparent","borderwidth":1.88976377952756,"font":{"color":"rgba(0,0,0,1)","family":"","size":11.689497716895},"y":0.826771653543307},"annotations":[{"text":"colour<br />size","x":1.02,"y":1,"showarrow":false,"ax":0,"ay":0,"font":{"color":"rgba(0,0,0,1)","family":"","size":14.6118721461187},"xref":"paper","yref":"paper","textangle":-0,"xanchor":"left","yanchor":"bottom","legendTitle":true}],"hovermode":"closest","barmode":"relative"},"config":{"doubleClick":"reset","showSendToCloud":false},"source":"A","attrs":{"119b16e79b599":{"colour":{},"size":{},"x":{},"y":{},"label":{},"type":"scatter"},"119b178818878":{"size":{},"colour":{},"x":{},"y":{},"label":{}},"119b126bc17":{"x":{},"size":{},"colour":{},"x.1":{},"y":{},"label":{}}},"cur_data":"119b16e79b599","visdat":{"119b16e79b599":["function (y) ","x"],"119b178818878":["function (y) ","x"],"119b126bc17":["function (y) ","x"]},"highlight":{"on":"plotly_click","persistent":false,"dynamic":false,"selectize":false,"opacityDim":0.2,"selected":{"opacity":1},"debounce":0},"shinyEvents":["plotly_hover","plotly_click","plotly_selected","plotly_relayout","plotly_brushed","plotly_brushing","plotly_clickannotation","plotly_doubleclick","plotly_deselect","plotly_afterplot","plotly_sunburstclick"],"base_url":"https://plot.ly"},"evals":[],"jsHooks":[]}</script>
+<pre class="r"><code>####Pearson&#39;s correlations
+cor(Data_fit$fit5_pooled.fitted.values,Data_fit$Abundance,method=&quot;pearson&quot;)</code></pre>
+<pre><code>[1] 0.881488</code></pre>
+<pre class="r"><code>cor(Data_fit$fit5.fitted.values,Data_fit$Abundance,method=&quot;pearson&quot;)</code></pre>
+<pre><code>[1] 0.8312331</code></pre>
+<p>Predicting clinical abundances using the best spike-in mix</p>
+<pre class="r"><code>#Using just the experiment that ended up giving us the best growth rates.
+mean_netgr=twinstrand_simple_melt_merge%&gt;%filter(experiment%in%c(&quot;M3&quot;),duration%in%(&quot;d3d6&quot;))
+mean_netgr=mean_netgr%&gt;%filter(!netgr_obs%in%NA)%&gt;%
+  select(mutant,netgr_obs)
+
+
+
+compicmut2=merge(compicmut,mean_netgr,by.x =&quot;Compound&quot;,by.y=&quot;mutant&quot;)
+# compicmut2$IC50=compicmut2$netgr
+compicmut=compicmut2
+#Notice that value here is your fitted IC50s
+################Predictions using pooled IC50s################
+fit5_pooled&lt;-glm.nb(Abundance ~ netgr_mean+log10(Mutation.Probability), data=compicmut)
+summary(fit5_pooled)</code></pre>
+<pre><code>
+Call:
+glm.nb(formula = Abundance ~ netgr_mean + log10(Mutation.Probability), 
+    data = compicmut, init.theta = 11.32960498, link = log)
+
+Deviance Residuals: 
+    Min       1Q   Median       3Q      Max  
+-2.2943  -0.6095   0.3182   0.5727   1.4855  
+
+Coefficients:
+                            Estimate Std. Error z value Pr(&gt;|z|)    
+(Intercept)                   5.0147     0.7728   6.489 8.64e-11 ***
+netgr_mean                   16.1279     6.6248   2.434   0.0149 *  
+log10(Mutation.Probability)   0.8326     0.1959   4.250 2.14e-05 ***
+---
+Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
+
+(Dispersion parameter for Negative Binomial(11.3296) family taken to be 1)
+
+    Null deviance: 50.197  on 15  degrees of freedom
+Residual deviance: 18.441  on 13  degrees of freedom
+AIC: 105.33
+
+Number of Fisher Scoring iterations: 1
+
+              Theta:  11.33 
+          Std. Err.:  9.22 
+
+ 2 x log-likelihood:  -97.328 </code></pre>
+<pre class="r"><code>Data_fit=data.frame(cbind(compicmut,fit5_pooled$fitted.values)) ###Need to check that doing a cbind this way makes the right mutants go to the right row in compicmut. Pretty sure it does.
+x=ggplot(data =Data_fit,aes(fit5_pooled.fitted.values,Abundance))
+x+stat_function(fun=function(x)x, geom=&quot;line&quot;, aes(colour=&quot;square&quot;,size=1.0))+geom_point(aes(size=1))+theme_classic()+theme(axis.text.x = element_text(size=15),axis.text.y = element_text(size=15))</code></pre>
+<p><img src="figure/clinical_abundance_predictions.Rmd/unnamed-chunk-4-1.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code># ggplot(compicmut,aes(x=IC50,y=(drug_effect_obs^.5),label=Compound))+geom_text()
+
+################Predictions using individual IC50s################
+fit5&lt;-glm.nb(Abundance ~ IC50+log10(Mutation.Probability), data=compicmut) #Best 2 variable model
+summary(fit5)</code></pre>
+<pre><code>
+Call:
+glm.nb(formula = Abundance ~ IC50 + log10(Mutation.Probability), 
+    data = compicmut, init.theta = 9.531288067, link = log)
+
+Deviance Residuals: 
+     Min        1Q    Median        3Q       Max  
+-2.06327  -0.56673   0.08711   0.34958   1.59965  
+
+Coefficients:
+                             Estimate Std. Error z value Pr(&gt;|z|)    
+(Intercept)                 5.398e+00  7.590e-01   7.111 1.15e-12 ***
+IC50                        9.498e-05  3.963e-05   2.397   0.0165 *  
+log10(Mutation.Probability) 8.578e-01  2.026e-01   4.235 2.29e-05 ***
+---
+Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
+
+(Dispersion parameter for Negative Binomial(9.5313) family taken to be 1)
+
+    Null deviance: 45.705  on 15  degrees of freedom
+Residual deviance: 16.734  on 13  degrees of freedom
+AIC: 105.04
+
+Number of Fisher Scoring iterations: 1
+
+              Theta:  9.53 
+          Std. Err.:  6.35 
+
+ 2 x log-likelihood:  -97.039 </code></pre>
+<pre class="r"><code>Data_fit=data.frame(cbind(Data_fit,fit5$fitted.values))
+x=ggplot(data =Data_fit,aes(fit5.fitted.values,Abundance))
+x+stat_function(fun=function(x)x, geom=&quot;line&quot;, aes(colour=&quot;square&quot;,size=1.0))+geom_point(aes(size=1))+theme_classic()+theme(axis.text.x = element_text(size=15),axis.text.y = element_text(size=15))</code></pre>
+<p><img src="figure/clinical_abundance_predictions.Rmd/unnamed-chunk-4-2.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>#########Plotting predictions from inidivual IC50s and pooled experiments on the same plane#########
+x=ggplot(data =Data_fit,aes(fit5.fitted.values,Abundance,label=Compound))
+plotly=x+stat_function(fun=function(x)x, geom=&quot;line&quot;, aes(colour=&quot;square&quot;,size=1.0))+geom_text(aes(size=1,color=&quot;blue&quot;))+geom_text((aes(x=fit5_pooled.fitted.values,size=1.0,color=&quot;green&quot;)))+theme_classic()+theme(axis.text.x = element_text(size=15),axis.text.y = element_text(size=15))
+ggplotly(plotly)</code></pre>
+<div id="htmlwidget-e89c368c0de4b6ece6da" style="width:672px;height:480px;" class="plotly html-widget"></div>
+<script type="application/json" data-for="htmlwidget-e89c368c0de4b6ece6da">{"x":{"data":[{"x":[3.72770124712134,4.10153440728907,4.4753675674568,4.84920072762453,5.22303388779226,5.59686704795999,5.97070020812772,6.34453336829545,6.71836652846318,7.09219968863091,7.46603284879863,7.83986600896636,8.21369916913409,8.58753232930182,8.96136548946955,9.33519864963728,9.70903180980501,10.0828649699727,10.4566981301405,10.8305312903082,11.2043644504759,11.5781976106437,11.9520307708114,12.3258639309791,12.6996970911468,13.0735302513146,13.4473634114823,13.82119657165,14.1950297318178,14.5688628919855,14.9426960521532,15.316529212321,15.6903623724887,16.0641955326564,16.4380286928241,16.8118618529919,17.1856950131596,17.5595281733273,17.9333613334951,18.3071944936628,18.6810276538305,19.0548608139982,19.428693974166,19.8025271343337,20.1763602945014,20.5501934546692,20.9240266148369,21.2978597750046,21.6716929351724,22.0455260953401,22.4193592555078,22.7931924156755,23.1670255758433,23.540858736011,23.9146918961787,24.2885250563465,24.6623582165142,25.0361913766819,25.4100245368496,25.7838576970174,26.1576908571851,26.5315240173528,26.9053571775206,27.2791903376883,27.653023497856,28.0268566580238,28.4006898181915,28.7745229783592,29.1483561385269,29.5221892986947,29.8960224588624,30.2698556190301,30.6436887791979,31.0175219393656,31.3913550995333,31.765188259701,32.1390214198688,32.5128545800365,32.8866877402042,33.260520900372,33.6343540605397,34.0081872207074,34.3820203808752,34.7558535410429,35.1296867012106,35.5035198613783,35.8773530215461,36.2511861817138,36.6250193418815,36.9988525020493,37.372685662217,37.7465188223847,38.1203519825524,38.4941851427202,38.8680183028879,39.2418514630556,39.6156846232234,39.9895177833911,40.3633509435588,40.7371841037266,41.1110172638943],"y":[3.72770124712134,4.10153440728907,4.4753675674568,4.84920072762453,5.22303388779226,5.59686704795999,5.97070020812772,6.34453336829545,6.71836652846318,7.09219968863091,7.46603284879863,7.83986600896636,8.21369916913409,8.58753232930182,8.96136548946955,9.33519864963728,9.70903180980501,10.0828649699727,10.4566981301405,10.8305312903082,11.2043644504759,11.5781976106437,11.9520307708114,12.3258639309791,12.6996970911468,13.0735302513146,13.4473634114823,13.82119657165,14.1950297318178,14.5688628919855,14.9426960521532,15.316529212321,15.6903623724887,16.0641955326564,16.4380286928241,16.8118618529919,17.1856950131596,17.5595281733273,17.9333613334951,18.3071944936628,18.6810276538305,19.0548608139982,19.428693974166,19.8025271343337,20.1763602945014,20.5501934546692,20.9240266148369,21.2978597750046,21.6716929351724,22.0455260953401,22.4193592555078,22.7931924156755,23.1670255758433,23.540858736011,23.9146918961787,24.2885250563465,24.6623582165142,25.0361913766819,25.4100245368496,25.7838576970174,26.1576908571851,26.5315240173528,26.9053571775206,27.2791903376883,27.653023497856,28.0268566580238,28.4006898181915,28.7745229783592,29.1483561385269,29.5221892986947,29.8960224588624,30.2698556190301,30.6436887791979,31.0175219393656,31.3913550995333,31.765188259701,32.1390214198688,32.5128545800365,32.8866877402042,33.260520900372,33.6343540605397,34.0081872207074,34.3820203808752,34.7558535410429,35.1296867012106,35.5035198613783,35.8773530215461,36.2511861817138,36.6250193418815,36.9988525020493,37.372685662217,37.7465188223847,38.1203519825524,38.4941851427202,38.8680183028879,39.2418514630556,39.6156846232234,39.9895177833911,40.3633509435588,40.7371841037266,41.1110172638943],"text":["colour: square<br />size: 1<br />y:  3.727701<br />fit5.fitted.values:  3.727701<br />Abundance:  3.727701","colour: square<br />size: 1<br />y:  4.101534<br />fit5.fitted.values:  4.101534<br />Abundance:  4.101534","colour: square<br />size: 1<br />y:  4.475368<br />fit5.fitted.values:  4.475368<br />Abundance:  4.475368","colour: square<br />size: 1<br />y:  4.849201<br />fit5.fitted.values:  4.849201<br />Abundance:  4.849201","colour: square<br />size: 1<br />y:  5.223034<br />fit5.fitted.values:  5.223034<br />Abundance:  5.223034","colour: square<br />size: 1<br />y:  5.596867<br />fit5.fitted.values:  5.596867<br />Abundance:  5.596867","colour: square<br />size: 1<br />y:  5.970700<br />fit5.fitted.values:  5.970700<br />Abundance:  5.970700","colour: square<br />size: 1<br />y:  6.344533<br />fit5.fitted.values:  6.344533<br />Abundance:  6.344533","colour: square<br />size: 1<br />y:  6.718367<br />fit5.fitted.values:  6.718367<br />Abundance:  6.718367","colour: square<br />size: 1<br />y:  7.092200<br />fit5.fitted.values:  7.092200<br />Abundance:  7.092200","colour: square<br />size: 1<br />y:  7.466033<br />fit5.fitted.values:  7.466033<br />Abundance:  7.466033","colour: square<br />size: 1<br />y:  7.839866<br />fit5.fitted.values:  7.839866<br />Abundance:  7.839866","colour: square<br />size: 1<br />y:  8.213699<br />fit5.fitted.values:  8.213699<br />Abundance:  8.213699","colour: square<br />size: 1<br />y:  8.587532<br />fit5.fitted.values:  8.587532<br />Abundance:  8.587532","colour: square<br />size: 1<br />y:  8.961365<br />fit5.fitted.values:  8.961365<br />Abundance:  8.961365","colour: square<br />size: 1<br />y:  9.335199<br />fit5.fitted.values:  9.335199<br />Abundance:  9.335199","colour: square<br />size: 1<br />y:  9.709032<br />fit5.fitted.values:  9.709032<br />Abundance:  9.709032","colour: square<br />size: 1<br />y: 10.082865<br />fit5.fitted.values: 10.082865<br />Abundance: 10.082865","colour: square<br />size: 1<br />y: 10.456698<br />fit5.fitted.values: 10.456698<br />Abundance: 10.456698","colour: square<br />size: 1<br />y: 10.830531<br />fit5.fitted.values: 10.830531<br />Abundance: 10.830531","colour: square<br />size: 1<br />y: 11.204364<br />fit5.fitted.values: 11.204364<br />Abundance: 11.204364","colour: square<br />size: 1<br />y: 11.578198<br />fit5.fitted.values: 11.578198<br />Abundance: 11.578198","colour: square<br />size: 1<br />y: 11.952031<br />fit5.fitted.values: 11.952031<br />Abundance: 11.952031","colour: square<br />size: 1<br />y: 12.325864<br />fit5.fitted.values: 12.325864<br />Abundance: 12.325864","colour: square<br />size: 1<br />y: 12.699697<br />fit5.fitted.values: 12.699697<br />Abundance: 12.699697","colour: square<br />size: 1<br />y: 13.073530<br />fit5.fitted.values: 13.073530<br />Abundance: 13.073530","colour: square<br />size: 1<br />y: 13.447363<br />fit5.fitted.values: 13.447363<br />Abundance: 13.447363","colour: square<br />size: 1<br />y: 13.821197<br />fit5.fitted.values: 13.821197<br />Abundance: 13.821197","colour: square<br />size: 1<br />y: 14.195030<br />fit5.fitted.values: 14.195030<br />Abundance: 14.195030","colour: square<br />size: 1<br />y: 14.568863<br />fit5.fitted.values: 14.568863<br />Abundance: 14.568863","colour: square<br />size: 1<br />y: 14.942696<br />fit5.fitted.values: 14.942696<br />Abundance: 14.942696","colour: square<br />size: 1<br />y: 15.316529<br />fit5.fitted.values: 15.316529<br />Abundance: 15.316529","colour: square<br />size: 1<br />y: 15.690362<br />fit5.fitted.values: 15.690362<br />Abundance: 15.690362","colour: square<br />size: 1<br />y: 16.064196<br />fit5.fitted.values: 16.064196<br />Abundance: 16.064196","colour: square<br />size: 1<br />y: 16.438029<br />fit5.fitted.values: 16.438029<br />Abundance: 16.438029","colour: square<br />size: 1<br />y: 16.811862<br />fit5.fitted.values: 16.811862<br />Abundance: 16.811862","colour: square<br />size: 1<br />y: 17.185695<br />fit5.fitted.values: 17.185695<br />Abundance: 17.185695","colour: square<br />size: 1<br />y: 17.559528<br />fit5.fitted.values: 17.559528<br />Abundance: 17.559528","colour: square<br />size: 1<br />y: 17.933361<br />fit5.fitted.values: 17.933361<br />Abundance: 17.933361","colour: square<br />size: 1<br />y: 18.307194<br />fit5.fitted.values: 18.307194<br />Abundance: 18.307194","colour: square<br />size: 1<br />y: 18.681028<br />fit5.fitted.values: 18.681028<br />Abundance: 18.681028","colour: square<br />size: 1<br />y: 19.054861<br />fit5.fitted.values: 19.054861<br />Abundance: 19.054861","colour: square<br />size: 1<br />y: 19.428694<br />fit5.fitted.values: 19.428694<br />Abundance: 19.428694","colour: square<br />size: 1<br />y: 19.802527<br />fit5.fitted.values: 19.802527<br />Abundance: 19.802527","colour: square<br />size: 1<br />y: 20.176360<br />fit5.fitted.values: 20.176360<br />Abundance: 20.176360","colour: square<br />size: 1<br />y: 20.550193<br />fit5.fitted.values: 20.550193<br />Abundance: 20.550193","colour: square<br />size: 1<br />y: 20.924027<br />fit5.fitted.values: 20.924027<br />Abundance: 20.924027","colour: square<br />size: 1<br />y: 21.297860<br />fit5.fitted.values: 21.297860<br />Abundance: 21.297860","colour: square<br />size: 1<br />y: 21.671693<br />fit5.fitted.values: 21.671693<br />Abundance: 21.671693","colour: square<br />size: 1<br />y: 22.045526<br />fit5.fitted.values: 22.045526<br />Abundance: 22.045526","colour: square<br />size: 1<br />y: 22.419359<br />fit5.fitted.values: 22.419359<br />Abundance: 22.419359","colour: square<br />size: 1<br />y: 22.793192<br />fit5.fitted.values: 22.793192<br />Abundance: 22.793192","colour: square<br />size: 1<br />y: 23.167026<br />fit5.fitted.values: 23.167026<br />Abundance: 23.167026","colour: square<br />size: 1<br />y: 23.540859<br />fit5.fitted.values: 23.540859<br />Abundance: 23.540859","colour: square<br />size: 1<br />y: 23.914692<br />fit5.fitted.values: 23.914692<br />Abundance: 23.914692","colour: square<br />size: 1<br />y: 24.288525<br />fit5.fitted.values: 24.288525<br />Abundance: 24.288525","colour: square<br />size: 1<br />y: 24.662358<br />fit5.fitted.values: 24.662358<br />Abundance: 24.662358","colour: square<br />size: 1<br />y: 25.036191<br />fit5.fitted.values: 25.036191<br />Abundance: 25.036191","colour: square<br />size: 1<br />y: 25.410025<br />fit5.fitted.values: 25.410025<br />Abundance: 25.410025","colour: square<br />size: 1<br />y: 25.783858<br />fit5.fitted.values: 25.783858<br />Abundance: 25.783858","colour: square<br />size: 1<br />y: 26.157691<br />fit5.fitted.values: 26.157691<br />Abundance: 26.157691","colour: square<br />size: 1<br />y: 26.531524<br />fit5.fitted.values: 26.531524<br />Abundance: 26.531524","colour: square<br />size: 1<br />y: 26.905357<br />fit5.fitted.values: 26.905357<br />Abundance: 26.905357","colour: square<br />size: 1<br />y: 27.279190<br />fit5.fitted.values: 27.279190<br />Abundance: 27.279190","colour: square<br />size: 1<br />y: 27.653023<br />fit5.fitted.values: 27.653023<br />Abundance: 27.653023","colour: square<br />size: 1<br />y: 28.026857<br />fit5.fitted.values: 28.026857<br />Abundance: 28.026857","colour: square<br />size: 1<br />y: 28.400690<br />fit5.fitted.values: 28.400690<br />Abundance: 28.400690","colour: square<br />size: 1<br />y: 28.774523<br />fit5.fitted.values: 28.774523<br />Abundance: 28.774523","colour: square<br />size: 1<br />y: 29.148356<br />fit5.fitted.values: 29.148356<br />Abundance: 29.148356","colour: square<br />size: 1<br />y: 29.522189<br />fit5.fitted.values: 29.522189<br />Abundance: 29.522189","colour: square<br />size: 1<br />y: 29.896022<br />fit5.fitted.values: 29.896022<br />Abundance: 29.896022","colour: square<br />size: 1<br />y: 30.269856<br />fit5.fitted.values: 30.269856<br />Abundance: 30.269856","colour: square<br />size: 1<br />y: 30.643689<br />fit5.fitted.values: 30.643689<br />Abundance: 30.643689","colour: square<br />size: 1<br />y: 31.017522<br />fit5.fitted.values: 31.017522<br />Abundance: 31.017522","colour: square<br />size: 1<br />y: 31.391355<br />fit5.fitted.values: 31.391355<br />Abundance: 31.391355","colour: square<br />size: 1<br />y: 31.765188<br />fit5.fitted.values: 31.765188<br />Abundance: 31.765188","colour: square<br />size: 1<br />y: 32.139021<br />fit5.fitted.values: 32.139021<br />Abundance: 32.139021","colour: square<br />size: 1<br />y: 32.512855<br />fit5.fitted.values: 32.512855<br />Abundance: 32.512855","colour: square<br />size: 1<br />y: 32.886688<br />fit5.fitted.values: 32.886688<br />Abundance: 32.886688","colour: square<br />size: 1<br />y: 33.260521<br />fit5.fitted.values: 33.260521<br />Abundance: 33.260521","colour: square<br />size: 1<br />y: 33.634354<br />fit5.fitted.values: 33.634354<br />Abundance: 33.634354","colour: square<br />size: 1<br />y: 34.008187<br />fit5.fitted.values: 34.008187<br />Abundance: 34.008187","colour: square<br />size: 1<br />y: 34.382020<br />fit5.fitted.values: 34.382020<br />Abundance: 34.382020","colour: square<br />size: 1<br />y: 34.755854<br />fit5.fitted.values: 34.755854<br />Abundance: 34.755854","colour: square<br />size: 1<br />y: 35.129687<br />fit5.fitted.values: 35.129687<br />Abundance: 35.129687","colour: square<br />size: 1<br />y: 35.503520<br />fit5.fitted.values: 35.503520<br />Abundance: 35.503520","colour: square<br />size: 1<br />y: 35.877353<br />fit5.fitted.values: 35.877353<br />Abundance: 35.877353","colour: square<br />size: 1<br />y: 36.251186<br />fit5.fitted.values: 36.251186<br />Abundance: 36.251186","colour: square<br />size: 1<br />y: 36.625019<br />fit5.fitted.values: 36.625019<br />Abundance: 36.625019","colour: square<br />size: 1<br />y: 36.998853<br />fit5.fitted.values: 36.998853<br />Abundance: 36.998853","colour: square<br />size: 1<br />y: 37.372686<br />fit5.fitted.values: 37.372686<br />Abundance: 37.372686","colour: square<br />size: 1<br />y: 37.746519<br />fit5.fitted.values: 37.746519<br />Abundance: 37.746519","colour: square<br />size: 1<br />y: 38.120352<br />fit5.fitted.values: 38.120352<br />Abundance: 38.120352","colour: square<br />size: 1<br />y: 38.494185<br />fit5.fitted.values: 38.494185<br />Abundance: 38.494185","colour: square<br />size: 1<br />y: 38.868018<br />fit5.fitted.values: 38.868018<br />Abundance: 38.868018","colour: square<br />size: 1<br />y: 39.241851<br />fit5.fitted.values: 39.241851<br />Abundance: 39.241851","colour: square<br />size: 1<br />y: 39.615685<br />fit5.fitted.values: 39.615685<br />Abundance: 39.615685","colour: square<br />size: 1<br />y: 39.989518<br />fit5.fitted.values: 39.989518<br />Abundance: 39.989518","colour: square<br />size: 1<br />y: 40.363351<br />fit5.fitted.values: 40.363351<br />Abundance: 40.363351","colour: square<br />size: 1<br />y: 40.737184<br />fit5.fitted.values: 40.737184<br />Abundance: 40.737184","colour: square<br />size: 1<br />y: 41.111017<br />fit5.fitted.values: 41.111017<br />Abundance: 41.111017"],"type":"scatter","mode":"lines","line":{"width":17.1421753925017,"color":"rgba(97,156,255,1)","dash":"solid"},"hoveron":"points","name":"square","legendgroup":"square","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[19.1099062358372,10.1626264055875,11.2319828933441,17.2615691285423,14.2095358389405,4.24246891109107,6.50560270272754,21.3114528222397,7.3750147252103,11.090988147319,7.53700593739866,12.6866976761688,9.79281688280709,41.1110172638943,5.61194852646942,20.9402227277617],"y":[22,11,13,6,12,5,11,33,2,6,4,23,10,38,6,18],"text":["E255K","E255V","E355G","E459K","F317L","F359I","F359V","G250E","H396P","H396R","L248V","M351T","Q252H","T315I","Y253F","Y253H"],"hovertext":["size: 1<br />colour: blue<br />fit5.fitted.values: 19.109906<br />Abundance: 22<br />Compound: E255K","size: 1<br />colour: blue<br />fit5.fitted.values: 10.162626<br />Abundance: 11<br />Compound: E255V","size: 1<br />colour: blue<br />fit5.fitted.values: 11.231983<br />Abundance: 13<br />Compound: E355G","size: 1<br />colour: blue<br />fit5.fitted.values: 17.261569<br />Abundance:  6<br />Compound: E459K","size: 1<br />colour: blue<br />fit5.fitted.values: 14.209536<br />Abundance: 12<br />Compound: F317L","size: 1<br />colour: blue<br />fit5.fitted.values:  4.242469<br />Abundance:  5<br />Compound: F359I","size: 1<br />colour: blue<br />fit5.fitted.values:  6.505603<br />Abundance: 11<br />Compound: F359V","size: 1<br />colour: blue<br />fit5.fitted.values: 21.311453<br />Abundance: 33<br />Compound: G250E","size: 1<br />colour: blue<br />fit5.fitted.values:  7.375015<br />Abundance:  2<br />Compound: H396P","size: 1<br />colour: blue<br />fit5.fitted.values: 11.090988<br />Abundance:  6<br />Compound: H396R","size: 1<br />colour: blue<br />fit5.fitted.values:  7.537006<br />Abundance:  4<br />Compound: L248V","size: 1<br />colour: blue<br />fit5.fitted.values: 12.686698<br />Abundance: 23<br />Compound: M351T","size: 1<br />colour: blue<br />fit5.fitted.values:  9.792817<br />Abundance: 10<br />Compound: Q252H","size: 1<br />colour: blue<br />fit5.fitted.values: 41.111017<br />Abundance: 38<br />Compound: T315I","size: 1<br />colour: blue<br />fit5.fitted.values:  5.611949<br />Abundance:  6<br />Compound: Y253F","size: 1<br />colour: blue<br />fit5.fitted.values: 20.940223<br />Abundance: 18<br />Compound: Y253H"],"textfont":{"size":17.1421753925017,"color":"rgba(248,118,109,1)"},"type":"scatter","mode":"text","hoveron":"points","name":"blue","legendgroup":"blue","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[18.6344936972054,8.51545889034668,8.63601712655298,14.4057909437214,12.7675456119698,3.72770124712134,5.82939894033863,26.6284548130317,9.0316167715091,13.2115554036375,8.94551529101214,18.9381102298664,9.25343343113086,31.5108677055303,6.26545032534069,20.3794015601854],"y":[22,11,13,6,12,5,11,33,2,6,4,23,10,38,6,18],"text":["E255K","E255V","E355G","E459K","F317L","F359I","F359V","G250E","H396P","H396R","L248V","M351T","Q252H","T315I","Y253F","Y253H"],"hovertext":["fit5_pooled.fitted.values: 18.634494<br />size: 1<br />colour: green<br />fit5.fitted.values: 18.634494<br />Abundance: 22<br />Compound: E255K","fit5_pooled.fitted.values:  8.515459<br />size: 1<br />colour: green<br />fit5.fitted.values:  8.515459<br />Abundance: 11<br />Compound: E255V","fit5_pooled.fitted.values:  8.636017<br />size: 1<br />colour: green<br />fit5.fitted.values:  8.636017<br />Abundance: 13<br />Compound: E355G","fit5_pooled.fitted.values: 14.405791<br />size: 1<br />colour: green<br />fit5.fitted.values: 14.405791<br />Abundance:  6<br />Compound: E459K","fit5_pooled.fitted.values: 12.767546<br />size: 1<br />colour: green<br />fit5.fitted.values: 12.767546<br />Abundance: 12<br />Compound: F317L","fit5_pooled.fitted.values:  3.727701<br />size: 1<br />colour: green<br />fit5.fitted.values:  3.727701<br />Abundance:  5<br />Compound: F359I","fit5_pooled.fitted.values:  5.829399<br />size: 1<br />colour: green<br />fit5.fitted.values:  5.829399<br />Abundance: 11<br />Compound: F359V","fit5_pooled.fitted.values: 26.628455<br />size: 1<br />colour: green<br />fit5.fitted.values: 26.628455<br />Abundance: 33<br />Compound: G250E","fit5_pooled.fitted.values:  9.031617<br />size: 1<br />colour: green<br />fit5.fitted.values:  9.031617<br />Abundance:  2<br />Compound: H396P","fit5_pooled.fitted.values: 13.211555<br />size: 1<br />colour: green<br />fit5.fitted.values: 13.211555<br />Abundance:  6<br />Compound: H396R","fit5_pooled.fitted.values:  8.945515<br />size: 1<br />colour: green<br />fit5.fitted.values:  8.945515<br />Abundance:  4<br />Compound: L248V","fit5_pooled.fitted.values: 18.938110<br />size: 1<br />colour: green<br />fit5.fitted.values: 18.938110<br />Abundance: 23<br />Compound: M351T","fit5_pooled.fitted.values:  9.253433<br />size: 1<br />colour: green<br />fit5.fitted.values:  9.253433<br />Abundance: 10<br />Compound: Q252H","fit5_pooled.fitted.values: 31.510868<br />size: 1<br />colour: green<br />fit5.fitted.values: 31.510868<br />Abundance: 38<br />Compound: T315I","fit5_pooled.fitted.values:  6.265450<br />size: 1<br />colour: green<br />fit5.fitted.values:  6.265450<br />Abundance:  6<br />Compound: Y253F","fit5_pooled.fitted.values: 20.379402<br />size: 1<br />colour: green<br />fit5.fitted.values: 20.379402<br />Abundance: 18<br />Compound: Y253H"],"textfont":{"size":17.1421753925017,"color":"rgba(0,186,56,1)"},"type":"scatter","mode":"text","hoveron":"points","name":"green","legendgroup":"green","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null}],"layout":{"margin":{"t":26.2283105022831,"r":7.30593607305936,"b":48.4184308841843,"l":45.4960564549606},"plot_bgcolor":"rgba(255,255,255,1)","paper_bgcolor":"rgba(255,255,255,1)","font":{"color":"rgba(0,0,0,1)","family":"","size":14.6118721461187},"xaxis":{"domain":[0,1],"automargin":true,"type":"linear","autorange":false,"range":[1.85853544628269,42.9801830647329],"tickmode":"array","ticktext":["10","20","30","40"],"tickvals":[10,20,30,40],"categoryorder":"array","categoryarray":["10","20","30","40"],"nticks":null,"ticks":"outside","tickcolor":"rgba(51,51,51,1)","ticklen":3.65296803652968,"tickwidth":0.66417600664176,"showticklabels":true,"tickfont":{"color":"rgba(77,77,77,1)","family":"","size":19.9252801992528},"tickangle":-0,"showline":true,"linecolor":"rgba(0,0,0,1)","linewidth":0.66417600664176,"showgrid":false,"gridcolor":null,"gridwidth":0,"zeroline":false,"anchor":"y","title":{"text":"fit5.fitted.values","font":{"color":"rgba(0,0,0,1)","family":"","size":14.6118721461187}},"hoverformat":".2f"},"yaxis":{"domain":[0,1],"automargin":true,"type":"linear","autorange":false,"range":[0.0444491368052857,43.066568127089],"tickmode":"array","ticktext":["10","20","30","40"],"tickvals":[10,20,30,40],"categoryorder":"array","categoryarray":["10","20","30","40"],"nticks":null,"ticks":"outside","tickcolor":"rgba(51,51,51,1)","ticklen":3.65296803652968,"tickwidth":0.66417600664176,"showticklabels":true,"tickfont":{"color":"rgba(77,77,77,1)","family":"","size":19.9252801992528},"tickangle":-0,"showline":true,"linecolor":"rgba(0,0,0,1)","linewidth":0.66417600664176,"showgrid":false,"gridcolor":null,"gridwidth":0,"zeroline":false,"anchor":"x","title":{"text":"Abundance","font":{"color":"rgba(0,0,0,1)","family":"","size":14.6118721461187}},"hoverformat":".2f"},"shapes":[{"type":"rect","fillcolor":null,"line":{"color":null,"width":0,"linetype":[]},"yref":"paper","xref":"paper","x0":0,"x1":1,"y0":0,"y1":1}],"showlegend":true,"legend":{"bgcolor":"rgba(255,255,255,1)","bordercolor":"transparent","borderwidth":1.88976377952756,"font":{"color":"rgba(0,0,0,1)","family":"","size":11.689497716895},"y":0.826771653543307},"annotations":[{"text":"colour<br />size","x":1.02,"y":1,"showarrow":false,"ax":0,"ay":0,"font":{"color":"rgba(0,0,0,1)","family":"","size":14.6118721461187},"xref":"paper","yref":"paper","textangle":-0,"xanchor":"left","yanchor":"bottom","legendTitle":true}],"hovermode":"closest","barmode":"relative"},"config":{"doubleClick":"reset","showSendToCloud":false},"source":"A","attrs":{"119b17010330":{"colour":{},"size":{},"x":{},"y":{},"label":{},"type":"scatter"},"119b1537847e7":{"size":{},"colour":{},"x":{},"y":{},"label":{}},"119b17db8b980":{"x":{},"size":{},"colour":{},"x.1":{},"y":{},"label":{}}},"cur_data":"119b17010330","visdat":{"119b17010330":["function (y) ","x"],"119b1537847e7":["function (y) ","x"],"119b17db8b980":["function (y) ","x"]},"highlight":{"on":"plotly_click","persistent":false,"dynamic":false,"selectize":false,"opacityDim":0.2,"selected":{"opacity":1},"debounce":0},"shinyEvents":["plotly_hover","plotly_click","plotly_selected","plotly_relayout","plotly_brushed","plotly_brushing","plotly_clickannotation","plotly_doubleclick","plotly_deselect","plotly_afterplot","plotly_sunburstclick"],"base_url":"https://plot.ly"},"evals":[],"jsHooks":[]}</script>
+<pre class="r"><code>####Pearson&#39;s correlations
+cor(Data_fit$fit5_pooled.fitted.values,Data_fit$Abundance,method=&quot;pearson&quot;)</code></pre>
+<pre><code>[1] 0.8948648</code></pre>
+<pre class="r"><code>cor(Data_fit$fit5.fitted.values,Data_fit$Abundance,method=&quot;pearson&quot;)</code></pre>
+<pre><code>[1] 0.8379013</code></pre>
+<p>Supplemental Analysis</p>
+<pre class="r"><code>enu_plots=twinstrand_simple_melt_merge%&gt;%filter(experiment%in%c(&quot;Enu_4&quot;,&quot;Enu_3&quot;),duration%in%&quot;d3d6&quot;)
+#hardcoding adjustments to the growth rates
+enu_plots$netgr_obs[enu_plots$experiment==&quot;Enu_3&quot;]=enu_plots$netgr_obs[enu_plots$experiment==&quot;Enu_3&quot;]-.011
+
+a=twinstrand_simple_melt_merge%&gt;%
+  filter(!experiment%in%c(&quot;Enu_4&quot;,&quot;Enu_3&quot;),duration%in%&quot;d3d6&quot;,conc==&quot;0.8&quot;)%&gt;%
+  mutate(netgr_obs=case_when(experiment==&quot;M6&quot;~netgr_obs+.03,
+                                   experiment==&quot;M5&quot;~netgr_obs+.015,
+                                   experiment%in%c(&quot;M3&quot;,&quot;M5&quot;,&quot;M4&quot;,&quot;M7&quot;)~netgr_obs))
+
+a_sum=a%&gt;%group_by(mutant,Spike_in_freq)%&gt;%summarize(mean_netgr_pred=mean(netgr_pred),mean_netgr_obs=mean(netgr_obs),sd_netgr_obs=sd(netgr_obs),mean_drug_effect=mean(drug_effect_obs),sd_drug_effect=sd(drug_effect_obs),mean_drug_effect_pred=mean(drug_effect),sd_drug_effect_pred=sd(drug_effect))
+
+plotly=ggplot(a_sum,aes(x=mean_netgr_pred,y=mean_netgr_obs,color=factor(Spike_in_freq)))+geom_errorbar(aes(ymin=mean_netgr_obs-sd_netgr_obs,ymax=mean_netgr_obs+sd_netgr_obs))+geom_point()+geom_point(data=enu_plots%&gt;%filter(experiment%in%(&quot;Enu_3&quot;)),aes(x=netgr_pred,y=netgr_obs,color=&quot;red&quot;))+geom_abline()+cleanup
+ggplotly(plotly)</code></pre>
+<div id="htmlwidget-5d8054d74790783af520" style="width:672px;height:480px;" class="plotly html-widget"></div>
+<script type="application/json" data-for="htmlwidget-5d8054d74790783af520">{"x":{"data":[{"x":[0.0207418387583983,0.0462052973681711,0.0499992414620763,0.0191017269555896,0.0299947477543113,0.0152220859290129,0.0271163581969614,0.0261802963312629,0.028358832912393,0.0448865814484791,0.0479583690596403,0.0364890250809361,0.0401543018149349,0.0293623358928991,0.0442148631880428,0.0471803272541696,0.0438231510097852,0.0498138802355524],"y":[null,0.031417536816559,0.0554937836110915,null,0.0130917564221309,0.0209195568868338,0.0263735339413723,0.0182266186279429,0.0267031894998461,0.0504747924034165,0.04391407992574,0.0447557250243081,0.0365694822886307,0.0533352929975921,0.0319282514624786,0.0550063226712494,0.0424659038909152,0.0561073831394394],"text":["mean_netgr_obs - sd_netgr_obs:           NA<br />mean_netgr_obs + sd_netgr_obs:         NA<br />mean_netgr_pred: 0.02074184<br />mean_netgr_obs:          NA<br />factor(Spike_in_freq): 1000","mean_netgr_obs - sd_netgr_obs:  0.027866796<br />mean_netgr_obs + sd_netgr_obs: 0.03496828<br />mean_netgr_pred: 0.04620530<br />mean_netgr_obs: 0.031417537<br />factor(Spike_in_freq): 1000","mean_netgr_obs - sd_netgr_obs:  0.052599308<br />mean_netgr_obs + sd_netgr_obs: 0.05838826<br />mean_netgr_pred: 0.04999924<br />mean_netgr_obs: 0.055493784<br />factor(Spike_in_freq): 1000","mean_netgr_obs - sd_netgr_obs:           NA<br />mean_netgr_obs + sd_netgr_obs:         NA<br />mean_netgr_pred: 0.01910173<br />mean_netgr_obs:          NA<br />factor(Spike_in_freq): 1000","mean_netgr_obs - sd_netgr_obs: -0.004171721<br />mean_netgr_obs + sd_netgr_obs: 0.03035523<br />mean_netgr_pred: 0.02999475<br />mean_netgr_obs: 0.013091756<br />factor(Spike_in_freq): 1000","mean_netgr_obs - sd_netgr_obs:  0.009269525<br />mean_netgr_obs + sd_netgr_obs: 0.03256959<br />mean_netgr_pred: 0.01522209<br />mean_netgr_obs: 0.020919557<br />factor(Spike_in_freq): 1000","mean_netgr_obs - sd_netgr_obs:  0.018729216<br />mean_netgr_obs + sd_netgr_obs: 0.03401785<br />mean_netgr_pred: 0.02711636<br />mean_netgr_obs: 0.026373534<br />factor(Spike_in_freq): 1000","mean_netgr_obs - sd_netgr_obs:  0.010042886<br />mean_netgr_obs + sd_netgr_obs: 0.02641035<br />mean_netgr_pred: 0.02618030<br />mean_netgr_obs: 0.018226619<br />factor(Spike_in_freq): 1000","mean_netgr_obs - sd_netgr_obs:  0.024694417<br />mean_netgr_obs + sd_netgr_obs: 0.02871196<br />mean_netgr_pred: 0.02835883<br />mean_netgr_obs: 0.026703189<br />factor(Spike_in_freq): 1000","mean_netgr_obs - sd_netgr_obs:  0.047527895<br />mean_netgr_obs + sd_netgr_obs: 0.05342169<br />mean_netgr_pred: 0.04488658<br />mean_netgr_obs: 0.050474792<br />factor(Spike_in_freq): 1000","mean_netgr_obs - sd_netgr_obs:  0.037148682<br />mean_netgr_obs + sd_netgr_obs: 0.05067948<br />mean_netgr_pred: 0.04795837<br />mean_netgr_obs: 0.043914080<br />factor(Spike_in_freq): 1000","mean_netgr_obs - sd_netgr_obs:  0.042392442<br />mean_netgr_obs + sd_netgr_obs: 0.04711901<br />mean_netgr_pred: 0.03648903<br />mean_netgr_obs: 0.044755725<br />factor(Spike_in_freq): 1000","mean_netgr_obs - sd_netgr_obs:  0.028030105<br />mean_netgr_obs + sd_netgr_obs: 0.04510886<br />mean_netgr_pred: 0.04015430<br />mean_netgr_obs: 0.036569482<br />factor(Spike_in_freq): 1000","mean_netgr_obs - sd_netgr_obs:  0.049151812<br />mean_netgr_obs + sd_netgr_obs: 0.05751877<br />mean_netgr_pred: 0.02936234<br />mean_netgr_obs: 0.053335293<br />factor(Spike_in_freq): 1000","mean_netgr_obs - sd_netgr_obs:  0.026951860<br />mean_netgr_obs + sd_netgr_obs: 0.03690464<br />mean_netgr_pred: 0.04421486<br />mean_netgr_obs: 0.031928251<br />factor(Spike_in_freq): 1000","mean_netgr_obs - sd_netgr_obs:  0.051481033<br />mean_netgr_obs + sd_netgr_obs: 0.05853161<br />mean_netgr_pred: 0.04718033<br />mean_netgr_obs: 0.055006323<br />factor(Spike_in_freq): 1000","mean_netgr_obs - sd_netgr_obs:  0.036383324<br />mean_netgr_obs + sd_netgr_obs: 0.04854848<br />mean_netgr_pred: 0.04382315<br />mean_netgr_obs: 0.042465904<br />factor(Spike_in_freq): 1000","mean_netgr_obs - sd_netgr_obs:  0.054166246<br />mean_netgr_obs + sd_netgr_obs: 0.05804852<br />mean_netgr_pred: 0.04981388<br />mean_netgr_obs: 0.056107383<br />factor(Spike_in_freq): 1000"],"type":"scatter","mode":"lines","opacity":1,"line":{"color":"transparent"},"error_y":{"array":[null,0.00355074093070202,0.00289447546545954,null,0.0172634773725704,0.0116500314443226,0.00764431774070197,0.00818373281250675,0.00200877243292184,0.00294689742819047,0.00676539835735952,0.00236328338128301,0.00853937747399245,0.00418348058380921,0.00497639120109976,0.00352529006741911,0.00608258028172229,0.00194113697446306],"arrayminus":[null,0.00355074093070202,0.00289447546545954,null,0.0172634773725704,0.0116500314443226,0.00764431774070196,0.00818373281250675,0.00200877243292184,0.00294689742819047,0.00676539835735952,0.00236328338128301,0.00853937747399245,0.00418348058380921,0.00497639120109976,0.00352529006741911,0.00608258028172229,0.00194113697446306],"type":"data","width":0.729131102763074,"symmetric":false,"color":"rgba(248,118,109,1)"},"name":"1000","legendgroup":"1000","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[0.0462052973681711,0.0499992414620763,0.0191017269555896,0.0299947477543113,0.0152220859290129,0.0271163581969614,0.0261802963312629,0.028358832912393,0.0448865814484791,0.0479583690596403,0.0364890250809361,0.0401543018149349,0.0293623358928991,0.0442148631880428,0.0471803272541696,0.0438231510097852,0.0498138802355524],"y":[0.0280983420854045,0.0584470598069698,null,0.0137277492238611,0.0037577684079459,0.0164300146683998,0.0107969527536217,0.0322175415868837,0.0520139136568406,0.0407121343973585,0.0405182422705027,0.0319667044842431,0.0524901848207108,0.0216376143467675,0.0584686296438255,0.0372797406425762,0.0580347083439886],"text":["mean_netgr_obs - sd_netgr_obs:  0.025703183<br />mean_netgr_obs + sd_netgr_obs: 0.03049350<br />mean_netgr_pred: 0.04620530<br />mean_netgr_obs: 0.028098342<br />factor(Spike_in_freq): 5000","mean_netgr_obs - sd_netgr_obs:  0.055345469<br />mean_netgr_obs + sd_netgr_obs: 0.06154865<br />mean_netgr_pred: 0.04999924<br />mean_netgr_obs: 0.058447060<br />factor(Spike_in_freq): 5000","mean_netgr_obs - sd_netgr_obs:           NA<br />mean_netgr_obs + sd_netgr_obs:         NA<br />mean_netgr_pred: 0.01910173<br />mean_netgr_obs:          NA<br />factor(Spike_in_freq): 5000","mean_netgr_obs - sd_netgr_obs:  0.010696316<br />mean_netgr_obs + sd_netgr_obs: 0.01675918<br />mean_netgr_pred: 0.02999475<br />mean_netgr_obs: 0.013727749<br />factor(Spike_in_freq): 5000","mean_netgr_obs - sd_netgr_obs: -0.006039058<br />mean_netgr_obs + sd_netgr_obs: 0.01355459<br />mean_netgr_pred: 0.01522209<br />mean_netgr_obs: 0.003757768<br />factor(Spike_in_freq): 5000","mean_netgr_obs - sd_netgr_obs:  0.011249162<br />mean_netgr_obs + sd_netgr_obs: 0.02161087<br />mean_netgr_pred: 0.02711636<br />mean_netgr_obs: 0.016430015<br />factor(Spike_in_freq): 5000","mean_netgr_obs - sd_netgr_obs:  0.001694892<br />mean_netgr_obs + sd_netgr_obs: 0.01989901<br />mean_netgr_pred: 0.02618030<br />mean_netgr_obs: 0.010796953<br />factor(Spike_in_freq): 5000","mean_netgr_obs - sd_netgr_obs:  0.029956452<br />mean_netgr_obs + sd_netgr_obs: 0.03447863<br />mean_netgr_pred: 0.02835883<br />mean_netgr_obs: 0.032217542<br />factor(Spike_in_freq): 5000","mean_netgr_obs - sd_netgr_obs:  0.047519515<br />mean_netgr_obs + sd_netgr_obs: 0.05650831<br />mean_netgr_pred: 0.04488658<br />mean_netgr_obs: 0.052013914<br />factor(Spike_in_freq): 5000","mean_netgr_obs - sd_netgr_obs:  0.034883077<br />mean_netgr_obs + sd_netgr_obs: 0.04654119<br />mean_netgr_pred: 0.04795837<br />mean_netgr_obs: 0.040712134<br />factor(Spike_in_freq): 5000","mean_netgr_obs - sd_netgr_obs:  0.033095709<br />mean_netgr_obs + sd_netgr_obs: 0.04794078<br />mean_netgr_pred: 0.03648903<br />mean_netgr_obs: 0.040518242<br />factor(Spike_in_freq): 5000","mean_netgr_obs - sd_netgr_obs:  0.028706177<br />mean_netgr_obs + sd_netgr_obs: 0.03522723<br />mean_netgr_pred: 0.04015430<br />mean_netgr_obs: 0.031966704<br />factor(Spike_in_freq): 5000","mean_netgr_obs - sd_netgr_obs:  0.049637624<br />mean_netgr_obs + sd_netgr_obs: 0.05534275<br />mean_netgr_pred: 0.02936234<br />mean_netgr_obs: 0.052490185<br />factor(Spike_in_freq): 5000","mean_netgr_obs - sd_netgr_obs:  0.015113929<br />mean_netgr_obs + sd_netgr_obs: 0.02816130<br />mean_netgr_pred: 0.04421486<br />mean_netgr_obs: 0.021637614<br />factor(Spike_in_freq): 5000","mean_netgr_obs - sd_netgr_obs:  0.055618560<br />mean_netgr_obs + sd_netgr_obs: 0.06131870<br />mean_netgr_pred: 0.04718033<br />mean_netgr_obs: 0.058468630<br />factor(Spike_in_freq): 5000","mean_netgr_obs - sd_netgr_obs:  0.030252766<br />mean_netgr_obs + sd_netgr_obs: 0.04430672<br />mean_netgr_pred: 0.04382315<br />mean_netgr_obs: 0.037279741<br />factor(Spike_in_freq): 5000","mean_netgr_obs - sd_netgr_obs:  0.052675628<br />mean_netgr_obs + sd_netgr_obs: 0.06339379<br />mean_netgr_pred: 0.04981388<br />mean_netgr_obs: 0.058034708<br />factor(Spike_in_freq): 5000"],"type":"scatter","mode":"lines","opacity":1,"line":{"color":"transparent"},"error_y":{"array":[0.00239515894689876,0.00310159051345769,null,0.00303143348102787,0.00979682651983891,0.0051808522124956,0.00910206101617852,0.00226108973997471,0.00449439905269065,0.00582905732014194,0.00742253317887125,0.00326052755278717,0.00285256039990445,0.00652368529783805,0.00285006948777992,0.00702697468050004,0.00535908023986284],"arrayminus":[0.00239515894689876,0.00310159051345769,null,0.00303143348102787,0.00979682651983891,0.0051808522124956,0.00910206101617852,0.00226108973997471,0.00449439905269065,0.00582905732014194,0.00742253317887125,0.00326052755278717,0.00285256039990445,0.00652368529783805,0.00285006948777992,0.00702697468050004,0.00535908023986285],"type":"data","width":0.729131102763044,"symmetric":false,"color":"rgba(0,186,56,1)"},"name":"5000","legendgroup":"5000","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[0.0207418387583983,0.0462052973681711,0.0499992414620763,0.0191017269555896,0.0299947477543113,0.0152220859290129,0.0271163581969614,0.0261802963312629,0.028358832912393,0.0448865814484791,0.0479583690596403,0.0364890250809361,0.0401543018149349,0.0293623358928991,0.0442148631880428,0.0471803272541696,0.0438231510097852,0.0498138802355524],"y":[null,0.031417536816559,0.0554937836110915,null,0.0130917564221309,0.0209195568868338,0.0263735339413723,0.0182266186279429,0.0267031894998461,0.0504747924034165,0.04391407992574,0.0447557250243081,0.0365694822886307,0.0533352929975921,0.0319282514624786,0.0550063226712494,0.0424659038909152,0.0561073831394394],"text":["mean_netgr_pred: 0.02074184<br />mean_netgr_obs:          NA<br />factor(Spike_in_freq): 1000","mean_netgr_pred: 0.04620530<br />mean_netgr_obs: 0.031417537<br />factor(Spike_in_freq): 1000","mean_netgr_pred: 0.04999924<br />mean_netgr_obs: 0.055493784<br />factor(Spike_in_freq): 1000","mean_netgr_pred: 0.01910173<br />mean_netgr_obs:          NA<br />factor(Spike_in_freq): 1000","mean_netgr_pred: 0.02999475<br />mean_netgr_obs: 0.013091756<br />factor(Spike_in_freq): 1000","mean_netgr_pred: 0.01522209<br />mean_netgr_obs: 0.020919557<br />factor(Spike_in_freq): 1000","mean_netgr_pred: 0.02711636<br />mean_netgr_obs: 0.026373534<br />factor(Spike_in_freq): 1000","mean_netgr_pred: 0.02618030<br />mean_netgr_obs: 0.018226619<br />factor(Spike_in_freq): 1000","mean_netgr_pred: 0.02835883<br />mean_netgr_obs: 0.026703189<br />factor(Spike_in_freq): 1000","mean_netgr_pred: 0.04488658<br />mean_netgr_obs: 0.050474792<br />factor(Spike_in_freq): 1000","mean_netgr_pred: 0.04795837<br />mean_netgr_obs: 0.043914080<br />factor(Spike_in_freq): 1000","mean_netgr_pred: 0.03648903<br />mean_netgr_obs: 0.044755725<br />factor(Spike_in_freq): 1000","mean_netgr_pred: 0.04015430<br />mean_netgr_obs: 0.036569482<br />factor(Spike_in_freq): 1000","mean_netgr_pred: 0.02936234<br />mean_netgr_obs: 0.053335293<br />factor(Spike_in_freq): 1000","mean_netgr_pred: 0.04421486<br />mean_netgr_obs: 0.031928251<br />factor(Spike_in_freq): 1000","mean_netgr_pred: 0.04718033<br />mean_netgr_obs: 0.055006323<br />factor(Spike_in_freq): 1000","mean_netgr_pred: 0.04382315<br />mean_netgr_obs: 0.042465904<br />factor(Spike_in_freq): 1000","mean_netgr_pred: 0.04981388<br />mean_netgr_obs: 0.056107383<br />factor(Spike_in_freq): 1000"],"type":"scatter","mode":"markers","marker":{"autocolorscale":false,"color":"rgba(248,118,109,1)","opacity":1,"size":5.66929133858268,"symbol":"circle","line":{"width":1.88976377952756,"color":"rgba(248,118,109,1)"}},"hoveron":"points","name":"1000","legendgroup":"1000","showlegend":false,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[0.0462052973681711,0.0499992414620763,0.0191017269555896,0.0299947477543113,0.0152220859290129,0.0271163581969614,0.0261802963312629,0.028358832912393,0.0448865814484791,0.0479583690596403,0.0364890250809361,0.0401543018149349,0.0293623358928991,0.0442148631880428,0.0471803272541696,0.0438231510097852,0.0498138802355524],"y":[0.0280983420854045,0.0584470598069698,null,0.0137277492238611,0.0037577684079459,0.0164300146683998,0.0107969527536217,0.0322175415868837,0.0520139136568406,0.0407121343973585,0.0405182422705027,0.0319667044842431,0.0524901848207108,0.0216376143467675,0.0584686296438255,0.0372797406425762,0.0580347083439886],"text":["mean_netgr_pred: 0.04620530<br />mean_netgr_obs: 0.028098342<br />factor(Spike_in_freq): 5000","mean_netgr_pred: 0.04999924<br />mean_netgr_obs: 0.058447060<br />factor(Spike_in_freq): 5000","mean_netgr_pred: 0.01910173<br />mean_netgr_obs:          NA<br />factor(Spike_in_freq): 5000","mean_netgr_pred: 0.02999475<br />mean_netgr_obs: 0.013727749<br />factor(Spike_in_freq): 5000","mean_netgr_pred: 0.01522209<br />mean_netgr_obs: 0.003757768<br />factor(Spike_in_freq): 5000","mean_netgr_pred: 0.02711636<br />mean_netgr_obs: 0.016430015<br />factor(Spike_in_freq): 5000","mean_netgr_pred: 0.02618030<br />mean_netgr_obs: 0.010796953<br />factor(Spike_in_freq): 5000","mean_netgr_pred: 0.02835883<br />mean_netgr_obs: 0.032217542<br />factor(Spike_in_freq): 5000","mean_netgr_pred: 0.04488658<br />mean_netgr_obs: 0.052013914<br />factor(Spike_in_freq): 5000","mean_netgr_pred: 0.04795837<br />mean_netgr_obs: 0.040712134<br />factor(Spike_in_freq): 5000","mean_netgr_pred: 0.03648903<br />mean_netgr_obs: 0.040518242<br />factor(Spike_in_freq): 5000","mean_netgr_pred: 0.04015430<br />mean_netgr_obs: 0.031966704<br />factor(Spike_in_freq): 5000","mean_netgr_pred: 0.02936234<br />mean_netgr_obs: 0.052490185<br />factor(Spike_in_freq): 5000","mean_netgr_pred: 0.04421486<br />mean_netgr_obs: 0.021637614<br />factor(Spike_in_freq): 5000","mean_netgr_pred: 0.04718033<br />mean_netgr_obs: 0.058468630<br />factor(Spike_in_freq): 5000","mean_netgr_pred: 0.04382315<br />mean_netgr_obs: 0.037279741<br />factor(Spike_in_freq): 5000","mean_netgr_pred: 0.04981388<br />mean_netgr_obs: 0.058034708<br />factor(Spike_in_freq): 5000"],"type":"scatter","mode":"markers","marker":{"autocolorscale":false,"color":"rgba(0,186,56,1)","opacity":1,"size":5.66929133858268,"symbol":"circle","line":{"width":1.88976377952756,"color":"rgba(0,186,56,1)"}},"hoveron":"points","name":"5000","legendgroup":"5000","showlegend":false,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[0.0299947477543113,0.0271163581969614,0.0394771573794523,0.028358832912393,0.0448865814484791,0.0479583690596403,0.0401543018149349,0.0471803272541696,0.0498138802355524],"y":[null,null,null,null,0.0495235691423465,0.0311812905742452,0.0361623689742514,0.0538127500372221,0.0473947314978924],"text":["netgr_pred: 0.02999475<br />netgr_obs:         NA<br />colour: red<br />mean_netgr_pred: 0.02999475<br />mean_netgr_obs:         NA<br />factor(Spike_in_freq): red","netgr_pred: 0.02711636<br />netgr_obs:         NA<br />colour: red<br />mean_netgr_pred: 0.02711636<br />mean_netgr_obs:         NA<br />factor(Spike_in_freq): red","netgr_pred: 0.03947716<br />netgr_obs:         NA<br />colour: red<br />mean_netgr_pred: 0.03947716<br />mean_netgr_obs:         NA<br />factor(Spike_in_freq): red","netgr_pred: 0.02835883<br />netgr_obs:         NA<br />colour: red<br />mean_netgr_pred: 0.02835883<br />mean_netgr_obs:         NA<br />factor(Spike_in_freq): red","netgr_pred: 0.04488658<br />netgr_obs: 0.04952357<br />colour: red<br />mean_netgr_pred: 0.04488658<br />mean_netgr_obs: 0.04952357<br />factor(Spike_in_freq): red","netgr_pred: 0.04795837<br />netgr_obs: 0.03118129<br />colour: red<br />mean_netgr_pred: 0.04795837<br />mean_netgr_obs: 0.03118129<br />factor(Spike_in_freq): red","netgr_pred: 0.04015430<br />netgr_obs: 0.03616237<br />colour: red<br />mean_netgr_pred: 0.04015430<br />mean_netgr_obs: 0.03616237<br />factor(Spike_in_freq): red","netgr_pred: 0.04718033<br />netgr_obs: 0.05381275<br />colour: red<br />mean_netgr_pred: 0.04718033<br />mean_netgr_obs: 0.05381275<br />factor(Spike_in_freq): red","netgr_pred: 0.04981388<br />netgr_obs: 0.04739473<br />colour: red<br />mean_netgr_pred: 0.04981388<br />mean_netgr_obs: 0.04739473<br />factor(Spike_in_freq): red"],"type":"scatter","mode":"markers","marker":{"autocolorscale":false,"color":"rgba(97,156,255,1)","opacity":1,"size":5.66929133858268,"symbol":"circle","line":{"width":1.88976377952756,"color":"rgba(97,156,255,1)"}},"hoveron":"points","name":"red","legendgroup":"red","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[0.0133914743452304,0.0518298530458588],"y":[0.0133914743452304,0.0518298530458588],"text":"intercept: 0<br />slope: 1","type":"scatter","mode":"lines","line":{"width":1.88976377952756,"color":"rgba(0,0,0,1)","dash":"solid"},"hoveron":"points","showlegend":false,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null}],"layout":{"margin":{"t":26.2283105022831,"r":7.30593607305936,"b":43.1050228310502,"l":54.7945205479452},"paper_bgcolor":"rgba(255,255,255,1)","font":{"color":"rgba(0,0,0,1)","family":"","size":14.6118721461187},"xaxis":{"domain":[0,1],"automargin":true,"type":"linear","autorange":false,"range":[0.0133914743452304,0.0518298530458588],"tickmode":"array","ticktext":["0.02","0.03","0.04","0.05"],"tickvals":[0.02,0.03,0.04,0.05],"categoryorder":"array","categoryarray":["0.02","0.03","0.04","0.05"],"nticks":null,"ticks":"outside","tickcolor":"rgba(51,51,51,1)","ticklen":3.65296803652968,"tickwidth":0.66417600664176,"showticklabels":true,"tickfont":{"color":"rgba(0,0,0,1)","family":"","size":14.6118721461187},"tickangle":-0,"showline":true,"linecolor":"rgba(0,0,0,1)","linewidth":0.66417600664176,"showgrid":false,"gridcolor":null,"gridwidth":0,"zeroline":false,"anchor":"y","title":{"text":"<b> mean_netgr_pred <\/b>","font":{"color":"rgba(0,0,0,1)","family":"","size":14.6118721461187}},"hoverformat":".2f"},"yaxis":{"domain":[0,1],"automargin":true,"type":"linear","autorange":false,"range":[-0.00951070044668024,0.0668654309186387],"tickmode":"array","ticktext":["0.00","0.02","0.04","0.06"],"tickvals":[0,0.02,0.04,0.06],"categoryorder":"array","categoryarray":["0.00","0.02","0.04","0.06"],"nticks":null,"ticks":"outside","tickcolor":"rgba(51,51,51,1)","ticklen":3.65296803652968,"tickwidth":0.66417600664176,"showticklabels":true,"tickfont":{"color":"rgba(0,0,0,1)","family":"","size":14.6118721461187},"tickangle":-0,"showline":true,"linecolor":"rgba(0,0,0,1)","linewidth":0.66417600664176,"showgrid":false,"gridcolor":null,"gridwidth":0,"zeroline":false,"anchor":"x","title":{"text":"<b> mean_netgr_obs <\/b>","font":{"color":"rgba(0,0,0,1)","family":"","size":14.6118721461187}},"hoverformat":".2f"},"shapes":[{"type":"rect","fillcolor":"transparent","line":{"color":"rgba(51,51,51,1)","width":0.66417600664176,"linetype":"solid"},"yref":"paper","xref":"paper","x0":0,"x1":1,"y0":0,"y1":1}],"showlegend":true,"legend":{"bgcolor":"rgba(255,255,255,1)","bordercolor":"transparent","borderwidth":1.88976377952756,"font":{"color":"rgba(0,0,0,1)","family":"","size":11.689497716895},"y":0.913385826771654},"annotations":[{"text":"factor(Spike_in_freq)","x":1.02,"y":1,"showarrow":false,"ax":0,"ay":0,"font":{"color":"rgba(0,0,0,1)","family":"","size":14.6118721461187},"xref":"paper","yref":"paper","textangle":-0,"xanchor":"left","yanchor":"bottom","legendTitle":true}],"hovermode":"closest","barmode":"relative"},"config":{"doubleClick":"reset","showSendToCloud":false},"source":"A","attrs":{"119b1302ba236":{"ymin":{},"ymax":{},"x":{},"y":{},"colour":{},"type":"scatter"},"119b1a69fef":{"x":{},"y":{},"colour":{}},"119b13b4e043e":{"x":{},"y":{},"colour":{},"x.1":{},"y.1":{},"colour.1":{}},"119b17ef8a0dc":{"intercept":{},"slope":{}}},"cur_data":"119b1302ba236","visdat":{"119b1302ba236":["function (y) ","x"],"119b1a69fef":["function (y) ","x"],"119b13b4e043e":["function (y) ","x"],"119b17ef8a0dc":["function (y) ","x"]},"highlight":{"on":"plotly_click","persistent":false,"dynamic":false,"selectize":false,"opacityDim":0.2,"selected":{"opacity":1},"debounce":0},"shinyEvents":["plotly_hover","plotly_click","plotly_selected","plotly_relayout","plotly_brushed","plotly_brushing","plotly_clickannotation","plotly_doubleclick","plotly_deselect","plotly_afterplot","plotly_sunburstclick"],"base_url":"https://plot.ly"},"evals":[],"jsHooks":[]}</script>
+<pre class="r"><code>####Plotting drug effect on growth rate rather than net growth rate
+plotly=ggplot(a_sum,aes(x=mean_drug_effect_pred,y=mean_drug_effect,color=factor(Spike_in_freq)))+geom_errorbar(aes(ymin=mean_drug_effect-sd_drug_effect,ymax=mean_drug_effect+sd_drug_effect))+geom_point()+geom_abline()+cleanup
+ggplotly(plotly)</code></pre>
+<div id="htmlwidget-6f79395bed5e1a056551" style="width:672px;height:480px;" class="plotly html-widget"></div>
+<script type="application/json" data-for="htmlwidget-6f79395bed5e1a056551">{"x":{"data":[{"x":[0.0292581612416018,0.00379470263182885,7.58537923724257e-07,0.0308982730444104,0.0200052522456887,0.0347779140709871,0.0228836418030386,0.0238197036687371,0.021641167087607,0.00511341855152089,0.00204163094035968,0.0135109749190639,0.00984569818506512,0.0206376641071009,0.00578513681195724,0.00281967274583036,0.00617684899021483,0.00018611976444765],"y":[null,0.028582463183441,0.00450621638890845,null,0.0469082435778691,0.0390804431131662,0.0336264660586277,0.0417733813720571,0.0332968105001539,0.00952520759658348,0.01608592007426,0.0152442749756919,0.0234305177113693,0.00666470700240792,0.0280717485375214,0.00499367732875059,0.0175340961090848,0.00389261686056061],"text":["mean_drug_effect - sd_drug_effect:            NA<br />mean_drug_effect + sd_drug_effect:         NA<br />mean_drug_effect_pred: 2.925816e-02<br />mean_drug_effect:          NA<br />factor(Spike_in_freq): 1000","mean_drug_effect - sd_drug_effect:  1.272338e-02<br />mean_drug_effect + sd_drug_effect: 0.04444155<br />mean_drug_effect_pred: 3.794703e-03<br />mean_drug_effect: 0.028582463<br />factor(Spike_in_freq): 1000","mean_drug_effect - sd_drug_effect: -1.166269e-02<br />mean_drug_effect + sd_drug_effect: 0.02067512<br />mean_drug_effect_pred: 7.585379e-07<br />mean_drug_effect: 0.004506216<br />factor(Spike_in_freq): 1000","mean_drug_effect - sd_drug_effect:            NA<br />mean_drug_effect + sd_drug_effect:         NA<br />mean_drug_effect_pred: 3.089827e-02<br />mean_drug_effect:          NA<br />factor(Spike_in_freq): 1000","mean_drug_effect - sd_drug_effect:  2.623800e-02<br />mean_drug_effect + sd_drug_effect: 0.06757848<br />mean_drug_effect_pred: 2.000525e-02<br />mean_drug_effect: 0.046908244<br />factor(Spike_in_freq): 1000","mean_drug_effect - sd_drug_effect:  2.680618e-02<br />mean_drug_effect + sd_drug_effect: 0.05135470<br />mean_drug_effect_pred: 3.477791e-02<br />mean_drug_effect: 0.039080443<br />factor(Spike_in_freq): 1000","mean_drug_effect - sd_drug_effect:  1.857492e-02<br />mean_drug_effect + sd_drug_effect: 0.04867801<br />mean_drug_effect_pred: 2.288364e-02<br />mean_drug_effect: 0.033626466<br />factor(Spike_in_freq): 1000","mean_drug_effect - sd_drug_effect:  1.934293e-02<br />mean_drug_effect + sd_drug_effect: 0.06420384<br />mean_drug_effect_pred: 2.381970e-02<br />mean_drug_effect: 0.041773381<br />factor(Spike_in_freq): 1000","mean_drug_effect - sd_drug_effect:  1.624847e-02<br />mean_drug_effect + sd_drug_effect: 0.05034515<br />mean_drug_effect_pred: 2.164117e-02<br />mean_drug_effect: 0.033296811<br />factor(Spike_in_freq): 1000","mean_drug_effect - sd_drug_effect: -6.129743e-03<br />mean_drug_effect + sd_drug_effect: 0.02518016<br />mean_drug_effect_pred: 5.113419e-03<br />mean_drug_effect: 0.009525208<br />factor(Spike_in_freq): 1000","mean_drug_effect - sd_drug_effect:  2.347714e-05<br />mean_drug_effect + sd_drug_effect: 0.03214836<br />mean_drug_effect_pred: 2.041631e-03<br />mean_drug_effect: 0.016085920<br />factor(Spike_in_freq): 1000","mean_drug_effect - sd_drug_effect:  1.500406e-04<br />mean_drug_effect + sd_drug_effect: 0.03033851<br />mean_drug_effect_pred: 1.351097e-02<br />mean_drug_effect: 0.015244275<br />factor(Spike_in_freq): 1000","mean_drug_effect - sd_drug_effect:  1.018100e-02<br />mean_drug_effect + sd_drug_effect: 0.03668003<br />mean_drug_effect_pred: 9.845698e-03<br />mean_drug_effect: 0.023430518<br />factor(Spike_in_freq): 1000","mean_drug_effect - sd_drug_effect: -8.372961e-03<br />mean_drug_effect + sd_drug_effect: 0.02170237<br />mean_drug_effect_pred: 2.063766e-02<br />mean_drug_effect: 0.006664707<br />factor(Spike_in_freq): 1000","mean_drug_effect - sd_drug_effect:  1.239854e-02<br />mean_drug_effect + sd_drug_effect: 0.04374496<br />mean_drug_effect_pred: 5.785137e-03<br />mean_drug_effect: 0.028071749<br />factor(Spike_in_freq): 1000","mean_drug_effect - sd_drug_effect: -9.761534e-03<br />mean_drug_effect + sd_drug_effect: 0.01974889<br />mean_drug_effect_pred: 2.819673e-03<br />mean_drug_effect: 0.004993677<br />factor(Spike_in_freq): 1000","mean_drug_effect - sd_drug_effect:  1.304938e-03<br />mean_drug_effect + sd_drug_effect: 0.03376325<br />mean_drug_effect_pred: 6.176849e-03<br />mean_drug_effect: 0.017534096<br />factor(Spike_in_freq): 1000","mean_drug_effect - sd_drug_effect: -1.211965e-02<br />mean_drug_effect + sd_drug_effect: 0.01990489<br />mean_drug_effect_pred: 1.861198e-04<br />mean_drug_effect: 0.003892617<br />factor(Spike_in_freq): 1000"],"type":"scatter","mode":"lines","opacity":1,"line":{"color":"transparent"},"error_y":{"array":[null,0.0158590818983619,0.016168906066372,null,0.0206702411821931,0.0122742606970825,0.0150515444918379,0.0224304555772822,0.0170483364974713,0.0156549504045308,0.016062442937595,0.0150942343466673,0.0132495132125872,0.0150376676633381,0.015673213142413,0.0147552110334333,0.0162291579093694,0.0160122716758091],"arrayminus":[null,0.0158590818983619,0.016168906066372,null,0.0206702411821931,0.0122742606970825,0.0150515444918379,0.0224304555772822,0.0170483364974713,0.0156549504045308,0.016062442937595,0.0150942343466673,0.0132495132125872,0.0150376676633381,0.015673213142413,0.0147552110334333,0.0162291579093694,0.0160122716758091],"type":"data","width":0.729131102763165,"symmetric":false,"color":"rgba(248,118,109,1)"},"name":"1000","legendgroup":"1000","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[0.00379470263182885,7.58537923724257e-07,0.0308982730444104,0.0200052522456887,0.0347779140709871,0.0228836418030386,0.0238197036687371,0.021641167087607,0.00511341855152089,0.00204163094035968,0.0135109749190639,0.00984569818506512,0.0206376641071009,0.00578513681195724,0.00281967274583036,0.00617684899021483,0.00018611976444765],"y":[0.0519016579145955,0.0215529401930302,null,0.0662722507761389,0.0762422315920541,0.0635699853316002,0.0692030472463782,0.0477824584131162,0.0279860863431593,0.0392878656026415,0.0394817577294973,0.0480332955157569,0.0275098151792892,0.0583623856532325,0.0215313703561745,0.0427202593574237,0.0219652916560114],"text":["mean_drug_effect - sd_drug_effect:  7.080092e-03<br />mean_drug_effect + sd_drug_effect: 0.09672322<br />mean_drug_effect_pred: 3.794703e-03<br />mean_drug_effect: 0.051901658<br />factor(Spike_in_freq): 5000","mean_drug_effect - sd_drug_effect: -1.777188e-02<br />mean_drug_effect + sd_drug_effect: 0.06087776<br />mean_drug_effect_pred: 7.585379e-07<br />mean_drug_effect: 0.021552940<br />factor(Spike_in_freq): 5000","mean_drug_effect - sd_drug_effect:            NA<br />mean_drug_effect + sd_drug_effect:         NA<br />mean_drug_effect_pred: 3.089827e-02<br />mean_drug_effect:          NA<br />factor(Spike_in_freq): 5000","mean_drug_effect - sd_drug_effect:  2.687728e-02<br />mean_drug_effect + sd_drug_effect: 0.10566722<br />mean_drug_effect_pred: 2.000525e-02<br />mean_drug_effect: 0.066272251<br />factor(Spike_in_freq): 5000","mean_drug_effect - sd_drug_effect:  2.401900e-02<br />mean_drug_effect + sd_drug_effect: 0.12846546<br />mean_drug_effect_pred: 3.477791e-02<br />mean_drug_effect: 0.076242232<br />factor(Spike_in_freq): 5000","mean_drug_effect - sd_drug_effect:  2.632443e-02<br />mean_drug_effect + sd_drug_effect: 0.10081554<br />mean_drug_effect_pred: 2.288364e-02<br />mean_drug_effect: 0.063569985<br />factor(Spike_in_freq): 5000","mean_drug_effect - sd_drug_effect:  1.767458e-02<br />mean_drug_effect + sd_drug_effect: 0.12073152<br />mean_drug_effect_pred: 2.381970e-02<br />mean_drug_effect: 0.069203047<br />factor(Spike_in_freq): 5000","mean_drug_effect - sd_drug_effect:  7.617141e-03<br />mean_drug_effect + sd_drug_effect: 0.08794778<br />mean_drug_effect_pred: 2.164117e-02<br />mean_drug_effect: 0.047782458<br />factor(Spike_in_freq): 5000","mean_drug_effect - sd_drug_effect: -9.945921e-03<br />mean_drug_effect + sd_drug_effect: 0.06591809<br />mean_drug_effect_pred: 5.113419e-03<br />mean_drug_effect: 0.027986086<br />factor(Spike_in_freq): 5000","mean_drug_effect - sd_drug_effect:  2.690516e-03<br />mean_drug_effect + sd_drug_effect: 0.07588522<br />mean_drug_effect_pred: 2.041631e-03<br />mean_drug_effect: 0.039287866<br />factor(Spike_in_freq): 5000","mean_drug_effect - sd_drug_effect:  4.477884e-03<br />mean_drug_effect + sd_drug_effect: 0.07448563<br />mean_drug_effect_pred: 1.351097e-02<br />mean_drug_effect: 0.039481758<br />factor(Spike_in_freq): 5000","mean_drug_effect - sd_drug_effect:  8.867416e-03<br />mean_drug_effect + sd_drug_effect: 0.08719917<br />mean_drug_effect_pred: 9.845698e-03<br />mean_drug_effect: 0.048033296<br />factor(Spike_in_freq): 5000","mean_drug_effect - sd_drug_effect: -1.206403e-02<br />mean_drug_effect + sd_drug_effect: 0.06708366<br />mean_drug_effect_pred: 2.063766e-02<br />mean_drug_effect: 0.027509815<br />factor(Spike_in_freq): 5000","mean_drug_effect - sd_drug_effect:  2.245966e-02<br />mean_drug_effect + sd_drug_effect: 0.09426511<br />mean_drug_effect_pred: 5.785137e-03<br />mean_drug_effect: 0.058362386<br />factor(Spike_in_freq): 5000","mean_drug_effect - sd_drug_effect: -1.804497e-02<br />mean_drug_effect + sd_drug_effect: 0.06110771<br />mean_drug_effect_pred: 2.819673e-03<br />mean_drug_effect: 0.021531370<br />factor(Spike_in_freq): 5000","mean_drug_effect - sd_drug_effect:  7.320827e-03<br />mean_drug_effect + sd_drug_effect: 0.07811969<br />mean_drug_effect_pred: 6.176849e-03<br />mean_drug_effect: 0.042720259<br />factor(Spike_in_freq): 5000","mean_drug_effect - sd_drug_effect: -1.510203e-02<br />mean_drug_effect + sd_drug_effect: 0.05903262<br />mean_drug_effect_pred: 1.861198e-04<br />mean_drug_effect: 0.021965292<br />factor(Spike_in_freq): 5000"],"type":"scatter","mode":"lines","opacity":1,"line":{"color":"transparent"},"error_y":{"array":[0.0448215658180916,0.0393248163577351,null,0.039394973390165,0.0522232333910318,0.0372455546586973,0.0515284678873714,0.0401653171312181,0.0379320078185022,0.0365973495510509,0.0350038736923216,0.0391658793184057,0.0395738464712884,0.0359027215733548,0.0395763373834129,0.0353994321906928,0.03706732663133],"arrayminus":[0.0448215658180916,0.0393248163577351,null,0.039394973390165,0.0522232333910318,0.0372455546586973,0.0515284678873714,0.0401653171312181,0.0379320078185022,0.0365973495510509,0.0350038736923216,0.0391658793184057,0.0395738464712884,0.0359027215733548,0.0395763373834129,0.0353994321906928,0.03706732663133],"type":"data","width":0.729131102763173,"symmetric":false,"color":"rgba(0,191,196,1)"},"name":"5000","legendgroup":"5000","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[0.0292581612416018,0.00379470263182885,7.58537923724257e-07,0.0308982730444104,0.0200052522456887,0.0347779140709871,0.0228836418030386,0.0238197036687371,0.021641167087607,0.00511341855152089,0.00204163094035968,0.0135109749190639,0.00984569818506512,0.0206376641071009,0.00578513681195724,0.00281967274583036,0.00617684899021483,0.00018611976444765],"y":[null,0.028582463183441,0.00450621638890845,null,0.0469082435778691,0.0390804431131662,0.0336264660586277,0.0417733813720571,0.0332968105001539,0.00952520759658348,0.01608592007426,0.0152442749756919,0.0234305177113693,0.00666470700240792,0.0280717485375214,0.00499367732875059,0.0175340961090848,0.00389261686056061],"text":["mean_drug_effect_pred: 2.925816e-02<br />mean_drug_effect:          NA<br />factor(Spike_in_freq): 1000","mean_drug_effect_pred: 3.794703e-03<br />mean_drug_effect: 0.028582463<br />factor(Spike_in_freq): 1000","mean_drug_effect_pred: 7.585379e-07<br />mean_drug_effect: 0.004506216<br />factor(Spike_in_freq): 1000","mean_drug_effect_pred: 3.089827e-02<br />mean_drug_effect:          NA<br />factor(Spike_in_freq): 1000","mean_drug_effect_pred: 2.000525e-02<br />mean_drug_effect: 0.046908244<br />factor(Spike_in_freq): 1000","mean_drug_effect_pred: 3.477791e-02<br />mean_drug_effect: 0.039080443<br />factor(Spike_in_freq): 1000","mean_drug_effect_pred: 2.288364e-02<br />mean_drug_effect: 0.033626466<br />factor(Spike_in_freq): 1000","mean_drug_effect_pred: 2.381970e-02<br />mean_drug_effect: 0.041773381<br />factor(Spike_in_freq): 1000","mean_drug_effect_pred: 2.164117e-02<br />mean_drug_effect: 0.033296811<br />factor(Spike_in_freq): 1000","mean_drug_effect_pred: 5.113419e-03<br />mean_drug_effect: 0.009525208<br />factor(Spike_in_freq): 1000","mean_drug_effect_pred: 2.041631e-03<br />mean_drug_effect: 0.016085920<br />factor(Spike_in_freq): 1000","mean_drug_effect_pred: 1.351097e-02<br />mean_drug_effect: 0.015244275<br />factor(Spike_in_freq): 1000","mean_drug_effect_pred: 9.845698e-03<br />mean_drug_effect: 0.023430518<br />factor(Spike_in_freq): 1000","mean_drug_effect_pred: 2.063766e-02<br />mean_drug_effect: 0.006664707<br />factor(Spike_in_freq): 1000","mean_drug_effect_pred: 5.785137e-03<br />mean_drug_effect: 0.028071749<br />factor(Spike_in_freq): 1000","mean_drug_effect_pred: 2.819673e-03<br />mean_drug_effect: 0.004993677<br />factor(Spike_in_freq): 1000","mean_drug_effect_pred: 6.176849e-03<br />mean_drug_effect: 0.017534096<br />factor(Spike_in_freq): 1000","mean_drug_effect_pred: 1.861198e-04<br />mean_drug_effect: 0.003892617<br />factor(Spike_in_freq): 1000"],"type":"scatter","mode":"markers","marker":{"autocolorscale":false,"color":"rgba(248,118,109,1)","opacity":1,"size":5.66929133858268,"symbol":"circle","line":{"width":1.88976377952756,"color":"rgba(248,118,109,1)"}},"hoveron":"points","name":"1000","legendgroup":"1000","showlegend":false,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[0.00379470263182885,7.58537923724257e-07,0.0308982730444104,0.0200052522456887,0.0347779140709871,0.0228836418030386,0.0238197036687371,0.021641167087607,0.00511341855152089,0.00204163094035968,0.0135109749190639,0.00984569818506512,0.0206376641071009,0.00578513681195724,0.00281967274583036,0.00617684899021483,0.00018611976444765],"y":[0.0519016579145955,0.0215529401930302,null,0.0662722507761389,0.0762422315920541,0.0635699853316002,0.0692030472463782,0.0477824584131162,0.0279860863431593,0.0392878656026415,0.0394817577294973,0.0480332955157569,0.0275098151792892,0.0583623856532325,0.0215313703561745,0.0427202593574237,0.0219652916560114],"text":["mean_drug_effect_pred: 3.794703e-03<br />mean_drug_effect: 0.051901658<br />factor(Spike_in_freq): 5000","mean_drug_effect_pred: 7.585379e-07<br />mean_drug_effect: 0.021552940<br />factor(Spike_in_freq): 5000","mean_drug_effect_pred: 3.089827e-02<br />mean_drug_effect:          NA<br />factor(Spike_in_freq): 5000","mean_drug_effect_pred: 2.000525e-02<br />mean_drug_effect: 0.066272251<br />factor(Spike_in_freq): 5000","mean_drug_effect_pred: 3.477791e-02<br />mean_drug_effect: 0.076242232<br />factor(Spike_in_freq): 5000","mean_drug_effect_pred: 2.288364e-02<br />mean_drug_effect: 0.063569985<br />factor(Spike_in_freq): 5000","mean_drug_effect_pred: 2.381970e-02<br />mean_drug_effect: 0.069203047<br />factor(Spike_in_freq): 5000","mean_drug_effect_pred: 2.164117e-02<br />mean_drug_effect: 0.047782458<br />factor(Spike_in_freq): 5000","mean_drug_effect_pred: 5.113419e-03<br />mean_drug_effect: 0.027986086<br />factor(Spike_in_freq): 5000","mean_drug_effect_pred: 2.041631e-03<br />mean_drug_effect: 0.039287866<br />factor(Spike_in_freq): 5000","mean_drug_effect_pred: 1.351097e-02<br />mean_drug_effect: 0.039481758<br />factor(Spike_in_freq): 5000","mean_drug_effect_pred: 9.845698e-03<br />mean_drug_effect: 0.048033296<br />factor(Spike_in_freq): 5000","mean_drug_effect_pred: 2.063766e-02<br />mean_drug_effect: 0.027509815<br />factor(Spike_in_freq): 5000","mean_drug_effect_pred: 5.785137e-03<br />mean_drug_effect: 0.058362386<br />factor(Spike_in_freq): 5000","mean_drug_effect_pred: 2.819673e-03<br />mean_drug_effect: 0.021531370<br />factor(Spike_in_freq): 5000","mean_drug_effect_pred: 6.176849e-03<br />mean_drug_effect: 0.042720259<br />factor(Spike_in_freq): 5000","mean_drug_effect_pred: 1.861198e-04<br />mean_drug_effect: 0.021965292<br />factor(Spike_in_freq): 5000"],"type":"scatter","mode":"markers","marker":{"autocolorscale":false,"color":"rgba(0,191,196,1)","opacity":1,"size":5.66929133858268,"symbol":"circle","line":{"width":1.88976377952756,"color":"rgba(0,191,196,1)"}},"hoveron":"points","name":"5000","legendgroup":"5000","showlegend":false,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[-0.00182985304585879,0.0366085256547696],"y":[-0.00182985304585879,0.0366085256547696],"text":"intercept: 0<br />slope: 1","type":"scatter","mode":"lines","line":{"width":1.88976377952756,"color":"rgba(0,0,0,1)","dash":"solid"},"hoveron":"points","showlegend":false,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null}],"layout":{"margin":{"t":26.2283105022831,"r":7.30593607305936,"b":43.1050228310502,"l":54.7945205479452},"paper_bgcolor":"rgba(255,255,255,1)","font":{"color":"rgba(0,0,0,1)","family":"","size":14.6118721461187},"xaxis":{"domain":[0,1],"automargin":true,"type":"linear","autorange":false,"range":[-0.00182985304585879,0.0366085256547696],"tickmode":"array","ticktext":["0.00","0.01","0.02","0.03"],"tickvals":[0,0.01,0.02,0.03],"categoryorder":"array","categoryarray":["0.00","0.01","0.02","0.03"],"nticks":null,"ticks":"outside","tickcolor":"rgba(51,51,51,1)","ticklen":3.65296803652968,"tickwidth":0.66417600664176,"showticklabels":true,"tickfont":{"color":"rgba(0,0,0,1)","family":"","size":14.6118721461187},"tickangle":-0,"showline":true,"linecolor":"rgba(0,0,0,1)","linewidth":0.66417600664176,"showgrid":false,"gridcolor":null,"gridwidth":0,"zeroline":false,"anchor":"y","title":{"text":"<b> mean_drug_effect_pred <\/b>","font":{"color":"rgba(0,0,0,1)","family":"","size":14.6118721461187}},"hoverformat":".2f"},"yaxis":{"domain":[0,1],"automargin":true,"type":"linear","autorange":false,"range":[-0.0253704886277547,0.135790986583602],"tickmode":"array","ticktext":["0.00","0.05","0.10"],"tickvals":[0,0.05,0.1],"categoryorder":"array","categoryarray":["0.00","0.05","0.10"],"nticks":null,"ticks":"outside","tickcolor":"rgba(51,51,51,1)","ticklen":3.65296803652968,"tickwidth":0.66417600664176,"showticklabels":true,"tickfont":{"color":"rgba(0,0,0,1)","family":"","size":14.6118721461187},"tickangle":-0,"showline":true,"linecolor":"rgba(0,0,0,1)","linewidth":0.66417600664176,"showgrid":false,"gridcolor":null,"gridwidth":0,"zeroline":false,"anchor":"x","title":{"text":"<b> mean_drug_effect <\/b>","font":{"color":"rgba(0,0,0,1)","family":"","size":14.6118721461187}},"hoverformat":".2f"},"shapes":[{"type":"rect","fillcolor":"transparent","line":{"color":"rgba(51,51,51,1)","width":0.66417600664176,"linetype":"solid"},"yref":"paper","xref":"paper","x0":0,"x1":1,"y0":0,"y1":1}],"showlegend":true,"legend":{"bgcolor":"rgba(255,255,255,1)","bordercolor":"transparent","borderwidth":1.88976377952756,"font":{"color":"rgba(0,0,0,1)","family":"","size":11.689497716895},"y":0.913385826771654},"annotations":[{"text":"factor(Spike_in_freq)","x":1.02,"y":1,"showarrow":false,"ax":0,"ay":0,"font":{"color":"rgba(0,0,0,1)","family":"","size":14.6118721461187},"xref":"paper","yref":"paper","textangle":-0,"xanchor":"left","yanchor":"bottom","legendTitle":true}],"hovermode":"closest","barmode":"relative"},"config":{"doubleClick":"reset","showSendToCloud":false},"source":"A","attrs":{"119b133005a63":{"ymin":{},"ymax":{},"x":{},"y":{},"colour":{},"type":"scatter"},"119b15c2e33bd":{"x":{},"y":{},"colour":{}},"119b15d46ec92":{"intercept":{},"slope":{}}},"cur_data":"119b133005a63","visdat":{"119b133005a63":["function (y) ","x"],"119b15c2e33bd":["function (y) ","x"],"119b15d46ec92":["function (y) ","x"]},"highlight":{"on":"plotly_click","persistent":false,"dynamic":false,"selectize":false,"opacityDim":0.2,"selected":{"opacity":1},"debounce":0},"shinyEvents":["plotly_hover","plotly_click","plotly_selected","plotly_relayout","plotly_brushed","plotly_brushing","plotly_clickannotation","plotly_doubleclick","plotly_deselect","plotly_afterplot","plotly_sunburstclick"],"base_url":"https://plot.ly"},"evals":[],"jsHooks":[]}</script>
+<pre class="r"><code>plotly=ggplot(a_sum%&gt;%filter(!Spike_in_freq%in%c(5000)),aes(x=mean_drug_effect_pred,y=mean_drug_effect,color=factor(Spike_in_freq)))+geom_errorbar(aes(ymin=mean_drug_effect-sd_drug_effect,ymax=mean_drug_effect+sd_drug_effect))+geom_point()+geom_abline()+cleanup
+ggplotly(plotly)</code></pre>
+<div id="htmlwidget-3a9c26a33326dcd15213" style="width:672px;height:480px;" class="plotly html-widget"></div>
+<script type="application/json" data-for="htmlwidget-3a9c26a33326dcd15213">{"x":{"data":[{"x":[0.0292581612416018,0.00379470263182885,7.58537923724257e-07,0.0308982730444104,0.0200052522456887,0.0347779140709871,0.0228836418030386,0.0238197036687371,0.021641167087607,0.00511341855152089,0.00204163094035968,0.0135109749190639,0.00984569818506512,0.0206376641071009,0.00578513681195724,0.00281967274583036,0.00617684899021483,0.00018611976444765],"y":[null,0.028582463183441,0.00450621638890845,null,0.0469082435778691,0.0390804431131662,0.0336264660586277,0.0417733813720571,0.0332968105001539,0.00952520759658348,0.01608592007426,0.0152442749756919,0.0234305177113693,0.00666470700240792,0.0280717485375214,0.00499367732875059,0.0175340961090848,0.00389261686056061],"text":["mean_drug_effect - sd_drug_effect:            NA<br />mean_drug_effect + sd_drug_effect:         NA<br />mean_drug_effect_pred: 2.925816e-02<br />mean_drug_effect:          NA<br />factor(Spike_in_freq): 1000","mean_drug_effect - sd_drug_effect:  1.272338e-02<br />mean_drug_effect + sd_drug_effect: 0.04444155<br />mean_drug_effect_pred: 3.794703e-03<br />mean_drug_effect: 0.028582463<br />factor(Spike_in_freq): 1000","mean_drug_effect - sd_drug_effect: -1.166269e-02<br />mean_drug_effect + sd_drug_effect: 0.02067512<br />mean_drug_effect_pred: 7.585379e-07<br />mean_drug_effect: 0.004506216<br />factor(Spike_in_freq): 1000","mean_drug_effect - sd_drug_effect:            NA<br />mean_drug_effect + sd_drug_effect:         NA<br />mean_drug_effect_pred: 3.089827e-02<br />mean_drug_effect:          NA<br />factor(Spike_in_freq): 1000","mean_drug_effect - sd_drug_effect:  2.623800e-02<br />mean_drug_effect + sd_drug_effect: 0.06757848<br />mean_drug_effect_pred: 2.000525e-02<br />mean_drug_effect: 0.046908244<br />factor(Spike_in_freq): 1000","mean_drug_effect - sd_drug_effect:  2.680618e-02<br />mean_drug_effect + sd_drug_effect: 0.05135470<br />mean_drug_effect_pred: 3.477791e-02<br />mean_drug_effect: 0.039080443<br />factor(Spike_in_freq): 1000","mean_drug_effect - sd_drug_effect:  1.857492e-02<br />mean_drug_effect + sd_drug_effect: 0.04867801<br />mean_drug_effect_pred: 2.288364e-02<br />mean_drug_effect: 0.033626466<br />factor(Spike_in_freq): 1000","mean_drug_effect - sd_drug_effect:  1.934293e-02<br />mean_drug_effect + sd_drug_effect: 0.06420384<br />mean_drug_effect_pred: 2.381970e-02<br />mean_drug_effect: 0.041773381<br />factor(Spike_in_freq): 1000","mean_drug_effect - sd_drug_effect:  1.624847e-02<br />mean_drug_effect + sd_drug_effect: 0.05034515<br />mean_drug_effect_pred: 2.164117e-02<br />mean_drug_effect: 0.033296811<br />factor(Spike_in_freq): 1000","mean_drug_effect - sd_drug_effect: -6.129743e-03<br />mean_drug_effect + sd_drug_effect: 0.02518016<br />mean_drug_effect_pred: 5.113419e-03<br />mean_drug_effect: 0.009525208<br />factor(Spike_in_freq): 1000","mean_drug_effect - sd_drug_effect:  2.347714e-05<br />mean_drug_effect + sd_drug_effect: 0.03214836<br />mean_drug_effect_pred: 2.041631e-03<br />mean_drug_effect: 0.016085920<br />factor(Spike_in_freq): 1000","mean_drug_effect - sd_drug_effect:  1.500406e-04<br />mean_drug_effect + sd_drug_effect: 0.03033851<br />mean_drug_effect_pred: 1.351097e-02<br />mean_drug_effect: 0.015244275<br />factor(Spike_in_freq): 1000","mean_drug_effect - sd_drug_effect:  1.018100e-02<br />mean_drug_effect + sd_drug_effect: 0.03668003<br />mean_drug_effect_pred: 9.845698e-03<br />mean_drug_effect: 0.023430518<br />factor(Spike_in_freq): 1000","mean_drug_effect - sd_drug_effect: -8.372961e-03<br />mean_drug_effect + sd_drug_effect: 0.02170237<br />mean_drug_effect_pred: 2.063766e-02<br />mean_drug_effect: 0.006664707<br />factor(Spike_in_freq): 1000","mean_drug_effect - sd_drug_effect:  1.239854e-02<br />mean_drug_effect + sd_drug_effect: 0.04374496<br />mean_drug_effect_pred: 5.785137e-03<br />mean_drug_effect: 0.028071749<br />factor(Spike_in_freq): 1000","mean_drug_effect - sd_drug_effect: -9.761534e-03<br />mean_drug_effect + sd_drug_effect: 0.01974889<br />mean_drug_effect_pred: 2.819673e-03<br />mean_drug_effect: 0.004993677<br />factor(Spike_in_freq): 1000","mean_drug_effect - sd_drug_effect:  1.304938e-03<br />mean_drug_effect + sd_drug_effect: 0.03376325<br />mean_drug_effect_pred: 6.176849e-03<br />mean_drug_effect: 0.017534096<br />factor(Spike_in_freq): 1000","mean_drug_effect - sd_drug_effect: -1.211965e-02<br />mean_drug_effect + sd_drug_effect: 0.01990489<br />mean_drug_effect_pred: 1.861198e-04<br />mean_drug_effect: 0.003892617<br />factor(Spike_in_freq): 1000"],"type":"scatter","mode":"lines","opacity":1,"line":{"color":"transparent"},"error_y":{"array":[null,0.0158590818983619,0.016168906066372,null,0.0206702411821931,0.0122742606970825,0.0150515444918379,0.0224304555772822,0.0170483364974713,0.0156549504045308,0.016062442937595,0.0150942343466673,0.0132495132125872,0.0150376676633381,0.015673213142413,0.0147552110334333,0.0162291579093694,0.0160122716758091],"arrayminus":[null,0.0158590818983619,0.016168906066372,null,0.0206702411821931,0.0122742606970825,0.0150515444918379,0.0224304555772822,0.0170483364974713,0.0156549504045308,0.016062442937595,0.0150942343466673,0.0132495132125872,0.0150376676633381,0.015673213142413,0.0147552110334333,0.0162291579093694,0.0160122716758091],"type":"data","width":0.729131102763165,"symmetric":false,"color":"rgba(248,118,109,1)"},"name":"1000","legendgroup":"1000","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[0.0292581612416018,0.00379470263182885,7.58537923724257e-07,0.0308982730444104,0.0200052522456887,0.0347779140709871,0.0228836418030386,0.0238197036687371,0.021641167087607,0.00511341855152089,0.00204163094035968,0.0135109749190639,0.00984569818506512,0.0206376641071009,0.00578513681195724,0.00281967274583036,0.00617684899021483,0.00018611976444765],"y":[null,0.028582463183441,0.00450621638890845,null,0.0469082435778691,0.0390804431131662,0.0336264660586277,0.0417733813720571,0.0332968105001539,0.00952520759658348,0.01608592007426,0.0152442749756919,0.0234305177113693,0.00666470700240792,0.0280717485375214,0.00499367732875059,0.0175340961090848,0.00389261686056061],"text":["mean_drug_effect_pred: 2.925816e-02<br />mean_drug_effect:          NA<br />factor(Spike_in_freq): 1000","mean_drug_effect_pred: 3.794703e-03<br />mean_drug_effect: 0.028582463<br />factor(Spike_in_freq): 1000","mean_drug_effect_pred: 7.585379e-07<br />mean_drug_effect: 0.004506216<br />factor(Spike_in_freq): 1000","mean_drug_effect_pred: 3.089827e-02<br />mean_drug_effect:          NA<br />factor(Spike_in_freq): 1000","mean_drug_effect_pred: 2.000525e-02<br />mean_drug_effect: 0.046908244<br />factor(Spike_in_freq): 1000","mean_drug_effect_pred: 3.477791e-02<br />mean_drug_effect: 0.039080443<br />factor(Spike_in_freq): 1000","mean_drug_effect_pred: 2.288364e-02<br />mean_drug_effect: 0.033626466<br />factor(Spike_in_freq): 1000","mean_drug_effect_pred: 2.381970e-02<br />mean_drug_effect: 0.041773381<br />factor(Spike_in_freq): 1000","mean_drug_effect_pred: 2.164117e-02<br />mean_drug_effect: 0.033296811<br />factor(Spike_in_freq): 1000","mean_drug_effect_pred: 5.113419e-03<br />mean_drug_effect: 0.009525208<br />factor(Spike_in_freq): 1000","mean_drug_effect_pred: 2.041631e-03<br />mean_drug_effect: 0.016085920<br />factor(Spike_in_freq): 1000","mean_drug_effect_pred: 1.351097e-02<br />mean_drug_effect: 0.015244275<br />factor(Spike_in_freq): 1000","mean_drug_effect_pred: 9.845698e-03<br />mean_drug_effect: 0.023430518<br />factor(Spike_in_freq): 1000","mean_drug_effect_pred: 2.063766e-02<br />mean_drug_effect: 0.006664707<br />factor(Spike_in_freq): 1000","mean_drug_effect_pred: 5.785137e-03<br />mean_drug_effect: 0.028071749<br />factor(Spike_in_freq): 1000","mean_drug_effect_pred: 2.819673e-03<br />mean_drug_effect: 0.004993677<br />factor(Spike_in_freq): 1000","mean_drug_effect_pred: 6.176849e-03<br />mean_drug_effect: 0.017534096<br />factor(Spike_in_freq): 1000","mean_drug_effect_pred: 1.861198e-04<br />mean_drug_effect: 0.003892617<br />factor(Spike_in_freq): 1000"],"type":"scatter","mode":"markers","marker":{"autocolorscale":false,"color":"rgba(248,118,109,1)","opacity":1,"size":5.66929133858268,"symbol":"circle","line":{"width":1.88976377952756,"color":"rgba(248,118,109,1)"}},"hoveron":"points","name":"1000","legendgroup":"1000","showlegend":false,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"x":[-0.00182985304585879,0.0366085256547696],"y":[-0.00182985304585879,0.0366085256547696],"text":"intercept: 0<br />slope: 1","type":"scatter","mode":"lines","line":{"width":1.88976377952756,"color":"rgba(0,0,0,1)","dash":"solid"},"hoveron":"points","showlegend":false,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null}],"layout":{"margin":{"t":26.2283105022831,"r":7.30593607305936,"b":43.1050228310502,"l":62.1004566210046},"paper_bgcolor":"rgba(255,255,255,1)","font":{"color":"rgba(0,0,0,1)","family":"","size":14.6118721461187},"xaxis":{"domain":[0,1],"automargin":true,"type":"linear","autorange":false,"range":[-0.00182985304585879,0.0366085256547696],"tickmode":"array","ticktext":["0.00","0.01","0.02","0.03"],"tickvals":[0,0.01,0.02,0.03],"categoryorder":"array","categoryarray":["0.00","0.01","0.02","0.03"],"nticks":null,"ticks":"outside","tickcolor":"rgba(51,51,51,1)","ticklen":3.65296803652968,"tickwidth":0.66417600664176,"showticklabels":true,"tickfont":{"color":"rgba(0,0,0,1)","family":"","size":14.6118721461187},"tickangle":-0,"showline":true,"linecolor":"rgba(0,0,0,1)","linewidth":0.66417600664176,"showgrid":false,"gridcolor":null,"gridwidth":0,"zeroline":false,"anchor":"y","title":{"text":"<b> mean_drug_effect_pred <\/b>","font":{"color":"rgba(0,0,0,1)","family":"","size":14.6118721461187}},"hoverformat":".2f"},"yaxis":{"domain":[0,1],"automargin":true,"type":"linear","autorange":false,"range":[-0.0161045617940141,0.0715633917388278],"tickmode":"array","ticktext":["0.000","0.025","0.050"],"tickvals":[0,0.025,0.05],"categoryorder":"array","categoryarray":["0.000","0.025","0.050"],"nticks":null,"ticks":"outside","tickcolor":"rgba(51,51,51,1)","ticklen":3.65296803652968,"tickwidth":0.66417600664176,"showticklabels":true,"tickfont":{"color":"rgba(0,0,0,1)","family":"","size":14.6118721461187},"tickangle":-0,"showline":true,"linecolor":"rgba(0,0,0,1)","linewidth":0.66417600664176,"showgrid":false,"gridcolor":null,"gridwidth":0,"zeroline":false,"anchor":"x","title":{"text":"<b> mean_drug_effect <\/b>","font":{"color":"rgba(0,0,0,1)","family":"","size":14.6118721461187}},"hoverformat":".2f"},"shapes":[{"type":"rect","fillcolor":"transparent","line":{"color":"rgba(51,51,51,1)","width":0.66417600664176,"linetype":"solid"},"yref":"paper","xref":"paper","x0":0,"x1":1,"y0":0,"y1":1}],"showlegend":true,"legend":{"bgcolor":"rgba(255,255,255,1)","bordercolor":"transparent","borderwidth":1.88976377952756,"font":{"color":"rgba(0,0,0,1)","family":"","size":11.689497716895},"y":0.913385826771654},"annotations":[{"text":"factor(Spike_in_freq)","x":1.02,"y":1,"showarrow":false,"ax":0,"ay":0,"font":{"color":"rgba(0,0,0,1)","family":"","size":14.6118721461187},"xref":"paper","yref":"paper","textangle":-0,"xanchor":"left","yanchor":"bottom","legendTitle":true}],"hovermode":"closest","barmode":"relative"},"config":{"doubleClick":"reset","showSendToCloud":false},"source":"A","attrs":{"119b152c468b2":{"ymin":{},"ymax":{},"x":{},"y":{},"colour":{},"type":"scatter"},"119b15cb5a891":{"x":{},"y":{},"colour":{}},"119b11a4df724":{"intercept":{},"slope":{}}},"cur_data":"119b152c468b2","visdat":{"119b152c468b2":["function (y) ","x"],"119b15cb5a891":["function (y) ","x"],"119b11a4df724":["function (y) ","x"]},"highlight":{"on":"plotly_click","persistent":false,"dynamic":false,"selectize":false,"opacityDim":0.2,"selected":{"opacity":1},"debounce":0},"shinyEvents":["plotly_hover","plotly_click","plotly_selected","plotly_relayout","plotly_brushed","plotly_brushing","plotly_clickannotation","plotly_doubleclick","plotly_deselect","plotly_afterplot","plotly_sunburstclick"],"base_url":"https://plot.ly"},"evals":[],"jsHooks":[]}</script>
+<br>
+<p>
+<button type="button" class="btn btn-default btn-workflowr btn-workflowr-sessioninfo" data-toggle="collapse" data-target="#workflowr-sessioninfo" style="display: block;">
+<span class="glyphicon glyphicon-wrench" aria-hidden="true"></span> Session information
+</button>
+</p>
+<div id="workflowr-sessioninfo" class="collapse">
+<pre class="r"><code>sessionInfo()</code></pre>
+<pre><code>R version 3.5.2 (2018-12-20)
+Platform: x86_64-apple-darwin15.6.0 (64-bit)
+Running under: macOS  10.15.4
+
+Matrix products: default
+BLAS: /Library/Frameworks/R.framework/Versions/3.5/Resources/lib/libRblas.0.dylib
+LAPACK: /Library/Frameworks/R.framework/Versions/3.5/Resources/lib/libRlapack.dylib
+
+locale:
+[1] en_US.UTF-8/en_US.UTF-8/en_US.UTF-8/C/en_US.UTF-8/en_US.UTF-8
+
+attached base packages:
+[1] stats     graphics  grDevices utils     datasets  methods   base     
+
+other attached packages:
+ [1] plotly_4.9.1        dplyr_0.8.4         boot_1.3-24        
+ [4] lme4_1.1-21         Matrix_1.2-18       fitdistrplus_1.0-14
+ [7] npsurv_0.4-0        lsei_1.2-0          survival_3.1-8     
+[10] MASS_7.3-51.5       ggplot2_3.2.1       lmtest_0.9-37      
+[13] zoo_1.8-7           workflowr_1.6.0    
+
+loaded via a namespace (and not attached):
+ [1] tidyselect_1.0.0  xfun_0.12         purrr_0.3.3       splines_3.5.2    
+ [5] lattice_0.20-38   vctrs_0.2.2       colorspace_1.4-1  viridisLite_0.3.0
+ [9] htmltools_0.4.0   yaml_2.2.1        rlang_0.4.4       later_1.0.0      
+[13] pillar_1.4.3      nloptr_1.2.1      glue_1.3.1        withr_2.1.2      
+[17] lifecycle_0.1.0   stringr_1.4.0     munsell_0.5.0     gtable_0.3.0     
+[21] htmlwidgets_1.5.1 evaluate_0.14     labeling_0.3      knitr_1.27       
+[25] fastmap_1.0.1     crosstalk_1.0.0   httpuv_1.5.2      Rcpp_1.0.3       
+[29] xtable_1.8-4      promises_1.1.0    scales_1.1.0      backports_1.1.5  
+[33] jsonlite_1.6      mime_0.8          farver_2.0.3      fs_1.3.1         
+[37] digest_0.6.23     stringi_1.4.5     shiny_1.4.0       grid_3.5.2       
+[41] rprojroot_1.3-2   tools_3.5.2       magrittr_1.5      lazyeval_0.2.2   
+[45] tibble_2.1.3      tidyr_1.0.2       crayon_1.3.4      whisker_0.4      
+[49] pkgconfig_2.0.3   ellipsis_0.3.0    data.table_1.12.8 httr_1.4.1       
+[53] assertthat_0.2.1  minqa_1.2.4       rmarkdown_2.1     R6_2.4.1         
+[57] nlme_3.1-143      git2r_0.26.1      compiler_3.5.2   </code></pre>
+</div>
+
+
+<!-- Adjust MathJax settings so that all math formulae are shown using
+TeX fonts only; see
+http://docs.mathjax.org/en/latest/configuration.html.  This will make
+the presentation more consistent at the cost of the webpage sometimes
+taking slightly longer to load. Note that this only works because the
+footer is added to webpages before the MathJax javascript. -->
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    "HTML-CSS": { availableFonts: ["TeX"] }
+  });
+</script>
+
+
+</div>
+</div>
+
+</div>
+
+<script>
+
+// add bootstrap table styles to pandoc tables
+function bootstrapStylePandocTables() {
+  $('tr.header').parent('thead').parent('table').addClass('table table-condensed');
+}
+$(document).ready(function () {
+  bootstrapStylePandocTables();
+});
+
+
+</script>
+
+<!-- tabsets -->
+
+<script>
+$(document).ready(function () {
+  window.buildTabsets("TOC");
+});
+
+$(document).ready(function () {
+  $('.tabset-dropdown > .nav-tabs > li').click(function () {
+    $(this).parent().toggleClass('nav-tabs-open')
+  });
+});
+</script>
+
+<!-- code folding -->
+
+<script>
+$(document).ready(function ()  {
+
+    // move toc-ignore selectors from section div to header
+    $('div.section.toc-ignore')
+        .removeClass('toc-ignore')
+        .children('h1,h2,h3,h4,h5').addClass('toc-ignore');
+
+    // establish options
+    var options = {
+      selectors: "h1,h2,h3",
+      theme: "bootstrap3",
+      context: '.toc-content',
+      hashGenerator: function (text) {
+        return text.replace(/[.\\/?&!#<>]/g, '').replace(/\s/g, '_').toLowerCase();
+      },
+      ignoreSelector: ".toc-ignore",
+      scrollTo: 0
+    };
+    options.showAndHide = true;
+    options.smoothScroll = true;
+
+    // tocify
+    var toc = $("#TOC").tocify(options).data("toc-tocify");
+});
+</script>
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>

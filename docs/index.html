@@ -363,10 +363,10 @@ This reproducible <a href="http://rmarkdown.rstudio.com">R Markdown</a> analysis
 <div class="panel panel-default">
 <div class="panel-heading">
 <p class="panel-title">
-<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomhaiderinamduplexsequencingscreentree5cda9d34f94f99af13ca8ec50946b9d97bdf6a95targetblank5cda9d3a"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Repository version:</strong> <a href="https://github.com/haiderinam/duplex_sequencing_screen/tree/5cda9d34f94f99af13ca8ec50946b9d97bdf6a95" target="_blank">5cda9d3</a> </a>
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomhaiderinamduplexsequencingscreentree52f688491dab228a6e8343b7838132b266d795b8targetblank52f6884a"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Repository version:</strong> <a href="https://github.com/haiderinam/duplex_sequencing_screen/tree/52f688491dab228a6e8343b7838132b266d795b8" target="_blank">52f6884</a> </a>
 </p>
 </div>
-<div id="strongRepositoryversionstrongahrefhttpsgithubcomhaiderinamduplexsequencingscreentree5cda9d34f94f99af13ca8ec50946b9d97bdf6a95targetblank5cda9d3a" class="panel-collapse collapse">
+<div id="strongRepositoryversionstrongahrefhttpsgithubcomhaiderinamduplexsequencingscreentree52f688491dab228a6e8343b7838132b266d795b8targetblank52f6884a" class="panel-collapse collapse">
 <div class="panel-body">
 <p>
 Great! You are using Git for version control. Tracking code development and connecting the code version to the results is critical for reproducibility. The version displayed above was the version of the Git repository at the time these results were generated. <br><br> Note that you need to be careful to ensure that all relevant files for the analysis have been committed to Git prior to generating the results (you can use <code>wflow_publish</code> or <code>wflow_git_commit</code>). workflowr only checks the R Markdown file, but you know if there are other scripts or data files that it depends on. Below is the status of the Git repository when the results were generated:
@@ -376,6 +376,7 @@ Ignored files:
     Ignored:    .Rproj.user/
 
 Untracked files:
+    Untracked:  data/Combined_data_frame_IC_Mutprob_abundance.csv
     Untracked:  data/Twinstrand/
     Untracked:  data/heatmap_concat_data.csv
     Untracked:  grant_fig.pdf
@@ -422,6 +423,40 @@ Message
 </tr>
 </thead>
 <tbody>
+<tr>
+<td>
+Rmd
+</td>
+<td>
+<a href="https://github.com/haiderinam/duplex_sequencing_screen/blob/52f688491dab228a6e8343b7838132b266d795b8/analysis/index.Rmd" target="_blank">52f6884</a>
+</td>
+<td>
+haiderinam
+</td>
+<td>
+2020-04-03
+</td>
+<td>
+wflow_publish(“analysis/*.Rmd“)
+</td>
+</tr>
+<tr>
+<td>
+html
+</td>
+<td>
+<a href="https://rawcdn.githack.com/haiderinam/duplex_sequencing_screen/6af2cdcb35c47c946508eba79f1e07fd6c06137a/docs/index.html" target="_blank">6af2cdc</a>
+</td>
+<td>
+haiderinam
+</td>
+<td>
+2020-04-03
+</td>
+<td>
+Build site.
+</td>
+</tr>
 <tr>
 <td>
 Rmd
@@ -652,15 +687,17 @@ Start workflowr project.
 </div>
 <div id="duplex-sequencing-spike-ins" class="section level1">
 <h1><strong>Duplex Sequencing Spike-Ins</strong></h1>
-<p><img src="assets/ds_coverages.png" width="300" height="300"  alt=""></p>
+<p><img src="assets/ds_coverages.png" width="400" height="300"  alt=""></p>
 <ul>
 <li><h3 id="click-here-for-the-script-that-reads-mutation-annotation-data-and-generates-dataframes-with-annotated-variants-and-the-correct-cell-counts">Click <a href="twinstrand_spikeins_data_generation.html">here</a> for the script that reads mutation annotation data and generates dataframes with annotated variants and the correct cell counts</h3></li>
 <li><h3 id="click-here-for-initial-growth-rate-plots">Click <a href="growthrate_plots.html">here</a> for initial growth rate plots</h3>
-<p><img src="assets/growthrates.png" width="300" height="300"  alt=""></p></li>
+<p><img src="assets/growthrates.png" width="400" height="300"  alt=""></p></li>
 <li><h3 id="click-here-for-growth-rate-plots-for-enu-mutants">Click <a href="growthrate_plots_ENU.html">here</a> for growth rate plots for ENU mutants</h3>
-<p><img src="assets/growthrates_ENU.png" width="300" height="300"  alt=""></p></li>
-<li><h3 id="click-here-looking-at-whether-we-achieved-our-desired-depth-of-coverages">Click <a href="spikeins_depthofcoverages.html">here</a> Looking at whether we achieved our desired depth of coverages</h3>
-<p><img src="assets/coverages.png" width="300" height="300"  alt=""></p></li>
+<p><img src="assets/growthrates_ENU.png" width="400" height="300"  alt=""></p></li>
+<li><h3 id="click-here-for-analysis-looking-at-whether-we-achieved-our-desired-depth-of-coverages">Click <a href="spikeins_depthofcoverages.html">here</a> for analysis looking at whether we achieved our desired depth of coverages</h3>
+<p><img src="assets/coverages.png" width="400" height="300"  alt=""></p></li>
+<li><h3 id="click-here-for-analysis-looking-at-how-well-our-data-predicts-bcrabl-clinical-abundance-compared-to-conventional-ic50s">Click <a href="clinical_abundance_predictions.html">here</a> for analysis looking at how well our data predicts BCRABL clinical abundance compared to conventional IC50s</h3>
+<p><img src="assets/clinical_abundance_predictions.png" width="600" height="300"  alt=""></p></li>
 </ul>
 <div id="click-here-to-be-redirected-to-the-github-page-that-contains-all-my-data." class="section level4">
 <h4>Click <a href="https://github.com/haiderinam/duplex_sequencing_screen">here</a> to be redirected to the github page that contains all my data.</h4>
