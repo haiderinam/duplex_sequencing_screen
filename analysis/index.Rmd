@@ -12,10 +12,16 @@ editor_options:
 
 <img src="assets/ds_coverages.png" width="600" height="300"  alt="">  
 
-* ###Click [here](twinstrand_spikeins_data_generation.html) for the script that reads mutation annotation data and generates dataframes with annotated variants and the correct cell counts
+* ###Click [here](twinstrand_spikeins_data_generation.html) for the script that reads mutation annotation data and generates dataframes with annotated variants and the correct cell counts  
+
+* ###Click [here](growthrate_plots.html) for initial growth rate plots  
+
+* ###Click [here](growthrate_plots_ENU.html) for initial growth rate plots  
 
 
 #### Click [here](https://github.com/haiderinam/duplex_sequencing_screen) to be redirected to the github page that contains all my data.  
+
+
 What is in each directory:  
   
 * __Data__: contains data downloaded prior to analyses.  

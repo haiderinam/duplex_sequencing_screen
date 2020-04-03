@@ -15,7 +15,6 @@ knitr::opts_chunk$set(echo = TRUE)
 #Inputs:
 conc_for_predictions=0.8
 net_gr_wodrug=0.05
-getwd()
 #Reading required tables
 ic50data=read.csv("data/heatmap_concat_data.csv",header = T,stringsAsFactors = F)
 # ic50data=read.csv("../data/heatmap_concat_data.csv",header = T,stringsAsFactors = F)

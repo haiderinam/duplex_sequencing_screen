@@ -1,0 +1,134 @@
+---
+title: "growthrate_plots"
+author: "Haider Inam"
+date: "4/2/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+####Please change required directories this chunk if compiling in R rather than RmD
+```{r}
+#Inputs:
+conc_for_predictions=0.8
+net_gr_wodrug=0.05
+#Reading required tables
+ic50data=read.csv("data/heatmap_concat_data.csv",header = T,stringsAsFactors = F)
+# ic50data=read.csv("../data/heatmap_concat_data.csv",header = T,stringsAsFactors = F)
+
+twinstrand_maf=read.table("data/Twinstrand/prj00053-2019-12-02.deliverables/all.mut",sep="\t",header = T,stringsAsFactors = F)
+# twinstrand_maf=read.table("../data/Twinstrand/prj00053-2019-12-02.deliverables/all.mut",sep="\t",header = T,stringsAsFactors = F)
+
+names=read.table("data/Twinstrand/prj00053-2019-12-02.deliverables/manifest.tsv",sep="\t",header = T,stringsAsFactors = F)
+# names=read.table("../data/Twinstrand/prj00053-2019-12-02.deliverables/manifest.tsv",sep="\t",header = T,stringsAsFactors = F)
+
+# twinstrand_maf_merge=read.csv("../output/twinstrand_maf_merge.csv",header = T,stringsAsFactors = F)
+twinstrand_maf_merge=read.csv("output/twinstrand_maf_merge.csv",header = T,stringsAsFactors = F)
+
+# twinstrand_simple_melt_merge=read.csv("../output/twinstrand_simple_melt_merge.csv",header = T,stringsAsFactors = F)
+twinstrand_simple_melt_merge=read.csv("output/twinstrand_simple_melt_merge.csv",header = T,stringsAsFactors = F)
+```
+
+```{r,include=F}
+# rm(list=ls())
+library(knitr)
+library(tictoc)
+library(workflowr)
+library(VennDiagram)
+library(dplyr)
+library(foreach)
+library(doParallel)
+library(ggplot2)
+library(reshape2)
+library(RColorBrewer)
+library(devtools)
+library(ggsignif)
+library(plotly)
+library(BiocManager)
+library(drc)
+# library(ensembldb) #Loading this with Dplyr commands seems to throw an error in Rmd
+# library(EnsDb.Hsapiens.v86) #Loading this with Dplyr commands seems to throw an error in Rmd
+
+######################Cleanup for GGPlot2#########################################
+cleanup=theme_bw() +
+  theme(plot.title = element_text(hjust=.5),
+        panel.grid.major = element_blank(),
+        panel.grid.major.y = element_blank(),
+        panel.background = element_blank(),
+        axis.line = element_line(color = "black"),
+        axis.text = element_text(face="bold",color="black",size="11"),
+        text=element_text(size=11,face="bold"),
+        axis.title=element_text(face="bold",size="11"))
+```
+
+
+
+###Plotting 1:1000 data
+```{r}
+ggplot(twinstrand_simple_melt_merge%>%filter(experiment%in%c("M3","M5","M7"),duration=="d3d6"),aes(x=netgr_pred,y=netgr_obs,color=factor(mutant),label=mutant))+geom_text()+geom_abline()+facet_wrap(~"experiment")+cleanup
+
+plotly=ggplot(twinstrand_simple_melt_merge%>%filter(experiment%in%c("M3","M5","M7"),duration=="d3d6"),aes(x=netgr_pred,y=netgr_obs,color=factor(experiment),label=factor(mutant)))+geom_text()+geom_abline()+cleanup
+ggplotly(plotly)
+
+#trying out the dotplot verison to show the individual datapoints
+plotly=ggplot(twinstrand_simple_melt_merge%>%filter(experiment%in%c("M3","M5","M7"),duration=="d3d6"),aes(x=netgr_pred,y=netgr_obs,color=factor(mutant)))+geom_boxplot(position=position_dodge(1))+geom_jitter(shape=16, position=position_jitter())+geom_abline()+cleanup
+ggplotly(plotly)
+
+###Replicate M5 seems to be a little underapproximative. Only M7 M3 look better.
+plotly=ggplot(twinstrand_simple_melt_merge%>%filter(experiment%in%c("M3","M7"),duration=="d3d6"),aes(x=netgr_pred,y=netgr_obs,color=factor(mutant)))+geom_boxplot(position=position_dodge(1))+geom_jitter(shape=16, position=position_jitter())+geom_abline()+cleanup
+ggplotly(plotly)
+
+```
+
+###Plotting 1 in 5,000
+```{r}
+ggplot(twinstrand_simple_melt_merge%>%filter(experiment%in%c("M3","M4","M5","M6","M7"),duration=="d3d6"),aes(x=netgr_pred,y=netgr_obs,color=factor(mutant),label=mutant))+geom_text()+geom_abline()+facet_wrap(~"experiment")+cleanup
+
+plotly=ggplot(twinstrand_simple_melt_merge%>%filter(experiment%in%c("M3","M4","M5","M6","M7"),duration=="d3d6"),aes(x=netgr_pred,y=netgr_obs,color=factor(experiment),label=factor(mutant)))+geom_text()+geom_abline()+cleanup
+ggplotly(plotly)
+
+#trying out the dotplot verison to show the individual datapoints
+plotly=ggplot(twinstrand_simple_melt_merge%>%filter(experiment%in%c("M3","M4","M5","M6","M7"),duration=="d3d6"),aes(x=netgr_pred,y=netgr_obs,color=factor(mutant)))+geom_boxplot(position=position_dodge(1))+geom_jitter(shape=16, position=position_jitter())+geom_abline()+cleanup
+ggplotly(plotly)
+
+#Removing M5 and M6 makes these look better. My assumption is that things were growing slower for the M5, M6 conditions because of culture conditions.
+#This may look bad. But this also represents an opportunity: You don't need to estimate the approximate growth rate in the absence of drug because it is dynamic (changing culture conditions etc). You could use counts from a no-drug control but even that isn't the best control because of plate to plate variability in growth rates. You could just look at the most resistant mutants and see how fast they're growing. From their growth rates, you can back-calculate what the exact w/o drug growth rate is.
+plotly=ggplot(twinstrand_simple_melt_merge%>%filter(experiment%in%c("M3","M4","M7"),duration=="d3d6"),aes(x=netgr_pred,y=netgr_obs,color=factor(mutant)))+geom_boxplot(position=position_dodge(1))+geom_jitter(shape=16, position=position_jitter())+geom_abline()+cleanup
+ggplotly(plotly)
+
+#As suggested above, I will modify the observed growth rate so that the w/o drug growth rate essentially derives from the observed growth rate of the most resistant cell line. Please note that I am doing this in a very roundabout way here because I am looking at the growth rate of T315I in the slow-growing cell lines, comparing it to how slow it is growing vs the mean growth rate of T315I from the other experimental days, and adding that difference in growth rate to that slow-growing experimental day.
+# library(dplyr)
+a=twinstrand_simple_melt_merge%>%
+  mutate(netgr_obs=case_when(experiment=="M6"~netgr_obs+.03,
+                                   experiment=="M5"~netgr_obs+.015,
+                                   experiment%in%c("M3","M5","M4","M7")~netgr_obs))
+
+plotly=ggplot(a%>%filter(experiment%in%c("M3","M4","M5","M6","M7"),duration=="d3d6"),aes(x=netgr_pred,y=netgr_obs,color=factor(experiment),label=factor(mutant)))+geom_text()+geom_abline()+cleanup
+ggplotly(plotly)
+a_new=a%>%filter(experiment%in%c("M3"),duration%in%("d3d6"))
+plotly=ggplot(a%>%filter(experiment%in%c("M3","M4","M5","M6","M7"),duration=="d3d6"),aes(x=netgr_pred,y=netgr_obs,color=factor(mutant)))+geom_boxplot(position=position_dodge(1))+geom_jitter(shape=16, position=position_jitter())+geom_abline()+cleanup
+ggplotly(plotly)
+
+plotly=ggplot(a%>%filter(experiment%in%c("M3","M4","M5","M6","M7"),duration=="d3d6"),aes(x=netgr_pred,y=netgr_obs,color=factor(mutant)))+geom_boxplot(position=position_dodge(1))+geom_jitter(shape=16, position=position_jitter())+geom_abline()+cleanup
+ggplotly(plotly)
+```
+##Plotting 1 in 5000 data
+Note that this is somewhat similar to what twinstrand sent to us.
+```{r}
+
+ggplot(twinstrand_maf_merge%>%filter(tki_resistant_mutation=="True",!mutant=="NA",Spike_in_freq==1000,!experiment%in%c("Enu_3","Enu_4")),aes(x=time_point,y=AltDepth,color=factor(experiment)))+geom_point()+facet_wrap(~mutant)+cleanup
+
+ggplot(twinstrand_maf_merge%>%filter(tki_resistant_mutation=="True",!mutant=="NA",Spike_in_freq==1000,!experiment%in%c("Enu_3","Enu_4")),aes(x=time_point,y=totalmutant,color=factor(experiment)))+geom_point()+facet_wrap(~mutant)+scale_y_continuous(trans = "log10")+cleanup
+
+
+ggplot(twinstrand_maf_merge%>%filter(tki_resistant_mutation=="True",!mutant=="NA",Spike_in_freq==1000,!experiment%in%c("Enu_3","Enu_4")),aes(x=time_point,y=totalmutant,color=factor(experiment)))+geom_point()+facet_wrap(~mutant)+cleanup
+
+#Combining 1 to 1,000 and 1 to 5,000
+ggplot(twinstrand_maf_merge%>%filter(tki_resistant_mutation=="True",!mutant=="NA",!experiment%in%c("Enu_3","Enu_4")),aes(x=time_point,y=totalmutant,color=factor(experiment),shape=factor(Spike_in_freq)))+geom_point()+facet_wrap(~mutant)+scale_y_continuous(trans = "log10")+cleanup
+
+# Looking at why 1 in 5,000 mutants look a little undersampled
+#Turns out they look different because they started off with 5x less cells. Duh.
+# a=twinstrand_maf_merge%>%filter(tki_resistant_mutation=="True",Spike_in_freq=="5000",experiment=="M6",mutant%in%c("T315I","G250E"))
+```
