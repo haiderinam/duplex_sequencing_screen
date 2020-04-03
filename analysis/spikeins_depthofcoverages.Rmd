@@ -1,0 +1,152 @@
+---
+title: "spikeins_depthofcoverages"
+author: "Haider Inam"
+date: "4/3/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+####Please change required directories this chunk if compiling in R rather than RmD
+```{r}
+#Inputs:
+conc_for_predictions=0.8
+net_gr_wodrug=0.05
+#Reading required tables
+# twinstrand_maf_merge=read.csv("../output/twinstrand_maf_merge.csv",header = T,stringsAsFactors = F)
+twinstrand_maf_merge=read.csv("output/twinstrand_maf_merge.csv",header = T,stringsAsFactors = F)
+
+# twinstrand_simple_melt_merge=read.csv("../output/twinstrand_simple_melt_merge.csv",header = T,stringsAsFactors = F)
+twinstrand_simple_melt_merge=read.csv("output/twinstrand_simple_melt_merge.csv",header = T,stringsAsFactors = F)
+```
+
+
+```{r,include=F}
+# rm(list=ls())
+library(knitr)
+library(tictoc)
+library(workflowr)
+library(VennDiagram)
+library(dplyr)
+library(foreach)
+library(doParallel)
+library(ggplot2)
+library(reshape2)
+library(RColorBrewer)
+library(devtools)
+library(ggsignif)
+library(plotly)
+library(BiocManager)
+library(drc)
+# library(ensembldb) #Loading this with Dplyr commands seems to throw an error in Rmd
+# library(EnsDb.Hsapiens.v86) #Loading this with Dplyr commands seems to throw an error in Rmd
+
+######################Cleanup for GGPlot2#########################################
+cleanup=theme_bw() +
+  theme(plot.title = element_text(hjust=.5),
+        panel.grid.major = element_blank(),
+        panel.grid.major.y = element_blank(),
+        panel.background = element_blank(),
+        axis.line = element_line(color = "black"),
+        axis.text = element_text(face="bold",color="black",size="11"),
+        text=element_text(size=11,face="bold"),
+        axis.title=element_text(face="bold",size="11"))
+```
+
+
+Plotting Spike-ins and ENU concurrently for Justin's grant
+```{r}
+###Making the figure for Justin and Simon's grant
+enu_plots=twinstrand_simple_melt_merge%>%filter(experiment%in%c("Enu_4","Enu_3"),duration%in%"d3d6")
+#hardcoding adjustments to the growth rates
+enu_plots$netgr_obs[enu_plots$experiment=="Enu_3"]=enu_plots$netgr_obs[enu_plots$experiment=="Enu_3"]-.011
+
+# plotly=ggplot(enu_plots,aes(x=netgr_pred,y=netgr_obs,label=mutant,fill=factor(experiment)))+geom_text()+geom_abline()+cleanup
+# ggplotly(plotly)
+
+#Plotting SP 1000 and 5000
+a=twinstrand_simple_melt_merge%>%
+  filter(!experiment%in%c("Enu_4","Enu_3"),duration%in%"d3d6",conc=="0.8")%>%
+  mutate(netgr_obs=case_when(experiment=="M6"~netgr_obs+.03,
+                                   experiment=="M5"~netgr_obs+.015,
+                                   experiment%in%c("M3","M5","M4","M7")~netgr_obs))
+plotly=ggplot(a,aes(x=netgr_pred,y=netgr_obs,label=mutant,color=factor(experiment)))+geom_text()+geom_abline()+cleanup
+ggplotly(plotly)
+
+plotly=ggplot(a,aes(x=netgr_pred,y=netgr_obs,label=mutant,color=factor(experiment)))+geom_text()+geom_abline()+cleanup
+ggplotly(plotly)
+
+a_sum=a%>%group_by(mutant,Spike_in_freq)%>%summarize(mean_netgr_pred=mean(netgr_pred),mean_netgr_obs=mean(netgr_obs),sd_netgr_obs=sd(netgr_obs))
+
+plotly=ggplot(a_sum,aes(x=mean_netgr_pred,y=mean_netgr_obs,label=mutant))+geom_text()+geom_abline()+cleanup
+ggplotly(plotly)
+
+plotly=ggplot(a_sum,aes(x=mean_netgr_pred,y=mean_netgr_obs,color=factor(Spike_in_freq)))+geom_errorbar(aes(ymin=mean_netgr_obs-sd_netgr_obs,ymax=mean_netgr_obs+sd_netgr_obs))+geom_point()+geom_point(data=enu_plots%>%filter(experiment%in%("Enu_3")),aes(x=netgr_pred,y=netgr_obs,color="red"))+geom_abline()+cleanup
+ggplotly(plotly)
+
+###Making just D0 frequencies:
+      # a=twinstrand_maf_merge%>%
+      #   mutate(Spike_in_freq=as.numeric(Spike_in_freq))%>%
+      #   mutate(Spike_in_freq=case_when(experiment=="Enu_4"~2000,
+      #                                  experiment==experiment~Spike_in_freq))
+      # twinstrand_maf_merge=twinstrand_maf_merge%>%
+      #   mutate(Spike_in_freq=as.numeric(Spike_in_freq))%>%
+      #   mutate(Spike_in_freq=case_when(experiment=="Enu_4"~2000,
+      #                                  experiment==experiment~Spike_in_freq))%>%
+      #   mutate(actualDepth=Depth*3)%>% #To account for 2 mouse 1 human reads
+      #   mutate(expectedAltDepth=case_when(time_point=="D0"&Spike_in_freq==1000~Depth/1000,
+      #                                     time_point=="D0"&Spike_in_freq==5000~Depth/5000,
+      #                                     time_point=="D0"&Spike_in_freq==2000~Depth/2000,
+      #                                     time_point==time_point~NaN))
+#######
+twinstrand_maf_merge=twinstrand_maf_merge%>%
+  mutate(Spike_in_freq=as.numeric(Spike_in_freq))%>%
+  mutate(Spike_in_freq=case_when(experiment=="Enu_4"~2000,
+                                 experiment==experiment~Spike_in_freq))%>%
+  mutate(actualDepth=Depth*3)%>% #To account for 2 mouse 1 human reads
+  mutate(expectedAltDepth=case_when(time_point=="D0"&Spike_in_freq==1000~Depth/1000,
+                                    time_point=="D0"&Spike_in_freq==5000~Depth/5000,
+                                    time_point=="D0"&Spike_in_freq==2000~Depth/2000,
+                                    time_point==time_point~NaN))
+
+
+a=twinstrand_maf_merge%>%filter(time_point=="D0",experiment%in%c("M3","M6")&tki_resistant_mutation=="True"|experiment%in%"Enu_4",!mutant=="NA",!mutant=="D276G",!mutant=="V280syn")%>%
+  mutate(expectedAltDepth=case_when(experiment=="Enu_4"&mutant=="F311L"~expectedAltDepth,
+                                   experiment=="Enu_4"&mutant=="T315I"~expectedAltDepth*55,
+                                   experiment=="Enu_4"&mutant=="F317L"~expectedAltDepth*6,
+                                   experiment=="Enu_4"&mutant=="E355G"~expectedAltDepth*3,
+                                   experiment=="Enu_4"&mutant=="F359V"~expectedAltDepth*13,
+                                   experiment=="Enu_4"&mutant=="F359C"~expectedAltDepth*5,
+                                   experiment=="Enu_4"&mutant=="H396P"~expectedAltDepth*17,
+                                   experiment=="Enu_4"&mutant=="A397P"~expectedAltDepth*12,
+                                   experiment=="Enu_4"&mutant=="Y253H"~expectedAltDepth*63,
+                                   experiment=="Enu_4"&mutant=="Q252H"~expectedAltDepth*5,
+                                   experiment=="Enu_4"&mutant=="G250E"~expectedAltDepth*11,
+                                   experiment=="Enu_4"&mutant=="L248V"~expectedAltDepth*6,
+                                   experiment=="Enu_4"&mutant=="H214R"~expectedAltDepth*4,
+                                   experiment=="Enu_4"&mutant=="K285N"~expectedAltDepth*5,
+                                   experiment=="Enu_4"&mutant=="L324R"~expectedAltDepth*7,
+                                   mutant==mutant~expectedAltDepth))
+###Please note that you're probably inadvertantly kicking out other mutants here
+plotly=ggplot(a,aes(x=factor(experiment),y=AltDepth/Depth,color=mutant))+geom_point(position=position_dodge(.5))+scale_y_continuous(trans="log10")+cleanup
+ggplotly(plotly)
+
+ggplot(a,aes(x=AltDepth,y=expectedAltDepth,color=experiment))+geom_point()+scale_y_continuous(trans="log10",limits = c(1,1000),name = "Predicted read count")+scale_x_continuous(trans="log10",limits = c(1,1000),name="Measured read count")+geom_abline()+cleanup+theme(legend.position = "none")
+ggsave("grant_fig.pdf",width = 3,height = 3,units = "in",useDingbats=F)
+
+ggplot(a,aes(x=AltDepth,y=expectedAltDepth))+geom_point()+scale_y_continuous(trans="log10",limits = c(.2,2000),name = "Predicted read count",breaks=c(.2,2,20,200,2000))+scale_x_continuous(trans="log10",limits = c(.2,2000),name="Measured read count",breaks=c(.2,20,200,2000))+geom_abline()+cleanup+theme(legend.position = "none")
+ggsave("grant_fig_v2.pdf",width = 3,height = 3,units = "in",useDingbats=F)
+
+
+ggplot(a%>%filter(AltDepth>1),aes(x=AltDepth/60000,y=expectedAltDepth/60000))+geom_point()+scale_y_continuous(trans="log10",limits=c(.00001,.05),name = "Predicted frequency")+scale_x_continuous(trans="log10",limits=c(.00001,.05),name="Measured frequency")+geom_abline()+cleanup+theme(legend.position = "none")
+# ggsave("grant_fig_v2.pdf",width = 3,height = 3,units = "in",useDingbats=F)
+
+###Calculating correlation coefficient
+a=a%>%filter(AltDepth>1)
+cor(a$AltDepth,a$expectedAltDepth)^2
+
+# c=a_sum%>%filter(Spike_in_freq==1000)%>%select(mutant,mean_netgr_obs)%>%mutate(a=.055-mean_netgr_obs)%>%mutate(y=exp(-a*72))%>%select(!mean_netgr_obs)
+# write.csv(c,"pooled_fitness_with_drug_1250nM.csv")
+```

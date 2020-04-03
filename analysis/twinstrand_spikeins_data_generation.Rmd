@@ -370,7 +370,7 @@ twinstrand_maf_merge=twinstrand_maf_merge%>%mutate(totalmutant=AltDepth/Depth*to
 detach("package:dplyr", character.only = TRUE)
 library("dplyr", character.only = TRUE)
 twinstrand_simple=twinstrand_maf_merge%>%filter(tki_resistant_mutation=="True",!is.na(mutant),!is.na(experiment))
-twinstrand_simple=twinstrand_simple%>%select("mutant","experiment","Spike_in_freq","time_point","totalmutant")
+twinstrand_simple=twinstrand_simple%>%dplyr::select("mutant","experiment","Spike_in_freq","time_point","totalmutant")
 twinstrand_simple_cast=dcast(twinstrand_simple,mutant+experiment+Spike_in_freq~time_point,value.var="totalmutant")
 
 twinstrand_simple_cast$d0d3=log(twinstrand_simple_cast$D3/twinstrand_simple_cast$D0)/72
@@ -387,7 +387,9 @@ twinstrand_simple_melt_merge=merge(twinstrand_simple_melt,ic50data_long,"mutant"
 ```{r}
 head(twinstrand_maf_merge)
 head(twinstrand_simple_melt_merge)
+head(ic50data_all_conc)
 # write.csv(twinstrand_maf_merge,"twinstrand_maf_merge.csv")
 # write.csv(twinstrand_simple_melt_merge,"twinstrand_simple_melt_merge.csv")
+# write.csv(ic50data_all_conc,"ic50data_all_conc.csv")
 ```
 

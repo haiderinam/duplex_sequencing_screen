@@ -1,0 +1,109 @@
+---
+title: "spikeins_varying_concentrations"
+author: "Haider Inam"
+date: "4/3/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+####Please change required directories this chunk if compiling in R rather than RmD
+```{r}
+#Inputs:
+conc_for_predictions=0.8
+net_gr_wodrug=0.05
+#Reading required tables
+####This table has IC50s of all mutants fit by the 4 parameter logistic at various concentrations
+# ic50data_all_conc=read.csv("../output/ic50data_all_conc.csv",header=T,stringsAsFactors = F)
+ic50data_all_conc=read.csv("output/ic50data_all_conc.csv",header=T,stringsAsFactors = F)
+
+# twinstrand_maf_merge=read.csv("../output/twinstrand_maf_merge.csv",header = T,stringsAsFactors = F)
+twinstrand_maf_merge=read.csv("output/twinstrand_maf_merge.csv",header = T,stringsAsFactors = F)
+
+# twinstrand_simple_melt_merge=read.csv("../output/twinstrand_simple_melt_merge.csv",header = T,stringsAsFactors = F)
+twinstrand_simple_melt_merge=read.csv("output/twinstrand_simple_melt_merge.csv",header = T,stringsAsFactors = F)
+```
+
+```{r,include=F}
+# rm(list=ls())
+library(knitr)
+library(tictoc)
+library(workflowr)
+library(VennDiagram)
+library(dplyr)
+library(foreach)
+library(doParallel)
+library(ggplot2)
+library(reshape2)
+library(RColorBrewer)
+library(devtools)
+library(ggsignif)
+library(plotly)
+library(BiocManager)
+library(drc)
+# library(ensembldb) #Loading this with Dplyr commands seems to throw an error in Rmd
+# library(EnsDb.Hsapiens.v86) #Loading this with Dplyr commands seems to throw an error in Rmd
+
+######################Cleanup for GGPlot2#########################################
+cleanup=theme_bw() +
+  theme(plot.title = element_text(hjust=.5),
+        panel.grid.major = element_blank(),
+        panel.grid.major.y = element_blank(),
+        panel.background = element_blank(),
+        axis.line = element_line(color = "black"),
+        axis.text = element_text(face="bold",color="black",size="11"),
+        text=element_text(size=11,face="bold"),
+        axis.title=element_text(face="bold",size="11"))
+```
+
+
+
+####Plotting observed vs expected over a range of expected IC50s
+```{r}
+twinstrand_simple_melt=twinstrand_simple_melt_merge%>%dplyr::select(mutant,experiment,Spike_in_freq,duration,netgr_obs,drug_effect_obs)
+conc.list=seq(0.5,1.5,by=.1)
+twinstrand_simple_melt_merge=data.frame(matrix(NA,nrow=length(conc.list)*nrow(twinstrand_simple_melt),ncol=0))
+# for(gr_wo_drug in c(0.05,0.055,0.06,.065)){}
+for(conc.curr in conc.list){
+  
+  twinstrand_curr_conc=merge(twinstrand_simple_melt,ic50data_all_conc%>%filter(conc==conc.curr),"mutant")
+  twinstrand_simple_melt_merge=rbind(twinstrand_simple_melt_merge,twinstrand_curr_conc)
+}
+twinstrand_simple_melt_merge$drug_effect_obs=0.05-twinstrand_simple_melt_merge$netgr_obs
+twinstrand_simple_melt_merge$netgr_pred=0.05-twinstrand_simple_melt_merge$drug_effect
+
+a=twinstrand_simple_melt_merge%>%
+  # filter(!experiment%in%c("Enu_4","Enu_3"),duration=="d3d6")%>%
+  filter(!experiment%in%c("Enu_4","Enu_3"))
+  # mutate(netgr_obs=case_when(experiment=="M6"~netgr_obs+.03,
+                                   # experiment=="M5"~netgr_obs+.015,
+                                   # experiment%in%c("M3","M5","M4","M7")~netgr_obs))
+
+# plotly=ggplot(a%>%filter(experiment%in%c("M3","M4","M5","M6","M7"),duration=="d0d6"),aes(x=netgr_pred,y=netgr_obs,color=factor(experiment),label=factor(mutant)))+geom_text()+geom_abline()+cleanup
+# ggplotly(plotly)
+
+plotly=ggplot(a%>%filter(experiment%in%c("M3","M6"),duration=="d0d6"),aes(x=netgr_pred,y=netgr_obs,color=factor(experiment),label=factor(mutant)))+geom_text()+geom_abline()+facet_wrap(~conc)+cleanup
+ggplotly(plotly)
+
+plotly=ggplot(a%>%filter(experiment%in%c("M3","M4","M5","M6","M7"),duration=="d3d6"),aes(x=netgr_pred,y=netgr_obs,color=factor(experiment),label=factor(mutant)))+geom_text()+geom_abline()+facet_wrap(~conc)+cleanup
+ggplotly(plotly)
+
+#Best parameters for each experiment= M3=D3D6 1.2, M4: 1.1, M5: 1.1, M6 D0D6 1.5uM, M7:1.2
+a=twinstrand_simple_melt_merge%>%
+  filter(!experiment%in%c("Enu_4","Enu_3"))%>%
+  filter((experiment=="M3"&conc=="1.4"&duration=="d3d6")|(experiment=="M4"&conc=="1.4"&duration=="d3d6")|(experiment=="M5"&conc=="1.4"&duration=="d3d6")|(experiment=="M6"&conc=="1.4"&duration=="d0d6")|(experiment=="M7"&conc=="1.4"&duration=="d3d6"))
+  # filter(conc==case_when(experiment=="M3"~"1.2",
+                         # experiment%in%c("M4","M5","M6","M7")~conc))
+b=a%>%filter(experiment=="M3")
+plotly=ggplot(a%>%filter(experiment%in%c("M3","M4","M5","M6","M7")),aes(x=netgr_pred,y=netgr_obs,color=factor(experiment),label=factor(mutant)))+geom_text()+geom_abline()+cleanup
+ggplotly(plotly)
+
+plotly=ggplot(a,aes(x=netgr_pred,y=netgr_obs,color=factor(mutant)))+geom_boxplot(position=position_dodge(1))+geom_jitter(shape=16, position=position_jitter())+geom_abline()+cleanup
+ggplotly(plotly)
+
+###The trouble I'm having right now is in representing data from two unique concentration predictions on the same plot
+
+###Next step is to automate the choice of choosing the fitness without drug and the apparent concentration used
+```
