@@ -388,7 +388,7 @@ twinstrand_simple_melt_merge=merge(twinstrand_simple_melt,ic50data_long,"mutant"
 ```{r}
 head(twinstrand_maf_merge)
 head(twinstrand_simple_melt_merge)
-# write.csv(twinstrand_maf_merge,"twinstrand_maf_merge_csv")
-# write.csv(twinstrand_simple_melt_merge,"twinstrand_simple_melt_merge_csv")
+# write.csv(twinstrand_maf_merge,"twinstrand_maf_merge.csv")
+# write.csv(twinstrand_simple_melt_merge,"twinstrand_simple_melt_merge.csv")
 ```
 
