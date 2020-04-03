@@ -10,19 +10,21 @@ editor_options:
 
 # **Duplex Sequencing Spike-Ins**  
 
-<img src="assets/ds_coverages.png" width="300" height="300"  alt="">  
+<img src="assets/ds_coverages.png" width="400" height="300"  alt="">  
 
 * ###Click [here](twinstrand_spikeins_data_generation.html) for the script that reads mutation annotation data and generates dataframes with annotated variants and the correct cell counts  
 
 * ###Click [here](growthrate_plots.html) for initial growth rate plots  
-<img src="assets/growthrates.png" width="300" height="300"  alt="">  
+<img src="assets/growthrates.png" width="400" height="300"  alt="">  
 
 * ###Click [here](growthrate_plots_ENU.html) for growth rate plots for ENU mutants
-<img src="assets/growthrates_ENU.png" width="300" height="300"  alt="">  
+<img src="assets/growthrates_ENU.png" width="400" height="300"  alt="">  
 
-* ###Click [here](spikeins_depthofcoverages.html) Looking at whether we achieved our desired depth of coverages
-<img src="assets/coverages.png" width="300" height="300"  alt="">  
+* ###Click [here](spikeins_depthofcoverages.html) for analysis looking at whether we achieved our desired depth of coverages
+<img src="assets/coverages.png" width="400" height="300"  alt="">  
 
+* ###Click [here](clinical_abundance_predictions.html) for analysis looking at how well our data predicts BCRABL clinical abundance compared to conventional IC50s
+<img src="assets/clinical_abundance_predictions.png" width="600" height="300"  alt="">  
 
 #### Click [here](https://github.com/haiderinam/duplex_sequencing_screen) to be redirected to the github page that contains all my data.  
 

@@ -1,0 +1,154 @@
+---
+title: "clinical_abundance_predictions"
+author: "Haider Inam"
+date: "4/3/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+# rm(list=ls())
+library("lmtest")
+library("ggplot2")
+library("MASS")
+library("fitdistrplus")
+library("lme4")
+library("boot")
+library("dplyr")
+library("plotly")
+######################Cleanup for GGPlot2#########################################
+cleanup=theme_bw() +
+  theme(plot.title = element_text(hjust=.5),
+        panel.grid.major = element_blank(),
+        panel.grid.major.y = element_blank(),
+        panel.background = element_blank(),
+        axis.line = element_line(color = "black"),
+        axis.text = element_text(face="bold",color="black",size="11"),
+        text=element_text(size=11,face="bold"),
+        axis.title=element_text(face="bold",size="11"))
+
+###Downloading mutation bias data. Source of this data: https://github.com/pritchardlabatpsu/SurvivalOfTheLikeliest/tree/master/Figures/Figure3
+# compicmut=read.csv("../data/Combined_data_frame_IC_Mutprob_abundance.csv",header=T,stringsAsFactors=F)
+compicmut=read.csv("data/Combined_data_frame_IC_Mutprob_abundance.csv",header=T,stringsAsFactors=F)
+
+# twinstrand_simple_melt_merge=read.csv("../output/twinstrand_simple_melt_merge.csv",header = T,stringsAsFactors = F)
+twinstrand_simple_melt_merge=read.csv("output/twinstrand_simple_melt_merge.csv",header = T,stringsAsFactors = F)
+
+```
+
+Formatting the data to have mutant and observed net growth rate
+Also involves growth rate corrections
+```{r}
+twinstrand_simple_melt_merge=twinstrand_simple_melt_merge%>%
+  mutate(drug_effect_obs=case_when(experiment=="M6"~drug_effect_obs+.03,
+                                   experiment=="M5"~drug_effect_obs+.015,
+                                   experiment=="Enu_3"~drug_effect_obs-.011,
+                                   experiment%in%c("M3","M5","M4","M7")~drug_effect_obs)) #Therefore including both spike-in experiments and ENU mutagenized conditions.
+
+```
+
+Predicting clinical abundance using a glm around mutation bias and netgr
+
+```{r}
+#Using the mean of all experiments:
+mean_netgr=twinstrand_simple_melt_merge%>%group_by(mutant)%>%summarize(netgr_mean=mean(netgr_obs,na.rm=T))
+
+compicmut2=merge(compicmut,mean_netgr,by.x ="Compound",by.y="mutant")
+# compicmut2$IC50=compicmut2$netgr
+compicmut=compicmut2
+#Notice that value here is your fitted IC50s
+################Predictions using pooled IC50s################
+fit5_pooled<-glm.nb(Abundance ~ netgr_mean+log10(Mutation.Probability), data=compicmut)
+summary(fit5_pooled)
+
+Data_fit=data.frame(cbind(compicmut,fit5_pooled$fitted.values)) ###Need to check that doing a cbind this way makes the right mutants go to the right row in compicmut. Pretty sure it does.
+x=ggplot(data =Data_fit,aes(fit5_pooled.fitted.values,Abundance))
+x+stat_function(fun=function(x)x, geom="line", aes(colour="square",size=1.0))+geom_point(aes(size=1))+theme_classic()+theme(axis.text.x = element_text(size=15),axis.text.y = element_text(size=15))
+# ggplot(compicmut,aes(x=IC50,y=(drug_effect_obs^.5),label=Compound))+geom_text()
+
+################Predictions using individual IC50s################
+fit5<-glm.nb(Abundance ~ IC50+log10(Mutation.Probability), data=compicmut) #Best 2 variable model
+summary(fit5)
+Data_fit=data.frame(cbind(Data_fit,fit5$fitted.values))
+x=ggplot(data =Data_fit,aes(fit5.fitted.values,Abundance))
+x+stat_function(fun=function(x)x, geom="line", aes(colour="square",size=1.0))+geom_point(aes(size=1))+theme_classic()+theme(axis.text.x = element_text(size=15),axis.text.y = element_text(size=15))
+
+#########Plotting predictions from inidivual IC50s and pooled experiments on the same plane#########
+x=ggplot(data =Data_fit,aes(fit5.fitted.values,Abundance,label=Compound))
+plotly=x+stat_function(fun=function(x)x, geom="line", aes(colour="square",size=1.0))+geom_text(aes(size=1,color="blue"))+geom_text((aes(x=fit5_pooled.fitted.values,size=1.0,color="green")))+theme_classic()+theme(axis.text.x = element_text(size=15),axis.text.y = element_text(size=15))
+ggplotly(plotly)
+
+####Pearson's correlations
+cor(Data_fit$fit5_pooled.fitted.values,Data_fit$Abundance,method="pearson")
+cor(Data_fit$fit5.fitted.values,Data_fit$Abundance,method="pearson")
+```
+
+Predicting clinical abundances using the best spike-in mix
+```{r}
+#Using just the experiment that ended up giving us the best growth rates.
+mean_netgr=twinstrand_simple_melt_merge%>%filter(experiment%in%c("M3"),duration%in%("d3d6"))
+mean_netgr=mean_netgr%>%filter(!netgr_obs%in%NA)%>%
+  select(mutant,netgr_obs)
+
+
+
+compicmut2=merge(compicmut,mean_netgr,by.x ="Compound",by.y="mutant")
+# compicmut2$IC50=compicmut2$netgr
+compicmut=compicmut2
+#Notice that value here is your fitted IC50s
+################Predictions using pooled IC50s################
+fit5_pooled<-glm.nb(Abundance ~ netgr_mean+log10(Mutation.Probability), data=compicmut)
+summary(fit5_pooled)
+
+Data_fit=data.frame(cbind(compicmut,fit5_pooled$fitted.values)) ###Need to check that doing a cbind this way makes the right mutants go to the right row in compicmut. Pretty sure it does.
+x=ggplot(data =Data_fit,aes(fit5_pooled.fitted.values,Abundance))
+x+stat_function(fun=function(x)x, geom="line", aes(colour="square",size=1.0))+geom_point(aes(size=1))+theme_classic()+theme(axis.text.x = element_text(size=15),axis.text.y = element_text(size=15))
+# ggplot(compicmut,aes(x=IC50,y=(drug_effect_obs^.5),label=Compound))+geom_text()
+
+################Predictions using individual IC50s################
+fit5<-glm.nb(Abundance ~ IC50+log10(Mutation.Probability), data=compicmut) #Best 2 variable model
+summary(fit5)
+Data_fit=data.frame(cbind(Data_fit,fit5$fitted.values))
+x=ggplot(data =Data_fit,aes(fit5.fitted.values,Abundance))
+x+stat_function(fun=function(x)x, geom="line", aes(colour="square",size=1.0))+geom_point(aes(size=1))+theme_classic()+theme(axis.text.x = element_text(size=15),axis.text.y = element_text(size=15))
+
+#########Plotting predictions from inidivual IC50s and pooled experiments on the same plane#########
+x=ggplot(data =Data_fit,aes(fit5.fitted.values,Abundance,label=Compound))
+plotly=x+stat_function(fun=function(x)x, geom="line", aes(colour="square",size=1.0))+geom_text(aes(size=1,color="blue"))+geom_text((aes(x=fit5_pooled.fitted.values,size=1.0,color="green")))+theme_classic()+theme(axis.text.x = element_text(size=15),axis.text.y = element_text(size=15))
+ggplotly(plotly)
+
+####Pearson's correlations
+cor(Data_fit$fit5_pooled.fitted.values,Data_fit$Abundance,method="pearson")
+cor(Data_fit$fit5.fitted.values,Data_fit$Abundance,method="pearson")
+```
+
+
+Supplemental Analysis
+```{r}
+enu_plots=twinstrand_simple_melt_merge%>%filter(experiment%in%c("Enu_4","Enu_3"),duration%in%"d3d6")
+#hardcoding adjustments to the growth rates
+enu_plots$netgr_obs[enu_plots$experiment=="Enu_3"]=enu_plots$netgr_obs[enu_plots$experiment=="Enu_3"]-.011
+
+a=twinstrand_simple_melt_merge%>%
+  filter(!experiment%in%c("Enu_4","Enu_3"),duration%in%"d3d6",conc=="0.8")%>%
+  mutate(netgr_obs=case_when(experiment=="M6"~netgr_obs+.03,
+                                   experiment=="M5"~netgr_obs+.015,
+                                   experiment%in%c("M3","M5","M4","M7")~netgr_obs))
+
+a_sum=a%>%group_by(mutant,Spike_in_freq)%>%summarize(mean_netgr_pred=mean(netgr_pred),mean_netgr_obs=mean(netgr_obs),sd_netgr_obs=sd(netgr_obs),mean_drug_effect=mean(drug_effect_obs),sd_drug_effect=sd(drug_effect_obs),mean_drug_effect_pred=mean(drug_effect),sd_drug_effect_pred=sd(drug_effect))
+
+plotly=ggplot(a_sum,aes(x=mean_netgr_pred,y=mean_netgr_obs,color=factor(Spike_in_freq)))+geom_errorbar(aes(ymin=mean_netgr_obs-sd_netgr_obs,ymax=mean_netgr_obs+sd_netgr_obs))+geom_point()+geom_point(data=enu_plots%>%filter(experiment%in%("Enu_3")),aes(x=netgr_pred,y=netgr_obs,color="red"))+geom_abline()+cleanup
+ggplotly(plotly)
+
+####Plotting drug effect on growth rate rather than net growth rate
+plotly=ggplot(a_sum,aes(x=mean_drug_effect_pred,y=mean_drug_effect,color=factor(Spike_in_freq)))+geom_errorbar(aes(ymin=mean_drug_effect-sd_drug_effect,ymax=mean_drug_effect+sd_drug_effect))+geom_point()+geom_abline()+cleanup
+ggplotly(plotly)
+
+plotly=ggplot(a_sum%>%filter(!Spike_in_freq%in%c(5000)),aes(x=mean_drug_effect_pred,y=mean_drug_effect,color=factor(Spike_in_freq)))+geom_errorbar(aes(ymin=mean_drug_effect-sd_drug_effect,ymax=mean_drug_effect+sd_drug_effect))+geom_point()+geom_abline()+cleanup
+ggplotly(plotly)
+```
+
