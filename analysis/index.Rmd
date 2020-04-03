@@ -8,4 +8,17 @@ editor_options:
   chunk_output_type: console
 ---
 
-Welcome to my research website.
+# **Duplex Sequencing Spike-Ins**  
+
+* ###Click [here](twinstrand_spikeins_data_generation.html) to see pairwise comparisons of conditional selection applied to simulated cohorts
+<img src="assets/atisubsamplingsims.png" width="600" height="300"  alt="">
+
+
+#### Click [here](https://github.com/haiderinam/duplex_sequencing_screen) to be redirected to the github page that contains all my data.  
+What is in each directory:  
+  
+* __Data__: contains data downloaded prior to analyses.  
+* __Output__: contains data that the code makes  
+* __Analysis__: contains your Rmarkdown files with the code.  
+* __Docs__: contain the html output from the Rmd files in the analysis directory.  
+* __Code__: contains .R files that are functions that the Rmd files in the analysis folder use. 
