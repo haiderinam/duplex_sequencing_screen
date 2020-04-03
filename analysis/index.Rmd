@@ -9,7 +9,8 @@ editor_options:
 ---
 
 # **Duplex Sequencing Spike-Ins**  
-<img src="assets/ds_coverages.png" width="600" height="300"  alt="">
+
+<img src="assets/ds_coverages.png" width="600" height="300"  alt="">  
 
 * ###Click [here](twinstrand_spikeins_data_generation.html) for the script that reads mutation annotation data and generates dataframes with annotated variants and the correct cell counts
 
