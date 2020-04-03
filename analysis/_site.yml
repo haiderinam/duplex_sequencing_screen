@@ -1,7 +1,7 @@
-name: "duplex_sequencing_screen"
+name: duplex_sequencing_screen
 output_dir: ../docs
 navbar:
-  title: "duplex_sequencing_screen"
+  title: duplex_sequencing_screen
   left:
   - text: Home
     href: index.html
@@ -9,6 +9,10 @@ navbar:
     href: about.html
   - text: License
     href: license.html
+  right:
+  - icon: fa-github
+    text: Source code
+    href: https://github.com/haiderinam/duplex_sequencing_screen
 output:
   workflowr::wflow_html:
     toc: yes
