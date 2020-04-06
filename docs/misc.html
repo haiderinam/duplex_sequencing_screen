@@ -1,0 +1,867 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta charset="utf-8" />
+<meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+
+<meta name="author" content="Haider Inam" />
+
+
+<title>Misc</title>
+
+<script src="site_libs/jquery-1.11.3/jquery.min.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link href="site_libs/bootstrap-3.3.5/css/cosmo.min.css" rel="stylesheet" />
+<script src="site_libs/bootstrap-3.3.5/js/bootstrap.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/html5shiv.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/respond.min.js"></script>
+<script src="site_libs/jqueryui-1.11.4/jquery-ui.min.js"></script>
+<link href="site_libs/tocify-1.9.1/jquery.tocify.css" rel="stylesheet" />
+<script src="site_libs/tocify-1.9.1/jquery.tocify.js"></script>
+<script src="site_libs/navigation-1.1/tabsets.js"></script>
+<link href="site_libs/highlightjs-9.12.0/textmate.css" rel="stylesheet" />
+<script src="site_libs/highlightjs-9.12.0/highlight.js"></script>
+<link href="site_libs/font-awesome-5.1.0/css/all.css" rel="stylesheet" />
+<link href="site_libs/font-awesome-5.1.0/css/v4-shims.css" rel="stylesheet" />
+
+<style type="text/css">code{white-space: pre;}</style>
+<style type="text/css">
+  pre:not([class]) {
+    background-color: white;
+  }
+</style>
+<script type="text/javascript">
+if (window.hljs) {
+  hljs.configure({languages: []});
+  hljs.initHighlightingOnLoad();
+  if (document.readyState && document.readyState === "complete") {
+    window.setTimeout(function() { hljs.initHighlighting(); }, 0);
+  }
+}
+</script>
+
+
+
+<style type="text/css">
+h1 {
+  font-size: 34px;
+}
+h1.title {
+  font-size: 38px;
+}
+h2 {
+  font-size: 30px;
+}
+h3 {
+  font-size: 24px;
+}
+h4 {
+  font-size: 18px;
+}
+h5 {
+  font-size: 16px;
+}
+h6 {
+  font-size: 12px;
+}
+.table th:not([align]) {
+  text-align: left;
+}
+</style>
+
+
+
+
+<style type = "text/css">
+.main-container {
+  max-width: 940px;
+  margin-left: auto;
+  margin-right: auto;
+}
+code {
+  color: inherit;
+  background-color: rgba(0, 0, 0, 0.04);
+}
+img {
+  max-width:100%;
+}
+.tabbed-pane {
+  padding-top: 12px;
+}
+.html-widget {
+  margin-bottom: 20px;
+}
+button.code-folding-btn:focus {
+  outline: none;
+}
+summary {
+  display: list-item;
+}
+</style>
+
+
+<style type="text/css">
+/* padding for bootstrap navbar */
+body {
+  padding-top: 51px;
+  padding-bottom: 40px;
+}
+/* offset scroll position for anchor links (for fixed navbar)  */
+.section h1 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.section h2 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.section h3 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.section h4 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.section h5 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.section h6 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.dropdown-submenu {
+  position: relative;
+}
+.dropdown-submenu>.dropdown-menu {
+  top: 0;
+  left: 100%;
+  margin-top: -6px;
+  margin-left: -1px;
+  border-radius: 0 6px 6px 6px;
+}
+.dropdown-submenu:hover>.dropdown-menu {
+  display: block;
+}
+.dropdown-submenu>a:after {
+  display: block;
+  content: " ";
+  float: right;
+  width: 0;
+  height: 0;
+  border-color: transparent;
+  border-style: solid;
+  border-width: 5px 0 5px 5px;
+  border-left-color: #cccccc;
+  margin-top: 5px;
+  margin-right: -10px;
+}
+.dropdown-submenu:hover>a:after {
+  border-left-color: #ffffff;
+}
+.dropdown-submenu.pull-left {
+  float: none;
+}
+.dropdown-submenu.pull-left>.dropdown-menu {
+  left: -100%;
+  margin-left: 10px;
+  border-radius: 6px 0 6px 6px;
+}
+</style>
+
+<script>
+// manage active state of menu based on current page
+$(document).ready(function () {
+  // active menu anchor
+  href = window.location.pathname
+  href = href.substr(href.lastIndexOf('/') + 1)
+  if (href === "")
+    href = "index.html";
+  var menuAnchor = $('a[href="' + href + '"]');
+
+  // mark it active
+  menuAnchor.parent().addClass('active');
+
+  // if it's got a parent navbar menu mark it active as well
+  menuAnchor.closest('li.dropdown').addClass('active');
+});
+</script>
+
+<!-- tabsets -->
+
+<style type="text/css">
+.tabset-dropdown > .nav-tabs {
+  display: inline-table;
+  max-height: 500px;
+  min-height: 44px;
+  overflow-y: auto;
+  background: white;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.tabset-dropdown > .nav-tabs > li.active:before {
+  content: "";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li.active:before {
+  content: "&#xe258;";
+  border: none;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open:before {
+  content: "";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs > li.active {
+  display: block;
+}
+
+.tabset-dropdown > .nav-tabs > li > a,
+.tabset-dropdown > .nav-tabs > li > a:focus,
+.tabset-dropdown > .nav-tabs > li > a:hover {
+  border: none;
+  display: inline-block;
+  border-radius: 4px;
+  background-color: transparent;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li {
+  display: block;
+  float: none;
+}
+
+.tabset-dropdown > .nav-tabs > li {
+  display: none;
+}
+</style>
+
+<!-- code folding -->
+
+
+
+<style type="text/css">
+
+#TOC {
+  margin: 25px 0px 20px 0px;
+}
+@media (max-width: 768px) {
+#TOC {
+  position: relative;
+  width: 100%;
+}
+}
+
+@media print {
+.toc-content {
+  /* see https://github.com/w3c/csswg-drafts/issues/4434 */
+  float: right;
+}
+}
+
+.toc-content {
+  padding-left: 30px;
+  padding-right: 40px;
+}
+
+div.main-container {
+  max-width: 1200px;
+}
+
+div.tocify {
+  width: 20%;
+  max-width: 260px;
+  max-height: 85%;
+}
+
+@media (min-width: 768px) and (max-width: 991px) {
+  div.tocify {
+    width: 25%;
+  }
+}
+
+@media (max-width: 767px) {
+  div.tocify {
+    width: 100%;
+    max-width: none;
+  }
+}
+
+.tocify ul, .tocify li {
+  line-height: 20px;
+}
+
+.tocify-subheader .tocify-item {
+  font-size: 0.90em;
+}
+
+.tocify .list-group-item {
+  border-radius: 0px;
+}
+
+
+</style>
+
+
+
+</head>
+
+<body>
+
+
+<div class="container-fluid main-container">
+
+
+<!-- setup 3col/9col grid for toc_float and main content  -->
+<div class="row-fluid">
+<div class="col-xs-12 col-sm-4 col-md-3">
+<div id="TOC" class="tocify">
+</div>
+</div>
+
+<div class="toc-content col-xs-12 col-sm-8 col-md-9">
+
+
+
+
+<div class="navbar navbar-default  navbar-fixed-top" role="navigation">
+  <div class="container">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="index.html">duplex_sequencing_screen</a>
+    </div>
+    <div id="navbar" class="navbar-collapse collapse">
+      <ul class="nav navbar-nav">
+        <li>
+  <a href="index.html">Home</a>
+</li>
+<li>
+  <a href="about.html">About</a>
+</li>
+<li>
+  <a href="license.html">License</a>
+</li>
+      </ul>
+      <ul class="nav navbar-nav navbar-right">
+        <li>
+  <a href="https://github.com/haiderinam/duplex_sequencing_screen">
+    <span class="fa fa-github"></span>
+     
+    Source code
+  </a>
+</li>
+      </ul>
+    </div><!--/.nav-collapse -->
+  </div><!--/.container -->
+</div><!--/.navbar -->
+
+<!-- Add a small amount of space between sections. -->
+<style type="text/css">
+div.section {
+  padding-top: 12px;
+}
+</style>
+
+<div class="fluid-row" id="header">
+
+
+
+<h1 class="title toc-ignore">Misc</h1>
+<h4 class="author">Haider Inam</h4>
+<h4 class="date">4/3/2020</h4>
+
+</div>
+
+
+<p>
+<button type="button" class="btn btn-default btn-workflowr btn-workflowr-report" data-toggle="collapse" data-target="#workflowr-report">
+<span class="glyphicon glyphicon-list" aria-hidden="true"></span> workflowr <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span>
+</button>
+</p>
+<div id="workflowr-report" class="collapse">
+<ul class="nav nav-tabs">
+<li class="active">
+<a data-toggle="tab" href="#summary">Summary</a>
+</li>
+<li>
+<a data-toggle="tab" href="#checks"> Checks <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> </a>
+</li>
+<li>
+<a data-toggle="tab" href="#versions">Past versions</a>
+</li>
+</ul>
+<div class="tab-content">
+<div id="summary" class="tab-pane fade in active">
+<p>
+<strong>Last updated:</strong> 2020-04-06
+</p>
+<p>
+<strong>Checks:</strong> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> 7 <span class="glyphicon glyphicon-exclamation-sign text-danger" aria-hidden="true"></span> 0
+</p>
+<p>
+<strong>Knit directory:</strong> <code>duplex_sequencing_screen/</code> <span class="glyphicon glyphicon-question-sign" aria-hidden="true" title="This is the local directory in which the code in this file was executed."> </span>
+</p>
+<p>
+This reproducible <a href="http://rmarkdown.rstudio.com">R Markdown</a> analysis was created with <a
+  href="https://github.com/jdblischak/workflowr">workflowr</a> (version 1.6.0). The <em>Checks</em> tab describes the reproducibility checks that were applied when the results were created. The <em>Past versions</em> tab lists the development history.
+</p>
+<hr>
+</div>
+<div id="checks" class="tab-pane fade">
+<div id="workflowr-checks" class="panel-group">
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRMarkdownfilestronguptodate"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>R Markdown file:</strong> up-to-date </a>
+</p>
+</div>
+<div id="strongRMarkdownfilestronguptodate" class="panel-collapse collapse">
+<div class="panel-body">
+<p>Great! Since the R Markdown file has been committed to the Git repository, you know the exact version of the code that produced these results.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongEnvironmentstrongempty"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Environment:</strong> empty </a>
+</p>
+</div>
+<div id="strongEnvironmentstrongempty" class="panel-collapse collapse">
+<div class="panel-body">
+<p>Great job! The global environment was empty. Objects defined in the global environment can affect the analysis in your R Markdown file in unknown ways. For reproduciblity it’s best to always run the code in an empty environment.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongSeedstrongcodesetseed20200402code"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Seed:</strong> <code>set.seed(20200402)</code> </a>
+</p>
+</div>
+<div id="strongSeedstrongcodesetseed20200402code" class="panel-collapse collapse">
+<div class="panel-body">
+<p>The command <code>set.seed(20200402)</code> was run prior to running the code in the R Markdown file. Setting a seed ensures that any results that rely on randomness, e.g. subsampling or permutations, are reproducible.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongSessioninformationstrongrecorded"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Session information:</strong> recorded </a>
+</p>
+</div>
+<div id="strongSessioninformationstrongrecorded" class="panel-collapse collapse">
+<div class="panel-body">
+<p>Great job! Recording the operating system, R version, and package versions is critical for reproducibility.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongCachestrongnone"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Cache:</strong> none </a>
+</p>
+</div>
+<div id="strongCachestrongnone" class="panel-collapse collapse">
+<div class="panel-body">
+<p>Nice! There were no cached chunks for this analysis, so you can be confident that you successfully produced the results during this run.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongFilepathsstrongrelative"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>File paths:</strong> relative </a>
+</p>
+</div>
+<div id="strongFilepathsstrongrelative" class="panel-collapse collapse">
+<div class="panel-body">
+<p>Great job! Using relative paths to the files within your workflowr project makes it easier to run your code on other machines.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomhaiderinamduplexsequencingscreentree0a6e9cb3ff77817530c1b714327df9c2c8db06d8targetblank0a6e9cba"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Repository version:</strong> <a href="https://github.com/haiderinam/duplex_sequencing_screen/tree/0a6e9cb3ff77817530c1b714327df9c2c8db06d8" target="_blank">0a6e9cb</a> </a>
+</p>
+</div>
+<div id="strongRepositoryversionstrongahrefhttpsgithubcomhaiderinamduplexsequencingscreentree0a6e9cb3ff77817530c1b714327df9c2c8db06d8targetblank0a6e9cba" class="panel-collapse collapse">
+<div class="panel-body">
+<p>
+Great! You are using Git for version control. Tracking code development and connecting the code version to the results is critical for reproducibility. The version displayed above was the version of the Git repository at the time these results were generated. <br><br> Note that you need to be careful to ensure that all relevant files for the analysis have been committed to Git prior to generating the results (you can use <code>wflow_publish</code> or <code>wflow_git_commit</code>). workflowr only checks the R Markdown file, but you know if there are other scripts or data files that it depends on. Below is the status of the Git repository when the results were generated:
+</p>
+<pre><code>
+Ignored files:
+    Ignored:    .Rproj.user/
+
+Untracked files:
+    Untracked:  data/Combined_data_frame_IC_Mutprob_abundance.csv
+    Untracked:  data/IC50HeatMap.csv
+    Untracked:  data/Twinstrand/
+    Untracked:  data/heatmap_concat_data.csv
+    Untracked:  grant_fig.pdf
+    Untracked:  grant_fig_v2.pdf
+    Untracked:  output/ic50data_all_conc.csv
+
+Unstaged changes:
+    Modified:   analysis/clinical_abundance_predictions.Rmd
+    Deleted:    data/README.md
+
+</code></pre>
+<p>
+Note that any generated files, e.g. HTML, png, CSS, etc., are not included in this status report because it is ok for generated content to have uncommitted changes.
+</p>
+</div>
+</div>
+</div>
+</div>
+<hr>
+</div>
+<div id="versions" class="tab-pane fade">
+
+<p>
+These are the previous versions of the R Markdown and HTML files. If you’ve configured a remote Git repository (see <code>?wflow_git_remote</code>), click on the hyperlinks in the table below to view them.
+</p>
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+File
+</th>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+<th>
+Message
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+Rmd
+</td>
+<td>
+<a href="https://github.com/haiderinam/duplex_sequencing_screen/blob/0a6e9cb3ff77817530c1b714327df9c2c8db06d8/analysis/misc.Rmd" target="_blank">0a6e9cb</a>
+</td>
+<td>
+haiderinam
+</td>
+<td>
+2020-04-06
+</td>
+<td>
+wflow_publish(files = “analysis/misc.Rmd”)
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<hr>
+</div>
+</div>
+</div>
+<p>Here I include some miscellaneous, pre-prod analyses</p>
+<div id="modeling-out-confidence-intervals-on-growth-rate-predictions-from-ic50s" class="section level3">
+<h3>Modeling out confidence intervals on growth rate predictions from IC50s</h3>
+<p>Sources of error: 1. Sampling error (reads). Will be estimated by * Multinomial distributions based on observed coverages. * Sampling error in observed reads may be eliminated by removing mutants with &lt;=1 depth of coverage</p>
+<ol start="2" style="list-style-type: decimal">
+<li>Dose response variability</li>
+</ol>
+<ul>
+<li>Well known observation that IC50s can vary by as much as 50%. Will incorporate this into predictions. One direct, albeit simple, solution is to just take the 95% confidence intervals of the IC50s that fell in the dose response range.</li>
+</ul>
+<ol start="3" style="list-style-type: decimal">
+<li>Dose variability. i.e. error between your expected dose and dose response.</li>
+</ol>
+<p>Getting the dose responses for all mutants with the errors.</p>
+<pre class="r"><code>net_gr_wodrug=0.055
+########################Reading IC50 Data########################
+ic50data_all=read.csv(&quot;data/IC50HeatMap.csv&quot;,header = T,stringsAsFactors = F)
+# ic50data_all=read.csv(&quot;../data/IC50HeatMap.csv&quot;,header = T,stringsAsFactors = F)
+
+twinstrand_maf_merge=read.csv(&quot;output/twinstrand_maf_merge.csv&quot;,header = T,stringsAsFactors = F)
+# twinstrand_maf_merge=read.csv(&quot;../output/twinstrand_maf_merge.csv&quot;,header = T,stringsAsFactors = F)
+
+ic50data_all=ic50data_all%&gt;%filter(species%in%c(&quot;Wt&quot;,&quot;V299L_H&quot;,&quot;E355A&quot;,&quot;D276G_maxi&quot;,&quot;H396R&quot;,&quot;F317L&quot;,&quot;F359I&quot;,&quot;E459K&quot;,&quot;G250E&quot;,&quot;F359C&quot;,&quot;F359V&quot;,&quot;M351T&quot;,&quot;L248V&quot;,&quot;E355G_maxi&quot;,&quot;Q252H_maxi&quot;,&quot;Y253F&quot;,&quot;F486S_maxi&quot;,&quot;H396P_maxi&quot;,&quot;E255K&quot;,&quot;Y253H&quot;,&quot;T315I&quot;,&quot;E255V&quot;))
+
+
+ic50data_all=ic50data_all%&gt;%
+  mutate(species=case_when(species==&quot;F486S_maxi&quot;~&quot;F486S&quot;,
+                          species==&quot;H396P_maxi&quot;~&quot;H396P&quot;,
+                          species==&quot;Q252H_maxi&quot;~&quot;Q252H&quot;,
+                          species==&quot;E355G_maxi&quot;~&quot;E355G&quot;,
+                          species==&quot;D276G_maxi&quot;~&quot;D276G&quot;,
+                          species==&quot;V299L_H&quot; ~ &quot;V299L&quot;,
+                          TRUE ~as.character(species)))
+
+########################Getting Confidence Intervals########################
+#will just start of with one dose at 1.25uM
+ic50data_all2=data.frame(cbind(ic50data_all$species,ic50data_all$X1.25))
+# ic50data_all2=data.frame(cbind(ic50data_all$species,ic50data_all$X0.625))
+colnames(ic50data_all2)=c(&quot;species&quot;,&quot;dose_response&quot;)
+ic50data_all2$dose_response=as.numeric(as.character(ic50data_all2$dose_response))
+
+
+#Calculating confidence limit and standard deviations
+ic50data_all_sum=ic50data_all2%&gt;%group_by(species)%&gt;%summarise(dr_mean=mean(dose_response),dr_ci_ul=dr_mean+1.96*sd(dose_response)*sqrt(n()),dr_ci_ll=dr_mean-1.96*sd(dose_response)*sqrt(n()),dr_sd_ul=dr_mean+sd(dose_response),dr_sd_ll=dr_mean-sd(dose_response))
+
+#Since some mutants have 0% alive at the lower limit of the confidence interval, I&#39;m converting those to 0
+ic50data_all_sum=ic50data_all_sum%&gt;%mutate(dr_ci_ll=case_when(dr_ci_ll&lt;=0~0,
+                                                              TRUE~dr_ci_ll),
+                                           dr_sd_ll=case_when(dr_sd_ll&lt;=0~0,
+                                                              TRUE~dr_sd_ll))
+
+#Dose response here is essentially y. aka %alive
+#Converting y to drug effect on growth rate aka alpha value
+ic50data_all_sum=ic50data_all_sum%&gt;%mutate(netgr_pred_mean=net_gr_wodrug-(-log(dr_mean)/72),netgr_pred_ci_ul=net_gr_wodrug-(-log(dr_ci_ul)/72),netgr_pred_ci_ll=net_gr_wodrug-(-log(dr_ci_ll)/72),netgr_pred_sd_ul=net_gr_wodrug-(-log(dr_sd_ul)/72),netgr_pred_sd_ll=net_gr_wodrug-(-log(dr_sd_ll)/72))
+
+
+########################Plotting Count with CIs########################
+twinstrand_maf_merge=twinstrand_maf_merge%&gt;%mutate(MAF=AltDepth/Depth)
+twinstrand_maf_merge=merge(twinstrand_maf_merge%&gt;%
+                                 filter(experiment==&quot;M3&quot;,tki_resistant_mutation==&quot;True&quot;,!mutant%in%c(&quot;D276G&quot;,NA)),ic50data_all_sum%&gt;%
+                                 dplyr::select(species,netgr_pred_mean,netgr_pred_ci_ul,netgr_pred_ci_ll,netgr_pred_sd_ul,netgr_pred_sd_ll),by.x=&quot;mutant&quot;,by.y=&quot;species&quot;)
+
+twinstrand_simple=twinstrand_maf_merge%&gt;%dplyr::select(AltDepth,Depth,tki_resistant_mutation,mutant,experiment,Spike_in_freq,time_point,totalcells,totalmutant,MAF,netgr_pred_mean,netgr_pred_ci_ul,netgr_pred_ci_ll,netgr_pred_sd_ul,netgr_pred_sd_ll)
+
+twinstrand_merge_forplot=melt(twinstrand_simple,id.vars = c(&quot;AltDepth&quot;,&quot;Depth&quot;,&quot;tki_resistant_mutation&quot;,&quot;mutant&quot;,&quot;experiment&quot;,&quot;Spike_in_freq&quot;,&quot;time_point&quot;,&quot;totalcells&quot;,&quot;netgr_pred_mean&quot;,&quot;netgr_pred_ci_ul&quot;,&quot;netgr_pred_ci_ll&quot;,&quot;netgr_pred_sd_ul&quot;,&quot;netgr_pred_sd_ll&quot;),variable.name = &quot;count_type&quot;,value.name = &quot;count&quot;)
+# twinstrand_merge_forplot=merge(twinstrand_maf_merge%&gt;%filter(experiment==&quot;M3&quot;,tki_resistant_mutation==&quot;True&quot;,!mutant%in%c(&quot;D276G&quot;,NA)),ic50data_all_sum%&gt;%dplyr::select(species,netgr_pred_mean,netgr_pred_ci_ul,netgr_pred_ci_ll,netgr_pred_sd_ul,netgr_pred_sd_ll),by.x=&quot;mutant&quot;,by.y=&quot;species&quot;)
+
+#Basically making an extra column with the D0 total mutant counts for each mutant
+twinstrand_merge_forplot=merge(twinstrand_merge_forplot,twinstrand_merge_forplot%&gt;%filter(time_point==&quot;D0&quot;)%&gt;%dplyr::select(mutant,count_type,count_D0=count),by=c(&quot;mutant&quot;,&quot;count_type&quot;))
+#########Here, figure out why twinstrand_merge_forplot is having two rows for each mutant after being merged with a D0 version of itself. This is leading to weird plotting artifacts
+
+a=twinstrand_merge_forplot%&gt;%filter(count_type==&quot;totalmutant&quot;,mutant==&quot;E255K&quot;,time_point==&quot;D0&quot;)
+############
+twinstrand_merge_forplot=twinstrand_merge_forplot%&gt;%mutate(time=case_when(time_point==&quot;D0&quot;~0,
+                            time_point==&quot;D3&quot;~72,
+                            time_point==&quot;D6&quot;~144),
+                           ci_mean=count_D0*exp(netgr_pred_mean*time),
+                           ci_ul=count_D0*exp(netgr_pred_ci_ul*time),
+                           ci_ll=count_D0*exp(netgr_pred_ci_ll*time),
+                           sd_ul=count_D0*exp(netgr_pred_sd_ul*time),
+                           sd_ll=count_D0*exp(netgr_pred_sd_ll*time),)
+twinstrand_merge_forplot=twinstrand_merge_forplot%&gt;%mutate(ci_ll=case_when(ci_ll==&quot;NaN&quot;~0,
+                                           TRUE~ci_ll))
+
+#Factoring the mutants from more to less resistant
+twinstrand_merge_forplot$mutant=factor(twinstrand_merge_forplot$mutant,levels = as.character(unique(twinstrand_merge_forplot$mutant[order((twinstrand_merge_forplot$netgr_pred_mean),decreasing = T)])))
+
+
+getPalette = colorRampPalette(brewer.pal(9, &quot;Spectral&quot;))
+####In the plots below, the dashed line is the mean prediction form the IC50s. Points are what we see in the spike-in experiment
+
+#Plotting with 95% confidence intervals
+# %&gt;%filter(count_type==&quot;totalmutant&quot;)
+ggplot(twinstrand_merge_forplot,aes(x=time/24,y=count,fill=factor(mutant)))+geom_point()+
+  facet_grid(count_type~mutant)+
+  geom_line(aes(y=ci_mean),linetype=&quot;dashed&quot;)+
+  geom_ribbon(aes(ymin=ci_ll,ymax=ci_ul,alpha=.3))+
+  scale_y_continuous(trans=&quot;log2&quot;)+
+  cleanup+
+  scale_fill_manual(values = getPalette(length(unique(twinstrand_merge_forplot$mutant))))</code></pre>
+<pre><code>Warning: Transformation introduced infinite values in continuous y-axis</code></pre>
+<p><img src="figure/misc.Rmd/unnamed-chunk-2-1.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>#Plotting with standard deviations
+ggplot(twinstrand_merge_forplot,aes(x=time/24,y=count,fill=factor(mutant),shape=factor(count_type)))+geom_point()+
+  geom_line(aes(y=ci_mean),linetype=&quot;dashed&quot;)+
+  geom_ribbon(aes(ymin=sd_ll,ymax=sd_ul,alpha=.3))+
+  facet_wrap(~mutant,ncol=4)+
+  scale_y_continuous(trans=&quot;log2&quot;)+
+  cleanup+
+  scale_fill_manual(values = getPalette(length(unique(twinstrand_merge_forplot$mutant))))</code></pre>
+<p><img src="figure/misc.Rmd/unnamed-chunk-2-2.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>#Next step: extend for experiments besides M3
+
+ggplot(twinstrand_merge_forplot%&gt;%filter(count_type==&quot;totalmutant&quot;),aes(x=time/24,y=count,fill=factor(mutant),sahpe=factor(count_type)))+geom_point()+
+  geom_line(aes(y=ci_mean),linetype=&quot;dashed&quot;)+
+  geom_ribbon(aes(ymin=sd_ll,ymax=sd_ul,alpha=.3))+
+  facet_wrap(~mutant,ncol=4)+
+  scale_y_continuous(trans=&quot;log2&quot;)+
+  cleanup+
+  scale_fill_manual(values = getPalette(length(unique(twinstrand_merge_forplot$mutant))))</code></pre>
+<p><img src="figure/misc.Rmd/unnamed-chunk-2-3.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code># a=twinstrand_merge_forplot%&gt;%filter(count_type==&quot;totalmutant&quot;,mutant==&quot;E255K&quot;)</code></pre>
+<p>Next step: Is our method better than the Shendure method? 1. Can they make accurate predicitons? 2. Does their method still work for measuring gain of funciton phenotypes? 3. Do they have enough coverage given a detection efficiency of 10,000? Assume you make 1,000 mutants Given a detection efficiency of 1 in 10,000, for mutants treated with drug for a specified amount of time, how many mutants will you get enough coverage for?</p>
+<p>Can you use just mutant allele frequency, without count data? I.e. does that data match expected growth?</p>
+<br>
+<p>
+<button type="button" class="btn btn-default btn-workflowr btn-workflowr-sessioninfo" data-toggle="collapse" data-target="#workflowr-sessioninfo" style="display: block;">
+<span class="glyphicon glyphicon-wrench" aria-hidden="true"></span> Session information
+</button>
+</p>
+<div id="workflowr-sessioninfo" class="collapse">
+<pre class="r"><code>sessionInfo()</code></pre>
+<pre><code>R version 3.5.2 (2018-12-20)
+Platform: x86_64-apple-darwin15.6.0 (64-bit)
+Running under: macOS  10.15.4
+
+Matrix products: default
+BLAS: /Library/Frameworks/R.framework/Versions/3.5/Resources/lib/libRblas.0.dylib
+LAPACK: /Library/Frameworks/R.framework/Versions/3.5/Resources/lib/libRlapack.dylib
+
+locale:
+[1] en_US.UTF-8/en_US.UTF-8/en_US.UTF-8/C/en_US.UTF-8/en_US.UTF-8
+
+attached base packages:
+[1] parallel  grid      stats     graphics  grDevices utils     datasets 
+[8] methods   base     
+
+other attached packages:
+ [1] drc_3.0-1           MASS_7.3-51.5       BiocManager_1.30.10
+ [4] plotly_4.9.1        ggsignif_0.6.0      devtools_2.2.1     
+ [7] usethis_1.5.1       RColorBrewer_1.1-2  reshape2_1.4.3     
+[10] ggplot2_3.2.1       doParallel_1.0.15   iterators_1.0.12   
+[13] foreach_1.4.7       dplyr_0.8.4         VennDiagram_1.6.20 
+[16] futile.logger_1.4.3 tictoc_1.0          knitr_1.27         
+[19] workflowr_1.6.0    
+
+loaded via a namespace (and not attached):
+ [1] fs_1.3.1             httr_1.4.1           rprojroot_1.3-2     
+ [4] tools_3.5.2          backports_1.1.5      R6_2.4.1            
+ [7] lazyeval_0.2.2       colorspace_1.4-1     withr_2.1.2         
+[10] tidyselect_1.0.0     prettyunits_1.1.1    processx_3.4.1      
+[13] curl_4.3             compiler_3.5.2       git2r_0.26.1        
+[16] cli_2.0.1            formatR_1.7          sandwich_2.5-1      
+[19] desc_1.2.0           labeling_0.3         scales_1.1.0        
+[22] mvtnorm_1.0-12       callr_3.4.1          stringr_1.4.0       
+[25] digest_0.6.23        foreign_0.8-75       rmarkdown_2.1       
+[28] rio_0.5.16           pkgconfig_2.0.3      htmltools_0.4.0     
+[31] sessioninfo_1.1.1    plotrix_3.7-7        htmlwidgets_1.5.1   
+[34] rlang_0.4.4          readxl_1.3.1         farver_2.0.3        
+[37] zoo_1.8-7            jsonlite_1.6         gtools_3.8.1        
+[40] zip_2.0.4            car_3.0-6            magrittr_1.5        
+[43] Matrix_1.2-18        Rcpp_1.0.3           munsell_0.5.0       
+[46] fansi_0.4.1          abind_1.4-5          lifecycle_0.1.0     
+[49] multcomp_1.4-12      stringi_1.4.5        whisker_0.4         
+[52] yaml_2.2.1           carData_3.0-3        pkgbuild_1.0.6      
+[55] plyr_1.8.5           promises_1.1.0       forcats_0.4.0       
+[58] crayon_1.3.4         lattice_0.20-38      splines_3.5.2       
+[61] haven_2.2.0          hms_0.5.3            ps_1.3.0            
+[64] pillar_1.4.3         codetools_0.2-16     pkgload_1.0.2       
+[67] futile.options_1.0.1 glue_1.3.1           evaluate_0.14       
+[70] lambda.r_1.2.4       data.table_1.12.8    remotes_2.1.0       
+[73] vctrs_0.2.2          httpuv_1.5.2         testthat_2.3.1      
+[76] cellranger_1.1.0     gtable_0.3.0         purrr_0.3.3         
+[79] tidyr_1.0.2          assertthat_0.2.1     xfun_0.12           
+[82] openxlsx_4.1.4       later_1.0.0          survival_3.1-8      
+[85] viridisLite_0.3.0    tibble_2.1.3         memoise_1.1.0       
+[88] TH.data_1.0-10       ellipsis_0.3.0      </code></pre>
+</div>
+</div>
+
+
+<!-- Adjust MathJax settings so that all math formulae are shown using
+TeX fonts only; see
+http://docs.mathjax.org/en/latest/configuration.html.  This will make
+the presentation more consistent at the cost of the webpage sometimes
+taking slightly longer to load. Note that this only works because the
+footer is added to webpages before the MathJax javascript. -->
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    "HTML-CSS": { availableFonts: ["TeX"] }
+  });
+</script>
+
+
+</div>
+</div>
+
+</div>
+
+<script>
+
+// add bootstrap table styles to pandoc tables
+function bootstrapStylePandocTables() {
+  $('tr.header').parent('thead').parent('table').addClass('table table-condensed');
+}
+$(document).ready(function () {
+  bootstrapStylePandocTables();
+});
+
+
+</script>
+
+<!-- tabsets -->
+
+<script>
+$(document).ready(function () {
+  window.buildTabsets("TOC");
+});
+
+$(document).ready(function () {
+  $('.tabset-dropdown > .nav-tabs > li').click(function () {
+    $(this).parent().toggleClass('nav-tabs-open')
+  });
+});
+</script>
+
+<!-- code folding -->
+
+<script>
+$(document).ready(function ()  {
+
+    // move toc-ignore selectors from section div to header
+    $('div.section.toc-ignore')
+        .removeClass('toc-ignore')
+        .children('h1,h2,h3,h4,h5').addClass('toc-ignore');
+
+    // establish options
+    var options = {
+      selectors: "h1,h2,h3",
+      theme: "bootstrap3",
+      context: '.toc-content',
+      hashGenerator: function (text) {
+        return text.replace(/[.\\/?&!#<>]/g, '').replace(/\s/g, '_').toLowerCase();
+      },
+      ignoreSelector: ".toc-ignore",
+      scrollTo: 0
+    };
+    options.showAndHide = true;
+    options.smoothScroll = true;
+
+    // tocify
+    var toc = $("#TOC").tocify(options).data("toc-tocify");
+});
+</script>
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>
