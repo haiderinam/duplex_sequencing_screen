@@ -26,6 +26,8 @@ editor_options:
 * ###Click [here](clinical_abundance_predictions.html) for analysis looking at how well our data predicts BCRABL clinical abundance compared to conventional IC50s
 <img src="assets/clinical_abundance_predictions.png" width="600" height="300"  alt="">  
 
+* ###Click [here](misc.html) for Miscellaneous Analyses
+
 #### Click [here](https://github.com/haiderinam/duplex_sequencing_screen) to be redirected to the github page that contains all my data.  
 
 
