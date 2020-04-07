@@ -1,0 +1,177 @@
+---
+title: "4_7_20 Update"
+author: "Haider Inam"
+date: "4/7/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+Tasks:
+
+Comparison E255k GFP versusduplex sequencing
+
+ENU vs spike in
+
+```{r, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+# rm(list=ls())
+library("lmtest")
+library("ggplot2")
+library("MASS")
+library("fitdistrplus")
+library("lme4")
+library("boot")
+library("dplyr")
+library("plotly")
+library("reshape2")
+######################Cleanup for GGPlot2#########################################
+cleanup=theme_bw() +
+  theme(plot.title = element_text(hjust=.5),
+        panel.grid.major = element_blank(),
+        panel.grid.major.y = element_blank(),
+        panel.background = element_blank(),
+        axis.line = element_line(color = "black"),
+        axis.text = element_text(face="bold",color="black",size="11"),
+        text=element_text(size=11,face="bold"),
+        axis.title=element_text(face="bold",size="11"))
+
+conc_for_predictions=0.8
+net_gr_wodrug=0.05
+
+###Downloading mutation bias data. Source of this data: https://github.com/pritchardlabatpsu/SurvivalOfTheLikeliest/tree/master/Figures/Figure3
+# compicmut=read.csv("../data/Combined_data_frame_IC_Mutprob_abundance.csv",header=T,stringsAsFactors=F)
+compicmut=read.csv("data/Combined_data_frame_IC_Mutprob_abundance.csv",header=T,stringsAsFactors=F)
+
+# twinstrand_simple_melt_merge=read.csv("../output/twinstrand_simple_melt_merge.csv",header = T,stringsAsFactors = F)
+twinstrand_simple_melt_merge=read.csv("output/twinstrand_simple_melt_merge.csv",header = T,stringsAsFactors = F)
+
+# twinstrand_maf_merge=read.csv("../output/twinstrand_maf_merge.csv",header = T,stringsAsFactors = F)
+twinstrand_maf_merge=read.csv("output/twinstrand_maf_merge.csv",header = T,stringsAsFactors = F)
+
+# ic50data_long=read.csv("../output/ic50data_all_conc.csv",header = T,stringsAsFactors = F)
+ic50data_long=read.csv("output/ic50data_all_conc.csv",header = T,stringsAsFactors = F)
+ic50data_long$netgr_pred=net_gr_wodrug-ic50data_long$drug_effect
+
+
+```
+
+
+
+####Dilutions down to 1:15000 expected versus recovered
+```{r}
+twinstrand_maf_merge=twinstrand_maf_merge%>%
+  mutate(Spike_in_freq=as.numeric(Spike_in_freq))%>%
+  mutate(Spike_in_freq=case_when(experiment=="Enu_4"~2000,
+                                 experiment==experiment~Spike_in_freq))%>%
+  mutate(actualDepth=Depth*3)%>% #To account for 2 mouse 1 human reads
+  mutate(expectedAltDepth=case_when(time_point=="D0"&Spike_in_freq==1000~Depth/1000,
+                                    time_point=="D0"&Spike_in_freq==5000~Depth/5000,
+                                    time_point=="D0"&Spike_in_freq==2000~Depth/2000,
+                                    time_point==time_point~NaN))
+
+a=twinstrand_maf_merge%>%filter(time_point=="D0",experiment%in%c("M3","M6")&tki_resistant_mutation=="True"|experiment%in%"Enu_4",!mutant=="NA",!mutant=="D276G",!mutant=="V280syn")%>%
+  mutate(expectedAltDepth=case_when(experiment=="Enu_4"&mutant=="F311L"~expectedAltDepth,
+                                   experiment=="Enu_4"&mutant=="T315I"~expectedAltDepth*55,
+                                   experiment=="Enu_4"&mutant=="F317L"~expectedAltDepth*6,
+                                   experiment=="Enu_4"&mutant=="E355G"~expectedAltDepth*3,
+                                   experiment=="Enu_4"&mutant=="F359V"~expectedAltDepth*13,
+                                   experiment=="Enu_4"&mutant=="F359C"~expectedAltDepth*5,
+                                   experiment=="Enu_4"&mutant=="H396P"~expectedAltDepth*17,
+                                   experiment=="Enu_4"&mutant=="A397P"~expectedAltDepth*12,
+                                   experiment=="Enu_4"&mutant=="Y253H"~expectedAltDepth*63,
+                                   experiment=="Enu_4"&mutant=="Q252H"~expectedAltDepth*5,
+                                   experiment=="Enu_4"&mutant=="G250E"~expectedAltDepth*11,
+                                   experiment=="Enu_4"&mutant=="L248V"~expectedAltDepth*6,
+                                   experiment=="Enu_4"&mutant=="H214R"~expectedAltDepth*4,
+                                   experiment=="Enu_4"&mutant=="K285N"~expectedAltDepth*5,
+                                   experiment=="Enu_4"&mutant=="L324R"~expectedAltDepth*7,
+                                   mutant==mutant~expectedAltDepth))
+ggplot(a%>%filter(AltDepth>1),aes(x=AltDepth/60000,y=expectedAltDepth/60000))+geom_point()+scale_y_continuous(trans="log10",limits=c(.00001,.05),name = "Predicted frequency")+scale_x_continuous(trans="log10",limits=c(.00001,.05),name="Measured frequency")+geom_abline()+cleanup+theme(legend.position = "none")
+
+a=a%>%filter(AltDepth>1)
+cor(a$AltDepth,a$expectedAltDepth)^2
+```
+
+####Replicate 1 vs Replicate 2 measured in pool side by side
+```{r}
+#Plotting SP 1000 and 5000
+a=twinstrand_simple_melt_merge%>%
+  filter(!experiment%in%c("Enu_4","Enu_3"),duration%in%"d3d6",conc=="0.8")%>%
+  mutate(netgr_obs=case_when(experiment=="M6"~netgr_obs+.03,
+                                   experiment=="M5"~netgr_obs+.015,
+                                   experiment%in%c("M3","M5","M4","M7")~netgr_obs))
+plotly=ggplot(a,aes(x=netgr_pred,y=netgr_obs,label=mutant,color=factor(experiment)))+geom_text()+geom_abline()+cleanup
+ggplotly(plotly)
+
+a=a%>%filter(experiment%in%c("M3","M5"),!mutant%in%"D276G")
+spikeins_cast=dcast(a,formula = mutant~experiment,value.var = "netgr_obs")
+ggplot(spikeins_cast,aes(x=M3,y=M5,label=mutant))+
+  geom_text()+
+  cleanup+
+  geom_abline()+
+  scale_x_continuous(limits = c(0,.065),name="Observed growth rate (1:5,000 replicate)")+
+  scale_y_continuous(limits = c(0,.065),name="Observed growth rate (1:15,000 replicate)")
+cor(spikeins_cast$M3,spikeins_cast$M5)^2
+#Therefore, R^2= 0.79
+```
+####ENU Replicate 1 vs Replicate 2
+```{r}
+enu_plots=twinstrand_simple_melt_merge%>%filter(experiment%in%c("Enu_4","Enu_3"),duration%in%"d3d6",conc==0.8,!netgr_obs%in%NA)
+#hardcoding adjustments to the growth rates
+enu_plots$netgr_obs[enu_plots$experiment=="Enu_3"]=enu_plots$netgr_obs[enu_plots$experiment=="Enu_3"]-.011
+
+enu_cast=dcast(enu_plots,formula = mutant~experiment,value.var = "netgr_obs")
+
+ggplot(enu_cast,aes(x=Enu_3,y=Enu_4,label=mutant))+
+  geom_text()+
+  cleanup+
+  geom_abline()+
+  scale_x_continuous(limits = c(0,.065),name="Observed growth rate (Mutagenesis Replicate 1)")+
+  scale_y_continuous(limits = c(0,.065),name="Observed growth rate (Mutagenesis replicate 2)")
+cor(enu_cast$Enu_3,enu_cast$Enu_4)^2
+#This has an R^2 of 0.97. i.e. Low replicate to replicate variability
+```
+###ENU vs spike in
+```{r}
+all_cast=merge(spikeins_cast,enu_cast,by="mutant",all.x=T)
+ggplot(all_cast,aes(x=Enu_4,y=M3,label=mutant))+
+  geom_text()+
+  cleanup+
+  geom_abline()+
+  scale_x_continuous(limits = c(0,.065),name="Observed growth rate (Mutagenesis Replicate)")+
+  scale_y_continuous(limits = c(0,.065),name="Observed growth rate (Spike-in replicate)")
+c=all_cast%>%filter(!Enu_3%in%NA)
+cor(c$Enu_3,c$M3)^2
+#This shows a worse R^2 if 0.5
+```
+
+
+Archive
+Does removing low count data improve results?
+```{r}
+twinstrand_simple=twinstrand_maf_merge%>%filter(tki_resistant_mutation=="True",!is.na(mutant),!is.na(experiment),AltDepth>=10)
+twinstrand_simple=twinstrand_simple%>%dplyr::select("mutant","experiment","Spike_in_freq","time_point","totalmutant")
+twinstrand_simple_cast=dcast(twinstrand_simple,mutant+experiment+Spike_in_freq~time_point,value.var="totalmutant")
+
+twinstrand_simple_cast$d0d3=log(twinstrand_simple_cast$D3/twinstrand_simple_cast$D0)/72
+twinstrand_simple_cast$d3d6=log(twinstrand_simple_cast$D6/twinstrand_simple_cast$D3)/72
+twinstrand_simple_cast$d0d6=log(twinstrand_simple_cast$D6/twinstrand_simple_cast$D0)/144
+#Check if ln(final/initial)/time is the correct formula. Also notice how I'm using days not hours
+twinstrand_simple_melt=melt(twinstrand_simple_cast[,-c(4:6)],id.vars=c("mutant","experiment","Spike_in_freq"),variable.name = "duration",value.name = "netgr_obs") #!!!!!!!!!!!value name should be drug effect. And drug effect should be drug_effect_obs i think. NO. I think this should be drug_effect_obs. Fixed 4/2/20
+twinstrand_simple_melt$drug_effect_obs=net_gr_wodrug-twinstrand_simple_melt$netgr_obs
+
+# twinstrand_simple_melt_merge=merge(twinstrand_simple_melt,ic50data_formerge,"mutant")
+twinstrand_simple_melt_merge=merge(twinstrand_simple_melt,ic50data_long,"mutant")
+
+
+a=twinstrand_simple_melt_merge%>%
+  filter(!experiment%in%c("Enu_4","Enu_3"),duration%in%"d3d6",conc=="0.8")%>%
+  mutate(netgr_obs=case_when(experiment=="M6"~netgr_obs+.03,
+                                   experiment=="M5"~netgr_obs+.015,
+                                   experiment%in%c("M3","M5","M4","M7")~netgr_obs))
+plotly=ggplot(a,aes(x=netgr_pred,y=netgr_obs,label=mutant,color=factor(experiment)))+geom_text()+geom_abline()+cleanup
+ggplotly(plotly)
+```
