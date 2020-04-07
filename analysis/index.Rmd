@@ -28,6 +28,8 @@ editor_options:
 
 * ###Click [here](misc.html) for Miscellaneous Analyses
 
+* ###Click [here](4_7_20_update.html) for the 4.7.20 update
+
 #### Click [here](https://github.com/haiderinam/duplex_sequencing_screen) to be redirected to the github page that contains all my data.  
 
 
