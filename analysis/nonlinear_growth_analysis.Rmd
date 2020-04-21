@@ -1,0 +1,206 @@
+---
+title: "nonlinear_growth_analysis"
+author: "Haider Inam"
+date: "4/17/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+# rm(list=ls())
+library("lmtest")
+library("ggplot2")
+library("MASS")
+library("fitdistrplus")
+library("lme4")
+library("boot")
+library("dplyr")
+library("plotly")
+library("reshape2")
+######################Cleanup for GGPlot2#########################################
+cleanup=theme_bw() +
+  theme(plot.title = element_text(hjust=.5),
+        panel.grid.major = element_blank(),
+        panel.grid.major.y = element_blank(),
+        panel.background = element_blank(),
+        axis.line = element_line(color = "black"),
+        axis.text = element_text(face="bold",color="black",size="11"),
+        text=element_text(size=11,face="bold"),
+        axis.title=element_text(face="bold",size="11"))
+
+conc_for_predictions=0.8
+net_gr_wodrug=0.05
+
+###Downloading mutation bias data. Source of this data: https://github.com/pritchardlabatpsu/SurvivalOfTheLikeliest/tree/master/Figures/Figure3
+# compicmut=read.csv("../data/Combined_data_frame_IC_Mutprob_abundance.csv",header=T,stringsAsFactors=F)
+compicmut=read.csv("data/Combined_data_frame_IC_Mutprob_abundance.csv",header=T,stringsAsFactors=F)
+
+# twinstrand_simple_melt_merge=read.csv("../output/twinstrand_simple_melt_merge.csv",header = T,stringsAsFactors = F)
+twinstrand_simple_melt_merge=read.csv("output/twinstrand_simple_melt_merge.csv",header = T,stringsAsFactors = F)
+
+# twinstrand_maf_merge=read.csv("../output/twinstrand_maf_merge.csv",header = T,stringsAsFactors = F)
+twinstrand_maf_merge=read.csv("output/twinstrand_maf_merge.csv",header = T,stringsAsFactors = F)
+
+# ic50data_long=read.csv("../output/ic50data_all_conc.csv",header = T,stringsAsFactors = F)
+ic50data_long=read.csv("output/ic50data_all_conc.csv",header = T,stringsAsFactors = F)
+ic50data_long$netgr_pred=net_gr_wodrug-ic50data_long$drug_effect
+
+gfpdata=read.table("data/gfpenrichmentdata.csv",stringsAsFactors = F,header = T,sep=',')
+# gfpdata=read.table("../data/gfpenrichmentdata.csv",stringsAsFactors = F,header = T,sep=',')
+
+```
+
+
+
+```{r}
+# 1. Look at whether the nonlinear Enrich 2, on its own, improves performance
+# Make a version of Enrich 2 that includes your counts and use it to model out your stuf
+twinstrand_maf_merge2=twinstrand_maf_merge%>%filter(!VariationType%in%"indel",tki_resistant_mutation%in%"True",!mutant%in%NA)%>%dplyr::select(!c(X,Sample,Chromosome))
+
+sort(unique(twinstrand_maf_merge2$Start))
+sort(unique(twinstrand_maf_merge2$mutant))
+
+a=twinstrand_maf_merge2%>%filter(experiment%in%"M3",time_point%in%"D6")
+sum(a$AltDepth)
+sort(unique(a$mutant))
+a=twinstrand_maf_merge2%>%filter(experiment%in%"M3",time_point%in%"D0")
+sum(a$AltDepth)
+sum(a$AltDepth)
+mean(a$Depth)
+#Based on a 1 in 1000 frequency and 18 mutants, we would expect the mean variant/Wt frequ to be 18 in 1000 at Day 0
+#For a mean coverage of 32000, we would expect 568 mutants, which is almost exactly what we see!!!!
+# 18/1000*31569
+#Plot Wt decay rates for all experiments from D0 to D6
+#M3 D0:
+a=twinstrand_maf_merge2%>%filter(experiment%in%"M3",time_point%in%"D0")
+(mean(a$Depth)-sum(a$AltDepth))/mean(a$Depth)
+#M3 D3:
+a=twinstrand_maf_merge2%>%filter(experiment%in%"M3",time_point%in%"D3")
+(mean(a$Depth)-sum(a$AltDepth))/mean(a$Depth)
+#M3 D6:
+a=twinstrand_maf_merge2%>%filter(experiment%in%"M3",time_point%in%"D6")
+(mean(a$Depth)-sum(a$AltDepth))/mean(a$Depth)
+
+0.7775412/0.9832434 #D0D3
+0.09033963/0.9832434 #D0D6
+0.09033963/0.7775412#D3D6
+#D0D3=WtD0/WtD3
+#M5
+#M5 D3:
+a=twinstrand_maf_merge2%>%filter(experiment%in%"M5",time_point%in%"D3")
+(mean(a$Depth)-sum(a$AltDepth))/mean(a$Depth)
+#M5 D6:
+a=twinstrand_maf_merge2%>%filter(experiment%in%"M5",time_point%in%"D6")
+(mean(a$Depth)-sum(a$AltDepth))/mean(a$Depth)
+
+#M7
+#M7 D0:
+#M7 D3:
+a=twinstrand_maf_merge2%>%filter(experiment%in%"M7",time_point%in%"D3")
+(mean(a$Depth)-sum(a$AltDepth))/mean(a$Depth)
+#M7 D6:
+a=twinstrand_maf_merge2%>%filter(experiment%in%"M7",time_point%in%"D6")
+(mean(a$Depth)-sum(a$AltDepth))/mean(a$Depth)
+```
+```{r}
+twinstrand_simple_melt_merge=twinstrand_simple_melt_merge%>%mutate(wt_ratio=case_when(experiment%in%"M3"&&duration%in%"d0d3"~0.7775412/0.9832434,
+                                                                                         experiment%in%"M3"&&duration%in%"d0d6"~0.09033963/0.9832434,
+                                                                                      experiment%in%"M3"&&duration%in%"d3d6"~0.09033963/0.7775412))
+
+twinstrand_simple_melt_merge=twinstrand_simple_melt_merge%>%filter(experiment%in%"M3")%>%mutate(wt_ratio=case_when((experiment%in%"M3"&duration%in%"d0d3")~0.7775412/0.9832434,
+                                                                                         (experiment%in%"M3"&duration%in%"d0d6")~0.09033963/0.9832434,
+                                                                                      (experiment%in%"M3"&duration%in%"d3d6")~0.09033963/0.7775412))
+
+#Subtract the log of the Wt ratio from the log ratios
+twinstrand_simple_melt_merge=twinstrand_simple_melt_merge%>%mutate()
+```
+
+
+4/20/20 Analysis of Enrich2 vs Shendure vs our method
+```{r}
+#First, creating day 0 values for M4,M5,M7, and sp_enu_3. Whenever you see any of these experiments, add M3's or M6's or Sp_Enu4's D0 counts for its counts.
+M3D0=twinstrand_maf_merge%>%filter(experiment=="M3",time_point=="D0")
+M5D0=M3D0%>%mutate(experiment="M5")
+M7D0=M3D0%>%mutate(experiment="M7")
+M6D0=twinstrand_maf_merge%>%filter(experiment=="M6",time_point=="D0")
+M4D0=M6D0%>%mutate(experiment="M4")
+Enu3_D0=twinstrand_maf_merge%>%filter(experiment=="Enu_3",time_point=="D0")
+Enu4_D0=Enu3_D0%>%mutate(experiment="Enu_4")
+twinstrand_maf_merge=rbind(twinstrand_maf_merge,M5D0,M7D0,M4D0,Enu4_D0)
+
+
+twinstrand_maf_merge2=twinstrand_maf_merge%>%filter(!VariationType%in%"indel",tki_resistant_mutation%in%"True",!mutant%in%NA)%>%dplyr::select(!c(X,Sample,Chromosome))
+# twinstrand_maf_merge2=twinstrand_maf_merge2%>%filter(experiment=="M5")
+#Wt count is the same for all variants on a given time_point for a given experiment
+wt_count=twinstrand_maf_merge2%>%group_by(experiment,time_point)%>%summarize(wt_count=mean(Depth)-sum(AltDepth))
+twinstrand_maf_merge2=merge(twinstrand_maf_merge2,wt_count,by = c("experiment","time_point"))
+twinstrand_maf_merge2=twinstrand_maf_merge2%>%mutate(log_ratio=log10(AltDepth/wt_count))
+#Converting time from factor to numeral
+twinstrand_maf_merge2=twinstrand_maf_merge2%>%mutate(time=case_when(time_point=="D0"~0,
+                                                                    time_point=="D3"~72,
+                                                                    time_point=="D6"~144))
+ggplot(twinstrand_maf_merge2%>%filter(experiment%in%c("M3","M6")),aes(x=time,y=log_ratio,color=factor(experiment)))+geom_point()+geom_line()+facet_wrap(~factor(mutant))
+
+ggplot(twinstrand_maf_merge2,aes(x=time,y=log_ratio,color=factor(experiment)))+geom_point()+geom_line()+facet_wrap(~factor(mutant))
+
+#Next steps: regress the slope of this line for M3 and then for M6. See how well these R1 and R2 compare relative to Shendure's estimates
+# lm(log_ratio~time,data = twinstrand_maf_merge2%>%filter(experiment=="M3",mutant=="T315I"))
+# lm(log_ratio~time,data = twinstrand_maf_merge2%>%filter(experiment=="M6",mutant=="T315I"))
+# lm(log_ratio~time,data = twinstrand_maf_merge2%>%filter(experiment=="M6",mutant=="T315I"))
+# a=lm(log_ratio~time,data = twinstrand_maf_merge2%>%filter(experiment=="M6",mutant=="T315I"))
+# a$coefficients[2]
+
+twinstrand_lm=twinstrand_maf_merge2%>%group_by(experiment,mutant)%>%summarise(lm_slope=lm(log_ratio~time)$coefficients[2])
+lm_cast=dcast(twinstrand_lm,mutant~experiment,value.var="lm_slope")
+ggplot(lm_cast,aes(x=M6,y=M3,label=mutant))+geom_text()+geom_abline()
+ggplot(lm_cast,aes(x=M6,y=M4,label=mutant))+geom_text()+geom_abline()
+ggplot(lm_cast,aes(x=M3,y=M5,label=mutant))+geom_text()+geom_abline()
+ggplot(lm_cast,aes(x=M5,y=M7,label=mutant))+geom_text()+geom_abline()
+
+
+
+#Things to add to dataset: Right now you only have M3 and M6. Take M3D0 and add it to M5D0, and M7D0. Take M6D0 and add it to M4D0. Then look at correlations of all populations
+```
+
+
+```{r}
+# twinstrand_simple_melt_merge=read.csv("../output/twinstrand_simple_melt_merge.csv",header = T,stringsAsFactors = F)
+twinstrand_simple_melt_merge=read.csv("output/twinstrand_simple_melt_merge.csv",header = T,stringsAsFactors = F)
+#Plot growth rates of all mutants next to each other. If our replicates have such a low error, why are we worried about correcting that "error"? The source of error is probably the non-conformity between IC50s and pooled measurements. Answer: our mutants aren't THAT close together. It's worth looking at whether the non-linear transformation improves results.
+twinstrand_simple_melt_merge$mutant=factor(twinstrand_simple_melt_merge$mutant,levels = as.character(unique(twinstrand_simple_melt_merge$mutant[order((twinstrand_simple_melt_merge$netgr_pred),decreasing = T)])))
+
+plotly=ggplot(twinstrand_simple_melt_merge%>%filter(duration%in%"d3d6"),aes(x=factor(mutant),y=netgr_obs,color=experiment))+geom_point()+cleanup
+ggplotly(plotly)
+a=twinstrand_simple_melt_merge%>%filter(experiment%in%"M3",mutant%in%"T315I")
+
+
+plotly=ggplot(twinstrand_simple_melt_merge%>%filter(experiment%in%c("M6","M3")),aes(x=factor(mutant),y=netgr_obs,color=duration))+geom_point()+facet_wrap(~experiment)+cleanup
+ggplotly(plotly)
+
+plotly=ggplot(twinstrand_simple_melt_merge,aes(x=factor(mutant),y=netgr_obs,color=duration))+geom_point()+facet_wrap(~experiment)+cleanup
+ggplotly(plotly)
+
+a=twinstrand_simple_melt_merge%>%
+  mutate(netgr_obs=case_when(experiment=="M6"~netgr_obs+.03,
+                                   experiment=="M5"~netgr_obs+.015,
+                                   experiment%in%c("M3","M5","M4","M7")~netgr_obs))
+
+plotly=ggplot(a%>%filter(experiment%in%c("M6","M3")),aes(x=factor(mutant),y=netgr_obs,color=duration))+geom_point()+facet_wrap(~experiment)+cleanup
+ggplotly(plotly)
+
+#Looks like F359I is at ALTDEPTH of 1 at D6 which is why it's so erroneous. Also notice that you only see E355A in 3 of the experiments. All of this points to the fact that scaling error bars on growth rates based on mutant coverage is a good idea.
+a=twinstrand_maf_merge%>%filter(experiment%in%"M6",mutant%in%"F359I")
+
+
+a=twinstrand_maf_merge%>%filter(experiment%in%"M6",!mutant%in%"NA",!tki_resistant_mutation%in%NA)
+
+a=twinstrand_maf_merge%>%filter(experiment%in%"M4",!mutant%in%"NA",!tki_resistant_mutation%in%NA)
+a=twinstrand_maf_merge%>%filter(experiment%in%"M7",mutant%in%"E459K")
+
+#What even is the point of doing duplex sequencing if your sequencing coverage is 30,000?
+```
+

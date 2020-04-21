@@ -29,6 +29,10 @@ twinstrand_maf_merge=read.csv("output/twinstrand_maf_merge.csv",header = T,strin
 
 # twinstrand_simple_melt_merge=read.csv("../output/twinstrand_simple_melt_merge.csv",header = T,stringsAsFactors = F)
 twinstrand_simple_melt_merge=read.csv("output/twinstrand_simple_melt_merge.csv",header = T,stringsAsFactors = F)
+
+# ic50data_long=read.csv("../output/ic50data_all_conc.csv",header = T,stringsAsFactors = F)
+ic50data_long=read.csv("output/ic50data_all_conc.csv",header = T,stringsAsFactors = F)
+ic50data_long$netgr_pred=net_gr_wodrug-ic50data_long$drug_effect
 ```
 
 ```{r,include=F}
@@ -101,9 +105,8 @@ ggplotly(plotly)
 #As suggested above, I will modify the observed growth rate so that the w/o drug growth rate essentially derives from the observed growth rate of the most resistant cell line. Please note that I am doing this in a very roundabout way here because I am looking at the growth rate of T315I in the slow-growing cell lines, comparing it to how slow it is growing vs the mean growth rate of T315I from the other experimental days, and adding that difference in growth rate to that slow-growing experimental day.
 # library(dplyr)
 a=twinstrand_simple_melt_merge%>%
-  mutate(netgr_obs=case_when(experiment=="M6"~netgr_obs+.03,
-                                   experiment=="M5"~netgr_obs+.015,
-                                   experiment%in%c("M3","M5","M4","M7")~netgr_obs))
+  mutate(netgr_obs=case_when(experiment=="M5"~netgr_obs+.015,
+                                   experiment%in%c("M3","M6","M5","M4","M7")~netgr_obs))
 
 plotly=ggplot(a%>%filter(experiment%in%c("M3","M4","M5","M6","M7"),duration=="d3d6"),aes(x=netgr_pred,y=netgr_obs,color=factor(experiment),label=factor(mutant)))+geom_text()+geom_abline()+cleanup
 ggplotly(plotly)
@@ -132,3 +135,40 @@ ggplot(twinstrand_maf_merge%>%filter(tki_resistant_mutation=="True",!mutant=="NA
 #Turns out they look different because they started off with 5x less cells. Duh.
 # a=twinstrand_maf_merge%>%filter(tki_resistant_mutation=="True",Spike_in_freq=="5000",experiment=="M6",mutant%in%c("T315I","G250E"))
 ```
+
+
+Looking at whether removing ANY variants with less than 5 ALT reads makes the correlation plots look better
+Answer: Yes it makes it better but mutants that defy predicitons are still there.
+```{r}
+twinstrand_maf_merge=twinstrand_maf_merge%>%filter(!AltDepth<=5)
+
+twinstrand_simple=twinstrand_maf_merge%>%filter(tki_resistant_mutation=="True",!is.na(mutant),!is.na(experiment))
+twinstrand_simple=twinstrand_simple%>%dplyr::select("mutant","experiment","Spike_in_freq","time_point","totalmutant")
+twinstrand_simple_cast=dcast(twinstrand_simple,mutant+experiment+Spike_in_freq~time_point,value.var="totalmutant")
+
+twinstrand_simple_cast$d0d3=log(twinstrand_simple_cast$D3/twinstrand_simple_cast$D0)/72
+twinstrand_simple_cast$d3d6=log(twinstrand_simple_cast$D6/twinstrand_simple_cast$D3)/72
+twinstrand_simple_cast$d0d6=log(twinstrand_simple_cast$D6/twinstrand_simple_cast$D0)/144
+#Check if ln(final/initial)/time is the correct formula. Also notice how I'm using days not hours
+twinstrand_simple_melt=melt(twinstrand_simple_cast[,-c(4:6)],id.vars=c("mutant","experiment","Spike_in_freq"),variable.name = "duration",value.name = "netgr_obs") 
+twinstrand_simple_melt$drug_effect_obs=net_gr_wodrug-twinstrand_simple_melt$netgr_obs
+
+# twinstrand_simple_melt_merge=merge(twinstrand_simple_melt,ic50data_formerge,"mutant")
+twinstrand_simple_melt_merge=merge(twinstrand_simple_melt,ic50data_long,"mutant")
+twinstrand_simple_melt_merge=twinstrand_simple_melt_merge%>%filter(conc%in%0.8)
+
+a=twinstrand_simple_melt_merge%>%
+  mutate(netgr_obs=case_when(experiment=="M5"~netgr_obs+.015,
+                                   experiment%in%c("M3","M5","M6","M4","M7")~netgr_obs))
+
+
+plotly=ggplot(a%>%filter(experiment%in%c("M3","M4","M5","M6","M7"),duration=="d3d6"),aes(x=netgr_pred,y=netgr_obs,color=factor(mutant)))+geom_boxplot(position=position_dodge(1))+geom_jitter(shape=16, position=position_jitter())+geom_abline()+cleanup
+ggplotly(plotly)
+
+plotly=ggplot(a%>%filter(experiment%in%c("M3","M4","M5","M6","M7"),duration=="d3d6"),aes(x=netgr_pred,y=netgr_obs,color=factor(mutant),label=mutant))+geom_text()+geom_abline()+facet_wrap(~"experiment")+cleanup
+ggplotly(plotly)
+
+plotly=ggplot(a%>%filter(experiment%in%c("M3","M4","M5","M6","M7"),duration=="d3d6"),aes(x=netgr_pred,y=netgr_obs,color=factor(experiment),label=factor(mutant)))+geom_text()+geom_abline()+cleanup
+ggplotly(plotly)
+```
+

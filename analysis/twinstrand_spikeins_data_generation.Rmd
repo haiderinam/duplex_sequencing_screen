@@ -346,11 +346,11 @@ twinstrand_maf_merge$totalcells[twinstrand_maf_merge$experiment=="M7"&twinstrand
 ##########M4##########
 twinstrand_maf_merge$totalcells[twinstrand_maf_merge$experiment=="M4"&twinstrand_maf_merge$time_point=="D0"]=405000
 twinstrand_maf_merge$totalcells[twinstrand_maf_merge$experiment=="M4"&twinstrand_maf_merge$time_point=="D3"]=980000
-twinstrand_maf_merge$totalcells[twinstrand_maf_merge$experiment=="M4"&twinstrand_maf_merge$time_point=="D6"]=1783000
+twinstrand_maf_merge$totalcells[twinstrand_maf_merge$experiment=="M4"&twinstrand_maf_merge$time_point=="D6"]=1959000
 ##########M6##########
 twinstrand_maf_merge$totalcells[twinstrand_maf_merge$experiment=="M6"&twinstrand_maf_merge$time_point=="D0"]=510000
 twinstrand_maf_merge$totalcells[twinstrand_maf_merge$experiment=="M6"&twinstrand_maf_merge$time_point=="D3"]=798000
-twinstrand_maf_merge$totalcells[twinstrand_maf_merge$experiment=="M6"&twinstrand_maf_merge$time_point=="D6"]=842000
+twinstrand_maf_merge$totalcells[twinstrand_maf_merge$experiment=="M6"&twinstrand_maf_merge$time_point=="D6"]=5457000
 ##########ENU3##########
 twinstrand_maf_merge$totalcells[twinstrand_maf_merge$experiment=="Enu_3"&twinstrand_maf_merge$time_point=="D0"]=166000
 twinstrand_maf_merge$totalcells[twinstrand_maf_merge$experiment=="Enu_3"&twinstrand_maf_merge$time_point=="D3"]=1282000
@@ -381,15 +381,16 @@ twinstrand_simple_melt=melt(twinstrand_simple_cast[,-c(4:6)],id.vars=c("mutant",
 twinstrand_simple_melt$drug_effect_obs=net_gr_wodrug-twinstrand_simple_melt$netgr_obs
 
 # twinstrand_simple_melt_merge=merge(twinstrand_simple_melt,ic50data_formerge,"mutant")
-twinstrand_simple_melt_merge=merge(twinstrand_simple_melt,ic50data_long,"mutant")
+# twinstrand_simple_melt_merge=merge(twinstrand_simple_melt,ic50data_long,"mutant")
+twinstrand_simple_melt_merge=merge(twinstrand_simple_melt,ic50data_long%>%filter(conc==conc_for_predictions),all.x = T)
 ```
 ####Saving Dataframes
 ```{r}
 head(twinstrand_maf_merge)
 head(twinstrand_simple_melt_merge)
 head(ic50data_all_conc)
-# write.csv(twinstrand_maf_merge,"twinstrand_maf_merge.csv")
-# write.csv(twinstrand_simple_melt_merge,"twinstrand_simple_melt_merge.csv")
+write.csv(twinstrand_maf_merge,"twinstrand_maf_merge.csv")
+write.csv(twinstrand_simple_melt_merge,"twinstrand_simple_melt_merge.csv")
 # write.csv(ic50data_all_conc,"ic50data_all_conc.csv")
 ```
 

@@ -44,10 +44,9 @@ Formatting the data to have mutant and observed net growth rate
 Also involves growth rate corrections
 ```{r}
 twinstrand_simple_melt_merge=twinstrand_simple_melt_merge%>%
-  mutate(drug_effect_obs=case_when(experiment=="M6"~drug_effect_obs+.03,
-                                   experiment=="M5"~drug_effect_obs+.015,
+  mutate(drug_effect_obs=case_when(experiment=="M5"~drug_effect_obs+.015,
                                    experiment=="Enu_3"~drug_effect_obs-.011,
-                                   experiment%in%c("M3","M5","M4","M7")~drug_effect_obs)) #Therefore including both spike-in experiments and ENU mutagenized conditions.
+                                   experiment%in%c("M3","M6","M5","M4","M7")~drug_effect_obs)) #Therefore including both spike-in experiments and ENU mutagenized conditions.
 
 ```
 
@@ -135,9 +134,8 @@ enu_plots$netgr_obs[enu_plots$experiment=="Enu_3"]=enu_plots$netgr_obs[enu_plots
 
 a=twinstrand_simple_melt_merge%>%
   filter(!experiment%in%c("Enu_4","Enu_3"),duration%in%"d3d6",conc=="0.8")%>%
-  mutate(netgr_obs=case_when(experiment=="M6"~netgr_obs+.03,
-                                   experiment=="M5"~netgr_obs+.015,
-                                   experiment%in%c("M3","M5","M4","M7")~netgr_obs))
+  mutate(netgr_obs=case_when(experiment=="M5"~netgr_obs+.015,
+                                   experiment%in%c("M3","M6","M5","M4","M7")~netgr_obs))
 
 a_sum=a%>%group_by(mutant,Spike_in_freq)%>%summarize(mean_netgr_pred=mean(netgr_pred),mean_netgr_obs=mean(netgr_obs),sd_netgr_obs=sd(netgr_obs),mean_drug_effect=mean(drug_effect_obs),sd_drug_effect=sd(drug_effect_obs),mean_drug_effect_pred=mean(drug_effect),sd_drug_effect_pred=sd(drug_effect))
 
@@ -149,6 +147,10 @@ plotly=ggplot(a_sum,aes(x=mean_drug_effect_pred,y=mean_drug_effect,color=factor(
 ggplotly(plotly)
 
 plotly=ggplot(a_sum%>%filter(!Spike_in_freq%in%c(5000)),aes(x=mean_drug_effect_pred,y=mean_drug_effect,color=factor(Spike_in_freq)))+geom_errorbar(aes(ymin=mean_drug_effect-sd_drug_effect,ymax=mean_drug_effect+sd_drug_effect))+geom_point()+geom_abline()+cleanup
+ggplotly(plotly)
+
+
+plotly=ggplot(a_sum,aes(x=mean_drug_effect_pred,y=mean_drug_effect,color=factor(mutant)))+geom_errorbar(aes(ymin=mean_drug_effect-sd_drug_effect,ymax=mean_drug_effect+sd_drug_effect))+geom_point()+geom_abline()+cleanup
 ggplotly(plotly)
 ```
 

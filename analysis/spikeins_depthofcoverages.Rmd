@@ -69,14 +69,13 @@ enu_plots$netgr_obs[enu_plots$experiment=="Enu_3"]=enu_plots$netgr_obs[enu_plots
 #Plotting SP 1000 and 5000
 a=twinstrand_simple_melt_merge%>%
   filter(!experiment%in%c("Enu_4","Enu_3"),duration%in%"d3d6",conc=="0.8")%>%
-  mutate(netgr_obs=case_when(experiment=="M6"~netgr_obs+.03,
-                                   experiment=="M5"~netgr_obs+.015,
-                                   experiment%in%c("M3","M5","M4","M7")~netgr_obs))
+  mutate(netgr_obs=case_when(experiment=="M5"~netgr_obs+.015,
+                                   experiment%in%c("M3","M6","M5","M4","M7")~netgr_obs))
 plotly=ggplot(a,aes(x=netgr_pred,y=netgr_obs,label=mutant,color=factor(experiment)))+geom_text()+geom_abline()+cleanup
 ggplotly(plotly)
 
-plotly=ggplot(a,aes(x=netgr_pred,y=netgr_obs,label=mutant,color=factor(experiment)))+geom_text()+geom_abline()+cleanup
-ggplotly(plotly)
+# plotly=ggplot(a,aes(x=netgr_pred,y=netgr_obs,label=mutant,color=factor(experiment)))+geom_text()+geom_abline()+cleanup
+# ggplotly(plotly)
 
 a_sum=a%>%group_by(mutant,Spike_in_freq)%>%summarize(mean_netgr_pred=mean(netgr_pred),mean_netgr_obs=mean(netgr_obs),sd_netgr_obs=sd(netgr_obs))
 
@@ -137,7 +136,7 @@ ggplot(a,aes(x=AltDepth,y=expectedAltDepth,color=experiment))+geom_point()+scale
 ggsave("grant_fig.pdf",width = 3,height = 3,units = "in",useDingbats=F)
 
 ggplot(a,aes(x=AltDepth,y=expectedAltDepth))+geom_point()+scale_y_continuous(trans="log10",limits = c(.2,2000),name = "Predicted read count",breaks=c(.2,2,20,200,2000))+scale_x_continuous(trans="log10",limits = c(.2,2000),name="Measured read count",breaks=c(.2,20,200,2000))+geom_abline()+cleanup+theme(legend.position = "none")
-ggsave("grant_fig_v2.pdf",width = 3,height = 3,units = "in",useDingbats=F)
+# ggsave("grant_fig_v2.pdf",width = 3,height = 3,units = "in",useDingbats=F)
 
 
 ggplot(a%>%filter(AltDepth>1),aes(x=AltDepth/60000,y=expectedAltDepth/60000))+geom_point()+scale_y_continuous(trans="log10",limits=c(.00001,.05),name = "Predicted frequency")+scale_x_continuous(trans="log10",limits=c(.00001,.05),name="Measured frequency")+geom_abline()+cleanup+theme(legend.position = "none")

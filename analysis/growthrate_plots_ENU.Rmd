@@ -177,9 +177,8 @@ ggplotly(plotly)
 Generating mean growth rate across mutants to see if that improves clinical abundance predictions. Short answer: no it doesn't based on our current specs
 ```{r}
 a=twinstrand_simple_melt_merge%>%
-  mutate(netgr_obs=case_when(experiment=="M6"~netgr_obs+.03,
-                                   experiment=="M5"~netgr_obs+.015,
-                                   experiment%in%c("M3","M5","M4","M7")~netgr_obs))
+  mutate(netgr_obs=case_when(experiment=="M5"~netgr_obs+.015,
+                                   experiment%in%c("M3","M6","M5","M4","M7")~netgr_obs))
 
 a_new=a%>%filter(experiment%in%c("M3"),duration%in%("d3d6"))
 a_new=a_new%>%filter(!netgr_obs%in%NA)%>%

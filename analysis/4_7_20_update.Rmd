@@ -120,9 +120,8 @@ cor(a$AltDepth,a$expectedAltDepth)^2
 #Plotting SP 1000 and 5000
 a=twinstrand_simple_melt_merge%>%
   filter(!experiment%in%c("Enu_4","Enu_3"),duration%in%"d3d6",conc=="0.8")%>%
-  mutate(netgr_obs=case_when(experiment=="M6"~netgr_obs+.03,
-                                   experiment=="M5"~netgr_obs+.015,
-                                   experiment%in%c("M3","M5","M4","M7")~netgr_obs))
+  mutate(netgr_obs=case_when(experiment=="M5"~netgr_obs+.015,
+                                   experiment%in%c("M6","M3","M5","M4","M7")~netgr_obs))
 plotly=ggplot(a,aes(x=netgr_pred,y=netgr_obs,label=mutant,color=factor(experiment)))+geom_text()+geom_abline()+cleanup
 ggplotly(plotly)
 
@@ -137,9 +136,67 @@ ggplot(spikeins_cast,aes(x=M3,y=M5,label=mutant))+
 cor(spikeins_cast$M3,spikeins_cast$M5)^2
 #Therefore, R^2= 0.79
 ```
+###Replicate 1 vs all other replicates
+```{r}
+#Plotting SP 1000 and 5000
+a=twinstrand_simple_melt_merge%>%
+  filter(!experiment%in%c("Enu_4","Enu_3"),duration%in%"d3d6",conc=="0.8")%>%
+  mutate(netgr_obs=case_when(experiment=="M5"~netgr_obs+.015,
+                                   experiment%in%c("M6","M3","M5","M4","M7")~netgr_obs))
+# plotly=ggplot(a,aes(x=netgr_pred,y=netgr_obs,label=mutant,color=factor(experiment)))+geom_text()+geom_abline()+cleanup
+# ggplotly(plotly)
+
+a=a%>%filter(experiment%in%c("M3","M4"),!mutant%in%"D276G")
+spikeins_cast=dcast(a,formula = mutant~experiment,value.var = "netgr_obs")
+ggplot(spikeins_cast,aes(x=M3,y=M4,label=mutant))+
+  geom_text()+
+  cleanup+
+  geom_abline()+
+  scale_x_continuous(limits = c(0,.065),name="Observed growth rate (1:5,000 replicate)")+
+  scale_y_continuous(limits = c(0,.065),name="Observed growth rate (1:15,000 replicate)")
+cor(spikeins_cast$M3,spikeins_cast$M4)^2
+#Therefore, R^2= 0.79
+#M3,M4: .85
+#M4,M5: 0.83
+```
 ###ENU Replicate 1 vs Replicate 2
 ```{r}
-enu_plots=twinstrand_simple_melt_merge%>%filter(experiment%in%c("Enu_4","Enu_3"),duration%in%"d3d6",conc==0.8,!netgr_obs%in%NA)
+# twinstrand_maf_merge=read.csv("../output/twinstrand_maf_merge.csv",header = T,stringsAsFactors = F)
+twinstrand_maf_merge=read.csv("output/twinstrand_maf_merge.csv",header = T,stringsAsFactors = F)
+
+################Remaking Twinstrand Simple Melt Merge################
+twinstrand_simple=twinstrand_maf_merge%>%filter(!is.na(mutant),!is.na(experiment))
+twinstrand_simple=twinstrand_simple%>%dplyr::select("mutant","experiment","Spike_in_freq","time_point","totalmutant")
+###Inferring Enu_4 D0 total mutants to be the same as Enu_3 D0 totals
+  twinstrand_simple_enu4d0=twinstrand_simple%>%filter(experiment=="Enu_4",time_point=="D0")%>%mutate(experiment="Enu_3")
+  twinstrand_simple=rbind(twinstrand_simple,twinstrand_simple_enu4d0)
+twinstrand_simple_cast=dcast(twinstrand_simple,mutant+experiment+Spike_in_freq~time_point,value.var="totalmutant")
+
+twinstrand_simple_cast$d0d3=log(twinstrand_simple_cast$D3/twinstrand_simple_cast$D0)/72
+twinstrand_simple_cast$d3d6=log(twinstrand_simple_cast$D6/twinstrand_simple_cast$D3)/72
+twinstrand_simple_cast$d0d6=log(twinstrand_simple_cast$D6/twinstrand_simple_cast$D0)/144
+
+# twinstrand_simple_cast2=twinstrand_simple_cast%>%group_by(mutant)%>%mutate(case_when(D0=experiment=="Enu_3"~D0[experiment=="Enu_4"]))
+#Check if ln(final/initial)/time is the correct formula. Also notice how I'm using days not hours
+twinstrand_simple_melt=melt(twinstrand_simple_cast[,-c(4:6)],id.vars=c("mutant","experiment","Spike_in_freq"),variable.name = "duration",value.name = "netgr_obs") #!!!!!!!!!!!value name should be drug effect. And drug effect should be drug_effect_obs i think. NO. I think this should be drug_effect_obs. Fixed 4/2/20
+twinstrand_simple_melt$drug_effect_obs=net_gr_wodrug-twinstrand_simple_melt$netgr_obs
+
+# twinstrand_simple_melt_merge=merge(twinstrand_simple_melt,ic50data_formerge,"mutant")
+twinstrand_simple_melt_merge=merge(twinstrand_simple_melt,ic50data_long%>%filter(conc==conc_for_predictions),all.x = T)
+
+
+
+# a=twinstrand_simple_melt%>%filter(experiment%in%"Enu_3")
+# a=twinstrand_simple_cast%>%filter(experiment%in%"Enu_3")
+# a=twinstrand_maf_merge%>%filter(experiment%in%"Enu_3",time_point=="D3")
+#########################
+
+####Plotting replicate 1 vs replicate 2 in two ways.
+#1. Use only replicates in which you have sufficient coverage for mutants on D6
+#2. Instead of using D3 and D6 counts. Use D0 and D3 counts. Since you didn't have counts for ENU for D3, assume that counts for Enu_3 at D0 would have looked the same as ENU_4 at D0.
+#One interesting thing that I noticed is that D0-D3 growth rates for ENU3 and 4 were alike However D3 to D6 growth rates were higher for Enu3 than Enu4. Is it possible you measured Enu3 late? Yes, it does look like you measured Enu3 at 144 hours vs ENU 3 at 133 hours which might be causing the increased apparent growth rate of ENU3
+
+enu_plots=twinstrand_simple_melt_merge%>%filter(experiment%in%c("Enu_4","Enu_3"),duration%in%"d3d6",!netgr_obs%in%NA)
 #hardcoding adjustments to the growth rates
 enu_plots$netgr_obs[enu_plots$experiment=="Enu_3"]=enu_plots$netgr_obs[enu_plots$experiment=="Enu_3"]-.011
 
@@ -153,6 +210,25 @@ ggplot(enu_cast,aes(x=Enu_3,y=Enu_4,label=mutant))+
   scale_y_continuous(limits = c(0,.065),name="Observed growth rate (Mutagenesis replicate 2)")
 cor(enu_cast$Enu_3,enu_cast$Enu_4)^2
 #This has an R^2 of 0.97. i.e. Low replicate to replicate variability
+
+###########Plotting D0D3 for mutants assuming that Enu3 and Enu4 are same
+enu_plots=twinstrand_simple_melt_merge%>%filter(experiment%in%c("Enu_4","Enu_3"),duration%in%"d0d3",!netgr_obs%in%NA)
+#hardcoding adjustments to the growth rates
+# enu_plots$netgr_obs[enu_plots$experiment=="Enu_3"]=enu_plots$netgr_obs[enu_plots$experiment=="Enu_3"]-.011
+
+enu_cast=dcast(enu_plots,formula = mutant~experiment,value.var = "netgr_obs")
+
+plotly=ggplot(enu_cast,aes(x=Enu_3,y=Enu_4,label=mutant))+
+  geom_text()+
+  cleanup+
+  geom_abline()+
+  scale_x_continuous(limits = c(0,.065),name="Observed growth rate (Mutagenesis Replicate 1)")+
+  scale_y_continuous(limits = c(0,.065),name="Observed growth rate (Mutagenesis replicate 2)")
+ggplotly(plotly)
+cor(enu_cast$Enu_3,enu_cast$Enu_4)^2
+
+a=twinstrand_simple_melt_merge%>%filter(experiment%in%c("Enu_4","Enu_3"),duration%in%c("d0d3"))
+# ,!netgr_obs%in%NA
 ```
 ###ENU vs spike in
 ```{r}
@@ -175,10 +251,9 @@ Everything sequencing-observed vs IC50s-predicted
 
 a=twinstrand_simple_melt_merge%>%
   filter(duration%in%"d3d6",conc=="0.8",!mutant%in%"D276G")%>%
-  mutate(netgr_obs=case_when(experiment=="M6"~netgr_obs+.03,
-                             experiment=="M5"~netgr_obs+.015,
+  mutate(netgr_obs=case_when(experiment=="M5"~netgr_obs+.015,
                              experiment=="Enu_3"~netgr_obs-0.011,
-                             experiment%in%c("M3","M5","M4","M7","Enu_4")~netgr_obs))%>%
+                             experiment%in%c("M6","M3","M5","M4","M7","Enu_4")~netgr_obs))%>%
   mutate(condition=case_when(experiment%in%c("M3","M5","M7")~"1:5000 spike-in",
                              experiment%in%c("M4","M6")~"1:15000 spike-in",
                              experiment%in%c("Enu_3","Enu_4")~"mutagenized population"))
@@ -227,9 +302,8 @@ twinstrand_simple_melt_merge=merge(twinstrand_simple_melt,ic50data_long,"mutant"
 
 a=twinstrand_simple_melt_merge%>%
   filter(!experiment%in%c("Enu_4","Enu_3"),duration%in%"d3d6",conc=="0.8")%>%
-  mutate(netgr_obs=case_when(experiment=="M6"~netgr_obs+.03,
-                                   experiment=="M5"~netgr_obs+.015,
-                                   experiment%in%c("M3","M5","M4","M7")~netgr_obs))
+  mutate(netgr_obs=case_when(experiment=="M5"~netgr_obs+.015,
+                                   experiment%in%c("M6","M3","M5","M4","M7")~netgr_obs))
 plotly=ggplot(a,aes(x=netgr_pred,y=netgr_obs,label=mutant,color=factor(experiment)))+geom_text()+geom_abline()+cleanup
 ggplotly(plotly)
 
