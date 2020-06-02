@@ -1,0 +1,234 @@
+---
+title: "enrichment_simulations"
+author: "Haider Inam"
+date: "5/21/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+# rm(list=ls())
+library(knitr)
+library(tictoc)
+library(workflowr)
+library(VennDiagram)
+library(dplyr)
+library(foreach)
+library(doParallel)
+library(ggplot2)
+library(reshape2)
+library(RColorBrewer)
+library(devtools)
+library(ggsignif)
+library(plotly)
+library(BiocManager)
+library(drc)
+library("lmtest")
+library("ggplot2")
+library("MASS")
+library("fitdistrplus")
+library("lme4")
+library("boot")
+library("dplyr")
+library("plotly")
+library(drc)
+library(devtools)
+library(deSolve)
+library(RColorBrewer)
+library(reshape2)
+######################Cleanup for GGPlot2#########################################
+cleanup=theme_bw() +
+  theme(plot.title = element_text(hjust=.5),
+        panel.grid.major = element_blank(),
+        panel.grid.major.y = element_blank(),
+        panel.background = element_blank(),
+        axis.line = element_line(color = "black"),
+        axis.text = element_text(face="bold",color="black",size="11"),
+        text=element_text(size=11,face="bold"),
+        axis.title=element_text(face="bold",size="11"))
+
+
+net_gr_wodrug=1.4
+# ic50data_long=read.csv("../output/ic50data_all_conc.csv",header = T,stringsAsFactors = F)
+ic50data_long=read.csv("output/ic50data_all_conc.csv",header = T,stringsAsFactors = F)
+ic50data_long$netgr_pred=net_gr_wodrug-ic50data_long$drug_effect
+
+
+# twinstrand_simple_melt_merge=read.csv("../output/twinstrand_simple_melt_merge.csv",header = T,stringsAsFactors = F)
+twinstrand_simple_melt_merge=read.csv("output/twinstrand_simple_melt_merge.csv",header = T,stringsAsFactors = F)
+```
+
+
+1:1000 mixture in a total of 20M cells
+```{r}
+# rm(list=ls())
+# growthrate_nodrug=1.1 ##1.1 means a 15 hour doubling time
+growthrate_nodrug=1.4 ##1.4 means a 12 hour doubling time
+t=0:8
+
+
+# ic50data_long$mutant=factor(ic50data_long$mutant,ordered = T)
+# ic50data=dcast(data = ic50data_long,conc~mutant)
+#Ideally, we would fit a 4 parameter logistic to this and then get the predicted 625 values
+# x0=c(15000000,15000,15000,15000,15000,15000,15000,15000,15000,15000,15000,15000,15000,15000,15000,15000,15000,15000,15000,39*15000,56*15000,15000)
+# trying out 1:10,000
+x0=c(75000000,15000,15000,15000,15000,15000,15000,15000,15000,15000,15000,15000,15000,15000,15000,15000,15000,15000,15000,39*15000,56*15000,15000)
+
+sol_comb_doses=data.frame()
+# for(j in 1:length(ic50data[,1])){
+for(dose in sort(unique(ic50data_long$conc))){
+  # dose=.8
+  #Grabbing net growth rate at desired concentration
+  ic50data_specificdose=ic50data_long%>%filter(conc==dose)
+  ic50data_specificdose$drugeffect=-log(ic50data_specificdose$y_model)/3
+  ic50data_specificdose$growthrate_net=growthrate_nodrug-ic50data_specificdose$drugeffect
+  
+##Differential equation function
+cgrowth=function(times,y,params){
+  dN.dt=ic50data_specificdose$growthrate_net[i]*y[1]
+  return(list(dN.dt))
+}
+sol_comb=data.frame()
+for(i in 1:length(ic50data_specificdose[,1])){
+sol=ode(y=x0[i],times=t,func=cgrowth,parms=growthrate_net[i])
+sol_df=data.frame(sol)
+sol_df$mutant=ic50data_specificdose$mutant[i]
+  # colnames(growthrate_net[i])
+sol_comb=rbind(sol_comb,data.frame(sol_df))
+}
+colnames(sol_comb)[colnames(sol_comb)=="X1"]="count"
+# sol_comb$dose=ic50data$conc[j]
+sol_comb$dose=dose
+sol_comb_doses=rbind(sol_comb_doses,sol_comb)
+}
+
+#Plotting total # of cells
+getPalette = colorRampPalette(brewer.pal(9, "Spectral"))
+
+#Wt grows unless the drug concentration is like 625nM
+ggplot(data=sol_comb_doses,aes(y=count,x=time,color=factor(mutant)))+geom_line()+facet_wrap(~dose)+cleanup+scale_color_manual(values = getPalette(length(unique(sol_comb_doses$mutant))))
+
+ggplot(data=sol_comb_doses,aes(time,count))+
+  geom_col(aes(fill=mutant))+
+  facet_wrap(~dose)+
+  cleanup+
+  scale_fill_manual(values = getPalette(length(unique(sol_comb_doses$mutant))))
+
+#Log scale shows that other mutants are actually growing too
+ggplot(data=sol_comb_doses,aes(y=log(count),x=time,color=factor(mutant)))+geom_line()+facet_wrap(~dose)+cleanup+scale_color_manual(values = getPalette(length(unique(sol_comb_doses$mutant))))
+
+
+sol_comb_doses=sol_comb_doses%>%group_by(dose,time)%>%mutate(total=sum(count))%>%group_by(dose,time,mutant)%>%mutate(proportion=count/total)
+
+###Looking at the proportion of mutants given various starting doses
+ggplot(data=sol_comb_doses,aes(time,proportion))+geom_col(aes(fill=mutant))+geom_line(aes(y=total/max(sol_comb_doses$total)))+scale_y_continuous(sec.axis = sec_axis(~.*max(sol_comb_doses$total), name = "Total Count"))+facet_wrap(~dose)+cleanup+scale_fill_manual(values = getPalette(length(unique(sol_comb_doses$mutant))))
+
+
+##Looking closely at just one plot
+  x=ggplot(data=sol_comb_doses%>%filter(dose==1.5),aes(time,proportion))+
+    geom_col(aes(fill=mutant))+
+    geom_line(aes(y=total/max(sol_comb_doses$total)))+
+    scale_y_continuous(sec.axis = sec_axis(~.*max(sol_comb_doses$total), name = "Total Count"))+facet_wrap(~dose)+
+    cleanup+
+    scale_fill_manual(values = getPalette(length(unique(sol_comb_doses$mutant))))
+  ggplotly(x)
+  #Can also use this for coloring (doesn't require counting the 22 mutants)
+  # palette_Dark2 <- colorRampPalette(brewer.pal(14, "Set2"))
+  # +discrete_scale("fill", "manual", palette_Dark2)
+
+# a=sol_comb_doses%>%filter(!mutant%in%c("F359Lmini","M244V","F359Lmaxi","V299L_L","V299L_H","V299L_H","D276G"))%>%group_by(dose,time)%>%summarize(min_coverage=100/min(proportion),min_coverage_sp=mutant[proportion==min(proportion)][1])
+#Check that D275G is resistant
+```
+
+```{r}
+# ic50data_long2=ic50data_long
+ic50data_long=ic50data_long%>%filter(mutant%in%c("T315I","L248V","E355A"))
+# rm(list=ls())
+# growthrate_nodrug=1.1 ##1.1 means a 15 hour doubling time
+growthrate_nodrug=1.4 ##1.4 means a 12 hour doubling time
+t=0:8
+
+
+# ic50data_long$mutant=factor(ic50data_long$mutant,ordered = T)
+# ic50data=dcast(data = ic50data_long,conc~mutant)
+#Ideally, we would fit a 4 parameter logistic to this and then get the predicted 625 values
+# x0=c(15000000,15000,15000,15000,15000,15000,15000,15000,15000,15000,15000,15000,15000,15000,15000,15000,15000,15000,15000,39*15000,56*15000,15000)
+# trying out 1:10,000
+x0=c(10000000,10000000,10000000)
+
+sol_comb_doses=data.frame()
+# for(j in 1:length(ic50data[,1])){
+for(dose in sort(unique(ic50data_long$conc))){
+  # dose=.8
+  #Grabbing net growth rate at desired concentration
+  ic50data_specificdose=ic50data_long%>%filter(conc==dose)
+  ic50data_specificdose$drugeffect=-log(ic50data_specificdose$y_model)/3
+  ic50data_specificdose$growthrate_net=growthrate_nodrug-ic50data_specificdose$drugeffect
+  
+##Differential equation function
+cgrowth=function(times,y,params){
+  dN.dt=ic50data_specificdose$growthrate_net[i]*y[1]
+  return(list(dN.dt))
+}
+sol_comb=data.frame()
+for(i in 1:length(ic50data_specificdose[,1])){
+sol=ode(y=x0[i],times=t,func=cgrowth,parms=growthrate_net[i])
+sol_df=data.frame(sol)
+sol_df$mutant=ic50data_specificdose$mutant[i]
+  # colnames(growthrate_net[i])
+sol_comb=rbind(sol_comb,data.frame(sol_df))
+}
+colnames(sol_comb)[colnames(sol_comb)=="X1"]="count"
+# sol_comb$dose=ic50data$conc[j]
+sol_comb$dose=dose
+sol_comb_doses=rbind(sol_comb_doses,sol_comb)
+}
+
+#Plotting total # of cells
+getPalette = colorRampPalette(brewer.pal(9, "Spectral"))
+
+ggplot(data=sol_comb_doses,aes(time,count))+
+  geom_col(aes(fill=mutant))+
+  facet_wrap(~dose)+
+  cleanup+
+  scale_fill_manual(values = getPalette(length(unique(sol_comb_doses$mutant))))
+
+#Log scale shows that other mutants are actually growing too
+ggplot(data=sol_comb_doses,aes(y=log(count),x=time,color=factor(mutant)))+geom_line()+facet_wrap(~dose)+cleanup+scale_color_manual(values = getPalette(length(unique(sol_comb_doses$mutant))))
+
+
+sol_comb_doses=sol_comb_doses%>%group_by(dose,time)%>%mutate(total=sum(count))%>%group_by(dose,time,mutant)%>%mutate(proportion=count/total)
+
+###Looking at the proportion of mutants given various starting doses
+ggplot(data=sol_comb_doses,aes(time,proportion))+geom_col(aes(fill=mutant))+geom_line(aes(y=total/max(sol_comb_doses$total)))+scale_y_continuous(sec.axis = sec_axis(~.*max(sol_comb_doses$total), name = "Total Count"))+facet_wrap(~dose)+cleanup+scale_fill_manual(values = getPalette(length(unique(sol_comb_doses$mutant))))
+
+#Can also use this for coloring (doesn't require counting the 22 mutants)
+  palette_Dark2 <- colorRampPalette(brewer.pal(14, "Set2"))
+  # +discrete_scale("fill", "manual", palette_Dark2)
+  
+##Looking closely at just one plot
+  x=ggplot(data=sol_comb_doses%>%filter(dose==1.5),aes(time,proportion))+
+    geom_col(aes(fill=mutant))+
+    # geom_line(aes(y=total/max(sol_comb_doses$total)))+
+    scale_y_continuous(sec.axis = sec_axis(~.*max(sol_comb_doses$total), name = "Total Count"))+
+    # facet_wrap(~dose)+
+    cleanup+
+    discrete_scale("fill", "manual", palette_Dark2)+
+    scale_x_continuous(expand = c(0,0),name = "Time (Days)")+
+    scale_y_continuous(expand = c(0,0),name = "Mutant Allele Fraction")
+    theme(panel.grid.major = element_blank(),
+            panel.grid.minor = element_blank(),
+            panel.background = element_blank(),
+            axis.line = element_line(colour = "black"))
+    # theme(plot.title = element_text(hjust=.5),text = element_text(size=30,face="bold"),axis.title = element_text(face="bold",size="26"),axis.text=element_text(face="bold",color="black",size="26"))
+    # scale_fill_manual(values = getPalette(length(unique(sol_comb_doses$mutant))))
+ggplotly(x)
+ggsave("enrichment_simulations_3mutants.pdf",width = 4,height = 3,units = "in",useDingbats=F)  
+  
+
+# a=sol_comb_doses%>%filter(!mutant%in%c("F359Lmini","M244V","F359Lmaxi","V299L_L","V299L_H","V299L_H","D276G"))%>%group_by(dose,time)%>%summarize(min_coverage=100/min(proportion),min_coverage_sp=mutant[proportion==min(proportion)][1])
+#Check that D275G is resistant
+```
