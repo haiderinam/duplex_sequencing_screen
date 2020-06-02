@@ -32,9 +32,13 @@ editor_options:
 
 * ###Click [here](nonlinear_growth_analysis.html) to see analysis of predictions based on Enrich2 vs Shendure vs our method
 
+* ###Click [here](dosing_normalization.html) for our dosing normalization strategy  
+<img src="assets/dosing_normalization.png" width="400" height="300"  alt="">  
 
 
-#### Click [here](https://github.com/haiderinam/duplex_sequencing_screen) to be redirected to the github page that contains all my data.  
+
+
+#### Click [here](https://github.com/haiderinam/duplex_sequencing_screen) to be redirected to the github page that contains all the data and analysis rmd files.  
 
 
 What is in each directory:  
