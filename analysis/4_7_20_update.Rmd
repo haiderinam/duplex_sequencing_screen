@@ -57,29 +57,6 @@ gfpdata=read.table("data/gfpenrichmentdata.csv",stringsAsFactors = F,header = T,
 ```
 
 
-###Comparison E255k GFP versus duplex sequencing
-```{r}
-gfpdata$ttotal_sequenced=c(0,3,6)
-gfpdata$xtotal_sequenced=c(129,3323,37023)
-# gfpdata_simple=gfpdata%>%dplyr::select(ttotal_4,xtotal_4_e255k)
-# e255k=twinstrand_maf_merge%>%filter(mutant=="E255K",experiment=="M3")
-
-gfpplotlog=ggplot(gfpdata)+
-  geom_line(aes(x=t_out_4,y=log10(x_out_4_e255k)),color="#1cce16",size=1.5)+geom_ribbon(aes(x = t_out_4_conintub,ymax=log10(x_out_4_e255k_ciub),ymin=log10(x_out_4_e255k_cilb)),fill="#1cce16",alpha=.3)+
-  geom_line(aes(x=t_out_3,y=log10(x_out_3_e255k)),color="#206A36",size=1.5)+geom_ribbon(aes(x = t_out_3_conintub,ymax=log10(x_out_3_e255k_ciub),ymin=log10(x_out_3_e255k_cilb)),fill="#206A36",alpha=.3)+
-  geom_point(aes(x=ttotal_4,y=log10(xtotal_4_e255k)),size=3)+
-  geom_point(aes(x=ttotal_3,y=log10(xtotal_3_e255k)),size=3)+
-  geom_point(aes(x=ttotal_sequenced,y=log10(xtotal_sequenced)),size=3,shape="square",color="blue")+
-  theme_bw()+theme(plot.title = element_text(hjust=.5),text = element_text(size=24),axis.title = element_text(face="bold",size="19"),axis.text=element_text(face="bold",size="19"))+
-  xlim(0,7)+
-  scale_y_continuous(labels=parse(text = c("10^3","10^5")),limits = c(2,6.5),breaks = c(3,5))+
-  # scale_y_continuous(labels = function(x) format(x, scientific = TRUE), limits = c(1e2,5e6),trans='log10',labels=parse(text = c("10^3","10^5"))+
-  # scale_y_continuous(labels = parse(text = c("10^3","10^5")), limits = c(1e2,5e6),trans='log10')+
-  ylab('Resistant Population')+
-  xlab('Time (Days)')
-gfpplotlog
-```
-
 ###Dilutions down to 1:15000 expected versus recovered
 ```{r}
 twinstrand_maf_merge=twinstrand_maf_merge%>%
@@ -309,4 +286,5 @@ ggplotly(plotly)
 
 #Todo: look at whether removing some of the low AltDepth mutants improves predictions
 c=twinstrand_maf_merge%>%filter(experiment=="M4",tki_resistant_mutation=="True")
+
 ```
