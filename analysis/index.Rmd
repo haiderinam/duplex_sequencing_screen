@@ -26,14 +26,24 @@ editor_options:
 * ###Click [here](clinical_abundance_predictions.html) for analysis looking at how well our data predicts BCRABL clinical abundance compared to conventional IC50s
 <img src="assets/clinical_abundance_predictions.png" width="600" height="300"  alt="">  
 
-* ###Click [here](misc.html) for Miscellaneous Analyses
+* ###Click [here](misc.html) for method to obtain confidence intervals on growth rates from IC50 measurements. Plotted alongside observed growth rate data, these confidence intervals show how well our pooled data matches predictions based off of IC50s. (Needs updates in methodology)  
+<img src="assets/pooled_trajectories_confidence.png" width="400" height="300"  alt=""> 
 
-* ###Click [here](4_7_20_update.html) for the 4.7.20 update
+
+* ###Click [here](4_7_20_update.html) for analyses of replicate to replicate agreement between the spike in replicates. Also includes this analysis for the mutagenesis replicates. Also includes the agreement in observed vs predicted depth of coverages for all sequencing pools. Note: this analysis does not include dosage corrections that improves replicate to replicate heterogeneity.  
+<img src="assets/mutagenesis_replicates_correlation.png" width="400" height="300"  alt="">  
 
 * ###Click [here](nonlinear_growth_analysis.html) to see analysis of predictions based on Enrich2 vs Shendure vs our method
 
 * ###Click [here](dosing_normalization.html) for our dosing normalization strategy  
 <img src="assets/dosing_normalization.png" width="400" height="300"  alt="">  
+
+* ###Click [here](enrichment_simulations.html) for simulations showing enrichment and depletion events in a 3 mutant pool.
+<img src="assets/enrichment_simulations_3mutants.png" width="400" height="300"  alt="">  
+
+* ###Click [here](E255K_alphas_figure.html) showing the conformity between the growth rates in the presence of drug measured at a low MAF via FACs, sequencing, and via IC50 studies for a single mutant.
+<img src="assets/e255k_alphas.png" width="400" height="300"  alt="">  
+
 
 
 
