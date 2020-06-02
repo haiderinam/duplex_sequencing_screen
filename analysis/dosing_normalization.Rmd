@@ -1,0 +1,314 @@
+---
+title: "dosing_normalization"
+author: "Haider Inam"
+date: "6/1/2020"
+output: html_document
+---
+This is a strategy that uses the observed GFP growth rates to estimate the approximate experimental dose and then normalizes all mutants to behave at that theoretical dose given an arbitrary hill coefficient in a dose response curve.
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+# rm(list=ls())
+library(knitr)
+library(tictoc)
+library(workflowr)
+library(VennDiagram)
+library(dplyr)
+library(foreach)
+library(doParallel)
+library(ggplot2)
+library(reshape2)
+library(RColorBrewer)
+library(devtools)
+library(ggsignif)
+library(plotly)
+library(BiocManager)
+library(drc)
+library("lmtest")
+library("ggplot2")
+library("MASS")
+library("fitdistrplus")
+library("lme4")
+library("boot")
+library("dplyr")
+library("plotly")
+library(drc)
+library(devtools)
+library(deSolve)
+library(RColorBrewer)
+library(reshape2)
+######################Cleanup for GGPlot2#########################################
+cleanup=theme_bw() +
+  theme(plot.title = element_text(hjust=.5),
+        panel.grid.major = element_blank(),
+        panel.grid.major.y = element_blank(),
+        panel.background = element_blank(),
+        axis.line = element_line(color = "black"),
+        axis.text = element_text(face="bold",color="black",size="11"),
+        text=element_text(size=11,face="bold"),
+        axis.title=element_text(face="bold",size="11"))
+
+
+net_gr_wodrug=1.4
+# ic50data_long=read.csv("../output/ic50data_all_conc.csv",header = T,stringsAsFactors = F)
+ic50data_long=read.csv("output/ic50data_all_conc.csv",header = T,stringsAsFactors = F)
+ic50data_long$netgr_pred=net_gr_wodrug-ic50data_long$drug_effect
+
+
+# twinstrand_simple_melt_merge=read.csv("../output/twinstrand_simple_melt_merge.csv",header = T,stringsAsFactors = F)
+twinstrand_simple_melt_merge=read.csv("output/twinstrand_simple_melt_merge.csv",header = T,stringsAsFactors = F)
+```
+
+Varying growth rates based on density
+Not exactly sure if it should be a density-dependent variation or if it should be dependent on the presence/absence of other variants.
+Maybe it's wiser to make a function
+Input: number of mutants, name of mutants, growth rate of mutants, starting frequency of mutants, dosage time
+Output: dataframe of mutant numbers over time
+
+Principled approach that can detect if the dose is off
+```{r}
+
+#Looking at data that is off.
+#First, I will look at data from IC50 predictions and make a correlation plot of netgr of mutants expected at 625nM vs 1.25uM.
+#Next, I will look at whether any of our replicates seemed off
+    a=ic50data_long%>%filter(conc%in%c(.6,1.2))
+    a_cast=dcast(a,mutant~conc)
+# library(reshape2)
+ic50data_cast=dcast(ic50data_long,mutant~conc)
+ic50data_cast6=ic50data_cast%>%dplyr::select(mutant,`0.9`)
+a=ic50data_long%>%filter(conc==0.9)
+# ic50data_long$`0.6`=ic50data_long%>%filter(conc==0.6)%>%dplyr::select(netgr_pred)
+a=merge(ic50data_cast6,ic50data_long,by="mutant")
+# ic50data_long$`0.6`=ic50data_cast$`0.6`
+# ic50data_long=ic50data_long%>%mutate(`0.6`=ic50data_cast$`0.6`)
+
+getPalette = colorRampPalette(brewer.pal(9, "Spectral"))
+plotly=ggplot(a,aes(x=`0.9`,y=netgr_pred,color=factor(conc)))+geom_point()+geom_abline()+scale_color_manual(values = getPalette(length(unique(a$conc))))+cleanup
+ggplotly(plotly)
+    ggplot(a_cast,aes(x=a_cast$`0.6`,y=a_cast$`1.2`))+geom_point()
+    
+    
+    a=ic50data_long%>%filter(conc%in%c(.6,.6))
+    a_cast=dcast(a,mutant~conc)
+    ggplot(a_cast,aes(x=a_cast$`0.6`,y=a_cast$`0.6`))+geom_point()
+    
+    a=ic50data_long%>%filter(conc%in%c(.6,1.5))
+    a_cast=dcast(a,mutant~conc)
+    ggplot(a_cast,aes(x=a_cast$`0.6`,y=a_cast$`1.5`))+geom_point()
+    
+    a_lm=lm(`1.5`~`0.6`,a_cast)
+    # summary(a_lm)
+    a_lm$coefficients
+    b=a_cast
+    b$predict=predict(a_lm)
+    ggplot(b,aes(x=`0.6`,y=`1.5`))+geom_point()+geom_line(aes(y=predict,linetype="twodash"))+geom_abline()+cleanup+scale_linetype_manual(values="twodash")+scale_x_continuous(limits = c(1.35,1.42))+scale_y_continuous(limits = c(1.35,1.42))
+    # plot(a_cast$`0.6`,a_cast$`1.5`)
+    # abline(a_lm)
+
+```
+Exactly how much replicate to replicate variation in net growth rates is there in our experiments?
+```{r}
+a=twinstrand_simple_melt_merge
+# a=a%>%mutate(netgrm3=)
+
+###M3
+a_m3=merge(a,twinstrand_simple_melt_merge%>%filter(experiment=="M3",duration%in%"d3d6")%>%dplyr::select(mutant,netgr_obs_m3=netgr_obs),by="mutant")
+a_m3=a_m3%>%filter(duration%in%"d3d6")
+plotly=ggplot(a_m3,aes(x=netgr_obs_m3,y=netgr_obs,color=factor(experiment)))+geom_point()
+ggplotly(plotly)
+b=a_m3%>%filter(experiment=="M3")
+
+
+###M5
+a_m3=merge(a,twinstrand_simple_melt_merge%>%filter(experiment=="M3",duration%in%"d3d6")%>%dplyr::select(mutant,netgr_obs_m3=netgr_obs),by="mutant")
+a_m3=a_m3%>%filter(duration%in%"d3d6")
+plotly=ggplot(a_m3,aes(x=netgr_obs_m3,y=netgr_obs,color=factor(experiment)))+geom_point()
+ggplotly(plotly)
+
+# e255k=a_m3%>%filter(mutant=="E255K")
+e255k=twinstrand_simple_melt_merge%>%filter(mutant=="E255K")
+
+###Correcting the M5 numbers...
+a=twinstrand_simple_melt_merge
+a_m3=a_m3%>%filter(duration%in%"d3d6")
+plotly=ggplot(a_m3%>%mutate(netgr_obs=case_when(experiment=="M5"~netgr_obs+.015,
+                                                experiment!="M5"~netgr_obs)),aes(x=netgr_obs_m3,y=netgr_obs,color=factor(experiment)))+geom_point()
+ggplotly(plotly)
+```
+We'll need to assume a hill coefficient if we want to normalize the dose response of these mutants. Lets look at the typical hill coefficient for all mutants on average.
+```{r}
+
+
+########Four parameter logistic########
+#Reference: https://journals.plos.org/plosone/article/file?type=supplementary&id=info:doi/10.1371/journal.pone.0146021.s001
+#In short: For each dose in each species, get the response
+# rm(list=ls())
+ic50data_long_model=data.frame()
+# hill_coefficients=data.frame()
+hill_coefficients_cum=data.frame()
+ic50data_long$species=ic50data_long$mutant
+for (species_curr in sort(unique(ic50data_long$species))){
+  ic50data_species_specific=ic50data_long%>%filter(species==species_curr)
+  x=ic50data_species_specific$conc
+  y=ic50data_species_specific$y
+  #Next: Appproximating Response from dose (inverse of the prediction)
+  ic50.ll4=drm(y~conc,data=ic50data_long%>%filter(species==species_curr),fct=LL.3(fixed=c(NA,1,NA)))
+    b=coef(ic50.ll4)[1]
+    c=0
+    d=1
+    e=coef(ic50.ll4)[2]
+  ###Getting predictions
+  ic50data_species_specific=ic50data_species_specific%>%group_by(conc)%>%mutate(y_model=c+((d-c)/(1+exp(b*(log(conc)-log(e))))))
+  ic50data_species_specific=data.frame(ic50data_species_specific) #idk why I have to end up doing this
+  ic50data_long_model=rbind(ic50data_long_model,ic50data_species_specific)
+  hill_coefficients_curr=data.frame(cbind(species_curr,b,e))
+  # hill_coefficients$species=species_curr
+  # hill_coefficients$hill=b
+  hill_coefficients_cum=rbind(hill_coefficients_cum,hill_coefficients_curr)
+}
+ic50data_long=ic50data_long_model
+
+#In the next step, I'm ordering mutants by decreasing resposne to the 625nM dose. Then I use this to change the levels of the species factor from more to less resistant. This helps with ggplot because now I can color the mutants with decreasing resistance
+ic50data_long_625=ic50data_long%>%filter(conc==.625)
+ic50data_long$species=factor(ic50data_long$species,levels = as.character(ic50data_long_625$species[order((ic50data_long_625$y_model),decreasing = T)]))
+
+#Adding drug effect
+##########Changed this on 2/20. Using y from 4 parameter logistic rather than raw values
+ic50data_long=ic50data_long%>%
+  filter(!species=="Wt")%>%
+  mutate(drug_effect=-log(y_model)/72)
+
+#Adding Net growth rate
+ic50data_long$netgr_pred=.05-ic50data_long$drug_effect
+
+hill_coefficients_cum$b=as.numeric(hill_coefficients_cum$b)
+ggplot(hill_coefficients_cum%>%filter(!species_curr%in%c("Y253H","E255V")),aes(b))+geom_histogram()
+ggplot(hill_coefficients_cum%>%filter(!species_curr%in%c("Y253H","E255V")),aes(x=species_curr,y=b))+geom_point()
+#Maybe we can assume a hill of 2?
+```
+Correcting dose response data
+```{r}
+e255k_netgr=twinstrand_simple_melt_merge%>%filter(mutant=="E255K",duration=="d3d6")
+#Lets assume M3 has the correct dose and response
+###Lets also assume we know the hill coefficient of E255K which is 2.83 and an IC50 of 1.2uM
+e255k_m3=e255k_netgr%>%filter(experiment=="M3")
+alpha_t=(.05-e255k_m3$netgr_obs)*72
+# dose_app_m3=1.2*(1-exp(-alpha_t))^(1/2.83)/(exp(-alpha_t)^(1/2.83))
+dose_app_m3=((1-exp(alpha_t))*(-1.205^(2.83)))^(1/2.83)
+
+#What is the apparrent dose for M6? aka the faulty experiment
+e255k_m6=e255k_netgr%>%filter(experiment=="M6")
+alpha_t=(.05-e255k_m6$netgr_obs)*72
+# dose_app_m6=1.2*(1-exp(-alpha_t))^(1/2.83)/(exp(-alpha_t)^(1/2.83))
+dose_app_m6=((1-exp(alpha_t))*(-1.205^(2.83)))^(1/2.83)
+
+#What is the apparrent dose for M7? aka the faulty experiment
+e255k_m7=e255k_netgr%>%filter(experiment=="M7")
+alpha_t=(.05-e255k_m7$netgr_obs)*72
+# dose_app_m6=1.2*(1-exp(-alpha_t))^(1/2.83)/(exp(-alpha_t)^(1/2.83))
+dose_app_m7=((1-exp(alpha_t))*(-1.205^(2.83)))^(1/2.83)
+
+#What is the apparrent dose for M4? aka the faulty experiment
+e255k_m4=e255k_netgr%>%filter(experiment=="M4")
+alpha_t=(.05-e255k_m4$netgr_obs)*72
+# dose_app_m6=1.2*(1-exp(-alpha_t))^(1/2.83)/(exp(-alpha_t)^(1/2.83))
+dose_app_m4=((1-exp(alpha_t))*(-1.205^(2.83)))^(1/2.83)
+
+
+#If apparrent dose for M6 is 2.3uM vs 1.6uM for M3, what would have been the netgr if 1.6 was used instead? do this for all mutants
+#First lets calculate the apparrent IC50 for all mutants in m6
+#Then, we will use the individualized IC50s and a constant hill slope to calculate a correction factor for alpha
+    
+#Using apparent IC50s for each mutant in M3, calculate correction factor
+############Calculating Correction Factor for just E255K##########
+# m3_E255K=twinstrand_simple_melt_merge%>%filter(experiment=="M3",duration=="d3d6",mutant=="E255K")
+# m3_E255K=m3_E255K%>%mutate(ic50_apparent=1.61*exp(-(.057-netgr_obs)*72)^(1/2.8)/(1-exp(-(.057-netgr_obs)*72))^(1/2.8))
+# m3_E255K=m3_E255K%>%mutate(correction_factor=log(1/(1+(dose_app_m6/ic50_apparent)^(1/2.83)))/log(1/(1+(dose_app_m3/ic50_apparent)^(1/2.83))))
+# m3_E255K_simple=m3_E255K%>%dplyr::select(mutant,correction_factor)
+# m6_E255K=twinstrand_simple_melt_merge%>%filter(experiment=="M6",duration=="d3d6",mutant=="E255K")
+# m6_E255K_correction_factor=merge(m6_E255K,m3_E255K_simple,by="mutant")
+# m6_E255K_correction_factor=m6_E255K_correction_factor%>%mutate(netgr_new=0.05-((.05-netgr_obs)/correction_factor))
+# m6_E255K_corrected_simple=m6_E255K_correction_factor%>%dplyr::select(mutant,netgr_new,netgr_old=netgr_obs)
+# m3_E255K_m6=merge(m3_E255K,m6_E255K_corrected_simple,by="mutant")
+
+#############Calculating Correction factor for all mutants##############
+m3=twinstrand_simple_melt_merge%>%filter(experiment=="M3",duration=="d3d6")
+m3=m3%>%mutate(ic50_apparent=1.61*exp(-(.057-netgr_obs)*72)^(1/2)/(1-exp(-(.057-netgr_obs)*72))^(1/2))
+m3=m3%>%mutate(correction_factor=log(1/(1+(dose_app_m6/ic50_apparent)^(2.83)))/log(1/(1+(dose_app_m3/ic50_apparent)^(2.83))))
+m3_simple=m3%>%dplyr::select(mutant,correction_factor)
+m6=twinstrand_simple_melt_merge%>%filter(experiment=="M6",duration=="d3d6")
+m6_correction_factor=merge(m6,m3_simple,by="mutant")
+m6_correction_factor=m6_correction_factor%>%mutate(netgr_new=0.057-((.057-netgr_obs)/correction_factor))
+m6_corrected_simple=m6_correction_factor%>%dplyr::select(mutant,netgr_new,netgr_old=netgr_obs)
+m3_m6=merge(m3,m6_corrected_simple,by="mutant")
+m3_m6=m3_m6%>%mutate(corrected_experiment="M6")
+
+ggplot(m3_m6,aes(x=netgr_obs,y=netgr_new))+geom_point()+geom_abline()
+m3_m6=m3_m6%>%filter(!netgr_obs%in%NaN,!netgr_old%in%NaN,!netgr_new%in%NaN,!netgr_obs%in%NA,!netgr_old%in%NA,!netgr_new%in%NA)
+cor(m3_m6$netgr_obs,m3_m6$netgr_new,method="pearson")
+cor(m3_m6$netgr_obs,m3_m6$netgr_old,method="pearson")
+ggplot(m3_m6,aes(x=netgr_obs,y=netgr_old))+geom_point()+geom_abline()
+
+
+#############Calculating Correction factor for all mutants and all experiments##############
+
+#####################M7#####################
+m3=twinstrand_simple_melt_merge%>%filter(experiment=="M3",duration=="d3d6")
+m3=m3%>%mutate(ic50_apparent=1.61*exp(-(.057-netgr_obs)*72)^(1/2)/(1-exp(-(.057-netgr_obs)*72))^(1/2))
+  m3=m3%>%mutate(correction_factor=log(1/(1+(dose_app_m7/ic50_apparent)^(2.83)))/log(1/(1+(dose_app_m3/ic50_apparent)^(2.83))))
+m3_simple=m3%>%dplyr::select(mutant,correction_factor)
+  m6=twinstrand_simple_melt_merge%>%filter(experiment=="M7",duration=="d3d6")
+m6_correction_factor=merge(m6,m3_simple,by="mutant")
+m6_correction_factor=m6_correction_factor%>%mutate(netgr_new=0.057-((.057-netgr_obs)/correction_factor))
+m6_corrected_simple=m6_correction_factor%>%dplyr::select(mutant,netgr_new,netgr_old=netgr_obs)
+  m3_m7=merge(m3,m6_corrected_simple,by="mutant")
+  m3_m7=m3_m7%>%mutate(corrected_experiment="M7")
+#####################M4#####################
+m3=twinstrand_simple_melt_merge%>%filter(experiment=="M3",duration=="d3d6")
+m3=m3%>%mutate(ic50_apparent=1.61*exp(-(.057-netgr_obs)*72)^(1/2)/(1-exp(-(.057-netgr_obs)*72))^(1/2))
+  m3=m3%>%mutate(correction_factor=log(1/(1+(dose_app_m4/ic50_apparent)^(2.83)))/log(1/(1+(dose_app_m3/ic50_apparent)^(2.83))))
+m3_simple=m3%>%dplyr::select(mutant,correction_factor)
+  m6=twinstrand_simple_melt_merge%>%filter(experiment=="M4",duration=="d3d6")
+m6_correction_factor=merge(m6,m3_simple,by="mutant")
+m6_correction_factor=m6_correction_factor%>%mutate(netgr_new=0.057-((.057-netgr_obs)/correction_factor))
+m6_corrected_simple=m6_correction_factor%>%dplyr::select(mutant,netgr_new,netgr_old=netgr_obs)
+  m3_m4=merge(m3,m6_corrected_simple,by="mutant")
+  m3_m4=m3_m4%>%mutate(corrected_experiment="M4")
+# ggplot(m3_m6,aes(x=netgr_obs,y=netgr_new))+geom_point()+geom_abline()
+##Adding uncorrected experiments M3 and M5 because their dose seemed to be fine
+####M3####
+  m3_m3=m3_m6%>%mutate(netgr_new=netgr_obs,netgr_old=netgr_obs,corrected_experiment="M3")
+####M5####
+m5=twinstrand_simple_melt_merge%>%filter(duration%in%"d3d6",experiment=="M5")%>%mutate(netgr_obs_m5=netgr_obs+.015)%>%dplyr::select(mutant,netgr_obs_m5)
+  m3_m5=merge(m3_m6,m5,by="mutant")%>%mutate(netgr_new=netgr_obs_m5,netgr_old=netgr_obs_m5,corrected_experiment="M5")%>%dplyr::select(!netgr_obs_m5)
+##Combining all of them
+m3_all=rbind(m3_m6,m3_m4,m3_m7,m3_m3,m3_m5)
+
+
+plotly=ggplot(m3_all,aes(x=netgr_obs,y=netgr_new,color=corrected_experiment))+geom_point()+geom_abline()
+ggplotly(plotly)
+
+plotly=ggplot(m3_all,aes(x=netgr_obs,y=netgr_old,color=corrected_experiment))+geom_point()+geom_abline()
+ggplotly(plotly)
+
+
+plotly=ggplot(m3_all,aes(x=netgr_obs,y=netgr_new,label=mutant,color=corrected_experiment))+geom_text()+geom_abline()
+ggplotly(plotly)
+
+plotly=ggplot(m3_all,aes(x=netgr_obs,y=netgr_old,label=mutant,color=corrected_experiment))+geom_text()+geom_abline()
+ggplotly(plotly)
+
+#You're able to reduce replicate to replicate heterogeneity, but does that improve how well your observed values match your IC50 predictions? Answer: not really. But because the replicate to replicate agreement is so high, it points to the fact that your IC50 predictions are potentially off!
+# plotly=ggplot(m3_all,aes(x=netgr_pred,y=netgr_old,label=mutant,color=corrected_experiment))+geom_text()+geom_abline()
+# ggplotly(plotly)
+# plotly=ggplot(m3_all,aes(x=netgr_pred,y=netgr_new,label=mutant,color=corrected_experiment))+geom_text()+geom_abline()
+# ggplotly(plotly)
+```
+What if you used the actual hill coefficients of the mutants rather than E255K's hill coefficient (2.83). Would the correlation improve?
+Would the simulations decrease in quality if you altered the E255K growth rates and tried to make corrections off of those? This is kind of like a negative control for corrections.
+```{r}
+
+```
+
