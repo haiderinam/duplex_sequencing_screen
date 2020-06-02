@@ -364,16 +364,16 @@ This reproducible <a href="http://rmarkdown.rstudio.com">R Markdown</a> analysis
 <div class="panel panel-default">
 <div class="panel-heading">
 <p class="panel-title">
-<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomhaiderinamduplexsequencingscreentreed5c9f644b55f8903cf05001ad743d1ec4ce2347btargetblankd5c9f64a"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Repository version:</strong> <a href="https://github.com/haiderinam/duplex_sequencing_screen/tree/d5c9f644b55f8903cf05001ad743d1ec4ce2347b" target="_blank">d5c9f64</a> </a>
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomhaiderinamduplexsequencingscreentree1bb59405cc7893438c8e7fed072da289bd6f8890targetblank1bb5940a"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Repository version:</strong> <a href="https://github.com/haiderinam/duplex_sequencing_screen/tree/1bb59405cc7893438c8e7fed072da289bd6f8890" target="_blank">1bb5940</a> </a>
 </p>
 </div>
-<div id="strongRepositoryversionstrongahrefhttpsgithubcomhaiderinamduplexsequencingscreentreed5c9f644b55f8903cf05001ad743d1ec4ce2347btargetblankd5c9f64a" class="panel-collapse collapse">
+<div id="strongRepositoryversionstrongahrefhttpsgithubcomhaiderinamduplexsequencingscreentree1bb59405cc7893438c8e7fed072da289bd6f8890targetblank1bb5940a" class="panel-collapse collapse">
 <div class="panel-body">
 <p>
 Great! You are using Git for version control. Tracking code development and connecting the code version to the results is critical for reproducibility.
 </p>
 <p>
-The results in this page were generated with repository version <a href="https://github.com/haiderinam/duplex_sequencing_screen/tree/d5c9f644b55f8903cf05001ad743d1ec4ce2347b" target="_blank">d5c9f64</a>. See the <em>Past versions</em> tab to see a history of the changes made to the R Markdown and HTML files.
+The results in this page were generated with repository version <a href="https://github.com/haiderinam/duplex_sequencing_screen/tree/1bb59405cc7893438c8e7fed072da289bd6f8890" target="_blank">1bb5940</a>. See the <em>Past versions</em> tab to see a history of the changes made to the R Markdown and HTML files.
 </p>
 <p>
 Note that you need to be careful to ensure that all relevant files for the analysis have been committed to Git prior to generating the results (you can use <code>wflow_publish</code> or <code>wflow_git_commit</code>). workflowr only checks the R Markdown file, but you know if there are other scripts or data files that it depends on. Below is the status of the Git repository when the results were generated:
@@ -382,11 +382,11 @@ Note that you need to be careful to ensure that all relevant files for the analy
 Ignored files:
     Ignored:    .Rhistory
     Ignored:    .Rproj.user/
+    Ignored:    analysis/figure/
 
 Untracked files:
-    Untracked:  analysis/E255K_alphas_figure.Rmd
-    Untracked:  analysis/enrichment_simulations.Rmd
     Untracked:  analysis/multinomial_sims.Rmd
+    Untracked:  clinicalabundancepredictions_BMES_abstract_51320.pdf
     Untracked:  data/Combined_data_frame_IC_Mutprob_abundance.csv
     Untracked:  data/IC50HeatMap.csv
     Untracked:  data/Twinstrand/
@@ -405,7 +405,6 @@ Untracked files:
     Untracked:  shinyapp/
 
 Unstaged changes:
-    Modified:   analysis/4_7_20_update.Rmd
     Modified:   analysis/clinical_abundance_predictions.Rmd
     Modified:   analysis/misc.Rmd
     Modified:   analysis/nonlinear_growth_analysis.Rmd
@@ -451,6 +450,40 @@ Message
 </tr>
 </thead>
 <tbody>
+<tr>
+<td>
+Rmd
+</td>
+<td>
+<a href="https://github.com/haiderinam/duplex_sequencing_screen/blob/1bb59405cc7893438c8e7fed072da289bd6f8890/analysis/index.Rmd" target="_blank">1bb5940</a>
+</td>
+<td>
+haiderinam
+</td>
+<td>
+2020-06-02
+</td>
+<td>
+wflow_publish(“analysis/index.Rmd”)
+</td>
+</tr>
+<tr>
+<td>
+html
+</td>
+<td>
+<a href="https://rawcdn.githack.com/haiderinam/duplex_sequencing_screen/c43acef02837e22dceb1d5f26525eb506585305e/docs/index.html" target="_blank">c43acef</a>
+</td>
+<td>
+haiderinam
+</td>
+<td>
+2020-06-02
+</td>
+<td>
+Build site.
+</td>
+</tr>
 <tr>
 <td>
 Rmd
@@ -876,11 +909,15 @@ Start workflowr project.
 <li><p>###Click <a href="growthrate_plots_ENU.html">here</a> for growth rate plots for ENU mutants <img src="assets/growthrates_ENU.png" width="400" height="300"  alt=""></p></li>
 <li><p>###Click <a href="spikeins_depthofcoverages.html">here</a> for analysis looking at whether we achieved our desired depth of coverages <img src="assets/coverages.png" width="400" height="300"  alt=""></p></li>
 <li><p>###Click <a href="clinical_abundance_predictions.html">here</a> for analysis looking at how well our data predicts BCRABL clinical abundance compared to conventional IC50s <img src="assets/clinical_abundance_predictions.png" width="600" height="300"  alt=""></p></li>
-<li><p>###Click <a href="misc.html">here</a> for Miscellaneous Analyses</p></li>
-<li><p>###Click <a href="4_7_20_update.html">here</a> for the 4.7.20 update</p></li>
+<li><p>###Click <a href="misc.html">here</a> for method to obtain confidence intervals on growth rates from IC50 measurements. Plotted alongside observed growth rate data, these confidence intervals show how well our pooled data matches predictions based off of IC50s. (Needs updates in methodology)<br />
+<img src="assets/pooled_trajectories_confidence.png" width="400" height="300"  alt=""></p></li>
+<li><p>###Click <a href="4_7_20_update.html">here</a> for analyses of replicate to replicate agreement between the spike in replicates. Also includes this analysis for the mutagenesis replicates. Also includes the agreement in observed vs predicted depth of coverages for all sequencing pools. Note: this analysis does not include dosage corrections that improves replicate to replicate heterogeneity.<br />
+<img src="assets/mutagenesis_replicates_correlation.png" width="400" height="300"  alt=""></p></li>
 <li><p>###Click <a href="nonlinear_growth_analysis.html">here</a> to see analysis of predictions based on Enrich2 vs Shendure vs our method</p></li>
 <li><p>###Click <a href="dosing_normalization.html">here</a> for our dosing normalization strategy<br />
 <img src="assets/dosing_normalization.png" width="400" height="300"  alt=""></p></li>
+<li><p>###Click <a href="enrichment_simulations.html">here</a> for simulations showing enrichment and depletion events in a 3 mutant pool. <img src="assets/enrichment_simulations_3mutants.png" width="400" height="300"  alt=""></p></li>
+<li><p>###Click <a href="E255K_alphas_figure.html">here</a> showing the conformity between the growth rates in the presence of drug measured at a low MAF via FACs, sequencing, and via IC50 studies for a single mutant. <img src="assets/e255k_alphas.png" width="400" height="300"  alt=""></p></li>
 </ul>
 <div id="click-here-to-be-redirected-to-the-github-page-that-contains-all-the-data-and-analysis-rmd-files." class="section level4">
 <h4>Click <a href="https://github.com/haiderinam/duplex_sequencing_screen">here</a> to be redirected to the github page that contains all the data and analysis rmd files.</h4>
