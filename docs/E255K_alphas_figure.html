@@ -1,0 +1,853 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta charset="utf-8" />
+<meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+
+<meta name="author" content="Haider Inam" />
+
+
+<title>E255K_alphas_figure</title>
+
+<script src="site_libs/jquery-1.11.3/jquery.min.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link href="site_libs/bootstrap-3.3.5/css/cosmo.min.css" rel="stylesheet" />
+<script src="site_libs/bootstrap-3.3.5/js/bootstrap.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/html5shiv.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/respond.min.js"></script>
+<script src="site_libs/jqueryui-1.11.4/jquery-ui.min.js"></script>
+<link href="site_libs/tocify-1.9.1/jquery.tocify.css" rel="stylesheet" />
+<script src="site_libs/tocify-1.9.1/jquery.tocify.js"></script>
+<script src="site_libs/navigation-1.1/tabsets.js"></script>
+<link href="site_libs/highlightjs-9.12.0/textmate.css" rel="stylesheet" />
+<script src="site_libs/highlightjs-9.12.0/highlight.js"></script>
+<script src="site_libs/htmlwidgets-1.5.1/htmlwidgets.js"></script>
+<script src="site_libs/plotly-binding-4.9.2.1/plotly.js"></script>
+<script src="site_libs/typedarray-0.1/typedarray.min.js"></script>
+<link href="site_libs/crosstalk-1.1.0.1/css/crosstalk.css" rel="stylesheet" />
+<script src="site_libs/crosstalk-1.1.0.1/js/crosstalk.min.js"></script>
+<link href="site_libs/plotly-htmlwidgets-css-1.52.2/plotly-htmlwidgets.css" rel="stylesheet" />
+<script src="site_libs/plotly-main-1.52.2/plotly-latest.min.js"></script>
+<link href="site_libs/font-awesome-5.1.0/css/all.css" rel="stylesheet" />
+<link href="site_libs/font-awesome-5.1.0/css/v4-shims.css" rel="stylesheet" />
+
+<link rel="icon" href="https://github.com/workflowr/workflowr-assets/raw/master/img/reproducible.png">
+<!-- Add a small amount of space between sections. -->
+<style type="text/css">
+div.section {
+  padding-top: 12px;
+}
+</style>
+
+<style type="text/css">code{white-space: pre;}</style>
+<style type="text/css">
+  pre:not([class]) {
+    background-color: white;
+  }
+</style>
+<script type="text/javascript">
+if (window.hljs) {
+  hljs.configure({languages: []});
+  hljs.initHighlightingOnLoad();
+  if (document.readyState && document.readyState === "complete") {
+    window.setTimeout(function() { hljs.initHighlighting(); }, 0);
+  }
+}
+</script>
+
+
+
+<style type="text/css">
+h1 {
+  font-size: 34px;
+}
+h1.title {
+  font-size: 38px;
+}
+h2 {
+  font-size: 30px;
+}
+h3 {
+  font-size: 24px;
+}
+h4 {
+  font-size: 18px;
+}
+h5 {
+  font-size: 16px;
+}
+h6 {
+  font-size: 12px;
+}
+.table th:not([align]) {
+  text-align: left;
+}
+</style>
+
+
+
+
+<style type = "text/css">
+.main-container {
+  max-width: 940px;
+  margin-left: auto;
+  margin-right: auto;
+}
+code {
+  color: inherit;
+  background-color: rgba(0, 0, 0, 0.04);
+}
+img {
+  max-width:100%;
+}
+.tabbed-pane {
+  padding-top: 12px;
+}
+.html-widget {
+  margin-bottom: 20px;
+}
+button.code-folding-btn:focus {
+  outline: none;
+}
+summary {
+  display: list-item;
+}
+</style>
+
+
+<style type="text/css">
+/* padding for bootstrap navbar */
+body {
+  padding-top: 51px;
+  padding-bottom: 40px;
+}
+/* offset scroll position for anchor links (for fixed navbar)  */
+.section h1 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.section h2 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.section h3 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.section h4 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.section h5 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.section h6 {
+  padding-top: 56px;
+  margin-top: -56px;
+}
+.dropdown-submenu {
+  position: relative;
+}
+.dropdown-submenu>.dropdown-menu {
+  top: 0;
+  left: 100%;
+  margin-top: -6px;
+  margin-left: -1px;
+  border-radius: 0 6px 6px 6px;
+}
+.dropdown-submenu:hover>.dropdown-menu {
+  display: block;
+}
+.dropdown-submenu>a:after {
+  display: block;
+  content: " ";
+  float: right;
+  width: 0;
+  height: 0;
+  border-color: transparent;
+  border-style: solid;
+  border-width: 5px 0 5px 5px;
+  border-left-color: #cccccc;
+  margin-top: 5px;
+  margin-right: -10px;
+}
+.dropdown-submenu:hover>a:after {
+  border-left-color: #ffffff;
+}
+.dropdown-submenu.pull-left {
+  float: none;
+}
+.dropdown-submenu.pull-left>.dropdown-menu {
+  left: -100%;
+  margin-left: 10px;
+  border-radius: 6px 0 6px 6px;
+}
+</style>
+
+<script>
+// manage active state of menu based on current page
+$(document).ready(function () {
+  // active menu anchor
+  href = window.location.pathname
+  href = href.substr(href.lastIndexOf('/') + 1)
+  if (href === "")
+    href = "index.html";
+  var menuAnchor = $('a[href="' + href + '"]');
+
+  // mark it active
+  menuAnchor.parent().addClass('active');
+
+  // if it's got a parent navbar menu mark it active as well
+  menuAnchor.closest('li.dropdown').addClass('active');
+});
+</script>
+
+<!-- tabsets -->
+
+<style type="text/css">
+.tabset-dropdown > .nav-tabs {
+  display: inline-table;
+  max-height: 500px;
+  min-height: 44px;
+  overflow-y: auto;
+  background: white;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.tabset-dropdown > .nav-tabs > li.active:before {
+  content: "";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li.active:before {
+  content: "&#xe258;";
+  border: none;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open:before {
+  content: "";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs > li.active {
+  display: block;
+}
+
+.tabset-dropdown > .nav-tabs > li > a,
+.tabset-dropdown > .nav-tabs > li > a:focus,
+.tabset-dropdown > .nav-tabs > li > a:hover {
+  border: none;
+  display: inline-block;
+  border-radius: 4px;
+  background-color: transparent;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li {
+  display: block;
+  float: none;
+}
+
+.tabset-dropdown > .nav-tabs > li {
+  display: none;
+}
+</style>
+
+<!-- code folding -->
+
+
+
+<style type="text/css">
+
+#TOC {
+  margin: 25px 0px 20px 0px;
+}
+@media (max-width: 768px) {
+#TOC {
+  position: relative;
+  width: 100%;
+}
+}
+
+@media print {
+.toc-content {
+  /* see https://github.com/w3c/csswg-drafts/issues/4434 */
+  float: right;
+}
+}
+
+.toc-content {
+  padding-left: 30px;
+  padding-right: 40px;
+}
+
+div.main-container {
+  max-width: 1200px;
+}
+
+div.tocify {
+  width: 20%;
+  max-width: 260px;
+  max-height: 85%;
+}
+
+@media (min-width: 768px) and (max-width: 991px) {
+  div.tocify {
+    width: 25%;
+  }
+}
+
+@media (max-width: 767px) {
+  div.tocify {
+    width: 100%;
+    max-width: none;
+  }
+}
+
+.tocify ul, .tocify li {
+  line-height: 20px;
+}
+
+.tocify-subheader .tocify-item {
+  font-size: 0.90em;
+}
+
+.tocify .list-group-item {
+  border-radius: 0px;
+}
+
+
+</style>
+
+
+
+</head>
+
+<body>
+
+
+<div class="container-fluid main-container">
+
+
+<!-- setup 3col/9col grid for toc_float and main content  -->
+<div class="row-fluid">
+<div class="col-xs-12 col-sm-4 col-md-3">
+<div id="TOC" class="tocify">
+</div>
+</div>
+
+<div class="toc-content col-xs-12 col-sm-8 col-md-9">
+
+
+
+
+<div class="navbar navbar-default  navbar-fixed-top" role="navigation">
+  <div class="container">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="index.html">duplex_sequencing_screen</a>
+    </div>
+    <div id="navbar" class="navbar-collapse collapse">
+      <ul class="nav navbar-nav">
+        <li>
+  <a href="index.html">Home</a>
+</li>
+<li>
+  <a href="about.html">About</a>
+</li>
+<li>
+  <a href="license.html">License</a>
+</li>
+      </ul>
+      <ul class="nav navbar-nav navbar-right">
+        <li>
+  <a href="https://github.com/haiderinam/duplex_sequencing_screen">
+    <span class="fa fa-github"></span>
+     
+    Source code
+  </a>
+</li>
+      </ul>
+    </div><!--/.nav-collapse -->
+  </div><!--/.container -->
+</div><!--/.navbar -->
+
+<div class="fluid-row" id="header">
+
+
+
+<h1 class="title toc-ignore">E255K_alphas_figure</h1>
+<h4 class="author">Haider Inam</h4>
+<h4 class="date">5/20/2020</h4>
+
+</div>
+
+
+<p>
+<button type="button" class="btn btn-default btn-workflowr btn-workflowr-report" data-toggle="collapse" data-target="#workflowr-report">
+<span class="glyphicon glyphicon-list" aria-hidden="true"></span> workflowr <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span>
+</button>
+</p>
+<div id="workflowr-report" class="collapse">
+<ul class="nav nav-tabs">
+<li class="active">
+<a data-toggle="tab" href="#summary">Summary</a>
+</li>
+<li>
+<a data-toggle="tab" href="#checks"> Checks <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> </a>
+</li>
+<li>
+<a data-toggle="tab" href="#versions">Past versions</a>
+</li>
+</ul>
+<div class="tab-content">
+<div id="summary" class="tab-pane fade in active">
+<p>
+<strong>Last updated:</strong> 2020-06-02
+</p>
+<p>
+<strong>Checks:</strong> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> 7 <span class="glyphicon glyphicon-exclamation-sign text-danger" aria-hidden="true"></span> 0
+</p>
+<p>
+<strong>Knit directory:</strong> <code>duplex_sequencing_screen/</code> <span class="glyphicon glyphicon-question-sign" aria-hidden="true" title="This is the local directory in which the code in this file was executed."> </span>
+</p>
+<p>
+This reproducible <a href="http://rmarkdown.rstudio.com">R Markdown</a> analysis was created with <a
+  href="https://github.com/jdblischak/workflowr">workflowr</a> (version 1.6.2). The <em>Checks</em> tab describes the reproducibility checks that were applied when the results were created. The <em>Past versions</em> tab lists the development history.
+</p>
+<hr>
+</div>
+<div id="checks" class="tab-pane fade">
+<div id="workflowr-checks" class="panel-group">
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRMarkdownfilestronguptodate"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>R Markdown file:</strong> up-to-date </a>
+</p>
+</div>
+<div id="strongRMarkdownfilestronguptodate" class="panel-collapse collapse">
+<div class="panel-body">
+<p>Great! Since the R Markdown file has been committed to the Git repository, you know the exact version of the code that produced these results.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongEnvironmentstrongempty"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Environment:</strong> empty </a>
+</p>
+</div>
+<div id="strongEnvironmentstrongempty" class="panel-collapse collapse">
+<div class="panel-body">
+<p>Great job! The global environment was empty. Objects defined in the global environment can affect the analysis in your R Markdown file in unknown ways. For reproduciblity it’s best to always run the code in an empty environment.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongSeedstrongcodesetseed20200402code"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Seed:</strong> <code>set.seed(20200402)</code> </a>
+</p>
+</div>
+<div id="strongSeedstrongcodesetseed20200402code" class="panel-collapse collapse">
+<div class="panel-body">
+<p>The command <code>set.seed(20200402)</code> was run prior to running the code in the R Markdown file. Setting a seed ensures that any results that rely on randomness, e.g. subsampling or permutations, are reproducible.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongSessioninformationstrongrecorded"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Session information:</strong> recorded </a>
+</p>
+</div>
+<div id="strongSessioninformationstrongrecorded" class="panel-collapse collapse">
+<div class="panel-body">
+<p>Great job! Recording the operating system, R version, and package versions is critical for reproducibility.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongCachestrongnone"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Cache:</strong> none </a>
+</p>
+</div>
+<div id="strongCachestrongnone" class="panel-collapse collapse">
+<div class="panel-body">
+<p>Nice! There were no cached chunks for this analysis, so you can be confident that you successfully produced the results during this run.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongFilepathsstrongrelative"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>File paths:</strong> relative </a>
+</p>
+</div>
+<div id="strongFilepathsstrongrelative" class="panel-collapse collapse">
+<div class="panel-body">
+<p>Great job! Using relative paths to the files within your workflowr project makes it easier to run your code on other machines.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomhaiderinamduplexsequencingscreentree2d4b7d0b4a66e3d2a68c14ccd133a7fde5f1eb5dtargetblank2d4b7d0a"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Repository version:</strong> <a href="https://github.com/haiderinam/duplex_sequencing_screen/tree/2d4b7d0b4a66e3d2a68c14ccd133a7fde5f1eb5d" target="_blank">2d4b7d0</a> </a>
+</p>
+</div>
+<div id="strongRepositoryversionstrongahrefhttpsgithubcomhaiderinamduplexsequencingscreentree2d4b7d0b4a66e3d2a68c14ccd133a7fde5f1eb5dtargetblank2d4b7d0a" class="panel-collapse collapse">
+<div class="panel-body">
+<p>
+Great! You are using Git for version control. Tracking code development and connecting the code version to the results is critical for reproducibility.
+</p>
+<p>
+The results in this page were generated with repository version <a href="https://github.com/haiderinam/duplex_sequencing_screen/tree/2d4b7d0b4a66e3d2a68c14ccd133a7fde5f1eb5d" target="_blank">2d4b7d0</a>. See the <em>Past versions</em> tab to see a history of the changes made to the R Markdown and HTML files.
+</p>
+<p>
+Note that you need to be careful to ensure that all relevant files for the analysis have been committed to Git prior to generating the results (you can use <code>wflow_publish</code> or <code>wflow_git_commit</code>). workflowr only checks the R Markdown file, but you know if there are other scripts or data files that it depends on. Below is the status of the Git repository when the results were generated:
+</p>
+<pre><code>
+Ignored files:
+    Ignored:    .Rhistory
+    Ignored:    .Rproj.user/
+
+Untracked files:
+    Untracked:  analysis/enrichment_simulations.Rmd
+    Untracked:  analysis/multinomial_sims.Rmd
+    Untracked:  clinicalabundancepredictions_BMES_abstract_51320.pdf
+    Untracked:  data/Combined_data_frame_IC_Mutprob_abundance.csv
+    Untracked:  data/IC50HeatMap.csv
+    Untracked:  data/Twinstrand/
+    Untracked:  data/gfpenrichmentdata.csv
+    Untracked:  data/heatmap_concat_data.csv
+    Untracked:  output/archive/
+    Untracked:  output/bmes_abstract_51220.pdf
+    Untracked:  output/clinicalabundancepredictions_BMES_abstract_51320.pdf
+    Untracked:  output/clinicalabundancepredictions_BMES_abstract_52020.pdf
+    Untracked:  output/enrichment_simulations_3mutants_52020.pdf
+    Untracked:  output/grant_fig.pdf
+    Untracked:  output/grant_fig_v2.pdf
+    Untracked:  output/grant_fig_v2updated.pdf
+    Untracked:  output/ic50data_all_conc.csv
+    Untracked:  shinyapp/
+
+Unstaged changes:
+    Modified:   analysis/clinical_abundance_predictions.Rmd
+    Modified:   analysis/index.Rmd
+    Modified:   analysis/misc.Rmd
+    Modified:   analysis/nonlinear_growth_analysis.Rmd
+    Modified:   analysis/spikeins_depthofcoverages.Rmd
+    Deleted:    data/README.md
+    Modified:   output/twinstrand_maf_merge.csv
+    Modified:   output/twinstrand_simple_melt_merge.csv
+
+</code></pre>
+<p>
+Note that any generated files, e.g. HTML, png, CSS, etc., are not included in this status report because it is ok for generated content to have uncommitted changes.
+</p>
+</div>
+</div>
+</div>
+</div>
+<hr>
+</div>
+<div id="versions" class="tab-pane fade">
+
+<p>
+These are the previous versions of the repository in which changes were made to the R Markdown (<code>analysis/E255K_alphas_figure.Rmd</code>) and HTML (<code>docs/E255K_alphas_figure.html</code>) files. If you’ve configured a remote Git repository (see <code>?wflow_git_remote</code>), click on the hyperlinks in the table below to view the files as they were in that past version.
+</p>
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+File
+</th>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+<th>
+Message
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+Rmd
+</td>
+<td>
+<a href="https://github.com/haiderinam/duplex_sequencing_screen/blob/2d4b7d0b4a66e3d2a68c14ccd133a7fde5f1eb5d/analysis/E255K_alphas_figure.Rmd" target="_blank">2d4b7d0</a>
+</td>
+<td>
+haiderinam
+</td>
+<td>
+2020-06-02
+</td>
+<td>
+wflow_publish(“analysis/E255K_alphas_figure.Rmd”)
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<hr>
+</div>
+</div>
+</div>
+<pre class="r"><code># rm(list=ls())
+
+conc_for_predictions=0.8
+net_gr_wodrug=0.05
+
+# twinstrand_simple_melt_merge=read.csv(&quot;../output/twinstrand_simple_melt_merge.csv&quot;,header = T,stringsAsFactors = F)
+twinstrand_simple_melt_merge=read.csv(&quot;output/twinstrand_simple_melt_merge.csv&quot;,header = T,stringsAsFactors = F)
+
+# twinstrand_maf_merge=read.csv(&quot;../output/twinstrand_maf_merge.csv&quot;,header = T,stringsAsFactors = F)
+twinstrand_maf_merge=read.csv(&quot;output/twinstrand_maf_merge.csv&quot;,header = T,stringsAsFactors = F)
+
+# ic50data_long=read.csv(&quot;../output/ic50data_all_conc.csv&quot;,header = T,stringsAsFactors = F)
+ic50data_long=read.csv(&quot;output/ic50data_all_conc.csv&quot;,header = T,stringsAsFactors = F)
+ic50data_long$netgr_pred=net_gr_wodrug-ic50data_long$drug_effect
+
+gfpdata=read.table(&quot;data/gfpenrichmentdata.csv&quot;,stringsAsFactors = F,header = T,sep=&#39;,&#39;)
+# gfpdata=read.table(&quot;../data/gfpenrichmentdata.csv&quot;,stringsAsFactors = F,header = T,sep=&#39;,&#39;)
+
+
+# ic50_heatmap=read.csv(&quot;../data/IC50HeatMap.csv&quot;,header = T,stringsAsFactors = F)
+ic50_heatmap=read.csv(&quot;data/IC50HeatMap.csv&quot;,header = T,stringsAsFactors = F)
+
+cleanup=theme_bw() +
+  theme(plot.title = element_text(hjust=.5),
+        panel.grid.major = element_blank(),
+        panel.grid.major.y = element_blank(),
+        panel.background = element_blank(),
+        axis.line = element_line(color = &quot;black&quot;),
+        axis.text = element_text(face=&quot;bold&quot;,color=&quot;black&quot;,size=&quot;11&quot;),
+        text=element_text(size=11,face=&quot;bold&quot;),
+        axis.title=element_text(face=&quot;bold&quot;,size=&quot;11&quot;))</code></pre>
+<p>This boxplot will compare the net growth rates of E255K observed across IC50s, FACs studies, and pooled studies</p>
+<pre class="r"><code>###########Netgr from pooled approach###########
+pooled_data=twinstrand_simple_melt_merge%&gt;%filter(mutant==&quot;E255K&quot;,!netgr_obs%in%NA,duration%in%c(&quot;d0d3&quot;,&quot;d0d6&quot;))%&gt;%dplyr::select(mutant,experiment,netgr=netgr_obs,Spike_in_freq)%&gt;%mutate(measurement=&quot;Pooled&quot;)
+pooled_data=pooled_data%&gt;%dplyr::select(measurement,netgr)
+# pooled_data=twinstrand_simple_melt_merge%&gt;%filter(mutant==&quot;E255K&quot;,!netgr_obs%in%NA)
+#Why does the GFP FACs data seem to have the same growth rates?
+
+###########Netgr from IC50s###########
+ic50_data=ic50_heatmap%&gt;%filter(species==&quot;E255K&quot;)%&gt;%dplyr::select(mutant=species,y=X1.25)
+ic50_data=ic50_data%&gt;%mutate(alpha=-log(y)/72)
+ic50_data=ic50_data%&gt;%mutate(netgr=net_gr_wodrug-alpha,measurement=&quot;IC50s&quot;)
+ic50_data=ic50_data%&gt;%dplyr::select(measurement,netgr)
+
+###########Netgr from FACs experiment###########
+#This data originally sits in the FACs entries in the &quot;Mixing Experiment 4, 8/20/18, directory on benchling&quot;
+#These are for both 1:1000 and 1:100 data. Growth rates looked similar at low frequencies with and without WT effects but there was a slowering of growth without WT spike-ins. We haven&#39;t focused on that here though
+facs_data=data.frame(c(0.046483696,0.0450497374,0.0197837978,0.0437170827,0.04520188,0.0440885505))
+colnames(facs_data)=&quot;netgr&quot;
+facs_data=facs_data%&gt;%mutate(mutant=&quot;E255K&quot;,Spike_in_freq=c(1000,1000,1000,10000,10000,10000),measurement=&quot;FACS&quot;)
+facs_data=facs_data%&gt;%dplyr::select(measurement,netgr)
+
+
+###########Plotting###########
+###Please note that 625nM imatinib was used in all conditions
+e255k_gr=rbind(facs_data,pooled_data,ic50_data)
+ggplot(e255k_gr,aes(x=factor(measurement),y=netgr,fill=factor(measurement)))+geom_boxplot()+scale_fill_manual(values = c(&quot;#63A088&quot;,&quot;#1CCE16&quot;,&quot;#206A36&quot;))+cleanup+scale_y_continuous(name=&quot;Net Grwoth Rate Observed&quot;)</code></pre>
+<p><img src="figure/E255K_alphas_figure.Rmd/unnamed-chunk-2-1.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>ggplot(e255k_gr,aes(x=factor(measurement),y=log(2)/netgr,fill=factor(measurement)))+geom_boxplot()+scale_fill_manual(values = c(&quot;#63A088&quot;,&quot;#1CCE16&quot;,&quot;#206A36&quot;))+cleanup+scale_y_continuous(limits=c(0,30),name=&quot;Doubling Time&quot;)</code></pre>
+<pre><code>Warning: Removed 1 rows containing non-finite values (stat_boxplot).</code></pre>
+<p><img src="figure/E255K_alphas_figure.Rmd/unnamed-chunk-2-2.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>a=twinstrand_simple_melt_merge%&gt;%filter(mutant==&quot;E255K&quot;,!netgr_obs%in%NA)
+
+#There seems to be a bit of a signal with the growth rates from D0 to D3 and D3 to D6. D0D3 seems to be a little higher. Will look at that discrepancy later.</code></pre>
+<pre class="r"><code>gfpdata$ttotal_sequenced=c(0,3,6)
+gfpdata$xtotal_sequenced=c(129,3323,37023)
+# gfpdata_simple=gfpdata%&gt;%dplyr::select(ttotal_4,xtotal_4_e255k)
+# e255k=twinstrand_maf_merge%&gt;%filter(mutant==&quot;E255K&quot;,experiment==&quot;M3&quot;)
+
+gfpplotlog=ggplot(gfpdata)+
+  geom_line(aes(x=t_out_4,y=log10(x_out_4_e255k)),color=&quot;#1cce16&quot;,size=1.5)+geom_ribbon(aes(x = t_out_4_conintub,ymax=log10(x_out_4_e255k_ciub),ymin=log10(x_out_4_e255k_cilb)),fill=&quot;#1cce16&quot;,alpha=.3)+
+  geom_line(aes(x=t_out_3,y=log10(x_out_3_e255k)),color=&quot;#206A36&quot;,size=1.5)+geom_ribbon(aes(x = t_out_3_conintub,ymax=log10(x_out_3_e255k_ciub),ymin=log10(x_out_3_e255k_cilb)),fill=&quot;#206A36&quot;,alpha=.3)+
+  geom_point(aes(x=ttotal_4,y=log10(xtotal_4_e255k)),size=3)+
+  geom_point(aes(x=ttotal_3,y=log10(xtotal_3_e255k)),size=3)+
+  geom_point(aes(x=ttotal_sequenced,y=log10(xtotal_sequenced)),size=3,shape=&quot;square&quot;,color=&quot;blue&quot;)+
+  theme_bw()+theme(plot.title = element_text(hjust=.5),text = element_text(size=24),axis.title = element_text(face=&quot;bold&quot;,size=&quot;19&quot;),axis.text=element_text(face=&quot;bold&quot;,size=&quot;19&quot;))+
+  xlim(0,7)+
+  scale_y_continuous(labels=parse(text = c(&quot;10^3&quot;,&quot;10^5&quot;)),limits = c(2,6.5),breaks = c(3,5))+
+  # scale_y_continuous(labels = function(x) format(x, scientific = TRUE), limits = c(1e2,5e6),trans=&#39;log10&#39;,labels=parse(text = c(&quot;10^3&quot;,&quot;10^5&quot;))+
+  # scale_y_continuous(labels = parse(text = c(&quot;10^3&quot;,&quot;10^5&quot;)), limits = c(1e2,5e6),trans=&#39;log10&#39;)+
+  ylab(&#39;Resistant Population&#39;)+
+  xlab(&#39;Time (Days)&#39;)
+gfpplotlog</code></pre>
+<pre><code>Warning: Removed 13 row(s) containing missing values (geom_path).
+
+Warning: Removed 13 row(s) containing missing values (geom_path).</code></pre>
+<pre><code>Warning: Removed 40 rows containing missing values (geom_point).
+
+Warning: Removed 40 rows containing missing values (geom_point).</code></pre>
+<p><img src="figure/E255K_alphas_figure.Rmd/unnamed-chunk-3-1.png" width="672" style="display: block; margin: auto;" /> Looking at the growth rate changes with dates</p>
+<pre class="r"><code>a=twinstrand_simple_melt_merge%&gt;%filter(duration%in%c(&quot;d0d3&quot;,&quot;d3d6&quot;),experiment%in%c(&quot;M3&quot;,&quot;M6&quot;))
+plotly=ggplot(a,aes(x=factor(mutant),y=netgr_obs,fill=duration))+geom_col(position=&quot;dodge&quot;,stat=&quot;identity&quot;)+facet_wrap(~experiment)</code></pre>
+<pre><code>Warning: Ignoring unknown parameters: stat</code></pre>
+<pre class="r"><code>ggplotly(plotly)</code></pre>
+<div id="htmlwidget-ca9da69111fdc3e9e442" style="width:672px;height:480px;" class="plotly html-widget"></div>
+<script type="application/json" data-for="htmlwidget-ca9da69111fdc3e9e442">{"x":{"data":[{"orientation":"v","width":[0.450000000000003,0.450000000000003,0.45,0.449999999999999,0.449999999999999,0.449999999999999,0.449999999999999,0.449999999999999,0.450000000000003,0.449999999999999,0.45,0.449999999999999,0.449999999999999,0.449999999999999,0.449999999999999,0.449999999999999,0.45,0.449999999999999,0.450000000000003,0.45],"base":[0,0,0,0,0,0,0,0,0,0,0,0,-0.0031374685958978,0,0,0,0,0,null,0],"x":[16.775,18.775,2.775,14.775,10.775,11.775,13.775,12.775,17.775,15.775,1.775,6.775,8.775,9.775,7.775,4.775,3.775,5.775,19.775,0.775],"y":[0.0616556918320131,0.0691322117935927,0.0626300306066603,0.0509812388688562,0.058362136592558,0.0513796625167495,0.0458359814430316,0.0374419279441509,0.032550335908946,0.0353917597999288,0.0450944276782183,0.0315381611218042,0.0031374685958978,0.034874909856677,0.0229487230196449,0.0185280300274317,0.0349377398118437,0.0232793848963411,null,0.0177152567264708],"text":["factor(mutant): T315I<br />netgr_obs:  0.0616556918<br />duration: d0d3","factor(mutant): Y253H<br />netgr_obs:  0.0691322118<br />duration: d0d3","factor(mutant): E255V<br />netgr_obs:  0.0626300306<br />duration: d0d3","factor(mutant): M351T<br />netgr_obs:  0.0509812389<br />duration: d0d3","factor(mutant): G250E<br />netgr_obs:  0.0583621366<br />duration: d0d3","factor(mutant): H396P<br />netgr_obs:  0.0513796625<br />duration: d0d3","factor(mutant): L248V<br />netgr_obs:  0.0458359814<br />duration: d0d3","factor(mutant): H396R<br />netgr_obs:  0.0374419279<br />duration: d0d3","factor(mutant): Y253F<br />netgr_obs:  0.0325503359<br />duration: d0d3","factor(mutant): Q252H<br />netgr_obs:  0.0353917598<br />duration: d0d3","factor(mutant): E255K<br />netgr_obs:  0.0450944277<br />duration: d0d3","factor(mutant): F317L<br />netgr_obs:  0.0315381611<br />duration: d0d3","factor(mutant): F359L<br />netgr_obs: -0.0031374686<br />duration: d0d3","factor(mutant): F359V<br />netgr_obs:  0.0348749099<br />duration: d0d3","factor(mutant): F359I<br />netgr_obs:  0.0229487230<br />duration: d0d3","factor(mutant): E355G<br />netgr_obs:  0.0185280300<br />duration: d0d3","factor(mutant): E355A<br />netgr_obs:  0.0349377398<br />duration: d0d3","factor(mutant): E459K<br />netgr_obs:  0.0232793849<br />duration: d0d3","factor(mutant): Y320C<br />netgr_obs:            NA<br />duration: d0d3","factor(mutant): D276G<br />netgr_obs:  0.0177152567<br />duration: d0d3"],"type":"bar","marker":{"autocolorscale":false,"color":"rgba(248,118,109,1)","line":{"width":1.88976377952756,"color":"transparent"}},"name":"d0d3","legendgroup":"d0d3","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"orientation":"v","width":[0.450000000000003,0.450000000000003,0.45,0.449999999999999,0.449999999999999,0.449999999999999,0.449999999999999,0.449999999999999,0.450000000000003,0.449999999999999,0.45,0.449999999999999,0.449999999999999,0.449999999999999,0.449999999999999,0.449999999999999,0.45,0.449999999999999,0.450000000000003],"base":[0,0,0,0,0,0,0,0,0,0,0,0,null,null,0,0,0,0,null],"x":[16.775,18.775,2.775,14.775,10.775,11.775,13.775,12.775,17.775,15.775,1.775,6.775,8.775,9.775,7.775,4.775,3.775,5.775,19.775],"y":[0.0644298708294598,0.070689834124514,0.0813387855024452,0.0711151434288902,0.0781230706856515,0.0671943722893807,0.0642524140765957,0.0398941155880398,0.0611217197241139,0.0380807945834078,0.0452084170790659,0.0384925557400118,null,null,0.0349286087440826,0.0138757912325283,0.037364718698236,0.0430977566389742,null],"text":["factor(mutant): T315I<br />netgr_obs:  0.0644298708<br />duration: d0d3","factor(mutant): Y253H<br />netgr_obs:  0.0706898341<br />duration: d0d3","factor(mutant): E255V<br />netgr_obs:  0.0813387855<br />duration: d0d3","factor(mutant): M351T<br />netgr_obs:  0.0711151434<br />duration: d0d3","factor(mutant): G250E<br />netgr_obs:  0.0781230707<br />duration: d0d3","factor(mutant): H396P<br />netgr_obs:  0.0671943723<br />duration: d0d3","factor(mutant): L248V<br />netgr_obs:  0.0642524141<br />duration: d0d3","factor(mutant): H396R<br />netgr_obs:  0.0398941156<br />duration: d0d3","factor(mutant): Y253F<br />netgr_obs:  0.0611217197<br />duration: d0d3","factor(mutant): Q252H<br />netgr_obs:  0.0380807946<br />duration: d0d3","factor(mutant): E255K<br />netgr_obs:  0.0452084171<br />duration: d0d3","factor(mutant): F317L<br />netgr_obs:  0.0384925557<br />duration: d0d3","factor(mutant): F359L<br />netgr_obs:            NA<br />duration: d0d3","factor(mutant): F359V<br />netgr_obs:            NA<br />duration: d0d3","factor(mutant): F359I<br />netgr_obs:  0.0349286087<br />duration: d0d3","factor(mutant): E355G<br />netgr_obs:  0.0138757912<br />duration: d0d3","factor(mutant): E355A<br />netgr_obs:  0.0373647187<br />duration: d0d3","factor(mutant): E459K<br />netgr_obs:  0.0430977566<br />duration: d0d3","factor(mutant): Y320C<br />netgr_obs:            NA<br />duration: d0d3"],"type":"bar","marker":{"autocolorscale":false,"color":"rgba(248,118,109,1)","line":{"width":1.88976377952756,"color":"transparent"}},"name":"d0d3","legendgroup":"d0d3","showlegend":false,"xaxis":"x2","yaxis":"y","hoverinfo":"text","frame":null},{"orientation":"v","width":[0.450000000000003,0.450000000000003,0.45,0.449999999999999,0.449999999999999,0.449999999999999,0.449999999999999,0.449999999999999,0.450000000000003,0.450000000000003,0.45,0.449999999999999,0.449999999999999,0.449999999999999,0.449999999999999,0.449999999999999,0.45,0.449999999999999,0.450000000000003,0.45],"base":[0,0,0,0,0,0,0,0,0,0,0,0,null,0,0,0,0,0,0,null],"x":[17.225,19.225,3.225,15.225,11.225,12.225,14.225,13.225,18.225,16.225,2.225,7.225,9.225,10.225,8.225,5.225,4.225,6.225,20.225,1.225],"y":[0.0556532112719625,0.0566953578581641,0.0572690119933471,0.0550596784448217,0.0517196077013197,0.0487243231157813,0.0396406266927503,0.0427198643829193,0.0469383450557703,0.0350310392612771,0.0334809738680772,0.0308041892913613,null,0.028451268722294,0.0276739573164411,0.0267902770166541,0.012731599110772,0.00792197717242642,0.0441715968666497,null],"text":["factor(mutant): T315I<br />netgr_obs:  0.0556532113<br />duration: d3d6","factor(mutant): Y253H<br />netgr_obs:  0.0566953579<br />duration: d3d6","factor(mutant): E255V<br />netgr_obs:  0.0572690120<br />duration: d3d6","factor(mutant): M351T<br />netgr_obs:  0.0550596784<br />duration: d3d6","factor(mutant): G250E<br />netgr_obs:  0.0517196077<br />duration: d3d6","factor(mutant): H396P<br />netgr_obs:  0.0487243231<br />duration: d3d6","factor(mutant): L248V<br />netgr_obs:  0.0396406267<br />duration: d3d6","factor(mutant): H396R<br />netgr_obs:  0.0427198644<br />duration: d3d6","factor(mutant): Y253F<br />netgr_obs:  0.0469383451<br />duration: d3d6","factor(mutant): Q252H<br />netgr_obs:  0.0350310393<br />duration: d3d6","factor(mutant): E255K<br />netgr_obs:  0.0334809739<br />duration: d3d6","factor(mutant): F317L<br />netgr_obs:  0.0308041893<br />duration: d3d6","factor(mutant): F359L<br />netgr_obs:            NA<br />duration: d3d6","factor(mutant): F359V<br />netgr_obs:  0.0284512687<br />duration: d3d6","factor(mutant): F359I<br />netgr_obs:  0.0276739573<br />duration: d3d6","factor(mutant): E355G<br />netgr_obs:  0.0267902770<br />duration: d3d6","factor(mutant): E355A<br />netgr_obs:  0.0127315991<br />duration: d3d6","factor(mutant): E459K<br />netgr_obs:  0.0079219772<br />duration: d3d6","factor(mutant): Y320C<br />netgr_obs:  0.0441715969<br />duration: d3d6","factor(mutant): D276G<br />netgr_obs:            NA<br />duration: d3d6"],"type":"bar","marker":{"autocolorscale":false,"color":"rgba(0,191,196,1)","line":{"width":1.88976377952756,"color":"transparent"}},"name":"d3d6","legendgroup":"d3d6","showlegend":true,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null},{"orientation":"v","width":[0.450000000000003,0.450000000000003,0.45,0.449999999999999,0.449999999999999,0.449999999999999,0.449999999999999,0.449999999999999,0.450000000000003,0.450000000000003,0.45,0.449999999999999,0.449999999999999,0.449999999999999,0.449999999999999,0.449999999999999,0.45,0.449999999999999,0.450000000000003],"base":[0,0,0,0,0,0,0,0,0,0,0,0,null,0,0,0,null,-0.00721304443411948,0],"x":[17.225,19.225,3.225,15.225,11.225,12.225,14.225,13.225,18.225,16.225,2.225,7.225,9.225,10.225,8.225,5.225,4.225,6.225,20.225],"y":[0.0564405227297085,0.0577807399467394,0.0565968051157205,0.0504638392474484,0.0511485233285775,0.0407904899805769,0.0302288352512854,0.0417233554390856,0.0382051517146049,0.0222071460834166,0.0223612985762536,0.0160500200244016,null,0.0297729630991121,0.000317413310529148,0.0118278860192327,null,0.00721304443411948,0.0294304233077991],"text":["factor(mutant): T315I<br />netgr_obs:  0.0564405227<br />duration: d3d6","factor(mutant): Y253H<br />netgr_obs:  0.0577807399<br />duration: d3d6","factor(mutant): E255V<br />netgr_obs:  0.0565968051<br />duration: d3d6","factor(mutant): M351T<br />netgr_obs:  0.0504638392<br />duration: d3d6","factor(mutant): G250E<br />netgr_obs:  0.0511485233<br />duration: d3d6","factor(mutant): H396P<br />netgr_obs:  0.0407904900<br />duration: d3d6","factor(mutant): L248V<br />netgr_obs:  0.0302288353<br />duration: d3d6","factor(mutant): H396R<br />netgr_obs:  0.0417233554<br />duration: d3d6","factor(mutant): Y253F<br />netgr_obs:  0.0382051517<br />duration: d3d6","factor(mutant): Q252H<br />netgr_obs:  0.0222071461<br />duration: d3d6","factor(mutant): E255K<br />netgr_obs:  0.0223612986<br />duration: d3d6","factor(mutant): F317L<br />netgr_obs:  0.0160500200<br />duration: d3d6","factor(mutant): F359L<br />netgr_obs:            NA<br />duration: d3d6","factor(mutant): F359V<br />netgr_obs:  0.0297729631<br />duration: d3d6","factor(mutant): F359I<br />netgr_obs:  0.0003174133<br />duration: d3d6","factor(mutant): E355G<br />netgr_obs:  0.0118278860<br />duration: d3d6","factor(mutant): E355A<br />netgr_obs:            NA<br />duration: d3d6","factor(mutant): E459K<br />netgr_obs: -0.0072130444<br />duration: d3d6","factor(mutant): Y320C<br />netgr_obs:  0.0294304233<br />duration: d3d6"],"type":"bar","marker":{"autocolorscale":false,"color":"rgba(0,191,196,1)","line":{"width":1.88976377952756,"color":"transparent"}},"name":"d3d6","legendgroup":"d3d6","showlegend":false,"xaxis":"x2","yaxis":"y","hoverinfo":"text","frame":null}],"layout":{"margin":{"t":37.9178082191781,"r":7.30593607305936,"b":40.1826484018265,"l":48.9497716894977},"plot_bgcolor":"rgba(235,235,235,1)","paper_bgcolor":"rgba(255,255,255,1)","font":{"color":"rgba(0,0,0,1)","family":"","size":14.6118721461187},"xaxis":{"domain":[0,0.489128071319852],"automargin":true,"type":"linear","autorange":false,"range":[0.4,20.6],"tickmode":"array","ticktext":["D276G","E255K","E255V","E355A","E355G","E459K","F317L","F359I","F359L","F359V","G250E","H396P","H396R","L248V","M351T","Q252H","T315I","Y253F","Y253H","Y320C"],"tickvals":[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20],"categoryorder":"array","categoryarray":["D276G","E255K","E255V","E355A","E355G","E459K","F317L","F359I","F359L","F359V","G250E","H396P","H396R","L248V","M351T","Q252H","T315I","Y253F","Y253H","Y320C"],"nticks":null,"ticks":"outside","tickcolor":"rgba(51,51,51,1)","ticklen":3.65296803652968,"tickwidth":0.66417600664176,"showticklabels":true,"tickfont":{"color":"rgba(77,77,77,1)","family":"","size":11.689497716895},"tickangle":-0,"showline":false,"linecolor":null,"linewidth":0,"showgrid":true,"gridcolor":"rgba(255,255,255,1)","gridwidth":0.66417600664176,"zeroline":false,"anchor":"y","title":"","hoverformat":".2f"},"annotations":[{"text":"factor(mutant)","x":0.5,"y":-0.0471841704718417,"showarrow":false,"ax":0,"ay":0,"font":{"color":"rgba(0,0,0,1)","family":"","size":14.6118721461187},"xref":"paper","yref":"paper","textangle":-0,"xanchor":"center","yanchor":"top","annotationType":"axis"},{"text":"netgr_obs","x":-0.0510980647966949,"y":0.5,"showarrow":false,"ax":0,"ay":0,"font":{"color":"rgba(0,0,0,1)","family":"","size":14.6118721461187},"xref":"paper","yref":"paper","textangle":-90,"xanchor":"right","yanchor":"center","annotationType":"axis"},{"text":"M3","x":0.244564035659926,"y":1,"showarrow":false,"ax":0,"ay":0,"font":{"color":"rgba(26,26,26,1)","family":"","size":11.689497716895},"xref":"paper","yref":"paper","textangle":-0,"xanchor":"center","yanchor":"bottom"},{"text":"M6","x":0.755435964340074,"y":1,"showarrow":false,"ax":0,"ay":0,"font":{"color":"rgba(26,26,26,1)","family":"","size":11.689497716895},"xref":"paper","yref":"paper","textangle":-0,"xanchor":"center","yanchor":"bottom"},{"text":"duration","x":1.02,"y":1,"showarrow":false,"ax":0,"ay":0,"font":{"color":"rgba(0,0,0,1)","family":"","size":14.6118721461187},"xref":"paper","yref":"paper","textangle":-0,"xanchor":"left","yanchor":"bottom","legendTitle":true}],"yaxis":{"domain":[0,1],"automargin":true,"type":"linear","autorange":false,"range":[-0.0116406359309477,0.0857663769992734],"tickmode":"array","ticktext":["0.00","0.02","0.04","0.06","0.08"],"tickvals":[0,0.02,0.04,0.06,0.08],"categoryorder":"array","categoryarray":["0.00","0.02","0.04","0.06","0.08"],"nticks":null,"ticks":"outside","tickcolor":"rgba(51,51,51,1)","ticklen":3.65296803652968,"tickwidth":0.66417600664176,"showticklabels":true,"tickfont":{"color":"rgba(77,77,77,1)","family":"","size":11.689497716895},"tickangle":-0,"showline":false,"linecolor":null,"linewidth":0,"showgrid":true,"gridcolor":"rgba(255,255,255,1)","gridwidth":0.66417600664176,"zeroline":false,"anchor":"x","title":"","hoverformat":".2f"},"shapes":[{"type":"rect","fillcolor":null,"line":{"color":null,"width":0,"linetype":[]},"yref":"paper","xref":"paper","x0":0,"x1":0.489128071319852,"y0":0,"y1":1},{"type":"rect","fillcolor":"rgba(217,217,217,1)","line":{"color":"transparent","width":0.66417600664176,"linetype":"solid"},"yref":"paper","xref":"paper","x0":0,"x1":0.489128071319852,"y0":0,"y1":23.37899543379,"yanchor":1,"ysizemode":"pixel"},{"type":"rect","fillcolor":null,"line":{"color":null,"width":0,"linetype":[]},"yref":"paper","xref":"paper","x0":0.510871928680148,"x1":1,"y0":0,"y1":1},{"type":"rect","fillcolor":"rgba(217,217,217,1)","line":{"color":"transparent","width":0.66417600664176,"linetype":"solid"},"yref":"paper","xref":"paper","x0":0.510871928680148,"x1":1,"y0":0,"y1":23.37899543379,"yanchor":1,"ysizemode":"pixel"}],"xaxis2":{"type":"linear","autorange":false,"range":[0.4,20.6],"tickmode":"array","ticktext":["D276G","E255K","E255V","E355A","E355G","E459K","F317L","F359I","F359L","F359V","G250E","H396P","H396R","L248V","M351T","Q252H","T315I","Y253F","Y253H","Y320C"],"tickvals":[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20],"categoryorder":"array","categoryarray":["D276G","E255K","E255V","E355A","E355G","E459K","F317L","F359I","F359L","F359V","G250E","H396P","H396R","L248V","M351T","Q252H","T315I","Y253F","Y253H","Y320C"],"nticks":null,"ticks":"outside","tickcolor":"rgba(51,51,51,1)","ticklen":3.65296803652968,"tickwidth":0.66417600664176,"showticklabels":true,"tickfont":{"color":"rgba(77,77,77,1)","family":"","size":11.689497716895},"tickangle":-0,"showline":false,"linecolor":null,"linewidth":0,"showgrid":true,"domain":[0.510871928680148,1],"gridcolor":"rgba(255,255,255,1)","gridwidth":0.66417600664176,"zeroline":false,"anchor":"y","title":"","hoverformat":".2f"},"showlegend":true,"legend":{"bgcolor":"rgba(255,255,255,1)","bordercolor":"transparent","borderwidth":1.88976377952756,"font":{"color":"rgba(0,0,0,1)","family":"","size":11.689497716895},"y":0.913385826771654},"hovermode":"closest","barmode":"relative"},"config":{"doubleClick":"reset","showSendToCloud":false},"source":"A","attrs":{"1559c7b5b2faa":{"x":{},"y":{},"fill":{},"type":"bar"}},"cur_data":"1559c7b5b2faa","visdat":{"1559c7b5b2faa":["function (y) ","x"]},"highlight":{"on":"plotly_click","persistent":false,"dynamic":false,"selectize":false,"opacityDim":0.2,"selected":{"opacity":1},"debounce":0},"shinyEvents":["plotly_hover","plotly_click","plotly_selected","plotly_relayout","plotly_brushed","plotly_brushing","plotly_clickannotation","plotly_doubleclick","plotly_deselect","plotly_afterplot","plotly_sunburstclick"],"base_url":"https://plot.ly"},"evals":[],"jsHooks":[]}</script>
+<pre class="r"><code>#Realizing that the signal I&#39;m seeing here might be confounded by erroneous flow cytometry counts... </code></pre>
+<br>
+<p>
+<button type="button" class="btn btn-default btn-workflowr btn-workflowr-sessioninfo" data-toggle="collapse" data-target="#workflowr-sessioninfo" style="display: block;">
+<span class="glyphicon glyphicon-wrench" aria-hidden="true"></span> Session information
+</button>
+</p>
+<div id="workflowr-sessioninfo" class="collapse">
+<pre class="r"><code>sessionInfo()</code></pre>
+<pre><code>R version 4.0.0 (2020-04-24)
+Platform: x86_64-apple-darwin17.0 (64-bit)
+Running under: macOS Catalina 10.15.4
+
+Matrix products: default
+BLAS:   /Library/Frameworks/R.framework/Versions/4.0/Resources/lib/libRblas.dylib
+LAPACK: /Library/Frameworks/R.framework/Versions/4.0/Resources/lib/libRlapack.dylib
+
+locale:
+[1] en_US.UTF-8/en_US.UTF-8/en_US.UTF-8/C/en_US.UTF-8/en_US.UTF-8
+
+attached base packages:
+[1] stats     graphics  grDevices utils     datasets  methods   base     
+
+other attached packages:
+ [1] reshape2_1.4.4      plotly_4.9.2.1      dplyr_0.8.5        
+ [4] boot_1.3-24         lme4_1.1-23         Matrix_1.2-18      
+ [7] fitdistrplus_1.0-14 npsurv_0.4-0.1      lsei_1.2-0.1       
+[10] survival_3.1-12     MASS_7.3-51.5       ggplot2_3.3.0      
+[13] lmtest_0.9-37       zoo_1.8-8           workflowr_1.6.2    
+
+loaded via a namespace (and not attached):
+ [1] statmod_1.4.34    tidyselect_1.1.0  xfun_0.13         purrr_0.3.4      
+ [5] splines_4.0.0     lattice_0.20-41   colorspace_1.4-1  vctrs_0.3.0      
+ [9] viridisLite_0.3.0 htmltools_0.4.0   yaml_2.2.1        rlang_0.4.6      
+[13] later_1.0.0       pillar_1.4.4      nloptr_1.2.2.1    glue_1.4.1       
+[17] withr_2.2.0       plyr_1.8.6        lifecycle_0.2.0   stringr_1.4.0    
+[21] munsell_0.5.0     gtable_0.3.0      htmlwidgets_1.5.1 evaluate_0.14    
+[25] labeling_0.3      knitr_1.28        crosstalk_1.1.0.1 httpuv_1.5.2     
+[29] Rcpp_1.0.4.6      promises_1.1.0    scales_1.1.1      backports_1.1.7  
+[33] jsonlite_1.6.1    farver_2.0.3      fs_1.4.1          digest_0.6.25    
+[37] stringi_1.4.6     grid_4.0.0        rprojroot_1.3-2   tools_4.0.0      
+[41] magrittr_1.5      lazyeval_0.2.2    tibble_3.0.1      tidyr_1.0.3      
+[45] crayon_1.3.4      whisker_0.4       pkgconfig_2.0.3   ellipsis_0.3.1   
+[49] data.table_1.12.8 httr_1.4.1        assertthat_0.2.1  minqa_1.2.4      
+[53] rmarkdown_2.1     R6_2.4.1          nlme_3.1-147      git2r_0.27.1     
+[57] compiler_4.0.0   </code></pre>
+</div>
+
+
+<!-- Adjust MathJax settings so that all math formulae are shown using
+TeX fonts only; see
+http://docs.mathjax.org/en/latest/configuration.html.  This will make
+the presentation more consistent at the cost of the webpage sometimes
+taking slightly longer to load. Note that this only works because the
+footer is added to webpages before the MathJax javascript. -->
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    "HTML-CSS": { availableFonts: ["TeX"] }
+  });
+</script>
+
+
+</div>
+</div>
+
+</div>
+
+<script>
+
+// add bootstrap table styles to pandoc tables
+function bootstrapStylePandocTables() {
+  $('tr.header').parent('thead').parent('table').addClass('table table-condensed');
+}
+$(document).ready(function () {
+  bootstrapStylePandocTables();
+});
+
+
+</script>
+
+<!-- tabsets -->
+
+<script>
+$(document).ready(function () {
+  window.buildTabsets("TOC");
+});
+
+$(document).ready(function () {
+  $('.tabset-dropdown > .nav-tabs > li').click(function () {
+    $(this).parent().toggleClass('nav-tabs-open')
+  });
+});
+</script>
+
+<!-- code folding -->
+
+<script>
+$(document).ready(function ()  {
+
+    // move toc-ignore selectors from section div to header
+    $('div.section.toc-ignore')
+        .removeClass('toc-ignore')
+        .children('h1,h2,h3,h4,h5').addClass('toc-ignore');
+
+    // establish options
+    var options = {
+      selectors: "h1,h2,h3",
+      theme: "bootstrap3",
+      context: '.toc-content',
+      hashGenerator: function (text) {
+        return text.replace(/[.\\/?&!#<>]/g, '').replace(/\s/g, '_').toLowerCase();
+      },
+      ignoreSelector: ".toc-ignore",
+      scrollTo: 0
+    };
+    options.showAndHide = true;
+    options.smoothScroll = true;
+
+    // tocify
+    var toc = $("#TOC").tocify(options).data("toc-tocify");
+});
+</script>
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>
