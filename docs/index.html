@@ -333,7 +333,7 @@ $(document).ready(function () {
 <div class="tab-content">
 <div id="summary" class="tab-pane fade in active">
 <p>
-<strong>Last updated:</strong> 2020-06-02
+<strong>Last updated:</strong> 2020-06-07
 </p>
 <p>
 <strong>Checks:</strong> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> 2 <span class="glyphicon glyphicon-exclamation-sign text-danger" aria-hidden="true"></span> 0
@@ -364,16 +364,16 @@ This reproducible <a href="http://rmarkdown.rstudio.com">R Markdown</a> analysis
 <div class="panel panel-default">
 <div class="panel-heading">
 <p class="panel-title">
-<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomhaiderinamduplexsequencingscreentreea17368310911a5e13feb7fce1c7311d94c1f87a1targetblanka173683a"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Repository version:</strong> <a href="https://github.com/haiderinam/duplex_sequencing_screen/tree/a17368310911a5e13feb7fce1c7311d94c1f87a1" target="_blank">a173683</a> </a>
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomhaiderinamduplexsequencingscreentree5da3af039c2fb18c551e6e7435b5a7815f3f0f6ctargetblank5da3af0a"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Repository version:</strong> <a href="https://github.com/haiderinam/duplex_sequencing_screen/tree/5da3af039c2fb18c551e6e7435b5a7815f3f0f6c" target="_blank">5da3af0</a> </a>
 </p>
 </div>
-<div id="strongRepositoryversionstrongahrefhttpsgithubcomhaiderinamduplexsequencingscreentreea17368310911a5e13feb7fce1c7311d94c1f87a1targetblanka173683a" class="panel-collapse collapse">
+<div id="strongRepositoryversionstrongahrefhttpsgithubcomhaiderinamduplexsequencingscreentree5da3af039c2fb18c551e6e7435b5a7815f3f0f6ctargetblank5da3af0a" class="panel-collapse collapse">
 <div class="panel-body">
 <p>
 Great! You are using Git for version control. Tracking code development and connecting the code version to the results is critical for reproducibility.
 </p>
 <p>
-The results in this page were generated with repository version <a href="https://github.com/haiderinam/duplex_sequencing_screen/tree/a17368310911a5e13feb7fce1c7311d94c1f87a1" target="_blank">a173683</a>. See the <em>Past versions</em> tab to see a history of the changes made to the R Markdown and HTML files.
+The results in this page were generated with repository version <a href="https://github.com/haiderinam/duplex_sequencing_screen/tree/5da3af039c2fb18c551e6e7435b5a7815f3f0f6c" target="_blank">5da3af0</a>. See the <em>Past versions</em> tab to see a history of the changes made to the R Markdown and HTML files.
 </p>
 <p>
 Note that you need to be careful to ensure that all relevant files for the analysis have been committed to Git prior to generating the results (you can use <code>wflow_publish</code> or <code>wflow_git_commit</code>). workflowr only checks the R Markdown file, but you know if there are other scripts or data files that it depends on. Below is the status of the Git repository when the results were generated:
@@ -384,7 +384,16 @@ Ignored files:
     Ignored:    .Rproj.user/
 
 Untracked files:
+    Untracked:  analysis/bcrabl_hill_ic50s.csv
+    Untracked:  analysis/column_definitions_for_twinstrand_data_06062020.csv
+    Untracked:  analysis/m351t_deviation.pdf
     Untracked:  analysis/multinomial_sims.Rmd
+    Untracked:  analysis/pooled_growth_fig_cifrom4paramlogistic_060420.pdf
+    Untracked:  analysis/pooled_growth_fig_cifromrawic50_060420.pdf
+    Untracked:  analysis/simple_data_generation.Rmd
+    Untracked:  analysis/twinstrand_growthrates_simple.csv
+    Untracked:  analysis/twinstrand_maf_merge_simple.csv
+    Untracked:  analysis/wildtype_growthrates_sequenced.csv
     Untracked:  clinicalabundancepredictions_BMES_abstract_51320.pdf
     Untracked:  data/Combined_data_frame_IC_Mutprob_abundance.csv
     Untracked:  data/IC50HeatMap.csv
@@ -392,6 +401,7 @@ Untracked files:
     Untracked:  data/gfpenrichmentdata.csv
     Untracked:  data/heatmap_concat_data.csv
     Untracked:  enrichment_simulations_3mutants.pdf
+    Untracked:  m351t_deviation.pdf
     Untracked:  output/archive/
     Untracked:  output/bmes_abstract_51220.pdf
     Untracked:  output/clinicalabundancepredictions_BMES_abstract_51320.pdf
@@ -401,11 +411,14 @@ Untracked files:
     Untracked:  output/grant_fig_v2.pdf
     Untracked:  output/grant_fig_v2updated.pdf
     Untracked:  output/ic50data_all_conc.csv
+    Untracked:  pooled_growth_fig_cifrom4paramlogistic_060420.pdf
+    Untracked:  pooled_growth_fig_cifromrawic50_060420.pdf
     Untracked:  shinyapp/
 
 Unstaged changes:
+    Modified:   analysis/E255K_alphas_figure.Rmd
     Modified:   analysis/clinical_abundance_predictions.Rmd
-    Modified:   analysis/misc.Rmd
+    Modified:   analysis/dosing_normalization.Rmd
     Modified:   analysis/nonlinear_growth_analysis.Rmd
     Modified:   analysis/spikeins_depthofcoverages.Rmd
     Deleted:    data/README.md
@@ -449,6 +462,40 @@ Message
 </tr>
 </thead>
 <tbody>
+<tr>
+<td>
+Rmd
+</td>
+<td>
+<a href="https://github.com/haiderinam/duplex_sequencing_screen/blob/5da3af039c2fb18c551e6e7435b5a7815f3f0f6c/analysis/index.Rmd" target="_blank">5da3af0</a>
+</td>
+<td>
+haiderinam
+</td>
+<td>
+2020-06-07
+</td>
+<td>
+wflow_publish(“analysis/index.Rmd”)
+</td>
+</tr>
+<tr>
+<td>
+html
+</td>
+<td>
+<a href="https://rawcdn.githack.com/haiderinam/duplex_sequencing_screen/75ddcb1c935ec2719a2f628578198f5429435597/docs/index.html" target="_blank">75ddcb1</a>
+</td>
+<td>
+haiderinam
+</td>
+<td>
+2020-06-02
+</td>
+<td>
+Build site.
+</td>
+</tr>
 <tr>
 <td>
 Rmd
@@ -936,6 +983,8 @@ Start workflowr project.
 <h1><strong>Duplex Sequencing Spike-Ins</strong></h1>
 <p><img src="assets/ds_coverages.png" width="400" height="300"  alt=""></p>
 <ul>
+<li><p>###Click <a href="dose_response_curve_fitting.html">here</a> for the script that reads BCRABL dose response data, and fits it to a 4-parameter dose response curve.<br />
+<img src="assets/4param_fit.png" width="400" height="300"  alt=""></p></li>
 <li><p>###Click <a href="twinstrand_spikeins_data_generation.html">here</a> for the script that reads mutation annotation data and generates dataframes with annotated variants and the correct cell counts</p></li>
 <li><p>###Click <a href="growthrate_plots.html">here</a> for initial growth rate plots<br />
 <img src="assets/growthrates.png" width="400" height="300"  alt=""></p></li>
