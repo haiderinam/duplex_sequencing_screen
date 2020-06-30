@@ -61,6 +61,7 @@ ic50data_long$netgr_pred=net_gr_wodrug-ic50data_long$drug_effect
 twinstrand_simple_melt_merge=read.csv("output/twinstrand_simple_melt_merge.csv",header = T,stringsAsFactors = F,row.names=1)
 ```
   
+### Part 1: Analysis of typical dosing errors.  
 #### Theoretically, how much can an error in dosing change the replicate to replicate heterogeneity observed in an experiment?
 
 ```{r}
@@ -122,6 +123,7 @@ ggplot(a,aes(x=mutant,y=netgr_pred,color=factor(conc)))+
 # ggsave("dosing_error_r1mutant.pdf",width=5,height=3,units="in",useDingbats=F)
 ```
   
+### Part 2: Hill Coefficient Analysis.  
 #### What Hill Coefficient to Use When inferring growth rates based on apparent dose?  
 We'll need to assume a hill coefficient if we want to normalize the dose response of these mutants. Below, you will see that the typical hill coefficient in our dataset is centered around 2-3. Therefore, it is safe to assume that the hill coefficient for all the mutants is around the one forthe standard (E255K)
 ```{r}
@@ -205,8 +207,8 @@ a=hill_coefficients_cum%>%dplyr::select(mutant=species_curr,hill_coef=b,ic50=e)
 rownames(a)=NULL
 # write.csv(a,"bcrabl_hill_ic50s.csv")
 ```
-  
-### Dosing normalization function that corrects for microvariations.  
+### Part 3: Correcting microvariations.    
+#### Dosing normalization function that corrects for microvariations.  
 ####  Now that we know that an off dose can have massive implications on the replicate to replicate agreement, we are going to correct it.  
   
 #### Method 1: Use the apparent dose of the standard (E255K in this case) to normalize the growth rates of the other mutants to the same apparent dose  
