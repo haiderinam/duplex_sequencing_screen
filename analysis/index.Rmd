@@ -27,7 +27,7 @@ editor_options:
 <img src="assets/coverages.png" width="400" height="300"  alt="">  
 
 * ###Click [here](clinical_abundance_predictions.html) for analysis looking at how well our data predicts BCRABL clinical abundance compared to conventional IC50s
-<img src="assets/clinical_abundance_predictions.png" width="600" height="300"  alt="">  
+<img src="assets/clinical_abundance_predictions.png" width="600" height="400"  alt="">  
 
 * ###Click [here](misc.html) for method to obtain confidence intervals on growth rates from IC50 measurements. Plotted alongside observed growth rate data, these confidence intervals show how well our pooled data matches predictions based off of IC50s. (Needs updates in methodology)  
 <img src="assets/pooled_trajectories_confidence.png" width="400" height="300"  alt=""> 
