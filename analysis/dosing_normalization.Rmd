@@ -214,10 +214,13 @@ rownames(a)=NULL
 #### Method 1: Use the apparent dose of the standard (E255K in this case) to normalize the growth rates of the other mutants to the same apparent dose  
 Using the dosing normalization function
 ```{r}
+
 ####First, we choose our model experiment and calculate the apparent dose at that model experiment using the net growth rate of the standard.
 #Apparent dose of E255K (standard) for M3 (model experiment)
 # ((1-exp((net_gr_wodrug-0.033481)*time))*-(ic50_standard^hill_standard))^(1/hill_standard)
 #We will use this as the apparent dose for our model experiment. Will normalize all other experiments to this dose.
+# twinstrand_simple_melt_merge=read.csv("../output/twinstrand_simple_melt_merge.csv",header = T,stringsAsFactors = F,row.names=1)
+twinstrand_simple_melt_merge=read.csv("output/twinstrand_simple_melt_merge.csv",header = T,stringsAsFactors = F,row.names=1)
 
 # source("../code/microvariation.normalizer.R")
 source("code/microvariation.normalizer.R")
@@ -260,6 +263,11 @@ for(experiment_current in unique(twinstrand_simple_melt_merge$experiment)){
 }
 #adding m3's growth rates as the model
 netgr_corrected_compiled=merge(netgr_corrected_compiled,netgr_corrected_compiled%>%filter(experiment%in%"M3")%>%dplyr::select(mutant,netgr_model_m3=netgr_obs),by="mutant")
+netgr_corrected_compiled=merge(netgr_corrected_compiled,netgr_corrected_compiled%>%filter(experiment%in%"M4")%>%dplyr::select(mutant,netgr_model_m4=netgr_obs),by="mutant")
+# #Adding all experiments
+# for experiment_curr%in%sort(unique(netgr_corrected_compiled$experiment)){
+#   
+# }
 
 ggplot(netgr_corrected_compiled,aes(x=netgr_model_m3,y=netgr_obs,color=experiment))+geom_point()+geom_abline()
 ggplot(netgr_corrected_compiled,aes(x=netgr_model_m3,y=netgr_obs_corrected,color=experiment))+geom_point()+geom_abline()
@@ -282,7 +290,9 @@ mean(b$sq_error,na.rm=T)/mean(a$sq_error,na.rm=T)
 
 
 ####Making publication ready plots
-netgr_corrected_compiled_forplot=melt(netgr_corrected_compiled,id.vars = c("mutant","experiment","netgr_model_m3"),measure.vars = c("netgr_obs","netgr_obs_corrected"),variable.name = "correction_status",value.name = "netgr_obs")
+netgr_corrected_compiled_forplot=melt(netgr_corrected_compiled,id.vars = c("mutant","experiment","netgr_model_m3","netgr_model_m4"),measure.vars = c("netgr_obs","netgr_obs_corrected"),variable.name = "correction_status",value.name = "netgr_obs")
+# write.csv(netgr_corrected_compiled_forplot,"twinstrand_microvariations_normalized.csv",row.names = F)
+
 netgr_corrected_compiled_forplot=netgr_corrected_compiled_forplot%>%
   filter(!experiment%in%"M3")%>%
   mutate(correction_status_name=
@@ -304,9 +314,26 @@ ggplot(netgr_corrected_compiled_forplot,aes(y=netgr_obs,x=netgr_model_m3))+
 # ggsave("dosing_normalization_simple_e255k.pdf",width=5,height=3,units="in",useDingbats=F)
 
 ggplot(netgr_corrected_compiled_forplot,aes(x=netgr_model_m3,y=netgr_obs,color=correction_status_name))+geom_abline()+geom_point()+facet_wrap(~experiment)+cleanup
+
+
+ggplot(netgr_corrected_compiled_forplot%>%filter(experiment%in%c("M3","M5")),aes(x=netgr_model_m3,y=netgr_obs,color=correction_status_name))+geom_abline()+geom_point(color="black",shape=21,size=2,aes(fill=correction_status_name))+cleanup+scale_x_continuous(name="Replicate 1",limits=c(0,.06))+scale_y_continuous(name="Replicate 2",limits=c(0,.06))+scale_fill_manual(values = c("black","gray90"))+theme(legend.position = "none",axis.text = element_blank(),axis.ticks = element_blank())
+
+# ggsave("r1r2_1in3000.pdf",width = 2,height=2,units="in",useDingbats=F)
+
+ggplot(netgr_corrected_compiled_forplot%>%filter(experiment%in%c("M3","M7")),aes(x=netgr_model_m3,y=netgr_obs,color=correction_status_name))+geom_abline()+geom_point(color="black",shape=21,size=2,aes(fill=correction_status_name))+cleanup+scale_x_continuous(name="Replicate 1",limits=c(0,.06))+scale_y_continuous(name="Replicate 3",limits=c(0,.06))+scale_fill_manual(values = c("black","gray90"))+theme(legend.position = "none",axis.text = element_blank(),axis.ticks = element_blank())
+
+# ggsave("r1r3_1in3000.pdf",width = 2,height=2,units="in",useDingbats=F)
+
+ggplot(netgr_corrected_compiled_forplot%>%filter(experiment%in%c("M3","M6")),aes(x=netgr_model_m3,y=netgr_obs,color=correction_status_name))+geom_abline()+geom_point(color="black",shape=21,size=2,aes(fill=correction_status_name))+cleanup+scale_x_continuous(name="Replicate 1",limits=c(0,.06))+scale_y_continuous(name="Replicate 2",limits=c(0,.06))+scale_fill_manual(values = c("black","gray90"))+theme(legend.position = "none",axis.text = element_blank(),axis.ticks = element_blank())
+
+# ggsave("r1r2_1in5000.pdf",width = 2,height=2,units="in",useDingbats=F)
+
+
+# netgr_corrected_compiled_forplot=netgr_corrected_compiled_forplot%>%dplyr::select(mutant,experiment,correction_status,netgr_obs)
+
 ```
   
-#### Method 2: Using MCMC, we decided on the apparent dose of based on the net growth rates of 4 standards (we used T315I, L248V, Y253F, and F359V). With the apparent doses for all the replicates, we normalize their growth rates to the same apparent dose  
+#### Method 2: Using MCMC, we decided on the apparent dose of mutants based on the net growth rates of 4 standards (we used T315I, L248V, Y253F, and F359V). With the apparent doses for all the replicates, we normalize their growth rates to the same apparent dose  
 
 ```{r}
 ###Outputs of MCMC code
@@ -397,6 +424,188 @@ ggplot(netgr_corrected_compiled_forplot,aes(y=netgr_obs,x=netgr_model_m3))+
 # ggsave("dosing_normalization_simple_mcmc.pdf",width=5,height=3,units="in",useDingbats=F)
 
 ggplot(netgr_corrected_compiled_forplot,aes(x=netgr_model_m3,y=netgr_obs,color=correction_status_name))+geom_abline()+geom_point()+facet_wrap(~experiment)+cleanup
+```
+###Part 4: Correcting ENU replicates
+#### We will use Method 2 MCMC method: Use the apparent dose of the standard (E255K in this case) to normalize the growth rates of the other mutants to the same apparent dose  
+```{r}
+rm(list=ls())
+cleanup=theme_bw() +
+  theme(plot.title = element_text(hjust=.5),
+        panel.grid.major = element_blank(),
+        panel.grid.major.y = element_blank(),
+        panel.background = element_blank(),
+        axis.line = element_line(color = "black"),
+        axis.text = element_text(face="bold",color="black",size="11"),
+        text=element_text(size=11,face="bold"),
+        axis.title=element_text(face="bold",size="11"))
+conc_for_predictions=0.8
+net_gr_wodrug=.055
+# twinstrand_maf_merge=read.csv("../output/twinstrand_maf_merge.csv",header = T,stringsAsFactors = F)
+twinstrand_maf_merge=read.csv("output/twinstrand_maf_merge.csv",header = T,stringsAsFactors = F)
+
+# ic50data_long=read.csv("../output/ic50data_all_conc.csv",header = T,stringsAsFactors = F,row.names=1)
+ic50data_long=read.csv("output/ic50data_all_conc.csv",header = T,stringsAsFactors = F,row.names=1)
+################Remaking Twinstrand Simple Melt Merge################
+twinstrand_simple=twinstrand_maf_merge%>%filter(!is.na(mutant),!is.na(experiment))
+twinstrand_simple=twinstrand_simple%>%dplyr::select("mutant","experiment","Spike_in_freq","time_point","totalmutant")
+###Inferring Enu_4 D0 total mutants to be the same as Enu_3 D0 totals
+  twinstrand_simple_enu4d0=twinstrand_simple%>%filter(experiment=="Enu_4",time_point=="D0")%>%mutate(experiment="Enu_3")
+  twinstrand_simple=rbind(twinstrand_simple,twinstrand_simple_enu4d0)
+twinstrand_simple_cast=dcast(twinstrand_simple,mutant+experiment+Spike_in_freq~time_point,value.var="totalmutant")
+
+twinstrand_simple_cast$d0d3=log(twinstrand_simple_cast$D3/twinstrand_simple_cast$D0)/72
+twinstrand_simple_cast$d3d6=log(twinstrand_simple_cast$D6/twinstrand_simple_cast$D3)/72
+twinstrand_simple_cast$d0d6=log(twinstrand_simple_cast$D6/twinstrand_simple_cast$D0)/144
+
+# twinstrand_simple_cast2=twinstrand_simple_cast%>%group_by(mutant)%>%mutate(case_when(D0=experiment=="Enu_3"~D0[experiment=="Enu_4"]))
+#Check if ln(final/initial)/time is the correct formula. Also notice how I'm using days not hours
+twinstrand_simple_melt=melt(twinstrand_simple_cast[,-c(4:6)],id.vars=c("mutant","experiment","Spike_in_freq"),variable.name = "duration",value.name = "netgr_obs") #!!!!!!!!!!!value name should be drug effect. And drug effect should be drug_effect_obs i think. NO. I think this should be drug_effect_obs. Fixed 4/2/20
+twinstrand_simple_melt$drug_effect_obs=net_gr_wodrug-twinstrand_simple_melt$netgr_obs
+
+# twinstrand_simple_melt_merge=merge(twinstrand_simple_melt,ic50data_formerge,"mutant")
+twinstrand_simple_melt_merge=merge(twinstrand_simple_melt,ic50data_long%>%filter(conc==conc_for_predictions),all.x = T)
+
+
+
+# a=twinstrand_simple_melt%>%filter(experiment%in%"Enu_3")
+# a=twinstrand_simple_cast%>%filter(experiment%in%"Enu_3")
+# a=twinstrand_maf_merge%>%filter(experiment%in%"Enu_3",time_point=="D3")
+#########################
+
+####Plotting replicate 1 vs replicate 2 in two ways.
+#1. Use only replicates in which you have sufficient coverage for mutants on D6
+#2. Instead of using D3 and D6 counts. Use D0 and D3 counts. Since you didn't have counts for ENU for D3, assume that counts for Enu_3 at D0 would have looked the same as ENU_4 at D0.
+#One interesting thing that I noticed is that D0-D3 growth rates for ENU3 and 4 were alike However D3 to D6 growth rates were higher for Enu3 than Enu4. Is it possible you measured Enu3 late? Yes, it does look like you measured Enu3 at 144 hours vs ENU 3 at 133 hours which might be causing the increased apparent growth rate of ENU3
+
+enu_plots=twinstrand_simple_melt_merge%>%filter(experiment%in%c("Enu_4","Enu_3"),duration%in%"d3d6",!netgr_obs%in%NA)
+#hardcoding adjustments to the growth rates
+enu_plots$netgr_obs[enu_plots$experiment=="Enu_3"]=enu_plots$netgr_obs[enu_plots$experiment=="Enu_3"]
+
+enu_cast=dcast(enu_plots,formula = mutant~experiment,value.var = "netgr_obs")
+
+```
+
+Using the dosing normalization function for ENU
+Caveat: Now we're using L248V as a standard, and using d0d3 counts rather than d3d6 counts. Also assuming Enu_4 D0 counts were similar to Enu_3 D0 counts
+```{r}
+# # rm(list=ls())
+# cleanup=theme_bw() +
+#   theme(plot.title = element_text(hjust=.5),
+#         panel.grid.major = element_blank(),
+#         panel.grid.major.y = element_blank(),
+#         panel.background = element_blank(),
+#         axis.line = element_line(color = "black"),
+#         axis.text = element_text(face="bold",color="black",size="11"),
+#         text=element_text(size=11,face="bold"),
+#         axis.title=element_text(face="bold",size="11"))
+# twinstrand_simple_melt_merge=read.csv("../output/twinstrand_simple_melt_merge.csv",header = T,stringsAsFactors = F,row.names=1)
+twinstrand_simple_melt_merge=read.csv("output/twinstrand_simple_melt_merge.csv",header = T,stringsAsFactors = F,row.names=1)
+####First, we choose our model experiment and calculate the apparent dose at that model experiment using the net growth rate of the standard.
+#Apparent dose of E255K (standard) for M3 (model experiment)
+# ((1-exp((net_gr_wodrug-0.033481)*time))*-(ic50_standard^hill_standard))^(1/hill_standard)
+#We will use this as the apparent dose for our model experiment. Will normalize all other experiments to this dose.
+
+# source("../code/microvariation.normalizer.R")
+source("code/microvariation.normalizer.R")
+
+#Focusing on the ENU only experiments
+twinstrand_simple_melt_merge=twinstrand_simple_melt_merge%>%filter(!experiment%in%c("M3","M4","M5","M6","M7"))
+net_gr_wodrug=0.065
+time=72
+hill_standard=0.789 #E255K Hill
+ic50_standard=2.325 #E255K IC50
+standard_name="L248V"
+dose_model=3.694476 #M3 dose
+
+netgr_corrected_compiled=data.frame()
+dose_apparent_compiled=data.frame()
+# experiment_current="Enu_3"
+for(experiment_current in unique(twinstrand_simple_melt_merge$experiment)){
+  netgr_raw=twinstrand_simple_melt_merge%>%
+    filter(experiment==experiment_current,duration=="d0d3")%>%
+    dplyr::select(experiment,mutant,netgr_obs)
+  # netgr_raw=twinstrand_simple_melt_merge%>%
+  #   filter(experiment==experiment_current,duration=="d3d6")%>%
+  #   dplyr::select(experiment,mutant,netgr_obs)
+  
+  
+  
+  
+  ###For one experiment###
+  netgr_corrected_experiment=microvariation.normalizer(netgr_raw,
+                                     net_gr_wodrug,
+                                     hill_standard,
+                                     ic50_standard,
+                                     dose_model,
+                                     time,
+                                     standard_name)[[1]]
+  #Dose apparent
+  dose_apparent_experiment=microvariation.normalizer(netgr_raw,
+                                     net_gr_wodrug,
+                                     hill_standard,
+                                     ic50_standard,
+                                     dose_model,
+                                     time,
+                                     standard_name)[[2]]
+
+  netgr_corrected_compiled=rbind(netgr_corrected_experiment,netgr_corrected_compiled) #Of course faster way would be pre-allocating for efficiency
+  dose_apparent_compiled=rbind(c(experiment_current,dose_apparent_experiment),dose_apparent_compiled)
+}
+#adding m3's growth rates as the model
+netgr_corrected_compiled=merge(netgr_corrected_compiled,netgr_corrected_compiled%>%filter(experiment%in%"Enu_4")%>%dplyr::select(mutant,netgr_model_m3=netgr_obs),by="mutant")
+
+ggplot(netgr_corrected_compiled,aes(x=netgr_model_m3,y=netgr_obs,color=experiment))+geom_point()+geom_abline()
+ggplot(netgr_corrected_compiled,aes(x=netgr_model_m3,y=netgr_obs_corrected,color=experiment))+geom_point()+geom_abline()
+
+
+###Looking at whether we can correct by mean growth rate for E255K
+# netgr_model=netgr_corrected_compiled%>%group_by(mutant)%>%summarize(netgr_model=mean(netgr_obs,na.rm=T),netgr_model_corrected=mean(netgr_obs_corrected,na.rm=T))
+# ggplot(netgr_model,aes(x=netgr_model,y=netgr_model_corrected))+geom_point()+geom_abline()
+# a=merge(netgr_corrected_compiled,netgr_model,by="mutant")
+# ggplot(a,aes(x=netgr_model,y=netgr_obs_corrected,color=experiment))+geom_point()+geom_abline()
+# ggplot(a,aes(x=netgr_model_corrected,y=netgr_obs_corrected,color=experiment))+geom_point()+geom_abline()
+
+#Problem right now: For stuff that has a growth rate higher than netgr_obs, how do you correct it? Because those things apparently have an infinite IC50    
+####Calculating mean squared error
+a=netgr_corrected_compiled%>%filter(!experiment%in%"Enu_4")%>%mutate(sq_error=(netgr_model_m3-netgr_obs_corrected)^2)
+mean(a$sq_error,na.rm=T)
+b=netgr_corrected_compiled%>%filter(!experiment%in%"Enu_4")%>%mutate(sq_error=(netgr_model_m3-netgr_obs)^2)
+mean(b$sq_error,na.rm=T)
+mean(b$sq_error,na.rm=T)/mean(a$sq_error,na.rm=T)
+
+
+####Making publication ready plots
+netgr_corrected_compiled_forplot=melt(netgr_corrected_compiled,id.vars = c("mutant","experiment","netgr_model_m3"),measure.vars = c("netgr_obs","netgr_obs_corrected"),variable.name = "correction_status",value.name = "netgr_obs")
+netgr_corrected_compiled_forplot=netgr_corrected_compiled_forplot%>%
+  filter(!experiment%in%"Enu_4")%>%
+  mutate(correction_status_name=
+           case_when(correction_status=="netgr_obs"~"Raw",
+                     correction_status=="netgr_obs_corrected"~"Corrected"))
+netgr_corrected_compiled_forplot$correction_status_name=factor(netgr_corrected_compiled_forplot$correction_status_name,levels=c("Raw","Corrected"))
+
+ggplot(netgr_corrected_compiled_forplot,aes(y=netgr_obs,x=netgr_model_m3))+
+  geom_abline()+
+  geom_point()+
+  facet_wrap(~correction_status_name)+
+  cleanup+
+  scale_y_continuous(name="Growth rate of \n model replicate",limits=c(0,0.068))+
+  scale_x_continuous(name="Growth rate of other replicates",limits=c(0,0.068))+
+  theme(axis.text.x = element_text(size=11),
+        axis.text.y = element_text(size=11),
+        axis.title = element_text(size=11))
+
+# ggsave("dosing_normalization_simple_e255k.pdf",width=5,height=3,units="in",useDingbats=F)
+
+ggplot(netgr_corrected_compiled_forplot,aes(x=netgr_model_m3,y=netgr_obs,color=correction_status_name))+geom_abline()+geom_point()+facet_wrap(~experiment)+cleanup
+```
+```{r}
+# twinstrand_simple_melt_merge=read.csv("../output/twinstrand_simple_melt_merge.csv",header = T,stringsAsFactors = F,row.names=1)
+twinstrand_simple_melt_merge=read.csv("output/twinstrand_simple_melt_merge.csv",header = T,stringsAsFactors = F,row.names=1)
+
+a=twinstrand_simple_melt_merge%>%
+    filter(experiment%in%c("Enu_4","Enu_3"))%>%
+    dplyr::select(experiment,duration,mutant,netgr_obs)
+a=a%>%filter(!(experiment%in%"Enu_3"&duration%in%c("d0d6","d0d3")))
 ```
 
 To do: what if you used the actual hill coefficients of the mutants rather than E255K's hill coefficient (2.83). Would the correlation improve?
