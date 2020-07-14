@@ -62,13 +62,93 @@ twinstrand_simple_melt_merge=read.csv("output/twinstrand_simple_melt_merge.csv",
 ```
   
 ### Part 1: Analysis of typical dosing errors.  
+
+####Here, I'm generating a figure that demonstrates what happens to the dose response curve if there is a 50% error in dose.  
+```{r}
+
+conc_for_predictions=0.8
+net_gr_wodrug=0.05
+#Reading required tables
+ic50data=read.csv("data/heatmap_concat_data.csv",header = T,stringsAsFactors = F)
+# ic50data=read.csv("../data/heatmap_concat_data.csv",header = T,stringsAsFactors = F)
+
+ic50data=ic50data[c(1:10),]
+ic50data_long=melt(ic50data,id.vars = "conc",variable.name = "species",value.name = "y")
+#Removing useless mutants (for example keeping only maxipreps and removing low growth rate mutants)
+ic50data_long=ic50data_long%>%filter(species%in%c("Wt","V299L_H","E355A","D276G_maxi","H396R","F317L","F359I","E459K","G250E","F359C","F359V","M351T","L248V","E355G_maxi","Q252H_maxi","Y253F","F486S_maxi","H396P_maxi","E255K","Y253H","T315I","E255V"))
+
+
+
+#Making standardized names
+ic50data_long$mutant=ic50data_long$species
+ic50data_long=ic50data_long%>%
+  # filter(conc=="0.625")%>%
+  # filter(conc=="1.25")%>%
+  mutate(mutant=case_when(species=="F486S_maxi"~"F486S",
+                          species=="H396P_maxi"~"H396P",
+                          species=="Q252H_maxi"~"Q252H",
+                          species=="E355G_maxi"~"E355G",
+                          species=="D276G_maxi"~"D276G",
+                          species=="V299L_H" ~ "V299L",
+                          species==mutant ~as.character(mutant)))
+
+# ic50data_long_625$species[order((ic50data_long_625$y),decreasing = T)]
+
+#In the next step, I'm ordering mutants by decreasing resposne to the 625nM dose. Then I use this to change the levels of the species factor from more to less resistant. This helps with ggplot because now I can color the mutants with decreasing resistance
+ic50data_long_625=ic50data_long%>%filter(conc==.625)
+ic50data_long$species=factor(ic50data_long$species,levels = as.character(ic50data_long_625$species[order((ic50data_long_625$y),decreasing = T)]))
+
+########Four parameter logistic########
+#Reference: https://journals.plos.org/plosone/article/file?type=supplementary&id=info:doi/10.1371/journal.pone.0146021.s001
+#In short: For each dose in each species, get the response
+# rm(list=ls())
+
+ic50data_long=ic50data_long%>%mutate(conc_high=conc+(0.5*conc),conc_low=conc-(0.5*conc))
+ic50data_long_model=data.frame()
+
+for (species_curr in sort(unique(ic50data_long$species))){
+  ic50data_species_specific=ic50data_long%>%filter(species==species_curr)
+  x=ic50data_species_specific$conc
+  y=ic50data_species_specific$y
+  #Next: Appproximating Response from dose (inverse of the prediction)
+  ic50.ll4=drm(y~conc,data=ic50data_long%>%filter(species==species_curr),fct=LL.3(fixed=c(NA,1,NA)))
+    b=coef(ic50.ll4)[1]
+    c=0
+    d=1
+    e=coef(ic50.ll4)[2]
+  ###Getting predictions
+  ic50data_species_specific=ic50data_species_specific%>%group_by(conc)%>%mutate(y_model=c+((d-c)/(1+exp(b*(log(conc)-log(e))))),y_model_high=c+((d-c)/(1+exp(b*(log(conc_high)-log(e))))),y_model_low=c+((d-c)/(1+exp(b*(log(conc_low)-log(e))))))
+  
+  
+  ic50data_species_specific=data.frame(ic50data_species_specific) #idk why I have to end up doing this
+  ic50data_long_model=rbind(ic50data_long_model,ic50data_species_specific)
+}
+ic50data_long=ic50data_long_model
+
+
+ggplot(ic50data_long%>%filter(mutant%in%c("F317L")),aes(x=conc,shape=mutant))+
+  geom_line(size=1,aes(y=y_model,color="a"))+geom_point(color="black",shape=21,size=4,aes(y=y_model,fill="a"))+
+  geom_line(size=1,aes(y=y_model_high,color="b"))+geom_point(color="black",shape=21,size=4,aes(y=y_model_high,fill="b"))+
+  geom_line(size=1,aes(y=y_model_low,color="c"))+geom_point(color="black",shape=21,size=4,aes(y=y_model_low,fill="c"))+
+  scale_x_continuous(name="Target dose",trans="log10")+
+  scale_y_continuous(name="Response")+
+  scale_fill_manual(values=c("#FFFFBF","#99D594","#FC8D59"))+
+  scale_color_manual(values=c("#FFFFBF","#99D594","#FC8D59"))+
+  cleanup+
+  theme(legend.position="none")
+ggsave("dosing_error_doseresponse.pdf",width=3,height=3,units="in",useDingbats=F)
+```
+  
 #### Theoretically, how much can an error in dosing change the replicate to replicate heterogeneity observed in an experiment?
 
 ```{r}
-
+# ic50data_long=read.csv("../output/ic50data_all_conc.csv",header = T,stringsAsFactors = F,row.names=1)
+ic50data_long=read.csv("output/ic50data_all_conc.csv",header = T,stringsAsFactors = F,row.names=1)
+ic50data_long$netgr_pred=net_gr_wodrug-ic50data_long$drug_effect
 #Looking at data that is off.
 #First, I will look at data from IC50 predictions and make a correlation plot of netgr of mutants expected at 625nM vs 1.25uM.
 #Next, I will look at whether any of our replicates seemed off
+
     a=ic50data_long%>%filter(conc%in%c(.6,1.2))
     a_cast=dcast(a,mutant~conc)
 # library(reshape2)
@@ -122,6 +202,7 @@ ggplot(a,aes(x=mutant,y=netgr_pred,color=factor(conc)))+
 
 # ggsave("dosing_error_r1mutant.pdf",width=5,height=3,units="in",useDingbats=F)
 ```
+
   
 ### Part 2: Hill Coefficient Analysis.  
 #### What Hill Coefficient to Use When inferring growth rates based on apparent dose?  
@@ -498,6 +579,7 @@ Caveat: Now we're using L248V as a standard, and using d0d3 counts rather than d
 #         axis.text = element_text(face="bold",color="black",size="11"),
 #         text=element_text(size=11,face="bold"),
 #         axis.title=element_text(face="bold",size="11"))
+
 # twinstrand_simple_melt_merge=read.csv("../output/twinstrand_simple_melt_merge.csv",header = T,stringsAsFactors = F,row.names=1)
 twinstrand_simple_melt_merge=read.csv("output/twinstrand_simple_melt_merge.csv",header = T,stringsAsFactors = F,row.names=1)
 ####First, we choose our model experiment and calculate the apparent dose at that model experiment using the net growth rate of the standard.
