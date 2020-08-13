@@ -7,6 +7,7 @@ output: html_document
 This is a strategy that uses the observed GFP growth rates to estimate the approximate experimental dose and then normalizes all mutants to behave at that theoretical dose given an arbitrary hill coefficient in a dose response curve.
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
+# knitr::opts_knit$set(root.dir=rprojroot::find_rstudio_root_file())
 ```
 
 ```{r,include=F}
@@ -40,15 +41,7 @@ library(deSolve)
 library(RColorBrewer)
 library(reshape2)
 ######################Cleanup for GGPlot2#########################################
-cleanup=theme_bw() +
-  theme(plot.title = element_text(hjust=.5),
-        panel.grid.major = element_blank(),
-        panel.grid.major.y = element_blank(),
-        panel.background = element_blank(),
-        axis.line = element_line(color = "black"),
-        axis.text = element_text(face="bold",color="black",size="11"),
-        text=element_text(size=11,face="bold"),
-        axis.title=element_text(face="bold",size="11"))
+
 
 
 net_gr_wodrug=0.055
@@ -59,6 +52,16 @@ ic50data_long$netgr_pred=net_gr_wodrug-ic50data_long$drug_effect
 
 # twinstrand_simple_melt_merge=read.csv("../output/twinstrand_simple_melt_merge.csv",header = T,stringsAsFactors = F,row.names=1)
 twinstrand_simple_melt_merge=read.csv("output/twinstrand_simple_melt_merge.csv",header = T,stringsAsFactors = F,row.names=1)
+
+cleanup=theme_bw() +
+  theme(plot.title = element_text(hjust=.5),
+        panel.grid.major = element_blank(),
+        panel.grid.major.y = element_blank(),
+        panel.background = element_blank(),
+        axis.line = element_line(color = "black"),
+        axis.text = element_text(face="bold",color="black",size="11"),
+        text=element_text(size=11,face="bold"),
+        axis.title=element_text(face="bold",size="11"))
 ```
   
 ### Part 1: Analysis of typical dosing errors.  
@@ -99,6 +102,7 @@ ic50data_long_625=ic50data_long%>%filter(conc==.625)
 ic50data_long$species=factor(ic50data_long$species,levels = as.character(ic50data_long_625$species[order((ic50data_long_625$y),decreasing = T)]))
 
 ########Four parameter logistic########
+
 #Reference: https://journals.plos.org/plosone/article/file?type=supplementary&id=info:doi/10.1371/journal.pone.0146021.s001
 #In short: For each dose in each species, get the response
 # rm(list=ls())
@@ -136,7 +140,28 @@ ggplot(ic50data_long%>%filter(mutant%in%c("F317L")),aes(x=conc,shape=mutant))+
   scale_color_manual(values=c("#FFFFBF","#99D594","#FC8D59"))+
   cleanup+
   theme(legend.position="none")
-ggsave("dosing_error_doseresponse.pdf",width=3,height=3,units="in",useDingbats=F)
+# ggsave("dosing_error_doseresponse.pdf",width=3,height=3,units="in",useDingbats=F)
+
+
+###Modifying the change in dose plot to match what's needed for Justin's MIRA
+
+ic50heatmap_sd=read.csv("output/ic50heatmap_sd_ci.csv")
+ic50_sd_f317l=ic50heatmap_sd%>%filter(mutant%in%"F317L")
+ic50_sd_f317l_model=merge(ic50data_long%>%filter(mutant%in%c("F317L")),ic50_sd_f317l,by="conc")
+ggplot(ic50_sd_f317l_model,aes(x=conc))+
+  geom_line(size=1,aes(y=y_model,color="a"),linetype="dashed")+geom_ribbon(aes(y=y_model,ymin=y_model-y_ci,ymax=y_model+y_ci,alpha=.3))+
+  geom_line(size=1,aes(y=y_model_high,color="b"))+geom_point(color="black",shape=21,size=4,aes(y=y_model_high,fill="b"))+
+  geom_line(size=1,aes(y=y_model_low,color="c"))+geom_point(color="black",shape=21,size=4,aes(y=y_model_low,fill="c"))+
+  scale_x_continuous(name="Target dose",trans="log10")+
+  scale_y_continuous(name="Response")+
+  scale_fill_manual(values=c("#D53E4F","#FC8D59"))+
+  scale_color_manual(values=c("#000000","#D53E4F","#FC8D59"))+
+  cleanup+
+  theme(legend.position="none")
+# ggsave("dosing_error_doseresponse_forgrant.pdf",width=3,height=3,units="in",useDingbats=F)
+
+getPalette = colorRampPalette(brewer.pal(6, "Spectral"))
+getPalette(3)
 ```
   
 #### Theoretically, how much can an error in dosing change the replicate to replicate heterogeneity observed in an experiment?
@@ -396,6 +421,12 @@ ggplot(netgr_corrected_compiled_forplot,aes(y=netgr_obs,x=netgr_model_m3))+
 
 ggplot(netgr_corrected_compiled_forplot,aes(x=netgr_model_m3,y=netgr_obs,color=correction_status_name))+geom_abline()+geom_point()+facet_wrap(~experiment)+cleanup
 
+a=netgr_corrected_compiled%>%filter(experiment%in%"M7")%>%mutate(sq_error=(netgr_model_m3-netgr_obs_corrected)^2)
+mean(a$sq_error,na.rm=T)
+b=netgr_corrected_compiled%>%filter(experiment%in%"M7")%>%mutate(sq_error=(netgr_model_m3-netgr_obs)^2)
+mean(b$sq_error,na.rm=T)
+# mean(b$sq_error,na.rm=T)/mean(a$sq_error,na.rm=T)
+
 
 ggplot(netgr_corrected_compiled_forplot%>%filter(experiment%in%c("M3","M5")),aes(x=netgr_model_m3,y=netgr_obs,color=correction_status_name))+geom_abline()+geom_point(color="black",shape=21,size=2,aes(fill=correction_status_name))+cleanup+scale_x_continuous(name="Replicate 1",limits=c(0,.06))+scale_y_continuous(name="Replicate 2",limits=c(0,.06))+scale_fill_manual(values = c("black","gray90"))+theme(legend.position = "none",axis.text = element_blank(),axis.ticks = element_blank())
 
@@ -506,6 +537,96 @@ ggplot(netgr_corrected_compiled_forplot,aes(y=netgr_obs,x=netgr_model_m3))+
 
 ggplot(netgr_corrected_compiled_forplot,aes(x=netgr_model_m3,y=netgr_obs,color=correction_status_name))+geom_abline()+geom_point()+facet_wrap(~experiment)+cleanup
 ```
+
+```{r}
+#Making barplots showing inferred doses from the MCMC output
+# rm(list=ls())
+mcmc_apparent_doses=data.frame(rbind(c("M3",0.9159),c("M4",1.4261),c("M5",1.4541),c("M6",1.35),c("M7",1.345)))
+mcmc_apparent_doses=mcmc_apparent_doses%>%dplyr::select(experiment=X1,dose_app=X2)
+mcmc_apparent_doses$dose_app=as.numeric(as.character(mcmc_apparent_doses$dose_app))
+# mcmc_apparent_doses$experiment=factor(mcmc_apparent_doses$experiment,levels = as.character(c("M3","M4","M7","M6","M5")))
+mcmc_apparent_doses$experiment=factor(mcmc_apparent_doses$experiment,levels = as.character(mcmc_apparent_doses$experiment[order((mcmc_apparent_doses$dose_app),decreasing = F)]))
+
+getPalette = colorRampPalette(brewer.pal(6, "Spectral"))
+# 
+# ggplot(mcmc_apparent_doses,aes(x=factor(experiment),y=dose_app))+
+#   geom_col(color="black",aes(fill=experiment))+
+#   cleanup+
+#   scale_y_continuous(limits = c(0,NA),name="Inferred Dose (uM)")+
+#   scale_x_discrete(name="Replicate")+
+#   scale_fill_manual(values=getPalette(length(unique(mcmc_apparent_doses$experiment))))+
+#   theme(legend.position = "none")
+
+# ggsave("inferred_doses_barplot.pdf",width=3,height=3,units="in",useDingbats=F)
+
+
+####################Making a version of figure above with distribution of inferred doses#################
+mcmc_inferred_doses=read.csv("data/mcmc_inferred_doses.csv")
+mcmc_inferred_doses_melt=melt(mcmc_inferred_doses,variable.name = "experiment",value.name = "inferred_dose")
+
+
+
+mcmc_inferred_summary=mcmc_inferred_doses_melt[-c(1,1000),]%>%group_by(experiment)%>%summarize(mean=mean(inferred_dose),sd=sd(inferred_dose))
+
+mcmc_inferred_summary$experiment=factor(mcmc_inferred_summary$experiment,levels = as.character(mcmc_inferred_summary$experiment[order((mcmc_inferred_summary$mean),decreasing = F)]))
+
+ggplot(mcmc_inferred_doses_melt[-c(1,1000),],aes(x=experiment,y=inferred_dose,fill=experiment))+geom_violin(color="black")+geom_boxplot(color="black",width=.1)+scale_y_continuous(limits=c(NA,2.2))+cleanup+theme(legend.position = "none",axis.title.x=element_blank())+scale_fill_manual(values=getPalette(length(unique(mcmc_inferred_summary$experiment))))+scale_y_continuous(name="Model-Inferred Dose")
+# ggsave("inferred_doses_violin.pdf",width=4,height=3,units="in",useDingbats=F)
+
+ggplot(mcmc_inferred_summary,aes(x=experiment,y=mean,fill=experiment))+geom_bar(stat="identity",color="black",position=position_dodge())+geom_errorbar(aes(ymin=mean-sd,ymax=mean+sd),width=.2,position=position_dodge(.9))+cleanup+scale_fill_manual(values=getPalette(length(unique(mcmc_inferred_summary$experiment))))+
+  scale_y_continuous(name="Model-Inferred Dose (uM)")+
+  theme(legend.position = "none",
+        axis.title.x = element_blank())
+
+# ggsave("inferred_doses_barplot_werrorbars.pdf",width=3,height=3,units="in",useDingbats=F)
+
+#######Making caterpillar plot showing how the guess evolves over iterations
+mcmc_inferred_doses$iter=as.numeric(row.names(mcmc_inferred_doses))
+mcmc_inferred_doses_melt=melt(mcmc_inferred_doses,id.vars = "iter",variable.name = "experiment",value.name = "inferred_dose")
+
+mcmc_inferred_doses_melt$experiment=factor(mcmc_inferred_doses_melt$experiment,levels = c("M3","M7","M6","M4","M5"))
+
+ggplot(mcmc_inferred_doses_melt%>%filter(iter%in%c(1:2000)),aes(x=iter,y=inferred_dose,color=experiment))+geom_line()+
+  geom_hline(data=mcmc_inferred_summary,color="gray",aes(yintercept=mean),linetype="dashed")+
+  facet_wrap(~experiment,ncol=5)+
+  cleanup+
+  geom_hline(yintercept = 1.25,linetype="dashed")+
+  scale_x_continuous(name="Iteration Number")+
+  scale_y_continuous(name="Model-Inferred Dose")+
+  scale_color_manual(values=getPalette(length(unique(mcmc_inferred_summary$experiment))))+
+  theme(legend.position = "none",
+        axis.text.x=element_text(size=9),
+        strip.text=element_blank())
+# ggsave("inferred_doses_caterpillar.pdf",width=8,height=3,units="in",useDingbats=F)
+
+# Adding numbers for the expected deviations in dose response. How these were calculated: looked at the 20 IC50 replicates of BCRABL Wt. Then looked at what the standard deviation in the dose response is at ~1.25uM. Then fit a 4 parameter logistic to the Wild-type DRC and got the expected dose at the dose-responses+ and dose-responses- standard deviation values.
+mcmc_inferred_summary$experiment=factor(mcmc_inferred_summary$experiment,levels=c("M3","M4","M5","M6","M7","Expected"))
+mcmc_inferred_summary=data.frame(rbind(mcmc_inferred_summary[c(1:5),],c("Expected",1.335,.285)))
+mcmc_inferred_summary$mean=as.numeric(mcmc_inferred_summary$mean)
+mcmc_inferred_summary$sd=as.numeric(mcmc_inferred_summary$sd)
+
+
+ggplot(mcmc_inferred_summary,aes(x=experiment,y=mean,fill=experiment))+geom_bar(stat="identity",color="black",position=position_dodge())+geom_errorbar(aes(ymin=mean-sd,ymax=mean+sd),width=.2,position=position_dodge(.9))+cleanup+scale_fill_manual(values=c(getPalette(length(unique(mcmc_inferred_summary$experiment))-1),"gray"))+
+  scale_y_continuous(name="Model-Inferred Dose (uM)")+
+  theme(legend.position = "none",
+        axis.title.x = element_blank())
+# ggsave("inferred_doses_barplot_werrorbars_wt.pdf",width=3,height=3,units="in",useDingbats=F)
+```
+Adding plots for Justin's MIRA
+```{r}
+# ggplot(mcmc_inferred_doses_melt%>%filter(iter%in%c(1:2000)),aes(x=iter,y=inferred_dose,color=experiment))+geom_line()+
+#   geom_hline(data=mcmc_inferred_summary,color="gray",aes(yintercept=mean),linetype="dashed")+
+#   facet_wrap(~experiment,ncol=5)+
+#   cleanup+
+#   geom_hline(yintercept = 1.25,linetype="dashed")+
+#   scale_x_continuous(name="Iteration Number")+
+#   scale_y_continuous(name="Model-Inferred Dose")+
+#   scale_color_manual(values=getPalette(length(unique(mcmc_inferred_summary$experiment))))+
+#   theme(legend.position = "none",
+#         axis.text.x=element_text(size=9),
+#         strip.text=element_blank())
+```
+
 ###Part 4: Correcting ENU replicates
 #### We will use Method 2 MCMC method: Use the apparent dose of the standard (E255K in this case) to normalize the growth rates of the other mutants to the same apparent dose  
 ```{r}
