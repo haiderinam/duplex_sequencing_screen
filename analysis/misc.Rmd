@@ -7,7 +7,7 @@ output: html_document
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
-# knitr::opts_knit$set(root.dir=rprojroot::find_rstudio_root_file())
+knitr::opts_knit$set(root.dir=rprojroot::find_rstudio_root_file())
 ```
 
 Here I include some miscellaneous, pre-prod analyses
@@ -424,20 +424,23 @@ netgr_corrected_errorbars=netgr_corrected_errorbars%>%
                                           correction_status%in%"netgr_obs_corrected"~"Corrected"))
 netgr_corrected_errorbars$correction_status_name=factor(netgr_corrected_errorbars$correction_status_name,levels=c("Raw","Corrected"))
 
-ggplot(netgr_corrected_errorbars%>%filter(!netgr_obs_sd%in%NA),aes(x=factor(correction_status_name),y=netgr_obs_sd,fill=mutant))+
-  geom_col()+
+ggplot(netgr_corrected_errorbars%>%filter(!netgr_obs_sd%in%NA),aes(x=factor(correction_status_name),y=netgr_obs_sd))+
+  geom_col(color="black",aes(fill=mutant))+
   facet_wrap(~mutant)+
   cleanup+
-  scale_y_continuous(name="Standard Deviations in growth rates")+
+  scale_y_continuous(name="Standard Deviations in growth rates",breaks=c(0,.005,.01),labels=c("0","0.005","0.01"))+
   scale_fill_manual(values = getPalette(length(unique(netgr_corrected_errorbars$mutant))))+
   theme(legend.position = "none",
-        axis.text.y=element_blank(),
+        # axis.text.y=element_blank(),
         axis.title.x = element_blank(),
         axis.text.x=element_text(angle=20,hjust=.5,vjust=.5),
         strip.text=element_blank())
-# ggsave("dosing_normalization_standard_deviations.pdf",width=3,height=3,units="in",useDingbats=F)
+# ggsave("dosing_normalization_standard_deviations.pdf",width=4,height=4,units="in",useDingbats=F)
 
-ggplot(netgr_corrected_errorbars%>%filter(!netgr_obs_sd%in%NA,!mutant%in%"E255K"),aes(x=factor(correction_status_name),y=netgr_obs_sd,group=mutant))+geom_point(color="black",size=3,shape=21,aes(fill=correction_status_name))+geom_line()+cleanup+
+ggplot(netgr_corrected_errorbars%>%filter(!netgr_obs_sd%in%NA,!mutant%in%"E255K"),aes(x=factor(correction_status_name),y=netgr_obs_sd,group=mutant))+
+  geom_line()+
+  geom_point(color="black",size=3,shape=21,aes(fill=correction_status_name))+
+  cleanup+
   theme(legend.position = "none",
         axis.text.y=element_blank(),
         # axis.text.y=element_text(size=9),
@@ -496,8 +499,8 @@ ggplot(deviations,aes(x=mutant,y=(count_mean_obs-sd_mean_model)*100/sd_mean_mode
 deviations=twinstrand_merge_forplot_means%>%filter(time_point=="D6",count_type=="totalmutant")
 ggplot(deviations,aes(x=mutant,y=(count_mean_obs-sd_mean_model)*100/sd_mean_model,color=mutant,label=mutant))+geom_text()
 
-ggplot(deviations,aes(x=mutant,y=(count_mean_obs-sd_mean_model)*100/sd_mean_model,fill=mutant))+geom_col()+cleanup+theme(legend.position = "none")+scale_y_continuous(name=" % Difference between observed \n and expected cell counts")+scale_fill_manual(values = getPalette(length(unique(twinstrand_merge_forplot$mutant))))+
-  scale_color_manual(values = getPalette(length(unique(twinstrand_merge_forplot$mutant))))+
+ggplot(deviations,aes(x=mutant,y=(count_mean_obs-sd_mean_model)*100/sd_mean_model))+geom_col(color="black",aes(fill=mutant))+cleanup+theme(legend.position = "none")+scale_y_continuous(name=" % Difference between observed \n and expected cell counts")+scale_fill_manual(values = getPalette(length(unique(twinstrand_merge_forplot$mutant))))+
+  scale_fill_manual(values = getPalette(length(unique(twinstrand_merge_forplot$mutant))))+
   theme(axis.title.x = element_blank(),
         axis.text.x=element_text(angle=90,hjust=.5,vjust=.5))
 # ggsave("m351t_deviation.pdf",width=4,height = 2,units="in",useDingbats=F)
@@ -605,7 +608,7 @@ twinstrand_maf_merge=read.csv("output/twinstrand_maf_merge.csv",header = T,strin
 # twinstrand_maf_merge=read.csv("../output/twinstrand_maf_merge.csv",header = T,stringsAsFactors = F)
 
 # ic50data_all_sum=read.csv("../output/ic50data_all_confidence_intervals_individual_logistic_fits.csv",row.names = 1)
-ic50data_all_sum=read.csv("output/ic50data_all_confidence_intervals_individual_logistic_fits.csv",row.names = 1)
+ic50data_all_sum=read.csv("output/ic50data_all_confidence_intervals_individual_logistic_fits.csv",row.names = 1,check.names = F)
 
 #First, creating day 0 values for M4,M5,M7, and sp_enu_3. Whenever you see any of these experiments, add M3's or M6's or Sp_Enu4's D0 counts for its counts.
 M3D0=twinstrand_maf_merge%>%filter(experiment=="M3",time_point=="D0")
