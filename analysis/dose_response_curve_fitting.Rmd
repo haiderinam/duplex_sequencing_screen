@@ -7,13 +7,15 @@ output: html_document
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
+# knitr::opts_knit$set(root.dir=rprojroot::find_rstudio_root_file())
+# rm(list=ls())
 ```
 
 ####Please change required directories this chunk if compiling in R rather than RmD
 ```{r}
 #Inputs:
 conc_for_predictions=0.8
-net_gr_wodrug=0.05
+net_gr_wodrug=0.055
 #Reading required tables
 ic50data=read.csv("data/heatmap_concat_data.csv",header = T,stringsAsFactors = F)
 # ic50data=read.csv("../data/heatmap_concat_data.csv",header = T,stringsAsFactors = F)
@@ -91,14 +93,14 @@ ic50data_long$species=factor(ic50data_long$species,levels = as.character(ic50dat
 #Plotting the normalized dose response curves
 getPalette = colorRampPalette(brewer.pal(9, "Spectral"))
 
-plotly=ggplot(ic50data_long,aes(x=log(conc),y=y,color=factor(species)))+
+plotly=ggplot(ic50data_long,aes(x=conc,y=y,color=factor(species)))+
   facet_wrap(~factor(species))+
-  geom_line()+
+  # geom_line()+
   geom_point()+
   cleanup+
-  scale_color_manual(values = getPalette(length(unique(ic50data_long$species))))+
-  theme(axis.text = element_blank(),
-        axis.ticks = element_blank())
+  scale_x_continuous(trans="log10")+
+  scale_color_manual(values = getPalette(length(unique(ic50data_long$species))))
+
 ggplotly(plotly)
 ```
 ###Dose response curve fitting with 4-parameter logistic
@@ -138,21 +140,25 @@ ic50data_long=ic50data_long%>%
   mutate(drug_effect=-log(y_model)/72)
 
 #Adding Net growth rate
-ic50data_long$netgr_pred=.05-ic50data_long$drug_effect
+ic50data_long$netgr_pred=net_gr_wodrug-ic50data_long$drug_effect
 ```
 ####Plotting modeled dose responses  
 ```{r}
 getPalette = colorRampPalette(brewer.pal(9, "Spectral"))
-plotly=ggplot(ic50data_long,aes(x=log(conc),color=factor(species)))+
+plotly=ggplot(ic50data_long,aes(x=conc,color=factor(species)))+
   facet_wrap(~factor(species))+
   geom_line(aes(y=y_model))+
   geom_point(aes(y=y))+
   cleanup+
-  scale_color_manual(values = getPalette(length(unique(ic50data_long$species))))+
-  theme(axis.text = element_blank(),
-        axis.ticks = element_blank())
+  scale_x_continuous(trans="log10")+
+  scale_color_manual(values = getPalette(length(unique(ic50data_long$species))))
 ggplotly(plotly)
 ```
+Here I'm going to plot dose-responses with actual data and predicted data
+```{r}
+
+```
+
 ####Plotting species changes in dose responses over different concentrations  
 ```{r}
 plotly=ggplot(ic50data_long,aes(x=species,y=y_model))+
@@ -169,7 +175,7 @@ ggplotly(plotly)
 ###Dose response curve fitting with 4-parameter logistic
 ####Second iteration: Get y_model for predefined concentration ranges of interest
 ```{r}
-conc.list=seq(.5,1.5,by=.1)
+conc.list=seq(.2,10,by=.1)
 ic50.model.pred=data.frame(matrix(NA,nrow=length(conc.list)*length(unique(ic50data_long$species)),ncol=0))
 for(species_curr in sort(unique(ic50data_long$mutant))){
   ic50data_species_specific=ic50data_long%>%filter(mutant==species_curr)
@@ -198,7 +204,7 @@ ic50.model.pred=ic50.model.pred%>%
   mutate(drug_effect=-log(y_model)/72)
 
     #Adding Net growth rate
-    # ic50.model.pred$netgr_pred=.05-ic50.model.pred$drug_effect
+    # ic50.model.pred$netgr_pred=.055-ic50.model.pred$drug_effect
 ic50data_long=ic50.model.pred
 ic50data_all_conc=ic50data_long
 ```
@@ -207,7 +213,7 @@ ic50data_all_conc=ic50data_long
 
 ####Changing the format of the IC50s dataframe so that it matches twinstrand data labeling etc  
 ####Also converting dose response to expected change in growth rate
-####This requires estimating a growth rate without drug. Note that I am using k=0.05 or 14 hours right now.
+####This requires estimating a growth rate without drug. Note that I am using k=0.055 or 14 hours right now.
 ```{r}
 #Variables when making predictions:
 #Your assumed fitness without drug
@@ -222,5 +228,94 @@ ic50data_long=ic50data_long%>%filter(conc==conc_for_predictions) ###Can remove t
 ```{r}
 head(ic50data_all_conc)
 # write.csv(ic50data_all_conc,"ic50data_all_conc.csv")
+```
+
+Next, I'm going to look a little closely at the errors we typically see in dose response curves:
+```{r}
+
+```
+
+Below, I'm going to plot dose response curves with errorbars representing real day to day variation. 
+```{r}
+ic50heatmap=read.csv("data/IC50HeatMap.csv")
+# a=ic50heatmap%>%mutate(mutant=species)%>%dplyr::select(!species)
+# b=a%>%group_by(mutant)%>%rowwise()%>%summarize(replicate=n())
+ic50heatmap=ic50heatmap%>%mutate(mutant=species)%>%dplyr::select(!species)
+ic50heatmap=ic50heatmap%>%filter(mutant%in%c("V299L_H","E355A","D276G_maxi","H396R","F317L","F359I","E459K","G250E","F359C","F359V","M351T","L248V","E355G_maxi","Q252H_maxi","Y253F","F486S_maxi","H396P_maxi","E255K","Y253H","T315I","E255V","WT"))
+ic50heatmap=ic50heatmap%>%
+  mutate(mutant=case_when(mutant=="F486S_maxi"~"F486S",
+                          mutant=="H396P_maxi"~"H396P",
+                          mutant=="Q252H_maxi"~"Q252H",
+                          mutant=="E355G_maxi"~"E355G",
+                          mutant=="D276G_maxi"~"D276G",
+                          mutant=="WT"~"Wt",
+                          TRUE~mutant))
+
+ic50heatmap_melt=melt(ic50heatmap,"mutant",variable.name = "conc",value.name = "y")
+ic50heatmap_melt$conc=as.character(ic50heatmap_melt$conc)
+ic50heatmap_melt=ic50heatmap_melt%>%filter(!conc%in%"Vehicle")
+ic50heatmap_melt=ic50heatmap_melt%>%rowwise()%>%mutate(conc=as.numeric(as.character(strsplit(conc,"X")[[1]][2])))
+ic50heatmap_sd=ic50heatmap_melt%>%
+  group_by(mutant,conc)%>%
+  summarize(y_mean=mean(y),y_sd=sd(y),y_n=n())%>%
+  mutate(y_se=y_sd/sqrt(y_n),y_ci=qt(1-(.05/2),y_n-1)*y_se)
+
+ic50data_long=read.csv("output/ic50data_all_conc.csv",header = T,stringsAsFactors = F,row.names = 1)
+# ic50heatmap_sd$mutant=factor(ic50heatmap_sd$mutant,levels = as.character(unique(ic50heatmap_sd$mutant[order((ic50heatmap_sd$netgr_pred_mean),decreasing = T)])))
+ic50data_long_625=ic50data_long%>%filter(conc==.6)
+ic50data_long$mutant=factor(ic50data_long$mutant,levels = as.character(ic50data_long_625$mutant[order((ic50data_long_625$y),decreasing = T)]))
+ic50heatmap_sd$mutant=factor(ic50heatmap_sd$mutant,levels = as.character(ic50data_long_625$mutant[order((ic50data_long_625$y),decreasing = T)]))
+
+getPalette = colorRampPalette(brewer.pal(9, "Spectral"))
+ggplot(ic50heatmap_sd%>%filter(conc>=.1,!mutant%in%c("F486S","F359C","E355A","D276G","V299L","Wt")),aes(x=conc,y=y_mean))+
+  geom_point(color="black",size=2,shape=21,aes(fill=mutant))+
+  geom_errorbar(aes(ymin=y_mean-y_sd,ymax=y_mean+y_sd,width=.1))+
+  scale_x_continuous(name="Dose (uM)",trans="log10")+
+  scale_y_continuous(name="Response")+
+  cleanup+
+  geom_line(data=ic50data_long%>%filter(!mutant%in%c("F486S","F359C","E355A","D276G","V299L","Wt")),aes(x=conc,y=y_model),linetype="dashed")+
+  scale_fill_manual(values =getPalette(length(unique(ic50data_long$mutant))))+
+  theme(legend.position = "none",axis.text =
+          element_text(size=9,color="black",face="plain"),axis.title =
+          element_text(size=10,color="black",face="bold"),
+        strip.text = element_blank(),
+        axis.text.x = element_text(angle=90,hjust=.5,vjust=.5))+
+  facet_wrap(~mutant)
+# ggsave("allmuts_dose_response.pdf",width=4,height=4,units="in",useDingbats=F)
+
+
+ggplot(ic50heatmap_sd%>%filter(mutant%in%"E255K",conc>=.1),aes(x=conc,y=y_mean))+geom_point(color="black",size=3,shape=21,aes(fill="green"))+geom_errorbar(aes(ymin=y_mean-y_sd,ymax=y_mean+y_sd,width=.1))+scale_x_continuous(name="Dose (uM)",trans="log10")+scale_y_continuous(name="Response")+cleanup+geom_vline(aes(xintercept=.625),linetype="dashed")+geom_line(data=ic50data_long%>%filter(mutant%in%"E255K"),aes(x=conc,y=y_model))+scale_fill_manual(values = "#1CCE16")+theme(legend.position = "none",axis.text = element_text(size=9,color="black",face="plain"),axis.title = element_text(size=10,color="black",face="bold"))
+# ggsave("e255k_dose_response.pdf",width=2,height=2,units="in",useDingbats=F)
+
+
+ggplot(ic50heatmap_sd%>%filter(mutant%in%"Wt",conc>=.1),aes(x=conc,y=y_mean))+geom_point(color="black",size=3,shape=21,aes(fill="green"))+geom_errorbar(aes(ymin=y_mean-y_sd,ymax=y_mean+y_sd,width=.1))+scale_x_continuous(name="Dose (uM)",trans="log10")+scale_y_continuous(name="Response")+cleanup+geom_vline(aes(xintercept=.625),linetype="dashed")+geom_line(data=ic50data_long%>%filter(mutant%in%"Wt"),aes(x=conc,y=y_model))+scale_fill_manual(values = "#5941A9")+theme(legend.position = "none",axis.text = element_text(size=9,color="black",face="plain"),axis.title = element_text(size=10,color="black",face="bold"))
+# ggsave("bcrablwt_dose_response.pdf",width=2,height=2,units="in",useDingbats=F)
+# write.csv(ic50heatmap_sd,"output/ic50heatmap_sd_ci.csv")
+```
+
+```{r}
+################Looking at the typical error in dose-response#######
+plotly=ggplot(ic50heatmap_sd%>%filter(conc%in%.625),aes(x=mutant,y=y_mean))+geom_point()+geom_errorbar(aes(ymin=y_mean-y_sd,ymax=y_mean+y_sd))
+ggplotly(plotly)
+
+Wt=ic50heatmap_sd%>%filter(mutant%in%"Wt")
+conc=Wt$conc
+
+ic50.ll4=drm(y_mean~conc,data=ic50heatmap_sd%>%filter(mutant%in%"Wt"),fct=LL.3(fixed=c(NA,1,NA)))
+    b=coef(ic50.ll4)[1]
+    c=0
+    d=1
+    e=coef(ic50.ll4)[2]
+
+###Getting predictions
+Wt=Wt%>%group_by(conc)%>%mutate(y_model=c+((d-c)/(1+exp(b*(log(conc)-log(e))))))
+
+predict(ic50.ll4,data.frame(dose=.625))
+###We saw that at 625nM, Wt has a mean dose response of .03 with a standard deviation of .011 (range of .0195 to .0405)
+predict(ic50.ll4,data.frame(dose=1.62))
+predict(ic50.ll4,data.frame(dose=1.05))
+predict(ic50.ll4,data.frame(dose=1.25))
+#Therefore the typical error in dose-response for a dose of 1.25 goes from 1.05 to 1.62
+
 ```
 
