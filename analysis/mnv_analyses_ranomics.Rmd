@@ -1,0 +1,179 @@
+---
+title: "mnv_analyses_ranomics"
+author: "Haider Inam"
+date: "11/12/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library("stringr")
+library(dplyr)
+library(ggplot2)
+library(plotly)
+```
+
+
+####Reading all of novogene lane 5's filtered data
+```{r}
+setwd("/Users/haiderinam/OneDrive - The Pennsylvania State University/RProjects/duplex_sequencing_screen/data/Dunovo/Novogene_lane5/GalaxyData/RP4/")
+####################RP4#####################
+####################High D2#####################
+rp4_h_d2_sscs=read.csv("RP4_H_D2_sscs_filtered_calls.csv",header = T,stringsAsFactors = F)[,-1]
+rp4_h_d2_sscs=rp4_h_d2_sscs%>%filter(consequence_terms%in%"missense_variant")
+rp4_h_d2_sscs=rp4_h_d2_sscs%>%rowwise()%>%mutate(amino_acids=gsub(x = amino_acids,pattern = "/",replacement = protein_start))
+
+rp4_h_d2_dcs=read.csv("RP4_H_D2_dcs_filtered_calls.csv",header = T,stringsAsFactors = F)[,-1]
+rp4_h_d2_dcs=rp4_h_d2_dcs%>%filter(consequence_terms%in%"missense_variant")
+rp4_h_d2_dcs=rp4_h_d2_dcs%>%rowwise()%>%mutate(amino_acids=gsub(x = amino_acids,pattern = "/",replacement = protein_start))
+
+####################High D4#####################
+rp4_h_d4_sscs=read.csv("RP4_h_d4_sscs_filtered_calls.csv",header = T,stringsAsFactors = F)[,-1]
+rp4_h_d4_sscs=rp4_h_d4_sscs%>%filter(consequence_terms%in%"missense_variant")
+rp4_h_d4_sscs=rp4_h_d4_sscs%>%rowwise()%>%mutate(amino_acids=gsub(x = amino_acids,pattern = "/",replacement = protein_start))
+
+rp4_h_d4_dcs=read.csv("RP4_h_d4_dcs_filtered_calls.csv",header = T,stringsAsFactors = F)[,-1]
+rp4_h_d4_dcs=rp4_h_d4_dcs%>%filter(consequence_terms%in%"missense_variant")
+rp4_h_d4_dcs=rp4_h_d4_dcs%>%rowwise()%>%mutate(amino_acids=gsub(x = amino_acids,pattern = "/",replacement = protein_start))
+
+####################Medium D2#####################
+rp4_m_d2_sscs=read.csv("RP4_m_d2_sscs_filtered_calls.csv",header = T,stringsAsFactors = F)[,-1]
+rp4_m_d2_sscs=rp4_m_d2_sscs%>%filter(consequence_terms%in%"missense_variant")
+rp4_m_d2_sscs=rp4_m_d2_sscs%>%rowwise()%>%mutate(amino_acids=gsub(x = amino_acids,pattern = "/",replacement = protein_start))
+
+rp4_m_d2_dcs=read.csv("RP4_m_d2_dcs_filtered_calls.csv",header = T,stringsAsFactors = F)[,-1]
+rp4_m_d2_dcs=rp4_m_d2_dcs%>%filter(consequence_terms%in%"missense_variant")
+rp4_m_d2_dcs=rp4_m_d2_dcs%>%rowwise()%>%mutate(amino_acids=gsub(x = amino_acids,pattern = "/",replacement = protein_start))
+
+####################Medium D4#####################
+rp4_m_d4_sscs=read.csv("RP4_m_d4_sscs_filtered_calls.csv",header = T,stringsAsFactors = F)[,-1]
+rp4_m_d4_sscs=rp4_m_d4_sscs%>%filter(consequence_terms%in%"missense_variant")
+rp4_m_d4_sscs=rp4_m_d4_sscs%>%rowwise()%>%mutate(amino_acids=gsub(x = amino_acids,pattern = "/",replacement = protein_start))
+
+rp4_m_d4_dcs=read.csv("RP4_m_d4_dcs_filtered_calls.csv",header = T,stringsAsFactors = F)[,-1]
+rp4_m_d4_dcs=rp4_m_d4_dcs%>%filter(consequence_terms%in%"missense_variant")
+rp4_m_d4_dcs=rp4_m_d4_dcs%>%rowwise()%>%mutate(amino_acids=gsub(x = amino_acids,pattern = "/",replacement = protein_start))
+
+
+####################Low D2#####################
+rp4_l_d2_sscs=read.csv("RP4_l_d2_sscs_filtered_calls.csv",header = T,stringsAsFactors = F)[,-1]
+rp4_l_d2_sscs=rp4_l_d2_sscs%>%filter(consequence_terms%in%"missense_variant")
+rp4_l_d2_sscs=rp4_l_d2_sscs%>%rowwise()%>%mutate(amino_acids=gsub(x = amino_acids,pattern = "/",replacement = protein_start))
+
+rp4_l_d2_dcs=read.csv("RP4_l_d2_dcs_filtered_calls.csv",header = T,stringsAsFactors = F)[,-1]
+rp4_l_d2_dcs=rp4_l_d2_dcs%>%filter(consequence_terms%in%"missense_variant")
+rp4_l_d2_dcs=rp4_l_d2_dcs%>%rowwise()%>%mutate(amino_acids=gsub(x = amino_acids,pattern = "/",replacement = protein_start))
+
+####################Low D4#####################
+rp4_l_d4_sscs=read.csv("RP4_l_d4_sscs_filtered_calls.csv",header = T,stringsAsFactors = F)[,-1]
+rp4_l_d4_sscs=rp4_l_d4_sscs%>%filter(consequence_terms%in%"missense_variant")
+rp4_l_d4_sscs=rp4_l_d4_sscs%>%rowwise()%>%mutate(amino_acids=gsub(x = amino_acids,pattern = "/",replacement = protein_start))
+
+rp4_l_d4_dcs=read.csv("RP4_l_d4_dcs_filtered_calls.csv",header = T,stringsAsFactors = F)[,-1]
+rp4_l_d4_dcs=rp4_l_d4_dcs%>%filter(consequence_terms%in%"missense_variant")
+rp4_l_d4_dcs=rp4_l_d4_dcs%>%rowwise()%>%mutate(amino_acids=gsub(x = amino_acids,pattern = "/",replacement = protein_start))
+
+```
+
+
+```{r}
+setwd("/Users/haiderinam/OneDrive - The Pennsylvania State University/RProjects/duplex_sequencing_screen/data/Dunovo/Novogene_lane5/GalaxyData/rp5/")
+####################rp5#####################
+####################High D2#####################
+rp5_h_d2_sscs=read.csv("rp5_H_D2_sscs_filtered_calls.csv",header = T,stringsAsFactors = F)[,-1]
+rp5_h_d2_sscs=rp5_h_d2_sscs%>%filter(consequence_terms%in%"missense_variant")
+rp5_h_d2_sscs=rp5_h_d2_sscs%>%rowwise()%>%mutate(amino_acids=gsub(x = amino_acids,pattern = "/",replacement = protein_start))
+
+rp5_h_d2_dcs=read.csv("rp5_H_D2_dcs_filtered_calls.csv",header = T,stringsAsFactors = F)[,-1]
+rp5_h_d2_dcs=rp5_h_d2_dcs%>%filter(consequence_terms%in%"missense_variant")
+rp5_h_d2_dcs=rp5_h_d2_dcs%>%rowwise()%>%mutate(amino_acids=gsub(x = amino_acids,pattern = "/",replacement = protein_start))
+
+####################High D4#####################
+rp5_h_d4_sscs=read.csv("rp5_h_d4_sscs_filtered_calls.csv",header = T,stringsAsFactors = F)[,-1]
+rp5_h_d4_sscs=rp5_h_d4_sscs%>%filter(consequence_terms%in%"missense_variant")
+rp5_h_d4_sscs=rp5_h_d4_sscs%>%rowwise()%>%mutate(amino_acids=gsub(x = amino_acids,pattern = "/",replacement = protein_start))
+
+rp5_h_d4_dcs=read.csv("rp5_h_d4_dcs_filtered_calls.csv",header = T,stringsAsFactors = F)[,-1]
+rp5_h_d4_dcs=rp5_h_d4_dcs%>%filter(consequence_terms%in%"missense_variant")
+rp5_h_d4_dcs=rp5_h_d4_dcs%>%rowwise()%>%mutate(amino_acids=gsub(x = amino_acids,pattern = "/",replacement = protein_start))
+
+####################Medium D2#####################
+rp5_m_d2_sscs=read.csv("rp5_m_d2_sscs_filtered_calls.csv",header = T,stringsAsFactors = F)[,-1]
+rp5_m_d2_sscs=rp5_m_d2_sscs%>%filter(consequence_terms%in%"missense_variant")
+rp5_m_d2_sscs=rp5_m_d2_sscs%>%rowwise()%>%mutate(amino_acids=gsub(x = amino_acids,pattern = "/",replacement = protein_start))
+
+rp5_m_d2_dcs=read.csv("rp5_m_d2_dcs_filtered_calls.csv",header = T,stringsAsFactors = F)[,-1]
+rp5_m_d2_dcs=rp5_m_d2_dcs%>%filter(consequence_terms%in%"missense_variant")
+rp5_m_d2_dcs=rp5_m_d2_dcs%>%rowwise()%>%mutate(amino_acids=gsub(x = amino_acids,pattern = "/",replacement = protein_start))
+
+####################Medium D4#####################
+rp5_m_d4_sscs=read.csv("rp5_m_d4_sscs_filtered_calls.csv",header = T,stringsAsFactors = F)[,-1]
+rp5_m_d4_sscs=rp5_m_d4_sscs%>%filter(consequence_terms%in%"missense_variant")
+rp5_m_d4_sscs=rp5_m_d4_sscs%>%rowwise()%>%mutate(amino_acids=gsub(x = amino_acids,pattern = "/",replacement = protein_start))
+
+rp5_m_d4_dcs=read.csv("rp5_m_d4_dcs_filtered_calls.csv",header = T,stringsAsFactors = F)[,-1]
+rp5_m_d4_dcs=rp5_m_d4_dcs%>%filter(consequence_terms%in%"missense_variant")
+rp5_m_d4_dcs=rp5_m_d4_dcs%>%rowwise()%>%mutate(amino_acids=gsub(x = amino_acids,pattern = "/",replacement = protein_start))
+
+
+####################Low D2#####################
+rp5_l_d2_sscs=read.csv("rp5_l_d2_sscs_filtered_calls.csv",header = T,stringsAsFactors = F)[,-1]
+rp5_l_d2_sscs=rp5_l_d2_sscs%>%filter(consequence_terms%in%"missense_variant")
+rp5_l_d2_sscs=rp5_l_d2_sscs%>%rowwise()%>%mutate(amino_acids=gsub(x = amino_acids,pattern = "/",replacement = protein_start))
+
+rp5_l_d2_dcs=read.csv("rp5_l_d2_dcs_filtered_calls.csv",header = T,stringsAsFactors = F)[,-1]
+rp5_l_d2_dcs=rp5_l_d2_dcs%>%filter(consequence_terms%in%"missense_variant")
+rp5_l_d2_dcs=rp5_l_d2_dcs%>%rowwise()%>%mutate(amino_acids=gsub(x = amino_acids,pattern = "/",replacement = protein_start))
+
+####################Low D4#####################
+rp5_l_d4_sscs=read.csv("rp5_l_d4_sscs_filtered_calls.csv",header = T,stringsAsFactors = F)[,-1]
+rp5_l_d4_sscs=rp5_l_d4_sscs%>%filter(consequence_terms%in%"missense_variant")
+rp5_l_d4_sscs=rp5_l_d4_sscs%>%rowwise()%>%mutate(amino_acids=gsub(x = amino_acids,pattern = "/",replacement = protein_start))
+
+rp5_l_d4_dcs=read.csv("rp5_l_d4_dcs_filtered_calls.csv",header = T,stringsAsFactors = F)[,-1]
+rp5_l_d4_dcs=rp5_l_d4_dcs%>%filter(consequence_terms%in%"missense_variant")
+rp5_l_d4_dcs=rp5_l_d4_dcs%>%rowwise()%>%mutate(amino_acids=gsub(x = amino_acids,pattern = "/",replacement = protein_start))
+
+```
+Plotting RP4 vs RP5 samples
+All the mouse noise+the mnv noise seems to be cleaned out
+```{r}
+rp4_h_d2_sscs_sum=rp4_h_d2_sscs%>%dplyr::select(alt_start_pos,ref,alt,protein_start,amino_acids,ct)
+rp5_h_d2_sscs_sum=rp5_h_d2_sscs%>%dplyr::select(alt_start_pos,ref,alt,protein_start,amino_acids,ct)
+
+rp45_h_d2_sscs_comb=merge(rp4_h_d2_sscs_sum,rp5_h_d2_sscs_sum,by=c("alt_start_pos","ref","alt","protein_start","amino_acids"),all = T)
+
+# a=rp45_h_d2_sscs_comb%>%filter(!ct.x%in%NA,!ct.y%in%NA)
+ggplot(rp45_h_d2_sscs_comb,aes(x=ct.x,y=ct.y))+geom_point()+scale_x_continuous(trans="log10")+scale_y_continuous(trans="log10")
+ggplot(rp45_h_d2_sscs_comb,aes(x=ct.x,y=ct.y,label=amino_acids))+geom_text()+scale_x_continuous(trans="log10")+scale_y_continuous(trans="log10")
+# read.csv("",)
+```
+
+```{r}
+rp45_all_d4=rbind(rp4_h_d4_sscs,
+                  rp4_m_d4_sscs,
+                  rp4_l_d4_sscs,
+                  rp5_h_d4_sscs,
+                  rp5_m_d4_sscs,
+                  rp5_l_d4_sscs)
+rp45_all_d4=rp45_all_d4%>%dplyr::select(alt_start_pos,ref,alt,protein_start,amino_acids,ct)
+
+rp45_all_d4_grouped=rp45_all_d4%>%
+  dplyr::group_by(amino_acids,alt_start_pos,ref,alt,protein_start)%>%
+  dplyr::summarize(ct=sum(ct),nsamples=n())%>%
+  dplyr::select(alt_start_pos,protein_start,ref,alt,amino_acids,ct,nsamples)
+
+
+rp45_all_d4_grouped$altamino=substr(rp45_all_d4_grouped$amino_acids,nchar(rp45_all_d4_grouped$amino_acids),nchar(rp45_all_d4_grouped$amino_acids))
+length(unique(rp45_all_d4_grouped$amino_acids))
+ggplot(rp45_all_d4_grouped%>%filter(ct<=100),aes(x=ct))+geom_histogram(bins=50)+scale_x_continuous(limits=c(0,100))+scale_y_continuous(limits=c(0,25))
+sum(as.numeric(rp45_all_d4_grouped$amino_acids%in%il3indep_grouped$amino_acids))
+
+# rp45_all_d4_grouped_sum=rp45_all_d4_grouped%>%dplyr::select()
+rp45_il3=merge(il3indep_grouped%>%dplyr::select(-nsamples),
+               rp45_all_d4_grouped%>%dplyr::select(-nsamples),by=c("alt_start_pos","protein_start","ref","alt","amino_acids","altamino"))
+rp45_il3$enr=rp45_il3$ct.y/rp45_il3$ct.x
+rp45_il3$logenr=log10(rp45_il3$ct.y/rp45_il3$ct.x)
+ggplot(rp45_il3,aes(x=logenr))+geom_histogram()
+```
+

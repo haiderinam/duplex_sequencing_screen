@@ -1,0 +1,654 @@
+---
+title: "10kmutants_library_analysis"
+author: "Haider Inam"
+date: "2/6/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r,include=F}
+# rm(list=ls())
+library(knitr)
+library(tictoc)
+library(workflowr)
+library(VennDiagram)
+library(dplyr)
+library(foreach)
+library(doParallel)
+library(ggplot2)
+library(reshape2)
+library(RColorBrewer)
+library(devtools)
+library(ggsignif)
+library(plotly)
+library(BiocManager)
+library(drc)
+# library(ensembldb) #Loading this with Dplyr commands seems to throw an error in Rmd
+# library(EnsDb.Hsapiens.v86) #Loading this with Dplyr commands seems to throw an error in Rmd
+
+######################Cleanup for GGPlot2#########################################
+cleanup=theme_bw() +
+  theme(plot.title = element_text(hjust=.5),
+        panel.grid.major = element_blank(),
+        panel.grid.major.y = element_blank(),
+        panel.background = element_blank(),
+        axis.line = element_line(color = "black"),
+        axis.text = element_text(face="bold",color="black",size="11"),
+        text=element_text(size=11,face="bold"),
+        axis.title=element_text(face="bold",size="11"))
+```
+
+```{r}
+
+d0=read.table("../data/10kmutants_inhouse/sp2_d0.1.consensus.variant-calls.mut",header=T,stringsAsFactors = F,sep="\t")
+d2=read.csv("../data/10kmutants_inhouse/sp2_d2_300.1.consensus.variant-calls.mut",header=T,stringsAsFactors = F,sep="\t")
+d4=read.csv("../data/10kmutants_inhouse/sp2_d4_300.1.consensus.variant-calls.mut",header=T,stringsAsFactors = F,sep="\t")
+
+d0=d0%>%filter(!alt%in%"<DEL>",alt_depth<=2000,variation_type%in%"snv")
+d2=d2%>%filter(!alt%in%"<DEL>",alt_depth<=2000,variation_type%in%"snv")
+d4=d4%>%filter(!alt%in%"<DEL>",alt_depth<=2000,variation_type%in%"snv")
+
+
+
+
+d0=d0%>%
+  mutate(ALT=alt,End=end,mutant=case_when(End==130872896 & ALT=="T" ~ "T315I",
+                          End==130862970 & ALT=="C" ~ "Y253H",
+                          End==130862977 & ALT=="T" ~ "E255V",
+                          End==130873004 & ALT=="C" ~ "M351T",
+                          End==130862962 & ALT=="A" ~ "G250E",
+                          End==130874969 & ALT=="C" ~ "H396P",
+                          End==130862955 & ALT=="G" ~ "L248V",
+                          End==130874969 & ALT=="G" ~ "H396R",
+                          End==130862971 & ALT=="T" ~ "Y253F",
+                          End==130862969 & ALT=="T" ~ "Q252H",
+                          End==130862976 & ALT=="A" ~ "E255K",
+                          End==130872901 & ALT=="C" ~ "F317L",
+                          End==130873027 & ALT=="C" ~ "F359L",
+                          End==130873027 & ALT=="G" ~ "F359V",
+                          End==130873027 & ALT=="A" ~ "F359I",
+                          End==130873016 & ALT=="G" ~ "E355G",
+                          End==130873016 & ALT=="C" ~ "E355A",
+                          End==130878519 & ALT=="A" ~ "E459K",
+                          End==130872911 & ALT=="G" ~ "Y320C",
+                          End==130872133 & ALT=="G" ~ "D276G",
+                          End==130862969 & ALT=="C" ~ "Q252Hsyn", ###The mutants below were found only in the ENU mutagenized pools
+                          End==130872885 & ALT=="G" ~ "F311L",
+                          End==130873028 & ALT=="G" ~ "F359C",
+                          End==130874971 & ALT=="C" ~ "A397P",
+                          End==130862854 & ALT=="G" ~ "H214R",
+                          End==130872146 & ALT=="C" ~ "V280syn",
+                          End==130872161 & ALT=="T" ~ "K285N",
+                          End==130872923 & ALT=="G" ~ "L324R",
+                          End==130872983 & ALT=="T" ~ "A344D",
+                          End==130872145 & ALT=="A" ~ "V280E",
+                          End==130872200 & ALT=="A" ~ "L298Lsyn",
+                          End==130874932 & ALT=="A" ~ "L384M",
+                          End==130880101 & ALT=="C" ~ "F486S",
+                          End==130880502 & ALT=="A" ~ "V506M",
+                          End==130872171 & ALT=="A" ~ "V289I"))
+d2=d2%>%
+  mutate(ALT=alt,End=end,mutant=case_when(End==130872896 & ALT=="T" ~ "T315I",
+                          End==130862970 & ALT=="C" ~ "Y253H",
+                          End==130862977 & ALT=="T" ~ "E255V",
+                          End==130873004 & ALT=="C" ~ "M351T",
+                          End==130862962 & ALT=="A" ~ "G250E",
+                          End==130874969 & ALT=="C" ~ "H396P",
+                          End==130862955 & ALT=="G" ~ "L248V",
+                          End==130874969 & ALT=="G" ~ "H396R",
+                          End==130862971 & ALT=="T" ~ "Y253F",
+                          End==130862969 & ALT=="T" ~ "Q252H",
+                          End==130862976 & ALT=="A" ~ "E255K",
+                          End==130872901 & ALT=="C" ~ "F317L",
+                          End==130873027 & ALT=="C" ~ "F359L",
+                          End==130873027 & ALT=="G" ~ "F359V",
+                          End==130873027 & ALT=="A" ~ "F359I",
+                          End==130873016 & ALT=="G" ~ "E355G",
+                          End==130873016 & ALT=="C" ~ "E355A",
+                          End==130878519 & ALT=="A" ~ "E459K",
+                          End==130872911 & ALT=="G" ~ "Y320C",
+                          End==130872133 & ALT=="G" ~ "D276G",
+                          End==130862969 & ALT=="C" ~ "Q252Hsyn", ###The mutants below were found only in the ENU mutagenized pools
+                          End==130872885 & ALT=="G" ~ "F311L",
+                          End==130873028 & ALT=="G" ~ "F359C",
+                          End==130874971 & ALT=="C" ~ "A397P",
+                          End==130862854 & ALT=="G" ~ "H214R",
+                          End==130872146 & ALT=="C" ~ "V280syn",
+                          End==130872161 & ALT=="T" ~ "K285N",
+                          End==130872923 & ALT=="G" ~ "L324R",
+                          End==130872983 & ALT=="T" ~ "A344D",
+                          End==130872145 & ALT=="A" ~ "V280E",
+                          End==130872200 & ALT=="A" ~ "L298Lsyn",
+                          End==130874932 & ALT=="A" ~ "L384M",
+                          End==130880101 & ALT=="C" ~ "F486S",
+                          End==130880502 & ALT=="A" ~ "V506M",
+                          End==130872171 & ALT=="A" ~ "V289I"))
+d4=d4%>%
+  mutate(ALT=alt,End=end,mutant=case_when(End==130872896 & ALT=="T" ~ "T315I",
+                          End==130862970 & ALT=="C" ~ "Y253H",
+                          End==130862977 & ALT=="T" ~ "E255V",
+                          End==130873004 & ALT=="C" ~ "M351T",
+                          End==130862962 & ALT=="A" ~ "G250E",
+                          End==130874969 & ALT=="C" ~ "H396P",
+                          End==130862955 & ALT=="G" ~ "L248V",
+                          End==130874969 & ALT=="G" ~ "H396R",
+                          End==130862971 & ALT=="T" ~ "Y253F",
+                          End==130862969 & ALT=="T" ~ "Q252H",
+                          End==130862976 & ALT=="A" ~ "E255K",
+                          End==130872901 & ALT=="C" ~ "F317L",
+                          End==130873027 & ALT=="C" ~ "F359L",
+                          End==130873027 & ALT=="G" ~ "F359V",
+                          End==130873027 & ALT=="A" ~ "F359I",
+                          End==130873016 & ALT=="G" ~ "E355G",
+                          End==130873016 & ALT=="C" ~ "E355A",
+                          End==130878519 & ALT=="A" ~ "E459K",
+                          End==130872911 & ALT=="G" ~ "Y320C",
+                          End==130872133 & ALT=="G" ~ "D276G",
+                          End==130862969 & ALT=="C" ~ "Q252Hsyn", ###The mutants below were found only in the ENU mutagenized pools
+                          End==130872885 & ALT=="G" ~ "F311L",
+                          End==130873028 & ALT=="G" ~ "F359C",
+                          End==130874971 & ALT=="C" ~ "A397P",
+                          End==130862854 & ALT=="G" ~ "H214R",
+                          End==130872146 & ALT=="C" ~ "V280syn",
+                          End==130872161 & ALT=="T" ~ "K285N",
+                          End==130872923 & ALT=="G" ~ "L324R",
+                          End==130872983 & ALT=="T" ~ "A344D",
+                          End==130872145 & ALT=="A" ~ "V280E",
+                          End==130872200 & ALT=="A" ~ "L298Lsyn",
+                          End==130874932 & ALT=="A" ~ "L384M",
+                          End==130880101 & ALT=="C" ~ "F486S",
+                          End==130880502 & ALT=="A" ~ "V506M",
+                          End==130872171 & ALT=="A" ~ "V289I"))
+
+d0$time="D0"
+d2$time="D2"
+d4$time="D4"
+alldays=rbind(d0,d2,d4)
+ggplot(alldays,aes(x=time,y=alt_depth/depth))+geom_point(color="black",shape=21,size=3,aes(fill=mutant))+facet_wrap(~mutant)+cleanup+scale_y_continuous(trans = "log10",name="MAF")
+
+ggplot(d0,aes(x=mutant,y=alt_depth/depth))+geom_col()+scale_y_continuous(name="MAF")
+```
+
+```{r}
+
+d0=read.table("../data/10kmutants_inhouse/sp2_d0.1.consensus.variant-calls.mut",header=T,stringsAsFactors = F,sep="\t")
+d2=read.csv("../data/10kmutants_inhouse/sp2_d2_600.1.consensus.variant-calls.mut",header=T,stringsAsFactors = F,sep="\t")
+d4=read.csv("../data/10kmutants_inhouse/sp2_d4_600.1.consensus.variant-calls.mut",header=T,stringsAsFactors = F,sep="\t")
+
+d0=d0%>%filter(!alt%in%"<DEL>",alt_depth<=2000,variation_type%in%"snv")
+d2=d2%>%filter(!alt%in%"<DEL>",alt_depth<=2000,variation_type%in%"snv")
+d4=d4%>%filter(!alt%in%"<DEL>",alt_depth<=2000,variation_type%in%"snv")
+
+
+
+
+d0=d0%>%
+  mutate(ALT=alt,End=end,mutant=case_when(End==130872896 & ALT=="T" ~ "T315I",
+                          End==130862970 & ALT=="C" ~ "Y253H",
+                          End==130862977 & ALT=="T" ~ "E255V",
+                          End==130873004 & ALT=="C" ~ "M351T",
+                          End==130862962 & ALT=="A" ~ "G250E",
+                          End==130874969 & ALT=="C" ~ "H396P",
+                          End==130862955 & ALT=="G" ~ "L248V",
+                          End==130874969 & ALT=="G" ~ "H396R",
+                          End==130862971 & ALT=="T" ~ "Y253F",
+                          End==130862969 & ALT=="T" ~ "Q252H",
+                          End==130862976 & ALT=="A" ~ "E255K",
+                          End==130872901 & ALT=="C" ~ "F317L",
+                          End==130873027 & ALT=="C" ~ "F359L",
+                          End==130873027 & ALT=="G" ~ "F359V",
+                          End==130873027 & ALT=="A" ~ "F359I",
+                          End==130873016 & ALT=="G" ~ "E355G",
+                          End==130873016 & ALT=="C" ~ "E355A",
+                          End==130878519 & ALT=="A" ~ "E459K",
+                          End==130872911 & ALT=="G" ~ "Y320C",
+                          End==130872133 & ALT=="G" ~ "D276G",
+                          End==130862969 & ALT=="C" ~ "Q252Hsyn", ###The mutants below were found only in the ENU mutagenized pools
+                          End==130872885 & ALT=="G" ~ "F311L",
+                          End==130873028 & ALT=="G" ~ "F359C",
+                          End==130874971 & ALT=="C" ~ "A397P",
+                          End==130862854 & ALT=="G" ~ "H214R",
+                          End==130872146 & ALT=="C" ~ "V280syn",
+                          End==130872161 & ALT=="T" ~ "K285N",
+                          End==130872923 & ALT=="G" ~ "L324R",
+                          End==130872983 & ALT=="T" ~ "A344D",
+                          End==130872145 & ALT=="A" ~ "V280E",
+                          End==130872200 & ALT=="A" ~ "L298Lsyn",
+                          End==130874932 & ALT=="A" ~ "L384M",
+                          End==130880101 & ALT=="C" ~ "F486S",
+                          End==130880502 & ALT=="A" ~ "V506M",
+                          End==130872171 & ALT=="A" ~ "V289I"))
+d2=d2%>%
+  mutate(ALT=alt,End=end,mutant=case_when(End==130872896 & ALT=="T" ~ "T315I",
+                          End==130862970 & ALT=="C" ~ "Y253H",
+                          End==130862977 & ALT=="T" ~ "E255V",
+                          End==130873004 & ALT=="C" ~ "M351T",
+                          End==130862962 & ALT=="A" ~ "G250E",
+                          End==130874969 & ALT=="C" ~ "H396P",
+                          End==130862955 & ALT=="G" ~ "L248V",
+                          End==130874969 & ALT=="G" ~ "H396R",
+                          End==130862971 & ALT=="T" ~ "Y253F",
+                          End==130862969 & ALT=="T" ~ "Q252H",
+                          End==130862976 & ALT=="A" ~ "E255K",
+                          End==130872901 & ALT=="C" ~ "F317L",
+                          End==130873027 & ALT=="C" ~ "F359L",
+                          End==130873027 & ALT=="G" ~ "F359V",
+                          End==130873027 & ALT=="A" ~ "F359I",
+                          End==130873016 & ALT=="G" ~ "E355G",
+                          End==130873016 & ALT=="C" ~ "E355A",
+                          End==130878519 & ALT=="A" ~ "E459K",
+                          End==130872911 & ALT=="G" ~ "Y320C",
+                          End==130872133 & ALT=="G" ~ "D276G",
+                          End==130862969 & ALT=="C" ~ "Q252Hsyn", ###The mutants below were found only in the ENU mutagenized pools
+                          End==130872885 & ALT=="G" ~ "F311L",
+                          End==130873028 & ALT=="G" ~ "F359C",
+                          End==130874971 & ALT=="C" ~ "A397P",
+                          End==130862854 & ALT=="G" ~ "H214R",
+                          End==130872146 & ALT=="C" ~ "V280syn",
+                          End==130872161 & ALT=="T" ~ "K285N",
+                          End==130872923 & ALT=="G" ~ "L324R",
+                          End==130872983 & ALT=="T" ~ "A344D",
+                          End==130872145 & ALT=="A" ~ "V280E",
+                          End==130872200 & ALT=="A" ~ "L298Lsyn",
+                          End==130874932 & ALT=="A" ~ "L384M",
+                          End==130880101 & ALT=="C" ~ "F486S",
+                          End==130880502 & ALT=="A" ~ "V506M",
+                          End==130872171 & ALT=="A" ~ "V289I"))
+d4=d4%>%
+  mutate(ALT=alt,End=end,mutant=case_when(End==130872896 & ALT=="T" ~ "T315I",
+                          End==130862970 & ALT=="C" ~ "Y253H",
+                          End==130862977 & ALT=="T" ~ "E255V",
+                          End==130873004 & ALT=="C" ~ "M351T",
+                          End==130862962 & ALT=="A" ~ "G250E",
+                          End==130874969 & ALT=="C" ~ "H396P",
+                          End==130862955 & ALT=="G" ~ "L248V",
+                          End==130874969 & ALT=="G" ~ "H396R",
+                          End==130862971 & ALT=="T" ~ "Y253F",
+                          End==130862969 & ALT=="T" ~ "Q252H",
+                          End==130862976 & ALT=="A" ~ "E255K",
+                          End==130872901 & ALT=="C" ~ "F317L",
+                          End==130873027 & ALT=="C" ~ "F359L",
+                          End==130873027 & ALT=="G" ~ "F359V",
+                          End==130873027 & ALT=="A" ~ "F359I",
+                          End==130873016 & ALT=="G" ~ "E355G",
+                          End==130873016 & ALT=="C" ~ "E355A",
+                          End==130878519 & ALT=="A" ~ "E459K",
+                          End==130872911 & ALT=="G" ~ "Y320C",
+                          End==130872133 & ALT=="G" ~ "D276G",
+                          End==130862969 & ALT=="C" ~ "Q252Hsyn", ###The mutants below were found only in the ENU mutagenized pools
+                          End==130872885 & ALT=="G" ~ "F311L",
+                          End==130873028 & ALT=="G" ~ "F359C",
+                          End==130874971 & ALT=="C" ~ "A397P",
+                          End==130862854 & ALT=="G" ~ "H214R",
+                          End==130872146 & ALT=="C" ~ "V280syn",
+                          End==130872161 & ALT=="T" ~ "K285N",
+                          End==130872923 & ALT=="G" ~ "L324R",
+                          End==130872983 & ALT=="T" ~ "A344D",
+                          End==130872145 & ALT=="A" ~ "V280E",
+                          End==130872200 & ALT=="A" ~ "L298Lsyn",
+                          End==130874932 & ALT=="A" ~ "L384M",
+                          End==130880101 & ALT=="C" ~ "F486S",
+                          End==130880502 & ALT=="A" ~ "V506M",
+                          End==130872171 & ALT=="A" ~ "V289I"))
+
+# ggplot(alldays,aes(x=time,y=alt_depth/depth))+geom_point(color="black",shape=21,size=3,aes(fill=mutant))+facet_wrap(~mutant)+cleanup+scale_y_continuous(trans = "log10",name="MAF")
+```
+```{r}
+d0=d0%>%mutate(percent=alt_depth*100/depth)
+d0$time="D0"
+d2$time="D2"
+d4$time="D4"
+alldays=rbind(d0,d2,d4)
+```
+
+Novogene Lane 2 March 26th 2021
+```{r}
+d0=read.table("../data/10kmutants_inhouse/A10k.1.consensus.variant-calls.novogenelane2.mut",header=T,stringsAsFactors = F,sep="\t")
+d2_300=read.table("../data/10kmutants_inhouse/Sp2_D2_300.1.consensus.variant-calls.novogenelane2.mut",header=T,stringsAsFactors = F,sep="\t")
+d2_600=read.table("../data/10kmutants_inhouse/Sp2_D2_600.1.consensus.variant-calls.novogenelane2.mut",header=T,stringsAsFactors = F,sep="\t")
+d4_300=read.table("../data/10kmutants_inhouse/Sp2_D4_300.1.consensus.variant-calls.novogenelane2.mut",header=T,stringsAsFactors = F,sep="\t")
+
+d0=d0%>%filter(!alt%in%"<DEL>",alt_depth<=12000,variation_type%in%"snv")
+d2_300=d2_300%>%filter(!alt%in%"<DEL>",alt_depth<=12000,variation_type%in%"snv")
+d2_600=d2_600%>%filter(!alt%in%"<DEL>",alt_depth<=12000,variation_type%in%"snv")
+d4_300=d4_300%>%filter(!alt%in%"<DEL>",alt_depth<=12000,variation_type%in%"snv")
+
+d0=d0%>%
+  mutate(ALT=alt,End=end,mutant=case_when(End==130872896 & ALT=="T" ~ "T315I",
+                          End==130862970 & ALT=="C" ~ "Y253H",
+                          End==130862977 & ALT=="T" ~ "E255V",
+                          End==130873004 & ALT=="C" ~ "M351T",
+                          End==130862962 & ALT=="A" ~ "G250E",
+                          End==130874969 & ALT=="C" ~ "H396P",
+                          End==130862955 & ALT=="G" ~ "L248V",
+                          End==130874969 & ALT=="G" ~ "H396R",
+                          End==130862971 & ALT=="T" ~ "Y253F",
+                          End==130862969 & ALT=="T" ~ "Q252H",
+                          End==130862976 & ALT=="A" ~ "E255K",
+                          End==130872901 & ALT=="C" ~ "F317L",
+                          End==130873027 & ALT=="C" ~ "F359L",
+                          End==130873027 & ALT=="G" ~ "F359V",
+                          End==130873027 & ALT=="A" ~ "F359I",
+                          End==130873016 & ALT=="G" ~ "E355G",
+                          End==130873016 & ALT=="C" ~ "E355A",
+                          End==130878519 & ALT=="A" ~ "E459K",
+                          End==130872911 & ALT=="G" ~ "Y320C",
+                          End==130872133 & ALT=="G" ~ "D276G",
+                          End==130862969 & ALT=="C" ~ "Q252Hsyn", ###The mutants below were found only in the ENU mutagenized pools
+                          End==130872885 & ALT=="G" ~ "F311L",
+                          End==130873028 & ALT=="G" ~ "F359C",
+                          End==130874971 & ALT=="C" ~ "A397P",
+                          End==130862854 & ALT=="G" ~ "H214R",
+                          End==130872146 & ALT=="C" ~ "V280syn",
+                          End==130872161 & ALT=="T" ~ "K285N",
+                          End==130872923 & ALT=="G" ~ "L324R",
+                          End==130872983 & ALT=="T" ~ "A344D",
+                          End==130872145 & ALT=="A" ~ "V280E",
+                          End==130872200 & ALT=="A" ~ "L298Lsyn",
+                          End==130874932 & ALT=="A" ~ "L384M",
+                          End==130880101 & ALT=="C" ~ "F486S",
+                          End==130880502 & ALT=="A" ~ "V506M",
+                          End==130872171 & ALT=="A" ~ "V289I"))
+
+d2=d2_300%>%
+  mutate(ALT=alt,End=end,mutant=case_when(End==130872896 & ALT=="T" ~ "T315I",
+                          End==130862970 & ALT=="C" ~ "Y253H",
+                          End==130862977 & ALT=="T" ~ "E255V",
+                          End==130873004 & ALT=="C" ~ "M351T",
+                          End==130862962 & ALT=="A" ~ "G250E",
+                          End==130874969 & ALT=="C" ~ "H396P",
+                          End==130862955 & ALT=="G" ~ "L248V",
+                          End==130874969 & ALT=="G" ~ "H396R",
+                          End==130862971 & ALT=="T" ~ "Y253F",
+                          End==130862969 & ALT=="T" ~ "Q252H",
+                          End==130862976 & ALT=="A" ~ "E255K",
+                          End==130872901 & ALT=="C" ~ "F317L",
+                          End==130873027 & ALT=="C" ~ "F359L",
+                          End==130873027 & ALT=="G" ~ "F359V",
+                          End==130873027 & ALT=="A" ~ "F359I",
+                          End==130873016 & ALT=="G" ~ "E355G",
+                          End==130873016 & ALT=="C" ~ "E355A",
+                          End==130878519 & ALT=="A" ~ "E459K",
+                          End==130872911 & ALT=="G" ~ "Y320C",
+                          End==130872133 & ALT=="G" ~ "D276G",
+                          End==130862969 & ALT=="C" ~ "Q252Hsyn", ###The mutants below were found only in the ENU mutagenized pools
+                          End==130872885 & ALT=="G" ~ "F311L",
+                          End==130873028 & ALT=="G" ~ "F359C",
+                          End==130874971 & ALT=="C" ~ "A397P",
+                          End==130862854 & ALT=="G" ~ "H214R",
+                          End==130872146 & ALT=="C" ~ "V280syn",
+                          End==130872161 & ALT=="T" ~ "K285N",
+                          End==130872923 & ALT=="G" ~ "L324R",
+                          End==130872983 & ALT=="T" ~ "A344D",
+                          End==130872145 & ALT=="A" ~ "V280E",
+                          End==130872200 & ALT=="A" ~ "L298Lsyn",
+                          End==130874932 & ALT=="A" ~ "L384M",
+                          End==130880101 & ALT=="C" ~ "F486S",
+                          End==130880502 & ALT=="A" ~ "V506M",
+                          End==130872171 & ALT=="A" ~ "V289I"))
+
+d4=d4_300%>%
+  mutate(ALT=alt,End=end,mutant=case_when(End==130872896 & ALT=="T" ~ "T315I",
+                          End==130862970 & ALT=="C" ~ "Y253H",
+                          End==130862977 & ALT=="T" ~ "E255V",
+                          End==130873004 & ALT=="C" ~ "M351T",
+                          End==130862962 & ALT=="A" ~ "G250E",
+                          End==130874969 & ALT=="C" ~ "H396P",
+                          End==130862955 & ALT=="G" ~ "L248V",
+                          End==130874969 & ALT=="G" ~ "H396R",
+                          End==130862971 & ALT=="T" ~ "Y253F",
+                          End==130862969 & ALT=="T" ~ "Q252H",
+                          End==130862976 & ALT=="A" ~ "E255K",
+                          End==130872901 & ALT=="C" ~ "F317L",
+                          End==130873027 & ALT=="C" ~ "F359L",
+                          End==130873027 & ALT=="G" ~ "F359V",
+                          End==130873027 & ALT=="A" ~ "F359I",
+                          End==130873016 & ALT=="G" ~ "E355G",
+                          End==130873016 & ALT=="C" ~ "E355A",
+                          End==130878519 & ALT=="A" ~ "E459K",
+                          End==130872911 & ALT=="G" ~ "Y320C",
+                          End==130872133 & ALT=="G" ~ "D276G",
+                          End==130862969 & ALT=="C" ~ "Q252Hsyn", ###The mutants below were found only in the ENU mutagenized pools
+                          End==130872885 & ALT=="G" ~ "F311L",
+                          End==130873028 & ALT=="G" ~ "F359C",
+                          End==130874971 & ALT=="C" ~ "A397P",
+                          End==130862854 & ALT=="G" ~ "H214R",
+                          End==130872146 & ALT=="C" ~ "V280syn",
+                          End==130872161 & ALT=="T" ~ "K285N",
+                          End==130872923 & ALT=="G" ~ "L324R",
+                          End==130872983 & ALT=="T" ~ "A344D",
+                          End==130872145 & ALT=="A" ~ "V280E",
+                          End==130872200 & ALT=="A" ~ "L298Lsyn",
+                          End==130874932 & ALT=="A" ~ "L384M",
+                          End==130880101 & ALT=="C" ~ "F486S",
+                          End==130880502 & ALT=="A" ~ "V506M",
+                          End==130872171 & ALT=="A" ~ "V289I"))
+
+```
+
+```{r}
+###Heree I'm trying to see what the range of things in clinvar is
+# clinvar=read.table("/Users/haiderinam/Downloads/clinvar_filtered.txt",header = T,stringsAsFactors = F)
+
+clinvar=read.table("/Users/haiderinam/Downloads/clinvar_proteins_filtered.txt",stringsAsFactors = F,col.names = c("mutant","1"))
+clinvar=clinvar%>%dplyr::select(mutant)
+clinvar$position=as.numeric(substring(clinvar$mutant,2,4))
+
+ggplot(clinvar,aes(x=position))+geom_bar()
+
+```
+Reading the output of the galaxy pipeline looking at nucleotide variants
+```{r}
+ranomics=read.table("/Users/haiderinam/Downloads/ranomics_il3indep_dcs.tabular",header = F,stringsAsFactors = F)
+# ranomics=ranomics%>%filter(!V12==0,!V1%in%"bwa_SSCS")%>%dplyr::select(!c(V2,V4,V5,V6,V7))
+ranomics=ranomics%>%filter(!V12==0,!V1%in%"bwa_SSCS")
+ranomics=ranomics%>%filter(V12<=0.3,V9>=1)
+# (unique(ranomics$V3))
+
+# ranomics=read.table("/Users/haiderinam/Downloads/ranomics_il3indep_dcs.tabular",header = T,stringsAsFactors = F,na.strings = "NA",""," ",fill=T,quote='')
+
+####From the twinstrand pipeline
+# ranomics=read.table("/Users/haiderinam/Downloads/il3_indep_1.1.consensus.variant-calls.mut.tsv",header = F,stringsAsFactors = F)
+# table2=table2%>%filter()
+# sort(unique(table2$start))
+# sort(unique(ranomics$V3))
+ranomics_merged=c(sort(unique(table2$end)),sort(unique(ranomics$V3)))
+sort(unique(ranomics_merged))
+ranomics_merged=as.data.frame(ranomics_merged)
+ranomics_merged_counted=ranomics_merged%>%group_by(ranomics_merged)%>%summarize(ct=n())
+
+
+ranomics=read.table("/Users/haiderinam/Downloads/ranomics_il3_indep_sscs.tabular",header = F,stringsAsFactors = F)
+# ranomics=ranomics%>%filter(!V12==0,!V1%in%"bwa")%>%dplyr::select(!c(V2,V4,V5,V6,V7))
+ranomics=ranomics%>%filter(!V12==0,!V1%in%"bwa")
+ranomics=ranomics%>%filter(V12<=0.3,V9>=1)
+(unique(ranomics$V3))
+table1=table1%>%filter(sample%in%"il3_indep_1.1",!variation_type%in%c("indel","sv"))
+table2=table1
+ranomics_merged=c(sort(unique(table2$end)),sort(unique(ranomics$V3)))
+sort(unique(ranomics_merged))
+ranomics_merged=as.data.frame(ranomics_merged)
+ranomics_merged_counted=ranomics_merged%>%group_by(ranomics_merged)%>%summarize(ct=n())
+ranomics_merged_overlapping=ranomics_merged_counted%>%filter(ct%in%2)
+grep(ranomics$V3,ranomics_merged_overlapping$ranomics_merged)
+
+ggplot(ranomics,aes(x=V12))+geom_histogram()+scale_x_continuous(trans="log10")
+# library(ggplot2)
+table1$maf=table1$alt_depth/table1$depth
+ggplot(table1,aes(x=maf))+geom_histogram()+scale_x_continuous(trans="log10")
+```
+
+
+```{r}
+###SSCS data
+ranomics=read.table("/Users/haiderinam/Downloads/ranomicsiL3_filtered.tab",header = F,stringsAsFactors = F)
+colnames(ranomics)=c("sample","chr","pos","A","C","G","t","CVRG","ALLELES","MAJOR","MINOR","MAF","BIAS")
+ranomics=ranomics%>%filter(!MAF==0,!sample%in%"bwa_SSCS")
+ranomics=ranomics%>%filter(MAF<=0.3,ALLELES>=1)
+
+ranomics=ranomics%>%mutate(C=case_when(MAJOR=="C"~0,
+                                       TRUE~as.numeric(C)))
+ranomics=ranomics%>%mutate(G=case_when(MAJOR=="G"~0,
+                                       TRUE~as.numeric(G)))
+ranomics=ranomics%>%mutate(A=case_when(MAJOR=="A"~0,
+                                       TRUE~as.numeric(A)))
+ranomics=ranomics%>%mutate(t=case_when(MAJOR=="T"~0,
+                                       TRUE~as.numeric(t)))
+
+ranomics_filtered=ranomics%>%filter(A<=5000,C<=5000,G<=5000,t<=5000)
+ranomics_A=ranomics_filtered%>%dplyr::select(A)%>%filter(!A==0)
+ranomics_G=ranomics_filtered%>%dplyr::select(G)%>%filter(!G==0)
+ranomics_C=ranomics_filtered%>%dplyr::select(C)%>%filter(!C==0)
+ranomics_t=ranomics_filtered%>%dplyr::select(t)%>%filter(!t==0)
+
+ranomics_melted=melt(ranomics%>%select(pos,A,C,G,t,CVRG,MAJOR),id.vars =c("pos","CVRG","MAJOR"),variable.name = "MINOR",value.name = "Count" )
+ranomics_melted=ranomics_melted%>%arrange(desc(pos))%>%mutate(MAF_post=Count/CVRG)
+ranomics_melted=ranomics_melted%>%filter(MAJOR!=MINOR)
+ranomics_melted_il3=ranomics_melted
+# A=case_when(MAJOR=="A"~0),
+#                            G=case_when(MAJOR=="G"~0),
+#                            T=case_when(MAJOR=="T"~0),
+
+###DCS data
+# ranomics=read.table("/Users/haiderinam/Downloads/ranomics_iL3indep_dcs.tab",header = F,stringsAsFactors = F)
+
+
+```
+
+
+looking at sorted 2
+```{r}
+# ranomics=read.table("/Users/haiderinam/Downloads/sorted2_sscs2.tabular",header = F,stringsAsFactors = F)
+ranomics=read.table("/Users/haiderinam/Downloads/sorted2_sscs.tabular",header = F,stringsAsFactors = F)
+colnames(ranomics)=c("sample","chr","pos","A","C","G","t","CVRG","ALLELES","MAJOR","MINOR","MAF","BIAS")
+
+ranomics=ranomics%>%filter(!MAF==0,!sample%in%"bwa_SSCS")
+ranomics=ranomics%>%filter(MAF<=0.3,ALLELES>=1)
+
+ranomics=ranomics%>%mutate(C=case_when(MAJOR=="C"~0,
+                                       TRUE~as.numeric(C)))
+ranomics=ranomics%>%mutate(G=case_when(MAJOR=="G"~0,
+                                       TRUE~as.numeric(G)))
+ranomics=ranomics%>%mutate(A=case_when(MAJOR=="A"~0,
+                                       TRUE~as.numeric(A)))
+ranomics=ranomics%>%mutate(t=case_when(MAJOR=="T"~0,
+                                       TRUE~as.numeric(t)))
+
+ranomics_filtered=ranomics%>%filter(A<=5000,C<=5000,G<=5000,t<=5000)
+ranomics_A=ranomics_filtered%>%dplyr::select(A)%>%filter(!A==0)
+ranomics_G=ranomics_filtered%>%dplyr::select(G)%>%filter(!G==0)
+ranomics_C=ranomics_filtered%>%dplyr::select(C)%>%filter(!C==0)
+ranomics_t=ranomics_filtered%>%dplyr::select(t)%>%filter(!t==0)
+
+ranomics_melted=melt(ranomics%>%select(pos,A,C,G,t,CVRG,MAJOR),id.vars =c("pos","CVRG","MAJOR"),variable.name = "MINOR",value.name = "Count" )
+ranomics_melted=ranomics_melted%>%arrange(desc(pos))%>%mutate(MAF_pre=Count/CVRG)
+ranomics_melted=ranomics_melted%>%filter(MAJOR!=MINOR)
+ranomics_melted_sorted=ranomics_melted
+ggplot(ranomics_melted%>%filter(Count<=100),aes(x=Count))+geom_histogram(bins=100)+scale_x_continuous(name="Minor Allele Reads")+scale_y_continuous(name="")
+
+```
+
+```{r}
+#Note that this chunk uses the ranomics sorted and il3 chunks above
+ranomics_merged=merge(ranomics_melted_sorted%>%dplyr::select(pos,MAJOR,MINOR,MAF_pre),
+                      ranomics_melted_il3%>%dplyr::select(pos,MINOR,MAF_post),by=c("pos","MINOR"),all=T)
+###included the following line to include all mutants regardless of whether they were found in the dataset. There's probably a better way to code this up though
+ranomics_merged=ranomics_merged%>%
+  mutate(MAF_post=case_when(MAF_post%in%NA~0,
+                            TRUE~MAF_post))
+
+ranomics_merged=ranomics_merged%>%mutate(RI=MAF_post/MAF_pre,log2RI=log2(MAF_post/MAF_pre))
+ranomics_merged=ranomics_merged%>%
+  mutate(category=case_when(log2RI%in%"-Inf"~"Extinction",
+                            TRUE~"No-extinction"))
+ranomics_merged$pos_id=ranomics_merged%>%group_indices(pos)
+
+
+
+ranomics_merged=ranomics_merged%>%mutate(log2RI=case_when(log2RI%in%"-Inf"~-5,
+                                                          TRUE~log2RI))
+
+ranomics_merged_forexport=ranomics_merged%>%filter(!log2RI%in%c(NaN,Inf,-Inf,NA))%>%dplyr::select(log2RI)
+write.csv(ranomics_merged_forexport,"ranomics_merged.csv")
+#####Looking at non-log-transformed values#####
+ranomics_merged_forexport=ranomics_merged%>%filter(!RI%in%c(NaN,Inf,-Inf,NA))%>%dplyr::select(RI)
+write.csv(ranomics_merged_forexport,"ranomics_merged_nolog.csv")
+##############################
+
+ggplot(ranomics_merged,aes(x=RI))+geom_histogram()
+# library("plotrix")
+library("ggforce")
+ggplot(ranomics_merged,aes(x=log2RI))+geom_histogram()+facet_wrap(~category)
+ggplot(ranomics_merged,aes(x=log2RI))+
+  geom_histogram(bins=19)+
+  facet_zoom(ylim=c(0,125))+
+  scale_x_continuous(name="Enrichment Score")+
+  scale_y_continuous(name="Count")+
+  theme(panel.background = element_blank(),
+        panel.grid.major = element_blank(),
+        panel.grid.major.y = element_blank())
+
+# a=ranomics_merged%>%filter(!log2RI%in%c(NaN,Inf,-Inf,NA))
+# gap.barplot(a$log2RI,gap=c(-3,-4.5),xlab="Index",ylab="Group values",main="Barplot with gap")
+# ,ytics=c(3,6,17,20)
+
+# ggsave("ABL1mutagenesis_hist_52521_opt1.pdf",width = 6,height = 3,units = "in")
+
+
+ggplot(ranomics_merged,aes(x=pos_id,y=log2RI,fill=category))+geom_col()+
+  facet_wrap(~MINOR)
+# ggplot(ranomics_merged,aes(x=pos_id,y=log2RI,color=category,fill=MINOR))+geom_point()+facet_wrap(~MINOR)
+ggsave("ABL1mutagenesis_bypos_updated_52421.pdf",width = 6,height = 3,units = "in")
+
+# install.packages("ggforce")
+
+# install.packages("plotrix")
+
+write.csv(ranomics_merged,"ranomics_abl_data.csv")
+
+
+```
+
+```{r}
+###Making dummy data
+positions=100
+aas=20
+dummydata=matrix(NA,nrow = positions*aas,ncol = 2)
+i=1
+for(position in 1:positions){
+  for(aa in c("A","G","I","L","P","V","F","W","Y","D","E","R","H","K","S","T","C","M","N","Q")){
+    dummydata[i,1]=position
+    dummydata[i,2]=aa
+  i=i+1
+  }
+}
+dummydata=data.frame(dummydata)
+colnames(dummydata)=c("position","aa")
+dummydata$aa=factor(dummydata$aa,levels=c("A","G","I","L","P","V","F","W","Y","D","E","R","H","K","S","T","C","M","N","Q"))
+dummydata=dummydata%>%rowwise()%>%mutate(present=rbinom(1,1,.4),
+                                         Growthrate=rnorm(1,0.05,.03))
+dummydata$position=as.numeric(dummydata$position)
+
+ggplot(dummydata,aes(x=position,y=factor(aa)))+
+  geom_tile(color="black",aes(fill=factor(present)))+
+  scale_x_discrete(expand = c(0,0),name="Position on the ABL Kinase")+
+  scale_y_discrete(expand = c(0,0),name="Amino Acid")+
+  scale_fill_brewer()+
+  # theme(plot.title = element_text(hjust = 0.5),axis.text.x=element_text(angle=90,hjust=.5,vjust=.5),axis.text=element_text(face="bold",size="9",color="black"),legend.position = "none")
+  theme(plot.title = element_text(hjust = 0.5),axis.text.x=element_text(angle=90,hjust=.5,vjust=.5),axis.text=element_text(face="bold",size="9",color="black"))
+# ggsave("abl1_transformations_heatmap.pdf",width = 8,height = 4,units = "in",useDingbats=F)
+
+ggplot(dummydata,aes(x=position,y=factor(aa),fill=Growthrate))+
+  geom_tile()+
+  # geom_tile(color="black",aes(fill=growthrate))+
+  scale_x_discrete(expand = c(0,0),name="Position on the ABL Kinase")+
+  scale_y_discrete(expand = c(0,0),name="Amino Acid")+
+  # scale_fill_brewer()+
+  # theme(plot.title = element_text(hjust = 0.5),axis.text.x=element_text(angle=90,hjust=.5,vjust=.5),axis.text=element_text(face="bold",size="9",color="black"),legend.position = "none")
+  theme(plot.title = element_text(hjust = 0.5),axis.text.x=element_text(angle=90,hjust=.5,vjust=.5),axis.text=element_text(face="bold",size="9",color="black"))
+
+```
+

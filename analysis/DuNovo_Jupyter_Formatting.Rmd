@@ -1,0 +1,473 @@
+---
+title: "DuNovo_Jupyter_Formatting"
+author: "Haider Inam"
+date: "9/21/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(dplyr)
+library(ggplot2)
+library(reshape2)
+library(plotly)
+```
+
+```{r}
+# out=read.table(filename,header = F)
+# # out=out[-length(out)]
+# names(out)=scan(filename,what="",n=13,sep="\t")
+```
+
+
+```{r}
+files=list.files("../data/Dunovo/ToDo/")
+for(i in 1:length(files)){
+  filename=paste("../data/Dunovo/ToDo/",files[i],sep = "")
+  variants_raw=read.csv(filename,
+                        header=T,
+                        stringsAsFactors = F,
+                        check.names = F)
+  
+  variants_raw=variants_raw[,-1]
+  variants_raw=variants_raw%>%filter(POS>=130862000,
+                                     POS<=130884200,
+                                     CVRG>=2000,
+                                     !MINOR%in%".")
+  # ggplot(variants_raw,aes(x=MAF))+geom_histogram()
+  
+  variants_raw=variants_raw%>%dplyr::select(!c("MINOR","MAF"))
+  variants_updated=melt(variants_raw,
+                        id.vars = c("CHR","POS","CVRG","ALLELES","MAJOR","BIAS"),
+                        measure.vars = c("A","C","G","T"),
+                        variable.name = "MINOR",
+                        value.name = "Nucleotide_Ct")
+  variants_updated=variants_updated%>%mutate(MAF=Nucleotide_Ct/CVRG)%>%
+    filter(!Nucleotide_Ct%in%0,!MAF>=.9,!MAJOR==MINOR)
+  variants_updated=variants_updated%>%dplyr::select(c(CHR,POS,CVRG,ALLELES,MAJOR,MINOR,MAF,Nucleotide_Ct,BIAS))
+  # head(variants_updated)
+  variants_updated$REF=variants_updated$MAJOR
+  variants_updated$ALT=variants_updated$MINOR
+  write.csv(variants_updated,gsub(x=(files[i]),pattern = ".csv",replacement="_routput.csv"))
+}
+
+
+```
+Standalone Chunk
+```{r}
+variants_raw=read.csv("../data/Dunovo/il3indep_2_novogenelane4_galaxy_output.csv",header=T,stringsAsFactors = F,check.names = F)
+
+variants_raw=variants_raw[,-1]
+variants_raw=variants_raw%>%filter(POS>=130862000,
+                                   POS<=130884200,
+                                   CVRG>=2000,
+                                   !MINOR%in%".")
+ggplot(variants_raw,aes(x=MAF))+geom_histogram()
+
+variants_raw=variants_raw%>%dplyr::select(!c("MINOR","MAF"))
+variants_updated=melt(variants_raw,
+                      id.vars = c("CHR","POS","CVRG","ALLELES","MAJOR","BIAS"),
+                      measure.vars = c("A","C","G","T"),
+                      variable.name = "MINOR",
+                      value.name = "Nucleotide_Ct")
+variants_updated=variants_updated%>%mutate(MAF=Nucleotide_Ct/CVRG)%>%
+  filter(!Nucleotide_Ct%in%0,!MAF>=.9,!MAJOR==MINOR)
+variants_updated=variants_updated%>%dplyr::select(c(CHR,POS,CVRG,ALLELES,MAJOR,MINOR,MAF,Nucleotide_Ct,BIAS))
+head(variants_updated)
+variants_updated$REF=variants_updated$MAJOR
+variants_updated$ALT=variants_updated$MINOR
+write.csv(variants_updated,"il3indep2_novogenelane4_routput.csv")
+```
+
+```{r}
+rm(list=ls())
+il3indep2=read.csv("../data/Dunovo/il3indep2_novogenelane4_routput_processedSep-22-2021.csv")
+il3indep2=il3indep2%>%dplyr::select(-X,-Unnamed..0,-BIAS)
+il3indep3=read.csv("../data/Dunovo/il3indep3_novogenelane4_routput_processedSep-22-2021.csv")
+il3indep3=il3indep3%>%dplyr::select(-X,-Unnamed..0,-BIAS)
+
+il3indep4=read.csv("../data/Dunovo/il3indep4_novogenelane4_routput_processedSep-22-2021.csv")
+il3indep4=il3indep4%>%dplyr::select(-X,-Unnamed..0,-BIAS)
+
+il3=rbind(il3indep2,il3indep3,il3indep4)
+il3=il3%>%filter(variant_classification%in%"['missense_variant']")
+il3$substitution=paste(il3$protein_pos,il3$codon_change,sep="")
+sort(unique(il3$substitution))
+
+
+
+```
+
+```{r}
+############RP4Medium#################
+
+rp4Mediumd4=read.csv("../data/Dunovo/RP4/RP4_Medium_D4_Duplex_routput_processedSep-23-2021.csv")
+rp4Mediumd4=rp4Mediumd4%>%dplyr::select(-X,-Unnamed..0,-BIAS)%>%filter(variant_classification%in%"['missense_variant']")
+# rp4Medium=rp4Medium%>%dplyr::select(-X,-Unnamed..0,-BIAS)
+rp4Mediumd4=rp4Mediumd4%>%rowwise()%>%mutate(aa_change2=gsub(x = aa_change,pattern = "/",replacement = protein_pos))
+rp4Mediumd4_simple=rp4Mediumd4%>%dplyr::select(aa_change2,protein_pos,MAF_D4=MAF)
+
+rp4Mediumd2=read.csv("../data/Dunovo/RP4/RP4_Medium_D2_Duplex_routput_processedSep-23-2021.csv")
+rp4Mediumd2=rp4Mediumd2%>%dplyr::select(-X,-Unnamed..0,-BIAS)%>%filter(variant_classification%in%"['missense_variant']")
+# rp4Medium=rp4Medium%>%dplyr::select(-X,-Unnamed..0,-BIAS)
+rp4Mediumd2=rp4Mediumd2%>%rowwise()%>%mutate(aa_change2=gsub(x = aa_change,pattern = "/",replacement = protein_pos))
+rp4Mediumd2_simple=rp4Mediumd2%>%dplyr::select(aa_change2,protein_pos,MAF_D2=MAF)
+
+
+rp4Mediummerged=merge(rp4Mediumd2_simple,rp4Mediumd4_simple,by = c("aa_change2","protein_pos"))%>%filter(protein_pos<=400)
+rp4Mediummerged$enrichment=log10(rp4Mediummerged$MAF_D4/rp4Mediummerged$MAF_D2)
+# sort(unique((rp4Mediummerged$aa_change2)))
+# rp4Mediumd2_simple
+
+############RP5Medium#################
+
+rp5Mediumd4=read.csv("../data/Dunovo/RP5/RP5_Medium_D4_Duplex_routput_processedSep-23-2021.csv")
+rp5Mediumd4=rp5Mediumd4%>%dplyr::select(-X,-Unnamed..0,-BIAS)%>%filter(variant_classification%in%"['missense_variant']")
+# rp5Medium=rp5Medium%>%dplyr::select(-X,-Unnamed..0,-BIAS)
+rp5Mediumd4=rp5Mediumd4%>%rowwise()%>%mutate(aa_change2=gsub(x = aa_change,pattern = "/",replacement = protein_pos))
+rp5Mediumd4_simple=rp5Mediumd4%>%dplyr::select(aa_change2,protein_pos,MAF_D4=MAF)
+
+rp5Mediumd2=read.csv("../data/Dunovo/RP5/RP5_Medium_D2_Duplex_routput_processedSep-23-2021.csv")
+rp5Mediumd2=rp5Mediumd2%>%dplyr::select(-X,-Unnamed..0,-BIAS)%>%filter(variant_classification%in%"['missense_variant']")
+# rp5Medium=rp5Medium%>%dplyr::select(-X,-Unnamed..0,-BIAS)
+rp5Mediumd2=rp5Mediumd2%>%rowwise()%>%mutate(aa_change2=gsub(x = aa_change,pattern = "/",replacement = protein_pos))
+rp5Mediumd2_simple=rp5Mediumd2%>%dplyr::select(aa_change2,protein_pos,MAF_D2=MAF)
+
+
+rp5Mediummerged=merge(rp5Mediumd2_simple,rp5Mediumd4_simple,by = c("aa_change2","protein_pos"))%>%filter(protein_pos<=400)
+rp5Mediummerged$enrichment=log10(rp5Mediummerged$MAF_D4/rp5Mediummerged$MAF_D2)
+rp5Mediummerged$enrichmentRP5Medium=rp5Mediummerged$enrichment
+rp4Mediummerged$enrichmentRP4Medium=rp4Mediummerged$enrichment
+
+rp4rp5Mediummerged=merge(rp5Mediummerged,rp4Mediummerged,by=c("aa_change2","protein_pos"))
+ggplot(rp4rp5Mediummerged%>%filter(enrichmentRP5Medium<=2.5,enrichmentRP5Medium>=-2.5,enrichmentRP4Medium<=2.5,enrichmentRP4Medium>=-2.5),
+       aes(x=enrichmentRP4Medium,y=enrichmentRP5Medium))+geom_point()
+
+
+ggplot(rp4rp5Mediummerged%>%filter(enrichmentRP5Medium<=2.5,enrichmentRP5Medium>=-2.5,enrichmentRP4Medium<=2.5,enrichmentRP4Medium>=-2.5),
+       aes(x=enrichmentRP4Medium,y=enrichmentRP5Medium))+geom_point()
+
+```
+
+```{r}
+rm(list=ls())
+############RP4Medium#################
+
+rp4Mediumd4=read.csv("../data/Dunovo/RP4/RP4_Medium_D4_Duplex_routput_processedSep-23-2021.csv")
+rp4Mediumd4=rp4Mediumd4%>%dplyr::select(-X,-Unnamed..0,-BIAS)%>%filter(variant_classification%in%"['missense_variant']")
+# rp4Medium=rp4Medium%>%dplyr::select(-X,-Unnamed..0,-BIAS)
+rp4Mediumd4=rp4Mediumd4%>%rowwise()%>%mutate(aa_change2=gsub(x = aa_change,pattern = "/",replacement = protein_pos))
+rp4Mediumd4_simple=rp4Mediumd4%>%dplyr::select(aa_change2,protein_pos,MAF_D4=MAF)
+
+rp4Mediumd2=read.csv("../data/Dunovo/RP4/RP4_Medium_D2_Duplex_routput_processedSep-23-2021.csv")
+rp4Mediumd2=rp4Mediumd2%>%dplyr::select(-X,-Unnamed..0,-BIAS)%>%filter(variant_classification%in%"['missense_variant']")
+# rp4Medium=rp4Medium%>%dplyr::select(-X,-Unnamed..0,-BIAS)
+rp4Mediumd2=rp4Mediumd2%>%rowwise()%>%mutate(aa_change2=gsub(x = aa_change,pattern = "/",replacement = protein_pos))
+rp4Mediumd2_simple=rp4Mediumd2%>%dplyr::select(aa_change2,protein_pos,MAF_D2=MAF)
+
+
+rp4Mediummerged=merge(rp4Mediumd2_simple,rp4Mediumd4_simple,by = c("aa_change2","protein_pos"))%>%filter(protein_pos<=400)
+rp4Mediummerged$enrichment=log10(rp4Mediummerged$MAF_D4/rp4Mediummerged$MAF_D2)
+# sort(unique((rp4Mediummerged$aa_change2)))
+# rp4Mediumd2_simple
+
+############RP5Medium#################
+
+rp5Mediumd4=read.csv("../data/Dunovo/RP5/RP5_Medium_D4_Duplex_routput_processedSep-23-2021.csv")
+rp5Mediumd4=rp5Mediumd4%>%dplyr::select(-X,-Unnamed..0,-BIAS)%>%filter(variant_classification%in%"['missense_variant']")
+# rp5Medium=rp5Medium%>%dplyr::select(-X,-Unnamed..0,-BIAS)
+rp5Mediumd4=rp5Mediumd4%>%rowwise()%>%mutate(aa_change2=gsub(x = aa_change,pattern = "/",replacement = protein_pos))
+rp5Mediumd4_simple=rp5Mediumd4%>%dplyr::select(aa_change2,protein_pos,MAF_D4=MAF)
+
+rp5Mediumd2=read.csv("../data/Dunovo/RP5/RP5_Medium_D2_Duplex_routput_processedSep-23-2021.csv")
+rp5Mediumd2=rp5Mediumd2%>%dplyr::select(-X,-Unnamed..0,-BIAS)%>%filter(variant_classification%in%"['missense_variant']")
+# rp5Medium=rp5Medium%>%dplyr::select(-X,-Unnamed..0,-BIAS)
+rp5Mediumd2=rp5Mediumd2%>%rowwise()%>%mutate(aa_change2=gsub(x = aa_change,pattern = "/",replacement = protein_pos))
+rp5Mediumd2_simple=rp5Mediumd2%>%dplyr::select(aa_change2,protein_pos,MAF_D2=MAF)
+
+
+rp5Mediummerged=merge(rp5Mediumd2_simple,rp5Mediumd4_simple,by = c("aa_change2","protein_pos"))%>%filter(protein_pos<=400)
+rp5Mediummerged$enrichment=log10(rp5Mediummerged$MAF_D4/rp5Mediummerged$MAF_D2)
+rp5Mediummerged$enrichmentRP5Medium=rp5Mediummerged$enrichment
+rp4Mediummerged$enrichmentRP4Medium=rp4Mediummerged$enrichment
+
+rp4rp5Mediummerged=merge(rp5Mediummerged,rp4Mediummerged,by=c("aa_change2","protein_pos"))
+ggplot(rp4rp5Mediummerged%>%filter(enrichmentRP5Medium<=2.5,enrichmentRP5Medium>=-2.5,enrichmentRP4Medium<=2.5,enrichmentRP4Medium>=-2.5),
+       aes(x=enrichmentRP4Medium,y=enrichmentRP5Medium))+geom_point()
+
+observed_pos=c(248,250,252,253,255,315,351,355,359,396,459)
+rp4rp5Mediummerged=rp4rp5Mediummerged%>%
+  mutate(clinobserved=case_when(protein_pos%in%observed_pos~T,
+                                T~F))
+
+ggplot(rp4rp5Mediummerged%>%filter(enrichmentRP5Medium<=2.5,enrichmentRP5Medium>=-2.5,enrichmentRP4Medium<=2.5,enrichmentRP4Medium>=-2.5),
+       aes(x=enrichmentRP4Medium,y=enrichmentRP5Medium,color=clinobserved))+geom_point()
+
+plotly=ggplot(rp4rp5Mediummerged%>%filter(enrichmentRP5Medium<=2.5,enrichmentRP5Medium>=-2.5,enrichmentRP4Medium<=2.5,enrichmentRP4Medium>=-2.5),
+       aes(x=enrichmentRP4Medium,y=enrichmentRP5Medium,label=aa_change2,color=clinobserved))+geom_text()
+ggplotly(plotly)
+
+
+cor(rp4rp5Mediummerged$enrichmentRP5Medium,rp4rp5Mediummerged$enrichmentRP4Medium)
+cor(rp4rp5Mediummerged$enrichmentRP5Medium,rp4rp5Mediummerged$enrichmentRP4Medium,method="spearman")
+```
+
+```{r}
+# library(dplyr)
+
+# 
+# a=rp4Mediumd4%>%group_by(protein_pos)%>%mutate(subs_pos=n())
+a=rp4Mediumd4%>%group_by(protein_pos)%>%mutate(n=n())
+b=a%>%filter(n==1)
+
+rm(list=ls())
+############RP4Medium#################
+
+rp4Mediumd4=read.csv("../data/Dunovo/RP4/RP4_Medium_D4_SSCS_routput_processedSep-23-2021.csv")
+  rp4Mediumd4=rp4Mediumd4%>%group_by(protein_pos,REF)%>%mutate(n=n())%>%filter(n%in%1)
+# rp4Mediumd4=rp4Mediumd4%>%dplyr::select(-X,-Unnamed..0,-BIAS)
+rp4Mediumd4=rp4Mediumd4%>%dplyr::select(-X,-Unnamed..0,-BIAS)%>%filter(variant_classification%in%"['missense_variant']")
+# rp4Medium=rp4Medium%>%dplyr::select(-X,-Unnamed..0,-BIAS)
+rp4Mediumd4=rp4Mediumd4%>%rowwise()%>%mutate(aa_change2=gsub(x = aa_change,pattern = "/",replacement = protein_pos))
+rp4Mediumd4_simple=rp4Mediumd4%>%dplyr::select(aa_change2,protein_pos,MAF_D4=MAF)
+
+rp4Mediumd2=read.csv("../data/Dunovo/RP4/RP4_Medium_D2_SSCS_routput_processedSep-23-2021.csv")
+  rp4Mediumd2=rp4Mediumd2%>%group_by(protein_pos,REF)%>%mutate(n=n())%>%filter(n%in%1)
+# rp4Mediumd2=rp4Mediumd2%>%dplyr::select(-X,-Unnamed..0,-BIAS)
+rp4Mediumd2=rp4Mediumd2%>%dplyr::select(-X,-Unnamed..0,-BIAS)%>%filter(variant_classification%in%"['missense_variant']")
+# rp4Medium=rp4Medium%>%dplyr::select(-X,-Unnamed..0,-BIAS)
+rp4Mediumd2=rp4Mediumd2%>%rowwise()%>%mutate(aa_change2=gsub(x = aa_change,pattern = "/",replacement = protein_pos))
+rp4Mediumd2_simple=rp4Mediumd2%>%dplyr::select(aa_change2,protein_pos,MAF_D2=MAF)
+
+
+rp4Mediummerged=merge(rp4Mediumd2_simple,rp4Mediumd4_simple,by = c("aa_change2","protein_pos"))%>%filter(protein_pos<=400)
+rp4Mediummerged$enrichment=log10(rp4Mediummerged$MAF_D4/rp4Mediummerged$MAF_D2)
+# sort(unique((rp4Mediummerged$aa_change2)))
+# rp4Mediumd2_simple
+
+############RP5Medium#################
+
+rp5Mediumd4=read.csv("../data/Dunovo/RP5/RP5_Medium_D4_SSCS_routput_processedSep-23-2021.csv")
+  rp5Mediumd4=rp5Mediumd4%>%group_by(protein_pos,REF)%>%mutate(n=n())%>%filter(n%in%1)
+# rp5Mediumd4=rp5Mediumd4%>%dplyr::select(-X,-Unnamed..0,-BIAS)
+rp5Mediumd4=rp5Mediumd4%>%dplyr::select(-X,-Unnamed..0,-BIAS)%>%filter(variant_classification%in%"['missense_variant']")
+# rp5Medium=rp5Medium%>%dplyr::select(-X,-Unnamed..0,-BIAS)
+rp5Mediumd4=rp5Mediumd4%>%rowwise()%>%mutate(aa_change2=gsub(x = aa_change,pattern = "/",replacement = protein_pos))
+rp5Mediumd4_simple=rp5Mediumd4%>%dplyr::select(aa_change2,protein_pos,MAF_D4=MAF)
+
+rp5Mediumd2=read.csv("../data/Dunovo/RP5/RP5_Medium_D2_SSCS_routput_processedSep-23-2021.csv")
+  rp5Mediumd2=rp5Mediumd2%>%group_by(protein_pos,REF)%>%mutate(n=n())%>%filter(n%in%1)
+# rp5Mediumd2=rp5Mediumd2%>%dplyr::select(-X,-Unnamed..0,-BIAS)
+rp5Mediumd2=rp5Mediumd2%>%dplyr::select(-X,-Unnamed..0,-BIAS)%>%filter(variant_classification%in%"['missense_variant']")
+# rp5Medium=rp5Medium%>%dplyr::select(-X,-Unnamed..0,-BIAS)
+rp5Mediumd2=rp5Mediumd2%>%rowwise()%>%mutate(aa_change2=gsub(x = aa_change,pattern = "/",replacement = protein_pos))
+rp5Mediumd2_simple=rp5Mediumd2%>%dplyr::select(aa_change2,protein_pos,MAF_D2=MAF)
+
+
+rp5Mediummerged=merge(rp5Mediumd2_simple,rp5Mediumd4_simple,by = c("aa_change2","protein_pos"))%>%filter(protein_pos<=400)
+rp5Mediummerged$enrichment=log10(rp5Mediummerged$MAF_D4/rp5Mediummerged$MAF_D2)
+rp5Mediummerged$enrichmentRP5Medium=rp5Mediummerged$enrichment
+rp4Mediummerged$enrichmentRP4Medium=rp4Mediummerged$enrichment
+
+rp4rp5Mediummerged=merge(rp5Mediummerged,rp4Mediummerged,by=c("aa_change2","protein_pos"))
+ggplot(rp4rp5Mediummerged%>%filter(enrichmentRP5Medium<=2.5,enrichmentRP5Medium>=-2.5,enrichmentRP4Medium<=2.5,enrichmentRP4Medium>=-2.5),
+       aes(x=enrichmentRP4Medium,y=enrichmentRP5Medium))+geom_point()
+
+observed_pos=c(248,250,252,253,255,315,351,355,359,396,459)
+rp4rp5Mediummerged=rp4rp5Mediummerged%>%
+  mutate(clinobserved=case_when(protein_pos%in%observed_pos~T,
+                                T~F))
+
+ggplot(rp4rp5Mediummerged%>%filter(enrichmentRP5Medium<=2.5,enrichmentRP5Medium>=-2.5,enrichmentRP4Medium<=2.5,enrichmentRP4Medium>=-2.5),
+       aes(x=enrichmentRP4Medium,y=enrichmentRP5Medium,color=clinobserved))+geom_point()
+
+plotly=ggplot(rp4rp5Mediummerged%>%filter(enrichmentRP5Medium<=2.5,enrichmentRP5Medium>=-2.5,enrichmentRP4Medium<=2.5,enrichmentRP4Medium>=-2.5),
+       aes(x=enrichmentRP4Medium,y=enrichmentRP5Medium,label=aa_change2,color=clinobserved))+geom_text()
+ggplotly(plotly)
+
+
+cor(rp4rp5Mediummerged$enrichmentRP5Medium,rp4rp5Mediummerged$enrichmentRP4Medium)
+cor(rp4rp5Mediummerged$enrichmentRP5Medium,rp4rp5Mediummerged$enrichmentRP4Medium,method="spearman")
+```
+
+
+```{r}
+rm(list=ls())
+############RP4Medium#################
+
+rp4Mediumd4=read.csv("../data/Dunovo/RP4/RP4_Medium_D4_SSCS_routput_processedSep-23-2021.csv")
+rp4Mediumd4=rp4Mediumd4%>%dplyr::select(-X,-Unnamed..0,-BIAS)%>%filter(variant_classification%in%"['missense_variant']")
+# rp4Medium=rp4Medium%>%dplyr::select(-X,-Unnamed..0,-BIAS)
+rp4Mediumd4=rp4Mediumd4%>%rowwise()%>%mutate(aa_change2=gsub(x = aa_change,pattern = "/",replacement = protein_pos))
+rp4Mediumd4_simple=rp4Mediumd4%>%dplyr::select(aa_change2,protein_pos,MAF_D4=MAF)
+
+rp4Mediumd2=read.csv("../data/Dunovo/RP4/RP4_Medium_D2_SSCS_routput_processedSep-23-2021.csv")
+rp4Mediumd2=rp4Mediumd2%>%dplyr::select(-X,-Unnamed..0,-BIAS)%>%filter(variant_classification%in%"['missense_variant']")
+# rp4Medium=rp4Medium%>%dplyr::select(-X,-Unnamed..0,-BIAS)
+rp4Mediumd2=rp4Mediumd2%>%rowwise()%>%mutate(aa_change2=gsub(x = aa_change,pattern = "/",replacement = protein_pos))
+rp4Mediumd2_simple=rp4Mediumd2%>%dplyr::select(aa_change2,protein_pos,MAF_D2=MAF)
+
+
+rp4Mediummerged=merge(rp4Mediumd2_simple,rp4Mediumd4_simple,by = c("aa_change2","protein_pos"))%>%filter(protein_pos<=400)
+rp4Mediummerged$enrichment=log10(rp4Mediummerged$MAF_D4/rp4Mediummerged$MAF_D2)
+# sort(unique((rp4Mediummerged$aa_change2)))
+# rp4Mediumd2_simple
+
+############RP5Medium#################
+
+rp5Mediumd4=read.csv("../data/Dunovo/RP5/RP5_Medium_D4_SSCS_routput_processedSep-23-2021.csv")
+rp5Mediumd4=rp5Mediumd4%>%dplyr::select(-X,-Unnamed..0,-BIAS)%>%filter(variant_classification%in%"['missense_variant']")
+# rp5Medium=rp5Medium%>%dplyr::select(-X,-Unnamed..0,-BIAS)
+rp5Mediumd4=rp5Mediumd4%>%rowwise()%>%mutate(aa_change2=gsub(x = aa_change,pattern = "/",replacement = protein_pos))
+rp5Mediumd4_simple=rp5Mediumd4%>%dplyr::select(aa_change2,protein_pos,MAF_D4=MAF)
+
+rp5Mediumd2=read.csv("../data/Dunovo/RP5/RP5_Medium_D2_SSCS_routput_processedSep-23-2021.csv")
+rp5Mediumd2=rp5Mediumd2%>%dplyr::select(-X,-Unnamed..0,-BIAS)%>%filter(variant_classification%in%"['missense_variant']")
+# rp5Medium=rp5Medium%>%dplyr::select(-X,-Unnamed..0,-BIAS)
+rp5Mediumd2=rp5Mediumd2%>%rowwise()%>%mutate(aa_change2=gsub(x = aa_change,pattern = "/",replacement = protein_pos))
+rp5Mediumd2_simple=rp5Mediumd2%>%dplyr::select(aa_change2,protein_pos,MAF_D2=MAF)
+
+
+rp5Mediummerged=merge(rp5Mediumd2_simple,rp5Mediumd4_simple,by = c("aa_change2","protein_pos"))%>%filter(protein_pos<=400)
+rp5Mediummerged$enrichment=log10(rp5Mediummerged$MAF_D4/rp5Mediummerged$MAF_D2)
+rp5Mediummerged$enrichmentRP5Medium=rp5Mediummerged$enrichment
+rp4Mediummerged$enrichmentRP4Medium=rp4Mediummerged$enrichment
+
+rp4rp5Mediummerged=merge(rp5Mediummerged,rp4Mediummerged,by=c("aa_change2","protein_pos"))
+ggplot(rp4rp5Mediummerged%>%filter(enrichmentRP5Medium<=2.5,enrichmentRP5Medium>=-2.5,enrichmentRP4Medium<=2.5,enrichmentRP4Medium>=-2.5),
+       aes(x=enrichmentRP4Medium,y=enrichmentRP5Medium))+geom_point()
+
+
+ggplot(rp4rp5Mediummerged%>%filter(enrichmentRP5Medium<=2.5,enrichmentRP5Medium>=-2.5,enrichmentRP4Medium<=2.5,enrichmentRP4Medium>=-2.5),
+       aes(x=enrichmentRP4Medium,y=enrichmentRP5Medium))+geom_point()
+
+```
+
+Medium
+
+```{r}
+rm(list=ls())
+############RP4Medium#################
+
+rp4Mediumd4=read.csv("../data/Dunovo/RP4/RP4_Low_D4_SSCS_routput_processedSep-23-2021.csv")
+
+rp4Mediumd4=rp4Mediumd4%>%dplyr::select(-X,-Unnamed..0,-BIAS)%>%filter(variant_classification%in%"['missense_variant']")
+  rp4Mediumd4=rp4Mediumd4%>%filter(Nucleotide_Ct>=2)
+# rp4Medium=rp4Medium%>%dplyr::select(-X,-Unnamed..0,-BIAS)
+rp4Mediumd4=rp4Mediumd4%>%rowwise()%>%mutate(aa_change2=gsub(x = aa_change,pattern = "/",replacement = protein_pos))
+rp4Mediumd4_simple=rp4Mediumd4%>%dplyr::select(aa_change2,protein_pos,MAF_D4=MAF)
+
+rp4Mediumd2=read.csv("../data/Dunovo/RP4/RP4_Low_D2_SSCS_routput_processedSep-23-2021.csv")
+  rp4Mediumd2=rp4Mediumd2%>%filter(Nucleotide_Ct>=2)
+rp4Mediumd2=rp4Mediumd2%>%dplyr::select(-X,-Unnamed..0,-BIAS)%>%filter(variant_classification%in%"['missense_variant']")
+# rp4Medium=rp4Medium%>%dplyr::select(-X,-Unnamed..0,-BIAS)
+rp4Mediumd2=rp4Mediumd2%>%rowwise()%>%mutate(aa_change2=gsub(x = aa_change,pattern = "/",replacement = protein_pos))
+rp4Mediumd2_simple=rp4Mediumd2%>%dplyr::select(aa_change2,protein_pos,MAF_D2=MAF)
+
+
+rp4Mediummerged=merge(rp4Mediumd2_simple,rp4Mediumd4_simple,by = c("aa_change2","protein_pos"))%>%filter(protein_pos<=400)
+rp4Mediummerged$enrichment=log10(rp4Mediummerged$MAF_D4/rp4Mediummerged$MAF_D2)
+# sort(unique((rp4Mediummerged$aa_change2)))
+# rp4Mediumd2_simple
+
+############RP5Medium#################
+
+rp5Mediumd4=read.csv("../data/Dunovo/RP5/RP5_Low_D4_SSCS_routput_processedSep-23-2021.csv")
+  rp5Mediumd4=rp5Mediumd4%>%filter(Nucleotide_Ct>=2)
+rp5Mediumd4=rp5Mediumd4%>%dplyr::select(-X,-Unnamed..0,-BIAS)%>%filter(variant_classification%in%"['missense_variant']")
+# rp5Medium=rp5Medium%>%dplyr::select(-X,-Unnamed..0,-BIAS)
+rp5Mediumd4=rp5Mediumd4%>%rowwise()%>%mutate(aa_change2=gsub(x = aa_change,pattern = "/",replacement = protein_pos))
+rp5Mediumd4_simple=rp5Mediumd4%>%dplyr::select(aa_change2,protein_pos,MAF_D4=MAF)
+
+rp5Mediumd2=read.csv("../data/Dunovo/RP5/RP5_Low_D2_SSCS_routput_processedSep-23-2021.csv")
+  rp5Mediumd2=rp5Mediumd2%>%filter(Nucleotide_Ct>=2)
+rp5Mediumd2=rp5Mediumd2%>%dplyr::select(-X,-Unnamed..0,-BIAS)%>%filter(variant_classification%in%"['missense_variant']")
+# rp5Medium=rp5Medium%>%dplyr::select(-X,-Unnamed..0,-BIAS)
+rp5Mediumd2=rp5Mediumd2%>%rowwise()%>%mutate(aa_change2=gsub(x = aa_change,pattern = "/",replacement = protein_pos))
+rp5Mediumd2_simple=rp5Mediumd2%>%dplyr::select(aa_change2,protein_pos,MAF_D2=MAF)
+
+
+rp5Mediummerged=merge(rp5Mediumd2_simple,rp5Mediumd4_simple,by = c("aa_change2","protein_pos"))%>%filter(protein_pos<=400)
+rp5Mediummerged$enrichment=log10(rp5Mediummerged$MAF_D4/rp5Mediummerged$MAF_D2)
+rp5Mediummerged$enrichmentRP5Medium=rp5Mediummerged$enrichment
+rp4Mediummerged$enrichmentRP4Medium=rp4Mediummerged$enrichment
+
+rp4rp5Mediummerged=merge(rp5Mediummerged,rp4Mediummerged,by=c("aa_change2","protein_pos"))
+ggplot(rp4rp5Mediummerged%>%filter(enrichmentRP5Medium<=2.5,enrichmentRP5Medium>=-2.5,enrichmentRP4Medium<=2.5,enrichmentRP4Medium>=-2.5),
+       aes(x=enrichmentRP4Medium,y=enrichmentRP5Medium))+geom_point()
+
+
+ggplot(rp4rp5Mediummerged%>%filter(enrichmentRP5Medium<=2.5,enrichmentRP5Medium>=-2.5,enrichmentRP4Medium<=2.5,enrichmentRP4Medium>=-2.5),
+       aes(x=enrichmentRP4Medium,y=enrichmentRP5Medium,label=aa_change2))+geom_text()
+# a=rp4rp5Mediummerged%>%filter(enrichmentRP5Medium<=2.5,enrichmentRP5Medium>=-2.5,enrichmentRP4Medium<=2.5,enrichmentRP4Medium>=-2.5)
+# cor(a$enrichmentRP4Medium,a$enrichmentRP5Medium)
+
+
+ggplot(rp4rp5Mediummerged,aes(x=10^(enrichmentRP4Medium),y=10^(enrichmentRP5Medium)))+geom_point()+scale_x_continuous(limits = c(0,3))+scale_y_continuous(limits = c(0,3))
+
+
+rp4rp5Mediumd2=merge(rp4Mediumd2_simple,rp5Mediumd2_simple,by=c("aa_change2","protein_pos"))
+ggplot(rp4rp5Mediumd2,aes(x=MAF_D2.x,y=MAF_D2.y))+geom_point()+scale_x_continuous(trans="log10")+scale_y_continuous(trans="log10")
+ggplot(rp4rp5Mediumd2%>%filter(MAF_D2.x<=.05,MAF_D2.y<=.05),aes(x=MAF_D2.x,y=MAF_D2.y))+geom_point()+scale_x_continuous(trans="log10")+scale_y_continuous(trans="log10")
+
+ggplot(rp4rp5Mediumd2,aes(x=MAF_D2.x,y=MAF_D2.y,label=aa_change2))+geom_text()+scale_x_continuous(trans="log10")+scale_y_continuous(trans="log10")
+
+rp4rp5Mediumd4=merge(rp4Mediumd4_simple,rp5Mediumd4_simple,by=c("aa_change2","protein_pos"))
+ggplot(rp4rp5Mediumd4,aes(x=MAF_D4.x,y=MAF_D4.y))+geom_point()+scale_x_continuous(trans="log10")+scale_y_continuous(trans="log10")
+
+ggplot(rp4rp5Mediumd4,aes(x=MAF_D4.x,y=MAF_D4.y,label=aa_change2))+geom_text()+scale_x_continuous(trans="log10")+scale_y_continuous(trans="log10")
+
+ggplot(rp4rp5Mediumd4%>%filter(MAF_D4.x<=.05,MAF_D4.y<=.05),aes(x=MAF_D4.x,y=MAF_D4.y))+geom_point()+scale_x_continuous(trans="log10")+scale_y_continuous(trans="log10")
+
+a=rp4rp5Mediumd4%>%filter(MAF_D4.x<=.05,MAF_D4.y<=.05)
+cor(a$MAF_D4.x,a$MAF_D4.y)
+
+plotly=ggplot(rp4rp5Mediumd4,aes(x=MAF_D4.x,y=MAF_D4.y,label=aa_change2))+geom_text()+scale_x_continuous(trans="log10")+scale_y_continuous(trans="log10")
+ggplotly(plotly)
+
+plotly=ggplot(rp4rp5Mediumd2,aes(x=MAF_D2.x,y=MAF_D2.y,label=aa_change2))+geom_text()+scale_x_continuous(trans="log10")+scale_y_continuous(trans="log10")
+ggplotly(plotly)
+```
+For BMES
+```{r}
+cleanup=theme_bw() +
+  theme(plot.title = element_text(hjust=.5),
+        panel.grid.major = element_blank(),
+        panel.grid.major.y = element_blank(),
+        panel.background = element_blank(),
+        # axis.line = element_line(color = "black"),
+        axis.text = element_text(color="black",size="11"),
+        text=element_text(size=11),
+        axis.title=element_text(face="bold",size="11"))
+
+rp4rp5Mediumd2=merge(rp4Mediumd2_simple,rp5Mediumd2_simple,by=c("aa_change2","protein_pos"))
+ggplot(rp4rp5Mediumd2,aes(x=MAF_D2.x,y=MAF_D2.y))+
+  geom_point(color="black",shape=21,size=3,fill="gray50")+
+  geom_abline()+
+  scale_x_continuous(name="Allele Frequency Replicate 1",trans="log10")+
+  scale_y_continuous(name="Allele Frequency Replicate 2",trans="log10")+
+  cleanup
+
+ggsave("bmes2021_MAF_D2.pdf",width=4,height=3,units="in",useDingbats=F)
+
+ggplot(rp4rp5Mediumd2%>%filter(MAF_D2.x<=.05,MAF_D2.y<=.05),aes(x=MAF_D2.x,y=MAF_D2.y))+geom_point()+scale_x_continuous(trans="log10")+scale_y_continuous(trans="log10")
+cor(rp4rp5Mediumd2$MAF_D2.x,rp4rp5Mediumd2$MAF_D2.y,method="pearson")
+
+rp4rp5Mediumd4=merge(rp4Mediumd4_simple,rp5Mediumd4_simple,by=c("aa_change2","protein_pos"))
+ggplot(rp4rp5Mediumd4,aes(x=MAF_D4.x,y=MAF_D4.y))+
+  geom_point(color="black",shape=21,size=3,fill="gray50")+
+  geom_abline()+
+  scale_x_continuous(name="Allele Frequency Replicate 1",trans="log10")+
+  scale_y_continuous(name="Allele Frequency Replicate 2",trans="log10")+
+  cleanup
+ggsave("bmes2021_MAF_D4.pdf",width=4,height=3,units="in",useDingbats=F)
+
+a=rp4rp5Mediumd4%>%filter(MAF_D4.x<=.2,MAF_D4.y<=.2)
+cor(a$MAF_D4.x,a$MAF_D4.y,method="pearson")
+
+a=rp4rp5Mediumd2%>%filter(MAF_D2.x<=.2,MAF_D2.y<=.2)
+cor(a$MAF_D2.x,a$MAF_D2.y,method="pearson")
+
+
+```
+

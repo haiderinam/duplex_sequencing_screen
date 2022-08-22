@@ -1,0 +1,25 @@
+Counts Spreadsheet,
+experiment,"7 experiments in totla. 5 spike-ins. 2 mutagenized spike-ins. M3, M4, M5, M6, M7, Enu_3, and Enu_4"
+Annotation,describes data in experiments
+Spike_in_freq,M3 M5 and M7 are at 1000. M4 and M6 are at 1 in 5000
+time_point,"0 days or 3 days or 6 days. Aka 0, 72, or 144 hours"
+mutant,mutant
+AltDepth,Duplex consensus reads at that genomic position for the indel for that mutant.
+Depth,Total duplex consensus reads at that genomic position
+totalcells_live_counted_facs,This is the number of live cells that I counted at that time point for that experiments.
+totalmutant,Total mutant is: AltDepth/Depth*Total Live Cells. This is the estimate of the total live population of that mutant at that time point (not just the MAF)
+,
+,
+Growthrates Spreadsheet,
+experiment,Same as above
+Spike_in_freq,Same as above
+duration,"The timepoints used to calculate net growth rates. D0-D3 or D0-D6 or D3-D6. I usually default to the D3-D6 duration when comparing all experiments because the only experiments for which we have D0 data are M3, M6, and Enu_4."
+mutant,mutant
+net_gr_wodrug_perhours,Constant for everything. 13 hour doubling time.
+netgr_wodrug_perdays,Constant for everything. 13 hour doubling time.
+netgr_obs,Per hours. Calculated with: ln(count at final time point/count at initial time point)/(delta in the time points)
+drug_effect_obs,Per hours. Calculated with: growth rate without drug - Growth rate with drug
+conc_for_ic50_predictions,800nM is the concentration I used for IC50 predictions.
+y_pred,y is percentage alive at 72 hours into IC50s.
+drug_effect_pred,"drug effect, or alphas, predicted via IC50s. This is -ln(y)/t."
+netgr_pred,The predicted net growth rate is: net growth rate without drug (the constant) - Predicted Net growth rate with drug

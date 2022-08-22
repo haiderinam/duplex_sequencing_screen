@@ -1,0 +1,246 @@
+"","experiment","Annotation","Spike_in_freq","time_point","mutant","AltDepth","Depth","totalcells_live_counted_facs","totalmutant"
+"1","M3","1:1 Spike in at 1:1000 D0",1000,"D0","L248V",36,35182,493000,504.462509237678
+"2","M3","1:1 Spike in at 1:1000 D0",1000,"D0","G250E",26,33060,493000,387.719298245614
+"3","M3","1:1 Spike in at 1:1000 D0",1000,"D0","Q252H",31,34845,493000,438.599512125126
+"4","M3","1:1 Spike in at 1:1000 D0",1000,"D0","Y253H",21,34710,493000,298.271391529818
+"5","M3","1:1 Spike in at 1:1000 D0",1000,"D0","Y253F",22,34623,493000,313.259971695116
+"6","M3","1:1 Spike in at 1:1000 D0",1000,"D0","E255K",15,33852,493000,218.450903934775
+"7","M3","1:1 Spike in at 1:1000 D0",1000,"D0","E255V",26,33135,493000,386.841708163573
+"8","M3","1:1 Spike in at 1:1000 D0",1000,"D0","T315I",57,32442,493000,866.191973367857
+"9","M3","1:1 Spike in at 1:1000 D0",1000,"D0","F317L",35,32907,493000,524.356519889385
+"10","M3","1:1 Spike in at 1:1000 D0",1000,"D0","M351T",33,30511,493000,533.217528104618
+"11","M3","1:1 Spike in at 1:1000 D0",1000,"D0","E355G",28,27258,493000,506.420133538778
+"12","M3","1:1 Spike in at 1:1000 D0",1000,"D0","E355A",20,27250,493000,361.834862385321
+"13","M3","1:1 Spike in at 1:1000 D0",1000,"D0","F359L",31,24208,493000,631.320224719101
+"14","M3","1:1 Spike in at 1:1000 D0",1000,"D0","F359I",25,24202,493000,509.255433435253
+"15","M3","1:1 Spike in at 1:1000 D0",1000,"D0","F359V",20,24197,493000,407.488531636153
+"16","M3","1:1 Spike in at 1:1000 D0",1000,"D0","H396P",38,39576,493000,473.367697594502
+"17","M3","1:1 Spike in at 1:1000 D0",1000,"D0","H396R",28,39566,493000,348.885406662286
+"18","M3","1:1 Spike in at 1:1000 D0",1000,"D0","E459K",36,34985,493000,507.30312991282
+"19","M6","1:1 Spike in at 1:5000 D0",5000,"D0","Q252H",4,11929,510000,171.011819934613
+"20","M6","1:1 Spike in at 1:5000 D0",5000,"D0","Y253H",3,11770,510000,129.99150382328
+"21","M6","1:1 Spike in at 1:5000 D0",5000,"D0","T315I",6,13575,510000,225.414364640884
+"22","M6","1:1 Spike in at 1:5000 D0",5000,"D0","F317L",3,13503,510000,113.308153743613
+"23","M6","1:1 Spike in at 1:5000 D0",5000,"D0","E355G",4,11579,510000,176.181017359012
+"24","M6","1:1 Spike in at 1:5000 D0",5000,"D0","H396R",4,16332,510000,124.908155767818
+"25","M3","1:1 Spike in at 1:1000, Imatinib treated, D3, Replicate 1",1000,"D3","L248V",283,26790,1295000,13679.9178798059
+"26","M3","1:1 Spike in at 1:1000, Imatinib treated, D3, Replicate 1",1000,"D3","G250E",504,25191,1295000,25909.2533047517
+"27","M3","1:1 Spike in at 1:1000, Imatinib treated, D3, Replicate 1",1000,"D3","Q252H",114,26329,1295000,5607.12522313798
+"28","M3","1:1 Spike in at 1:1000, Imatinib treated, D3, Replicate 1",1000,"D3","Y253H",878,26269,1295000,43283.3377745632
+"29","M3","1:1 Spike in at 1:1000, Imatinib treated, D3, Replicate 1",1000,"D3","Y253F",66,26187,1295000,3263.83319967923
+"30","M3","1:1 Spike in at 1:1000, Imatinib treated, D3, Replicate 1",1000,"D3","E255K",111,25596,1295000,5615.91654946085
+"31","M3","1:1 Spike in at 1:1000, Imatinib treated, D3, Replicate 1",1000,"D3","E255V",678,24979,1295000,35149.9259377877
+"32","M3","1:1 Spike in at 1:1000, Imatinib treated, D3, Replicate 1",1000,"D3","T315I",1375,24268,1295000,73373.372342179
+"33","M3","1:1 Spike in at 1:1000, Imatinib treated, D3, Replicate 1",1000,"D3","F317L",97,24731,1295000,5079.25275969431
+"34","M3","1:1 Spike in at 1:1000, Imatinib treated, D3, Replicate 1",1000,"D3","M351T",372,23002,1295000,20943.3962264151
+"35","M3","1:1 Spike in at 1:1000, Imatinib treated, D3, Replicate 1",1000,"D3","E355A",70,20248,1295000,4476.98538127222
+"36","M3","1:1 Spike in at 1:1000, Imatinib treated, D3, Replicate 1",1000,"D3","E355G",30,20208,1295000,1922.50593824228
+"37","M3","1:1 Spike in at 1:1000, Imatinib treated, D3, Replicate 1",1000,"D3","F359V",70,18061,1295000,5019.1019323404
+"38","M3","1:1 Spike in at 1:1000, Imatinib treated, D3, Replicate 1",1000,"D3","F359I",37,18028,1295000,2657.81007321944
+"39","M3","1:1 Spike in at 1:1000, Imatinib treated, D3, Replicate 1",1000,"D3","F359L",7,17998,1295000,503.667074119347
+"40","M3","1:1 Spike in at 1:1000, Imatinib treated, D3, Replicate 1",1000,"D3","H396P",449,30389,1295000,19133.7326006121
+"41","M3","1:1 Spike in at 1:1000, Imatinib treated, D3, Replicate 1",1000,"D3","H396R",120,30060,1295000,5169.66067864271
+"42","M3","1:1 Spike in at 1:1000, Imatinib treated, D3, Replicate 1",1000,"D3","E459K",54,25791,1295000,2711.41095731069
+"43","M5","1:1 Spike in at 1:1000, Imatinib treated, D3, Replicate 2",1000,"D3","L248V",330,24223,1299000,17696.8170746811
+"44","M5","1:1 Spike in at 1:1000, Imatinib treated, D3, Replicate 2",1000,"D3","G250E",1192,22882,1299000,67669.2596800979
+"45","M5","1:1 Spike in at 1:1000, Imatinib treated, D3, Replicate 2",1000,"D3","Q252H",237,23977,1299000,12839.9299328523
+"46","M5","1:1 Spike in at 1:1000, Imatinib treated, D3, Replicate 2",1000,"D3","Y253H",2035,23800,1299000,111069.957983193
+"47","M5","1:1 Spike in at 1:1000, Imatinib treated, D3, Replicate 2",1000,"D3","Y253F",277,23722,1299000,15168.3247618245
+"48","M5","1:1 Spike in at 1:1000, Imatinib treated, D3, Replicate 2",1000,"D3","E255K",179,23283,1299000,9986.7285143667
+"49","M5","1:1 Spike in at 1:1000, Imatinib treated, D3, Replicate 2",1000,"D3","E255V",1549,22558,1299000,89198.9981381328
+"50","M5","1:1 Spike in at 1:1000, Imatinib treated, D3, Replicate 2",1000,"D3","T315I",2435,22470,1299000,140768.357810414
+"51","M5","1:1 Spike in at 1:1000, Imatinib treated, D3, Replicate 2",1000,"D3","F317L",155,22798,1299000,8831.69576278621
+"52","M5","1:1 Spike in at 1:1000, Imatinib treated, D3, Replicate 2",1000,"D3","M351T",891,21465,1299000,53920.7547169811
+"53","M5","1:1 Spike in at 1:1000, Imatinib treated, D3, Replicate 2",1000,"D3","E355A",50,19128,1299000,3395.54579673777
+"54","M5","1:1 Spike in at 1:1000, Imatinib treated, D3, Replicate 2",1000,"D3","E355G",45,19123,1299000,3056.79025257543
+"55","M5","1:1 Spike in at 1:1000, Imatinib treated, D3, Replicate 2",1000,"D3","F359V",82,16924,1299000,6293.90215079178
+"56","M5","1:1 Spike in at 1:1000, Imatinib treated, D3, Replicate 2",1000,"D3","F359I",54,16896,1299000,4151.63352272727
+"57","M5","1:1 Spike in at 1:1000, Imatinib treated, D3, Replicate 2",1000,"D3","F359L",12,16854,1299000,924.884300462798
+"58","M5","1:1 Spike in at 1:1000, Imatinib treated, D3, Replicate 2",1000,"D3","H396P",986,28225,1299000,45378.7068201949
+"59","M5","1:1 Spike in at 1:1000, Imatinib treated, D3, Replicate 2",1000,"D3","H396R",191,27430,1299000,9045.16952242071
+"60","M5","1:1 Spike in at 1:1000, Imatinib treated, D3, Replicate 2",1000,"D3","E459K",28,24182,1299000,1504.0939541808
+"61","M7","1:1 Spike in at 1:1000, Imatinib treated, D3, Replicate 3",1000,"D3","L248V",637,31482,857000,17340.3532177117
+"62","M7","1:1 Spike in at 1:1000, Imatinib treated, D3, Replicate 3",1000,"D3","G250E",1615,29468,857000,46968.0670557893
+"63","M7","1:1 Spike in at 1:1000, Imatinib treated, D3, Replicate 3",1000,"D3","Q252H",302,31114,857000,8318.24901973388
+"64","M7","1:1 Spike in at 1:1000, Imatinib treated, D3, Replicate 3",1000,"D3","Y253H",3518,30854,857000,97715.8877293058
+"65","M7","1:1 Spike in at 1:1000, Imatinib treated, D3, Replicate 3",1000,"D3","Y253F",289,30798,857000,8041.85336710176
+"66","M7","1:1 Spike in at 1:1000, Imatinib treated, D3, Replicate 3",1000,"D3","E255K",244,30169,857000,6931.22078955219
+"67","M7","1:1 Spike in at 1:1000, Imatinib treated, D3, Replicate 3",1000,"D3","E255V",1884,29116,857000,55453.6337408985
+"68","M7","1:1 Spike in at 1:1000, Imatinib treated, D3, Replicate 3",1000,"D3",NA,5,24080,857000,177.948504983389
+"69","M7","1:1 Spike in at 1:1000, Imatinib treated, D3, Replicate 3",1000,"D3","T315I",2691,29627,857000,77840.7196138657
+"70","M7","1:1 Spike in at 1:1000, Imatinib treated, D3, Replicate 3",1000,"D3","F317L",192,30198,857000,5448.83767136896
+"71","M7","1:1 Spike in at 1:1000, Imatinib treated, D3, Replicate 3",1000,"D3","M351T",1030,27898,857000,31640.6193992401
+"72","M7","1:1 Spike in at 1:1000, Imatinib treated, D3, Replicate 3",1000,"D3","E355G",120,25017,857000,4110.80465283607
+"73","M7","1:1 Spike in at 1:1000, Imatinib treated, D3, Replicate 3",1000,"D3","E355A",43,24940,857000,1477.58620689655
+"74","M7","1:1 Spike in at 1:1000, Imatinib treated, D3, Replicate 3",1000,"D3","F359V",120,22318,857000,4607.93977955014
+"75","M7","1:1 Spike in at 1:1000, Imatinib treated, D3, Replicate 3",1000,"D3","F359I",58,22256,857000,2233.37526959022
+"76","M7","1:1 Spike in at 1:1000, Imatinib treated, D3, Replicate 3",1000,"D3","F359L",4,22202,857000,154.400504459058
+"77","M7","1:1 Spike in at 1:1000, Imatinib treated, D3, Replicate 3",1000,"D3","H396P",1515,35420,857000,36655.9853190288
+"78","M7","1:1 Spike in at 1:1000, Imatinib treated, D3, Replicate 3",1000,"D3","H396R",294,34199,857000,7367.4084037545
+"79","M7","1:1 Spike in at 1:1000, Imatinib treated, D3, Replicate 3",1000,"D3","E459K",50,31648,857000,1353.95601617796
+"80","M4","1:1 Spike in at 1:5000, Imatinib treated, D3, Replicate 1",5000,"D3","L248V",24,12026,980000,1955.7625145518
+"81","M4","1:1 Spike in at 1:5000, Imatinib treated, D3, Replicate 1",5000,"D3","G250E",41,11482,980000,3499.39035011322
+"82","M4","1:1 Spike in at 1:5000, Imatinib treated, D3, Replicate 1",5000,"D3","Q252H",16,12266,980000,1278.33034404044
+"83","M4","1:1 Spike in at 1:5000, Imatinib treated, D3, Replicate 1",5000,"D3","Y253H",81,12169,980000,6523.13254992193
+"84","M4","1:1 Spike in at 1:5000, Imatinib treated, D3, Replicate 1",5000,"D3","Y253F",17,12156,980000,1370.51661730833
+"85","M4","1:1 Spike in at 1:5000, Imatinib treated, D3, Replicate 1",5000,"D3","E255K",6,11925,980000,493.081761006289
+"86","M4","1:1 Spike in at 1:5000, Imatinib treated, D3, Replicate 1",5000,"D3","E255V",58,11723,980000,4848.58824532969
+"87","M4","1:1 Spike in at 1:5000, Imatinib treated, D3, Replicate 1",5000,"D3","T315I",139,13866,980000,9824.03000144238
+"88","M4","1:1 Spike in at 1:5000, Imatinib treated, D3, Replicate 1",5000,"D3","F317L",16,13963,980000,1122.96784358662
+"89","M4","1:1 Spike in at 1:5000, Imatinib treated, D3, Replicate 1",5000,"D3","M351T",49,13442,980000,3572.38506174676
+"90","M4","1:1 Spike in at 1:5000, Imatinib treated, D3, Replicate 1",5000,"D3","E355A",9,12040,980000,732.558139534884
+"91","M4","1:1 Spike in at 1:5000, Imatinib treated, D3, Replicate 1",5000,"D3","E355G",6,12037,980000,488.493810750187
+"92","M4","1:1 Spike in at 1:5000, Imatinib treated, D3, Replicate 1",5000,"D3","F359V",4,10753,980000,364.549428066586
+"93","M4","1:1 Spike in at 1:5000, Imatinib treated, D3, Replicate 1",5000,"D3","H396P",74,16404,980000,4420.87295781517
+"94","M4","1:1 Spike in at 1:5000, Imatinib treated, D3, Replicate 1",5000,"D3","H396R",15,16345,980000,899.357601713062
+"95","M4","1:1 Spike in at 1:5000, Imatinib treated, D3, Replicate 1",5000,"D3","E459K",4,14580,980000,268.861454046639
+"96","M6","1:1 Spike in at 1:5000, Imatinib treated, D3, Replicate 2",5000,"D3","L248V",162,28974,798000,4461.79333195279
+"97","M6","1:1 Spike in at 1:5000, Imatinib treated, D3, Replicate 2",5000,"D3","G250E",440,27307,798000,12858.2414765445
+"98","M6","1:1 Spike in at 1:5000, Imatinib treated, D3, Replicate 2",5000,"D3","Q252H",96,28873,798000,2653.27468569252
+"99","M6","1:1 Spike in at 1:5000, Imatinib treated, D3, Replicate 2",5000,"D3","Y253H",760,28740,798000,21102.2964509395
+"100","M6","1:1 Spike in at 1:5000, Imatinib treated, D3, Replicate 2",5000,"D3","Y253F",126,28637,798000,3511.12197506722
+"101","M6","1:1 Spike in at 1:5000, Imatinib treated, D3, Replicate 2",5000,"D3","E255K",80,28008,798000,2279.34875749786
+"102","M6","1:1 Spike in at 1:5000, Imatinib treated, D3, Replicate 2",5000,"D3","E255V",536,27340,798000,15644.769568398
+"103","M6","1:1 Spike in at 1:5000, Imatinib treated, D3, Replicate 2",5000,"D3","T315I",798,27312,798000,23315.9050966608
+"104","M6","1:1 Spike in at 1:5000, Imatinib treated, D3, Replicate 2",5000,"D3","F317L",63,27762,798000,1810.89258698941
+"105","M6","1:1 Spike in at 1:5000, Imatinib treated, D3, Replicate 2",5000,"D3","M351T",435,26157,798000,13271.0173184998
+"106","M6","1:1 Spike in at 1:5000, Imatinib treated, D3, Replicate 2",5000,"D3","E355A",19,23355,798000,649.197174052665
+"107","M6","1:1 Spike in at 1:5000, Imatinib treated, D3, Replicate 2",5000,"D3","E355G",14,23350,798000,478.458244111349
+"108","M6","1:1 Spike in at 1:5000, Imatinib treated, D3, Replicate 2",5000,"D3","F359V",46,20842,798000,1761.25131945111
+"109","M6","1:1 Spike in at 1:5000, Imatinib treated, D3, Replicate 2",5000,"D3","F359I",16,20812,798000,613.492216029214
+"110","M6","1:1 Spike in at 1:5000, Imatinib treated, D3, Replicate 2",5000,"D3","H396P",338,34213,798000,7883.669950019
+"111","M6","1:1 Spike in at 1:5000, Imatinib treated, D3, Replicate 2",5000,"D3","H396R",94,33969,798000,2208.24869734169
+"112","M6","1:1 Spike in at 1:5000, Imatinib treated, D3, Replicate 2",5000,"D3","E459K",29,29465,798000,785.406414389954
+"113","M3","1:1 Spike in at 1:1000, Imatinib treated, D6, Replicate 1",1000,"D6","L248V",267,15291,13600000,237473.023347067
+"114","M3","1:1 Spike in at 1:1000, Imatinib treated, D6, Replicate 1",1000,"D6","G250E",1138,14421,13600000,1073212.67595867
+"115","M3","1:1 Spike in at 1:1000, Imatinib treated, D6, Replicate 1",1000,"D6","Q252H",78,15188,13600000,69844.6141690809
+"116","M3","1:1 Spike in at 1:1000, Imatinib treated, D6, Replicate 1",1000,"D6","Y253H",2849,15104,13600000,2565307.20338983
+"117","M3","1:1 Spike in at 1:1000, Imatinib treated, D6, Replicate 1",1000,"D6","Y253F",106,15045,13600000,95819.209039548
+"118","M3","1:1 Spike in at 1:1000, Imatinib treated, D6, Replicate 1",1000,"D6","E255K",68,14781,13600000,62566.8087409512
+"119","M3","1:1 Spike in at 1:1000, Imatinib treated, D6, Replicate 1",1000,"D6","E255V",2253,14113,13600000,2171104.65528236
+"120","M3","1:1 Spike in at 1:1000, Imatinib treated, D6, Replicate 1",1000,"D6","T315I",4654,15689,13600000,4034317.03741475
+"121","M3","1:1 Spike in at 1:1000, Imatinib treated, D6, Replicate 1",1000,"D6","F317L",55,16028,13600000,46668.3304217619
+"122","M3","1:1 Spike in at 1:1000, Imatinib treated, D6, Replicate 1",1000,"D6","Y320C",3,17604,13600000,2317.65507839127
+"123","M3","1:1 Spike in at 1:1000, Imatinib treated, D6, Replicate 1",1000,"D6","M351T",1215,14976,13600000,1103365.38461538
+"124","M3","1:1 Spike in at 1:1000, Imatinib treated, D6, Replicate 1",1000,"D6","E355G",13,13363,13600000,13230.561999551
+"125","M3","1:1 Spike in at 1:1000, Imatinib treated, D6, Replicate 1",1000,"D6","E355A",11,13361,13600000,11196.7667090787
+"126","M3","1:1 Spike in at 1:1000, Imatinib treated, D6, Replicate 1",1000,"D6","F359V",34,11878,13600000,38929.1126452265
+"127","M3","1:1 Spike in at 1:1000, Imatinib treated, D6, Replicate 1",1000,"D6","F359I",17,11861,13600000,19492.4542618666
+"128","M3","1:1 Spike in at 1:1000, Imatinib treated, D6, Replicate 1",1000,"D6","H396P",908,19331,13600000,638808.132015933
+"129","M3","1:1 Spike in at 1:1000, Imatinib treated, D6, Replicate 1",1000,"D6","H396R",153,18576,13600000,112015.503875969
+"130","M3","1:1 Spike in at 1:1000, Imatinib treated, D6, Replicate 1",1000,"D6","E459K",6,17013,13600000,4796.33221654029
+"131","M5","1:1 Spike in at 1:1000, Imatinib treated, D6, Replicate 2",1000,"D6","L248V",305,25649,11294000,134300.362587235
+"132","M5","1:1 Spike in at 1:1000, Imatinib treated, D6, Replicate 2",1000,"D6","G250E",2198,24486,11294000,1013812.46426529
+"133","M5","1:1 Spike in at 1:1000, Imatinib treated, D6, Replicate 2",1000,"D6","Q252H",117,25158,11294000,52523.9685189602
+"134","M5","1:1 Spike in at 1:1000, Imatinib treated, D6, Replicate 2",1000,"D6","Y253H",5316,25007,11294000,2400883.9125045
+"135","M5","1:1 Spike in at 1:1000, Imatinib treated, D6, Replicate 2",1000,"D6","Y253F",289,24960,11294000,130767.868589744
+"136","M5","1:1 Spike in at 1:1000, Imatinib treated, D6, Replicate 2",1000,"D6","E255K",82,24558,11294000,37711.0513885496
+"137","M5","1:1 Spike in at 1:1000, Imatinib treated, D6, Replicate 2",1000,"D6","E255V",3831,23478,11294000,1842887.55430616
+"138","M5","1:1 Spike in at 1:1000, Imatinib treated, D6, Replicate 2",1000,"D6","T315I",6470,23204,11294000,3149119.97931391
+"139","M5","1:1 Spike in at 1:1000, Imatinib treated, D6, Replicate 2",1000,"D6","F317L",58,23830,11294000,27488.543852287
+"140","M5","1:1 Spike in at 1:1000, Imatinib treated, D6, Replicate 2",1000,"D6","M351T",2084,22184,11294000,1060976.19906239
+"141","M5","1:1 Spike in at 1:1000, Imatinib treated, D6, Replicate 2",1000,"D6","E355G",7,19695,11294000,4014.11525767961
+"142","M5","1:1 Spike in at 1:1000, Imatinib treated, D6, Replicate 2",1000,"D6","E355A",6,19694,11294000,3440.84492738905
+"143","M5","1:1 Spike in at 1:1000, Imatinib treated, D6, Replicate 2",1000,"D6","F359V",24,17957,11294000,15094.7262905831
+"144","M5","1:1 Spike in at 1:1000, Imatinib treated, D6, Replicate 2",1000,"D6","F359I",6,17939,11294000,3777.46808629244
+"145","M5","1:1 Spike in at 1:1000, Imatinib treated, D6, Replicate 2",1000,"D6","H396P",1179,29642,11294000,449214.830308346
+"146","M5","1:1 Spike in at 1:1000, Imatinib treated, D6, Replicate 2",1000,"D6","H396R",236,28699,11294000,92873.7586675494
+"147","M5","1:1 Spike in at 1:1000, Imatinib treated, D6, Replicate 2",1000,"D6","E459K",10,24737,11294000,4565.63043214618
+"148","M7","1:1 Spike in at 1:1000, Imatinib treated, D6, Replicate 3",1000,"D6","L248V",248,29995,14568000,120448.874812469
+"149","M7","1:1 Spike in at 1:1000, Imatinib treated, D6, Replicate 3",1000,"D6","G250E",2705,28228,14568000,1396005.38472439
+"150","M7","1:1 Spike in at 1:1000, Imatinib treated, D6, Replicate 3",1000,"D6","Q252H",110,29233,14568000,54817.5007696781
+"151","M7","1:1 Spike in at 1:1000, Imatinib treated, D6, Replicate 3",1000,"D6","Y253H",9440,28956,14568000,4749341.06920845
+"152","M7","1:1 Spike in at 1:1000, Imatinib treated, D6, Replicate 3",1000,"D6","Y253F",206,28881,14568000,103909.421418926
+"153","M7","1:1 Spike in at 1:1000, Imatinib treated, D6, Replicate 3",1000,"D6","E255K",97,28521,14568000,49545.8083517408
+"154","M7","1:1 Spike in at 1:1000, Imatinib treated, D6, Replicate 3",1000,"D6","E255V",4401,27053,14568000,2369931.91143311
+"155","M7","1:1 Spike in at 1:1000, Imatinib treated, D6, Replicate 3",1000,"D6","T315I",5670,26590,14568000,3106452.04964272
+"156","M7","1:1 Spike in at 1:1000, Imatinib treated, D6, Replicate 3",1000,"D6","F317L",36,27210,14568000,19274.0904079383
+"157","M7","1:1 Spike in at 1:1000, Imatinib treated, D6, Replicate 3",1000,"D6","Y320C",3,29574,14568000,1477.78454047474
+"158","M7","1:1 Spike in at 1:1000, Imatinib treated, D6, Replicate 3",1000,"D6","M351T",1802,25137,14568000,1044338.46521065
+"159","M7","1:1 Spike in at 1:1000, Imatinib treated, D6, Replicate 3",1000,"D6","E355G",4,22310,14568000,2611.92290452712
+"160","M7","1:1 Spike in at 1:1000, Imatinib treated, D6, Replicate 3",1000,"D6","F359V",37,20032,14568000,26907.7476038339
+"161","M7","1:1 Spike in at 1:1000, Imatinib treated, D6, Replicate 3",1000,"D6","F359I",8,20003,14568000,5826.32605109234
+"162","M7","1:1 Spike in at 1:1000, Imatinib treated, D6, Replicate 3",1000,"D6","H396P",1128,33136,14568000,495916.948334138
+"163","M7","1:1 Spike in at 1:1000, Imatinib treated, D6, Replicate 3",1000,"D6","H396R",395,32403,14568000,177587.260438848
+"164","M7","1:1 Spike in at 1:1000, Imatinib treated, D6, Replicate 3",1000,"D6","E459K",15,27826,14568000,7853.087040897
+"165","M4","1:1 Spike in at 1:5000, Imatinib treated, D6, Replicate 1",5000,"D6","L248V",128,13790,1959000,18183.6113125453
+"166","M4","1:1 Spike in at 1:5000, Imatinib treated, D6, Replicate 1",5000,"D6","G250E",870,13171,1959000,129400.197403386
+"167","M4","1:1 Spike in at 1:5000, Imatinib treated, D6, Replicate 1",5000,"D6","Q252H",34,13920,1959000,4784.91379310345
+"168","M4","1:1 Spike in at 1:5000, Imatinib treated, D6, Replicate 1",5000,"D6","Y253H",2502,13765,1959000,356078.314565928
+"169","M4","1:1 Spike in at 1:5000, Imatinib treated, D6, Replicate 1",5000,"D6","Y253F",108,13720,1959000,15420.6997084548
+"170","M4","1:1 Spike in at 1:5000, Imatinib treated, D6, Replicate 1",5000,"D6","E255K",32,13546,1959000,4627.78680053152
+"171","M4","1:1 Spike in at 1:5000, Imatinib treated, D6, Replicate 1",5000,"D6","E255V",2027,12983,1959000,305853.269660325
+"172","M4","1:1 Spike in at 1:5000, Imatinib treated, D6, Replicate 1",5000,"D6","T315I",4634,14440,1959000,628670.775623269
+"173","M4","1:1 Spike in at 1:5000, Imatinib treated, D6, Replicate 1",5000,"D6","F317L",23,14565,1959000,3093.51184346035
+"174","M4","1:1 Spike in at 1:5000, Imatinib treated, D6, Replicate 1",5000,"D6","Y320C",3,16097,1959000,365.099086786358
+"175","M4","1:1 Spike in at 1:5000, Imatinib treated, D6, Replicate 1",5000,"D6","M351T",1068,14077,1959000,148626.269801804
+"176","M4","1:1 Spike in at 1:5000, Imatinib treated, D6, Replicate 1",5000,"D6","E355G",8,12681,1959000,1235.86467944168
+"177","M4","1:1 Spike in at 1:5000, Imatinib treated, D6, Replicate 1",5000,"D6","E355A",5,12678,1959000,772.598201609087
+"178","M4","1:1 Spike in at 1:5000, Imatinib treated, D6, Replicate 1",5000,"D6","F359V",21,11329,1959000,3631.3002030188
+"179","M4","1:1 Spike in at 1:5000, Imatinib treated, D6, Replicate 1",5000,"D6","F359I",4,11312,1959000,692.715700141443
+"180","M4","1:1 Spike in at 1:5000, Imatinib treated, D6, Replicate 1",5000,"D6","H396P",612,17711,1959000,67692.8462537406
+"181","M4","1:1 Spike in at 1:5000, Imatinib treated, D6, Replicate 1",5000,"D6","H396R",110,17209,1959000,12521.9361961764
+"182","M4","1:1 Spike in at 1:5000, Imatinib treated, D6, Replicate 1",5000,"D6","E459K",5,15363,1959000,637.570786955673
+"183","M6","1:1 Spike in at 1:5000, Imatinib treated, D6, Replicate 2",5000,"D6","L248V",78,10822,5457000,39331.5468490113
+"184","M6","1:1 Spike in at 1:5000, Imatinib treated, D6, Replicate 2",5000,"D6","G250E",953,10174,5457000,511157.951641439
+"185","M6","1:1 Spike in at 1:5000, Imatinib treated, D6, Replicate 2",5000,"D6","Q252H",26,10808,5457000,13127.4981495189
+"186","M6","1:1 Spike in at 1:5000, Imatinib treated, D6, Replicate 2",5000,"D6","Y253H",2641,10657,5457000,1352344.65609459
+"187","M6","1:1 Spike in at 1:5000, Imatinib treated, D6, Replicate 2",5000,"D6","Y253F",107,10623,5457000,54965.5464558034
+"188","M6","1:1 Spike in at 1:5000, Imatinib treated, D6, Replicate 2",5000,"D6","E255K",22,10528,5457000,11403.3054711246
+"189","M6","1:1 Spike in at 1:5000, Imatinib treated, D6, Replicate 2",5000,"D6","E255V",1689,10011,5457000,920674.557986215
+"190","M6","1:1 Spike in at 1:5000, Imatinib treated, D6, Replicate 2",5000,"D6","T315I",2807,11290,5457000,1356758.10451727
+"191","M6","1:1 Spike in at 1:5000, Imatinib treated, D6, Replicate 2",5000,"D6","F317L",12,11386,5457000,5751.27349376427
+"192","M6","1:1 Spike in at 1:5000, Imatinib treated, D6, Replicate 2",5000,"D6","M351T",1003,10899,5457000,502190.200935866
+"193","M6","1:1 Spike in at 1:5000, Imatinib treated, D6, Replicate 2",5000,"D6","F359V",24,8717,5457000,15024.4350120454
+"194","M6","1:1 Spike in at 1:5000, Imatinib treated, D6, Replicate 2",5000,"D6","H396P",371,13618,5457000,148666.984872962
+"195","M6","1:1 Spike in at 1:5000, Imatinib treated, D6, Replicate 2",5000,"D6","H396R",109,13356,5457000,44535.265049416
+"196","Enu_4","Enu Mixture D0",1000,"D0","L248V",70,30343,316000,728.998451043074
+"197","Enu_4","Enu Mixture D0",1000,"D0","G250E",130,28220,316000,1455.70517363572
+"198","Enu_4","Enu Mixture D0",1000,"D0",NA,55,30067,316000,578.042372035787
+"199","Enu_4","Enu Mixture D0",1000,"D0","Y253H",758,29949,316000,7997.86303382417
+"200","Enu_4","Enu Mixture D0",1000,"D0","F311L",12,26401,316000,143.630923071096
+"201","Enu_4","Enu Mixture D0",1000,"D0","T315I",665,28965,316000,7254.96288624202
+"202","Enu_4","Enu Mixture D0",1000,"D0","F317L",72,29563,316000,769.610661976119
+"203","Enu_4","Enu Mixture D0",1000,"D0","E355G",30,24119,316000,393.051121522451
+"204","Enu_4","Enu Mixture D0",1000,"D0","F359V",151,21391,316000,2230.65775326072
+"205","Enu_4","Enu Mixture D0",1000,"D0","F359C",55,21224,316000,818.884281944968
+"206","Enu_4","Enu Mixture D0",1000,"D0","H396P",208,34842,316000,1886.45887147695
+"207","Enu_4","Enu Mixture D0",1000,"D0","A397P",138,34708,316000,1256.42503169298
+"208","Enu_3","Enu Mixture, Imatinib treated, D3, Replicate 1",1000,"D3","L248V",225,16573,1282000,17404.8150606408
+"209","Enu_3","Enu Mixture, Imatinib treated, D3, Replicate 1",1000,"D3","G250E",623,15841,1282000,50418.9129474149
+"210","Enu_3","Enu Mixture, Imatinib treated, D3, Replicate 1",1000,"D3",NA,163,16662,1282000,12541.4716120514
+"211","Enu_3","Enu Mixture, Imatinib treated, D3, Replicate 1",1000,"D3","Y253H",4592,16475,1282000,357325.88770865
+"212","Enu_3","Enu Mixture, Imatinib treated, D3, Replicate 1",1000,"D3","F311L",8,15998,1282000,641.080135016877
+"213","Enu_3","Enu Mixture, Imatinib treated, D3, Replicate 1",1000,"D3","T315I",6738,17378,1282000,497071.93002647
+"214","Enu_3","Enu Mixture, Imatinib treated, D3, Replicate 1",1000,"D3","F317L",16,17622,1282000,1163.99954602202
+"215","Enu_3","Enu Mixture, Imatinib treated, D3, Replicate 1",1000,"D3","E355G",15,15473,1282000,1242.81005622698
+"216","Enu_3","Enu Mixture, Imatinib treated, D3, Replicate 1",1000,"D3","F359V",27,13951,1282000,2481.11246505627
+"217","Enu_3","Enu Mixture, Imatinib treated, D3, Replicate 1",1000,"D3","F359C",8,13935,1282000,735.988518119842
+"218","Enu_3","Enu Mixture, Imatinib treated, D3, Replicate 1",1000,"D3","H396P",638,21213,1282000,38557.2997690096
+"219","Enu_3","Enu Mixture, Imatinib treated, D3, Replicate 1",1000,"D3","A397P",56,21236,1282000,3380.67432661518
+"220","Enu_4","Enu Mixture, Imatinib treated, D3, Replicate 2",1000,"D3","L248V",184,17700,1264000,13139.8870056497
+"221","Enu_4","Enu Mixture, Imatinib treated, D3, Replicate 2",1000,"D3","G250E",574,16628,1264000,43633.3894635555
+"222","Enu_4","Enu Mixture, Imatinib treated, D3, Replicate 2",1000,"D3",NA,125,17798,1264000,8877.40195527587
+"223","Enu_4","Enu Mixture, Imatinib treated, D3, Replicate 2",1000,"D3","Y253H",4157,17610,1264000,298378.648495173
+"224","Enu_4","Enu Mixture, Imatinib treated, D3, Replicate 2",1000,"D3","D276G",3,13729,1264000,276.203656493554
+"225","Enu_4","Enu Mixture, Imatinib treated, D3, Replicate 2",1000,"D3","F311L",8,16358,1264000,618.16848025431
+"226","Enu_4","Enu Mixture, Imatinib treated, D3, Replicate 2",1000,"D3","T315I",6638,17676,1264000,474679.339217017
+"227","Enu_4","Enu Mixture, Imatinib treated, D3, Replicate 2",1000,"D3","F317L",6,18125,1264000,418.427586206897
+"228","Enu_4","Enu Mixture, Imatinib treated, D3, Replicate 2",1000,"D3","E355G",10,15282,1264000,827.116869519696
+"229","Enu_4","Enu Mixture, Imatinib treated, D3, Replicate 2",1000,"D3","F359V",25,13692,1264000,2307.91703184341
+"230","Enu_4","Enu Mixture, Imatinib treated, D3, Replicate 2",1000,"D3","F359C",11,13603,1264000,1022.1274718812
+"231","Enu_4","Enu Mixture, Imatinib treated, D3, Replicate 2",1000,"D3","H396P",389,21963,1264000,22387.4698356327
+"232","Enu_4","Enu Mixture, Imatinib treated, D3, Replicate 2",1000,"D3","A397P",47,21983,1264000,2702.45189464586
+"233","Enu_3","Enu Mixture, Imatinib treated, D6, Replicate 1",1000,"D6","L248V",60,11231,97200000,519277.00115751
+"234","Enu_3","Enu Mixture, Imatinib treated, D6, Replicate 1",1000,"D6","G250E",428,10568,97200000,3936563.20968963
+"235","Enu_3","Enu Mixture, Imatinib treated, D6, Replicate 1",1000,"D6",NA,45,11297,97200000,387182.437815349
+"236","Enu_3","Enu Mixture, Imatinib treated, D6, Replicate 1",1000,"D6","Y253H",2749,11164,97200000,23934324.6148334
+"237","Enu_3","Enu Mixture, Imatinib treated, D6, Replicate 1",1000,"D6","T315I",6625,12184,97200000,52852101.116218
+"238","Enu_3","Enu Mixture, Imatinib treated, D6, Replicate 1",1000,"D6","H396P",125,15118,97200000,803677.735150152
+"239","Enu_4","Enu Mixture, Imatinib treated, D6, Replicate 2",1000,"D6","L248V",100,27032,4e+07,147972.773009766
+"240","Enu_4","Enu Mixture, Imatinib treated, D6, Replicate 2",1000,"D6","G250E",892,25446,4e+07,1402185.01925646
+"241","Enu_4","Enu Mixture, Imatinib treated, D6, Replicate 2",1000,"D6",NA,77,27039,4e+07,113909.538074633
+"242","Enu_4","Enu Mixture, Imatinib treated, D6, Replicate 2",1000,"D6","Y253H",6253,26824,4e+07,9324485.53534149
+"243","Enu_4","Enu Mixture, Imatinib treated, D6, Replicate 2",1000,"D6","F311L",3,24527,4e+07,4892.56737472989
+"244","Enu_4","Enu Mixture, Imatinib treated, D6, Replicate 2",1000,"D6","T315I",15080,26496,4e+07,22765700.4830918
+"245","Enu_4","Enu Mixture, Imatinib treated, D6, Replicate 2",1000,"D6","H396P",189,32610,4e+07,231830.726770929

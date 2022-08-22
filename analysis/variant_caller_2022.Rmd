@@ -1,0 +1,562 @@
+---
+title: "variant_caller_2022"
+author: "Haider Inam"
+date: '2022-08-10'
+output: html_document
+---
+
+```{r setup, include=FALSE}
+# rm(list=ls())
+knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_knit$set(root.dir = normalizePath(".."))
+
+library(stringr)
+library(dplyr)
+library(ggplot2)
+library(plotly)
+library(tictoc)
+library(doParallel)
+library(foreach)
+
+#Cleanup code for plotting
+cleanup=theme_bw() +
+  theme(plot.title = element_text(hjust=.5),
+        panel.grid.major = element_blank(),
+        panel.grid.major.y = element_blank(),
+        panel.background = element_blank(),
+        axis.line = element_line(color = "black"),
+        axis.text = element_text(face="bold",color="black",size="11"),
+        text=element_text(size=11,face="bold"),
+        axis.title=element_text(face="bold",size="11"))
+```
+
+####How does the different alignment change the analysis: 
+-No L298L
+-No split reads (spanning multiple exons), and hence no problems with the end of one exon being thought of as the beginning of the other exon
+-Overall lower false negative mnv discovery rate
+
+```{r}
+##########################Inputs##########################
+#1. Enst is the ensembl transcript ID for the canonical transcript.
+#2. Chr is the chromosome number on hg38. This argument is passed onto the ensembl variant effect predictor
+#3. Is the name of the txt file that has the sequence of the *coding sequence* of the protein. This sequence should be the exact same sequence as the sequence used to align the consensus reads to make the bam file. Note that this sequence should be the coding sequence, not the entire cDNA sequence (that includes the UTRs).
+#4. ref_csv_name is the name of the csv file that has the following columns: resi (or the residue number of the protein), chr_start, and pos (the nucleotide position of the coding sequence). To find which genomic coordinates match to the coding sequence, look at the Ensembl CCDS entry for that coding sequence.
+#5. ref_offset. This field should be set to 0 for most cases. Unless there is a difference between the sequence that you used for your alignments (to generate the SAM/BAM file) and the sequence you're using for ref_txt_name.
+
+#Instructions to find the coding sequence for a gene such as ABL: google ensembl + human ABL. That will take you to a page that lists out ABL's transcript variants. Look at the transcript that has the "Ensembl Canonical" transcript flag. That transcript,ENST00000318560, is the canonical transcript for ABL. You'll also see a REFSEQ entry for this transcript. For ABL, this is NM_005157.6. Go to NCBI Refseq, seach NM_005157.6. This will take you to an NCBI page with the mRNA/cDNA sequence NM_005157. To get just the coding sequence, click on "CDS". This will highglight the coding sequence in brown. At the bottom of the page, there will be a button to export the sequence as a .fasta file. Make sure only the coding sequence (starts with ATG and end with a stop codon) is exported.
+#Now go back to the ensembl transcript page and click on the first CCDS entry. For ABL, this is CCDS35166. This is the canonical coding sequence for ABL. The page on CCDS35166 shows the exact chromosomal coordinates of each position of the coding sequence. You can use this information to make the csv file (ref_csv_name) that maps out the full conversion between CDS and Chr.
+#Note: to combine two samples, you can simply make two different alldata dataframes, and combine them with rbind.
+setwd("~/OneDrive - The Pennsylvania State University/RProjects/duplex_sequencing_screen/")
+getwd()
+source("code/variantcaller/cds_to_hg38.R")
+source("code/variantcaller/vep_fromdf_parralel.R")
+source("code/variantcaller/vep_fromdf.R")
+source("code/variantcaller/vep_fromquery.R")
+source("code/variantcaller/transcript_verifier.R")
+
+outdir="data/Consensus_data/Novogene_lane11/sample5"
+ref_offset=0
+# ref_offset=723
+#############For EGFR#############
+enst="ENST00000275493" 
+chr=7
+ref_txt_name="data/Refs/EGFR/NM_005228.5_L858R.txt"
+ref_csv_name="data/Refs/EGFR/egfr_NM_005228.5_full_coordinates.csv"
+seqdata_tsv_name="data/Consensus_data/Novogene_lane11/sample5/sscs_L858R_aligned_filtered.tsv"
+
+
+
+#############For ABL#############
+# enst="ENST00000318560" #Ensembl transcript ID for the canonical transcript
+# chr=9 #The chromosome number on hg38. This argument is passed into the ensembl variant effect predictor
+# ref_txt_name="data/Refs/ABL/NM_005157.6_CDS.txt"
+# ref_csv_name="data/Refs/ABL/abl1_full_coordinates.csv"
+# seqdata_tsv_name="data/Consensus_data/Novogene_lane11/sample10/sscs_corrected_aligned_filtered.tsv"
+```
+
+
+```{r}
+##########################Optional Chunk of Code##########################
+#Note: as of August 2022, Ensembl's rest api is being pretty slow for the CDS to Chromosomal coordinates. So this function might take a long time to run. You should only need to run it once to make sure your genomic coordinates are right though.
+#Below is code to verify that the your CDS to Hg38 mapping coordinates are the same as the coordinates predicted by Ensemble's rest API.
+#This can be useful if you're not sure if your hg38 choromosome coordinates are correct
+library(httr)
+library(jsonlite)
+library(xml2)
+
+ref_genomic_coordinates=read.csv(ref_csv_name,header = T)
+ref_genomic_coordinates$match=F
+#The number of requests (below) tells you how many requests to ensembl were made before it returned a non-503 (busy) response
+ref_genomic_coordinates$num_requests=0
+# ref_genomic_coordinates=ref_genomic_coordinates[c(3000:3010),]
+tic()
+for(i in seq(1:length(ref_genomic_coordinates$chr_start))){
+  transcript_output=transcript_verifier(ref_genomic_coordinates$pos[i],enst=enst)
+  ref_genomic_coordinates$num_requests[i]=transcript_output[[2]]
+  if(transcript_output[[1]]==ref_genomic_coordinates$chr_start[i])
+  ref_genomic_coordinates$match[i]=T
+}
+toc()
+####At this point, look in ref_genomic_coordinates to make sure that your chromosome annotations match the annotations from ensembl
+```
+
+
+####Reading and processing the reference txt and csv file
+```{r}
+#Reading the full sequence.
+reference_seq=read.table(ref_txt_name)
+reference_seq=as.character(reference_seq)
+
+# substr(reference_seq,1,2)
+#Ref_search is a function that returns the sequence of the cDNA, given start and stop coordinates
+ref_search=function(start,stop){
+  seachresult=substr(reference_seq,start,stop-1)
+  seachresult
+}
+
+ref_genomic_coordinates=read.csv(ref_csv_name,header = T,stringsAsFactors = F)
+# ref_genomic_coordinates=ref_genomic_coordinates%>%dplyr::select(-X)
+
+####Adding sequence to each codon###
+ref_genomic_coordinates=ref_genomic_coordinates%>%mutate(start=pos,end=start+3)%>%dplyr::select(!pos)
+ref_genomic_coordinates=ref_genomic_coordinates%>%filter(!resi%in%NA)
+ref_genomic_coordinates=ref_genomic_coordinates%>%
+  rowwise()%>%
+  mutate(codon=ref_search(start-ref_offset,end-ref_offset))
+ref_genomic_coordinates=ref_genomic_coordinates%>%filter(!codon%in%"")
+```
+
+
+####This is the main chunk of code for reading, sorting the tsv file, variant calling, variant annotation using ensembl
+```{r}
+
+alldata=read.table(seqdata_tsv_name,header = F,stringsAsFactors = F)
+# alldata2=read.table("Novogene_lane11/sample5/sscs_L858R_aligned_filtered.tsv",header = F,stringsAsFactors = F)
+# alldata=rbind(alldata,alldata2)
+      #If you want the script to look for all files that match a certain regular expression and loop through them, you can use the following code: 
+      # files=list.files(".")
+      #Grabbing only csvs that contain tsv in their name
+      # files=files[grepl("*.tsv",files)]
+      # for(filecurr in 1:length(files)){
+      
+      # alldata=read.table("../../data/Dunovo/Novogene_lane11/sample8/sscs_aligned_filtered.tsv",header = F,stringsAsFactors = F)
+
+
+###This script looks at the a sam file, filters out non-reference, non-E255I, non-SNP. And makes two databases, one for mnvs and one for snps.
+
+names(alldata)=c("pos","cigar","tlen","seq","mdz")
+# names(alldata)=c("flag","pos","mapq","cigar","tlen","seq","mdz")
+alldata=alldata%>%mutate(mdz=gsub("MD:Z:","",mdz))
+
+
+########Calculating Clip Distance for soft-clipped reads########
+######Detecting soft-clipped reads and noting how many bases were soft clipped
+#This is because the positions on the mdz field exclude the soft clipped portion of the read.
+#The soft clipped reads that are relevant to us are reads in which the soft clip appears before the mismatch. b/c if a clip appears after a mismatch, that's the part of the mdz field that i don't care about. Therefore, I'm gonna care about those only. Btw only 1/3rd of soft clipped reads seem to have a clip followed by a mismatch.
+
+
+alldata$soft_clipped=grepl("S.*M|M.*S",alldata$cigar)
+###Filtering out reads that were soft clipped twice (all of those were mouse reads). Also figuring out the clipping distance for those with regexp is tougher.
+alldata=alldata%>%filter(!grepl("(S.*){2}",cigar)%in%T)
+
+
+alldata=alldata%>%
+  rowwise()%>%
+  mutate(clipdistance_left=case_when(soft_clipped%in%TRUE~strsplit(cigar,"S")[[1]][1],
+                                TRUE~"0"))
+
+
+alldata=alldata%>%
+  mutate(right_clipped=case_when(grepl("M",clipdistance_left)%in%"TRUE"~T,
+                                 T~F),
+         clipdistance_right=case_when(right_clipped%in%T~as.numeric(strsplit(clipdistance_left,"M")[[1]][2]),
+                                      T~0))
+
+#Correcting the clip distance soft clips that are soft-clipped at the end of the read, and hence their clipped distance appears to be weird.
+alldata$clipdistance_left[grepl("[A-Za-z]",alldata$clipdistance_left)]=0
+alldata$clipdistance_left=as.numeric(alldata$clipdistance_left)
+alldata$clipdistance_total=alldata$clipdistance_left+alldata$clipdistance_right
+
+alldata=alldata%>%mutate(seqlen=nchar(seq),mlen=seqlen-clipdistance_total)
+#filtering out some cases where mlen is NA for some reason. It's very rare though, only happens in 39 out of 100k cases. Look at these and fix the algorithm. Example cigar strings are 68M1I38M29S, 20M1D39M77S, 123M1D9M4S, 29M1D104M3S
+alldata=alldata%>%filter(!mlen%in%NA)
+#####################Determining Coverage Statistics######################
+#The script below calculates coverage stats#
+#You can also calculate coverage stats with samtools using the samtools depth in.bam >out.coverage command. The bam file needs to be sorted by position using the samtools sort command.
+#Calculating coverage stats in R here allows us to calculate coverage stats for only data that meet our filters
+alldata$end=alldata$pos+alldata$mlen
+coverage_stats=data.frame(pos=c(1:(nchar(reference_seq)+150)))
+#I added 150 here because a very small fraction of reads align to the very end of the coding sequence, so they start at the end and end outside the transcript. So we want coverage statistics for the extreme case of a 150bp read mapped to the end of the reference and went beyond that.
+coverage_stats$depth=0
+# tic()
+for(i in c(1:nrow(alldata))){
+  start=alldata$pos[i]
+  end=alldata$pos[i]+alldata$mlen[i]
+  coverage_stats$depth[c(start:end)]=coverage_stats$depth[c(start:end)]+1
+}
+# ggplot(coverage_stats,aes(x=pos,y=depth))+geom_col()
+
+#Adding coverage statistics to all data
+#Adding coverage statistics to the mutant calls
+alldata=merge(alldata,coverage_stats,by="pos")
+
+#####################Filtering Steps######################
+#######Filtering soft clipped reads########
+#When the reads are aligned to the CDS rather than to the hg38 genomic indices, there should be no clipping of reads (with genomic alignments you would expect tons of soft clipping to in the splice regions).
+#How mouse reads were leaking into my variant caller by looking like clipped reads:
+#Soft-clipped reads give us a good indication that reads are mouse reads. Most soft-clipped reads tend to be mouse, but not all mouse reads are soft-clipped. Soft-clipped mouse reads were annoying because they were the ones that ended up having short mdz fields (2-3 mismatches), whereas hypothetically no mouse read should have had <5 mismatches in a 133bp window.
+#Can we just simply get rid of clipped reads? Most soft-clipped reads are mouse but not all. Some soft-clipped reads are human as well. In-fact, if we just simply get rid of the soft-clipped reads, they would be getting rid of 20% of human reads as well. While it's minor, we don't wanna just throw away 20%.
+#Therefore, I looked at how human soft-clipped and mouse soft-clipped reads differ. Of the inconspicuous mouse reads (less than 5 mismatches), most of them are soft-clipped, and the legth of the read that is not clipped is much shorter than in human reads. In other words, the clipping distance (at the start or at the end of the read), is bigger in mouse reads than in human reads. 
+#So we are going to filter out soft-clipped reads with a minimum clipping distance.
+
+#We are also going to filter for reads with a minimum length of 80 (another way mouse reads can look like human reads by just being shorter).
+alldata=alldata%>%filter(seqlen>=90)
+#We are also going to filter for reads with a clipping distance of less than 25
+alldata=alldata%>%filter(clipdistance_total<=25)
+
+#We are also going to filter for reads with a total length of mapped read >80. Mapped length is sequence length - length of split read
+alldata=alldata%>%filter(mlen>=70)
+n
+
+#######Filtering out deletions########
+alldata=alldata[!grepl("\\^",alldata$mdz),]
+
+#####Filtering out any reads with an alignment score of 0####
+#Optionally you can also filter out cigar strings of '*' i think
+alldata=alldata[!grepl("AS:i:0",alldata$mdz),]
+# a=alldata[!grepl("AS:i:0",alldata$mdz),]
+
+#####Filtering out any reads containing Ns####
+# Gets rid of 10% of reads. This might be too stringent a filter because of course you would expect Ns in a 10bp window###
+alldata=alldata[!grepl("N",alldata$seq),]
+
+#######Filtering for Non-Reference########
+# alt_positions=grepl("[0-9]{3}$",alldata$mdz)
+alt_positions=grepl("[a-zA-Z]",alldata$mdz)
+alldata=alldata[alt_positions,]
+
+#######Dividing SNPs and MNVs########
+##########################SNPS########################################
+snps=alldata%>%mutate(n_nuc=str_count(mdz,"A|T|C|G"))%>%filter(n_nuc==1)
+
+snps=snps%>%rowwise()%>%mutate(alt_start_pos=pos+as.numeric(strsplit(mdz,"A|C|G|T")[[1]][1]),alt_end_pos=alt_start_pos+1)
+ggplot(snps,aes(x=alt_start_pos))+geom_histogram()
+
+snps=snps%>%
+  # rowwise()%>%
+  mutate(ref=ref_search(alt_start_pos-ref_offset,alt_end_pos-ref_offset))
+##Getting rid of mutants outside of the kinase domain. Do this for MNVs!!!##
+snps=snps%>%filter(!ref%in%"")
+
+###filtering out mismatches that are at the start or end of the read (and hence of the mdz field)###
+#mut_extr are mutations at the extremities of the read
+snps=snps%>%
+  rowwise()%>%
+  mutate(mut_extr=
+           case_when(as.numeric(strsplit(mdz,"A|C|G|T")[[1]][1])%in%c(0,1)~TRUE,
+                     as.numeric(strsplit(mdz,"A|C|G|T")[[1]][2])%in%c(0,1)~TRUE,
+                     TRUE~FALSE))
+# sum(as.numeric(snps$mut_extr))
+snps=snps%>%filter(mut_extr%in%FALSE)
+
+
+snps=snps%>%rowwise()%>%mutate(alt=substr(seq,alt_start_pos-pos+1+clipdistance_left,alt_start_pos-pos+1+clipdistance_left))
+# snps=snps%>%filter(!alt%in%"N")
+# snps=snps%>%filter(!ref%in%"") #filters out mutants outside the kinase domain
+
+snps_sum=snps%>%group_by(alt_start_pos,ref,alt)%>%dplyr::summarize(ct=n(),depth=mean(depth))
+
+##########################MNVs########################################
+#######Defining neighbor distance########
+###For 2 nucleotide substitutions, 96% start at the start of the codon. The possibilites are for the substitutions to be side by side or be separated by a nucleotide. e.g. AAA could mutate to TTA or TAT. I need to know whether a TTA type substitution is happening or a TAT type substitution. Therefore I am defining a neighbordistance term
+mnvs=alldata%>%mutate(n_nuc=str_count(mdz,"A|T|C|G"))%>%filter(n_nuc>=2)
+mnvs=mnvs%>%
+  rowwise()%>%
+  mutate(neighbordistance=case_when(
+    n_nuc%in%2&&head(strsplit(mdz,"A|G|C|T")[[1]][-1],-1)%in%0~0,
+    n_nuc%in%2&&head(strsplit(mdz,"A|G|C|T")[[1]][-1],-1)%in%1~1,
+    n_nuc%in%3&&sum(as.numeric(head(strsplit(mdz,"A|G|C|T")[[1]][-1],-1)))%in%0~0,
+    TRUE~NaN))
+# sum(as.numeric(head(strsplit("3A0C0T99","A|C|G|T")[[1]][-1],-1)))
+
+# mnvs$minuslast="NA"
+# mnvs=mnvs%>%rowwise()%>%mutate(minuslast=head(strsplit(mdz,"A|G|C|T"),-1))
+#######Filtering MNVs for side-by-side MNVs######
+#Has to be within hamming distance of 2,
+#Basically looking for a 0 or 1 with no neighboring numbers
+# 30A0C0C94
+# 38C0A3
+# strsplit("30A0C0C94","A|G|C|T")
+# head(strsplit("38C0A3","A|G|C|T")[[1]][-1],-1)
+# a=lapply()
+# a=mnvs%>%rowwise()%>%filter(head(strsplit(mdz,"A|G|C|T")[[1]][-1],-1)%in%"0")
+list=mnvs$mdz
+# i=1
+mnv_status_compiled=rep("NA",length(list))
+for(i in 1:length(list)){
+  # i=1
+  #To be considered a true variant, an mnv must meet two criteria: 1) have a 0 or 1 in the mdz field (hamming distance of <2), 2) not have >1 in the mdz field. This takes out potentially epistatic mutants, e.g. T315I and T243V seen on the same read. So this variant caller needs to be updated to not take out these automatically, but we can worry about that later. I only found 1 read with a 0 AND a 27 in the MDZ field for our D0 WT scenario.
+  #Firstbasically searching if there's a 0 or a 1 in the MDZ field of the mnv
+  #########Test for Criteria 1###############
+  mnv_status_i=!grepl("2|3|4|5|6|7|8|9|11",head(strsplit(list[i],"A|G|C|T")[[1]][-1],-1))
+  
+  if(sum(as.numeric(mnv_status_i))>=1){
+    mnv_status_compiled[i]=TRUE
+    # mnv_status_compiled[i]=TRUE
+  } else {
+    mnv_status_compiled[i]=FALSE
+  }
+  #########Test for Criteria 2###############
+  #Basically stating that if any of the MDZ fields are >=2, consider that mnv as not a true MNV. There's obviously room for improvement here because sometimes with mnvs you can have two separate mutations on the same read. Case in point: "3A1C27T99". But we'll ignore these for now.
+  if(sum(
+    as.numeric(
+      as.numeric(
+        head(
+          strsplit(list[i],"A|G|C|T")[[1]][-1],-1))>=2))>0){
+    mnv_status_compiled[i]=FALSE
+  }
+}
+mnvs$mnv_status=mnv_status_compiled
+
+
+#### For my sscs replicates for novogene lane 4 il3 indep 1, I observed 3301 variant reads with >2 varaints out of which 1790 reads had variants that were side-by-side mnvs (hamming distance of 0 or 1)
+#### For my dcs replicates, I observed 3301 variant reads with >2 varaints out of which 1790 reads had variants that were side-by-side mnvs (hamming distance of 0 or 1)
+#We know that this library enriches for mnvs with hamming distance of <2 (true positive). The hypothesis is that if I were sequencing at a threshold below the error rate for sscs, then there would be a lot of reads in which the real mutant was masked by multiple nucleotide variants (hamming distance >2). However, if we were good on the sscs error rate, the type of sequencing would not predict whether a read with two variants had 
+#Testing to see if the sscs or dcs predicts the hamming distance.
+# fisher.test(rbind(c(1790,1511),c(596,470)))
+# a=mnvs[mnvs$n_nuc<=3,]
+# a=mnvs[mnvs$n_nuc==2,]
+# a=mnvs[mnvs$mnv_status%in%F,]
+# (strsplit(a$mdz,"A|G|C|T")[[1]][1])
+
+# (strsplit(a$mdz,"A|G|C|T")[[1]][a$n_nuc[1]+1])
+###Calculating which reads had one mutant at the end of the read. 10% of mnvs had mutant at end###
+mnvs=mnvs%>%
+  rowwise()%>%
+  mutate(mut_extr=case_when(as.numeric(strsplit(mdz,"A|G|C|T")[[1]][1])%in%c(0,1)~T,
+                          as.numeric(strsplit(mdz,"A|C|G|T")[[1]][n_nuc[1]+1])%in%c(0,1)~T,
+                                          T~F))
+
+mnvs=mnvs%>%filter(mut_extr%in%F,n_nuc<=4,soft_clipped%in%F,mnv_status%in%T)
+  ###The following thoughts on L298L are outdated because I'm aligning directly to the ref CDS from our plasmid and we don't see L298L anymore
+  ###Calculating which reads had L298L in the read###
+  #L298L occurs 20 residues into exon 5. What I realized is that a lot of mnvs for L298L had two wrong calls: one wrong call because the split read started in exon 4 and the variant caller thought there were mismatches in exon 5 when in fact it was looking at exon 4. Need to definitely take these into account.
+  
+  ###For mnvs with L298L or second mutant at the end of read, count the SNP only.###
+  ####The majority of MNVs that we see are "bad" because the mutants don't occur right next to each other. For mnvs that have mutants that are far apart, there could be different things that are going on: 1) there are actually 2 mutants that are far apart (10% reads in saturation mutagenesis libraries), 2) one of the mutants is erroneous, would expect this for mutants called near the end of the read so will filter those out. 3) both mutants are technically mutants but only one of those is a true mutant. For our case, L298L was a true synonymous mutant present in our library hence every human ABL1 cDNA read near 298 should read this mutant. So I will figure out a way to NOT filter those out.###
+
+
+#Determining the mnv start and end position on the genome
+#For end position, if it's a 2 nuclteotide mnv that looks like a 3 nucleoitde mnv, add +1
+mnvs=mnvs%>%
+  rowwise()%>%
+  mutate(alt_start_pos=pos+as.numeric(strsplit(mdz,"A|G|C|T")[[1]][1]),
+         alt_end_pos=case_when(n_nuc%in%2&&neighbordistance%in%1~alt_start_pos+n_nuc+1,
+                               T~alt_start_pos+n_nuc))
+# mnvs=mnvs%>%
+#   rowwise()%>%
+#   mutate(alt_start_pos=pos+as.numeric(strsplit(mdz,"A|G|C|T")[[1]][1]),
+#          alt_end_pos=case_when(n_nuc%in%2&&neighbordistance%in%1~alt_start_pos+n_nuc+1,
+#                                n_nuc%in%2&&neighbordistance%in%0~alt_start_pos+n_nuc+1,
+#                                T~alt_start_pos+n_nuc))
+
+
+
+#Figuring out if mnv spans two codons
+#Nearest real codon of an mnv is the one it starts right after. E.g. if we see mnv starting at position 100, it's nearest neighbor would be codon 99-102
+#If it is a 3 nucleotide variant, it must start at the same start position as the start codon
+#If it is a 2 nucleotide variant, its distance from the real codon can be 0 or 1 
+
+
+mnvs=mnvs%>%
+  rowwise()%>%
+  mutate(in_frame_mnv=
+           case_when(((alt_start_pos)%in%ref_genomic_coordinates$start)||((alt_end_pos-1)%in%ref_genomic_coordinates$end)~TRUE,
+                     T~FALSE))
+
+#^^Basically saying that an in-frame mnv has to start at the start of the codon or stop at the stop of the codon. An in-frame mnv has to either start or stop in the codon. e.g. 2 nucleotide substitution in AAA can be TAA or ATT or TAT. 
+
+#Turns out most of these mnvs start at the start of a codon! Thats great, means they're real mnvs
+###Turns out the majority of 2 nucleotide substitutions (96%) start at the first nucleotide in the codon. That's interesting. 
+# a=mnvs%>%filter(n_nuc==2&&in_frame_mnv==FALSE)
+mnvs=mnvs%>%filter(in_frame_mnv%in%TRUE)
+# sort(unique(mnvs$alt_start_pos))
+
+
+
+#Looks like T315V comprises most of the unique triple nucleotide mnvs. 15 unique Mnvs in this read so far #This was in the iL3 indep case
+# a=mnvs%>%filter(alt_start_pos==130862940)%>%mutate(codon=substr(seq,alt_start_pos-pos+1,alt_start_pos-pos+3))
+# sort(unique(a$codon))
+
+mnvs=mnvs%>%mutate(ref=ref_search(alt_start_pos-ref_offset,alt_end_pos-ref_offset))
+
+# mnvs=mnvs%>%
+#   rowwise()%>%
+#   mutate(alt=case_when(neighbordistance%in%0~substr(seq,alt_start_pos-pos+1+clipdistance_left,alt_start_pos-pos+2+clipdistance_left),
+#     T~substr(seq,alt_start_pos-pos+1+clipdistance_left,alt_start_pos-pos+3+clipdistance_left)))
+
+#When there are two changed nucleotides and they're right next to each other, then the end should be a distance of 2 away. example: ATC to GAC
+#When there are three changed nucleotides and they're right next to each other, then the end should be a distance of 3 away from the start. example: ATC to GAG
+#Basically saying that the alt should be a lenght of 3 unless the neighbor distance is 0 and the number of nucleotides is 2
+mnvs=mnvs%>%
+  rowwise()%>%
+  mutate(alt=case_when((neighbordistance%in%0)&&(n_nuc%in%2)~substr(seq,alt_start_pos-pos+1+clipdistance_left,alt_start_pos-pos+2+clipdistance_left),
+                       (neighbordistance%in%0)&&(n_nuc%in%3)~substr(seq,alt_start_pos-pos+1+clipdistance_left,alt_start_pos-pos+3+clipdistance_left),
+    T~substr(seq,alt_start_pos-pos+1+clipdistance_left,alt_start_pos-pos+3+clipdistance_left)))
+
+
+#Filtering out ALT codons that contain Ns
+#Do same for snps when you're there
+# mnvs=mnvs[!grepl("N",mnvs$alt),]
+#Not needed anymore becuase I filter out Ns in the filtering steps at the start of the code
+###
+# mnvs$id=paste(mnvs$alt_start_pos,mnvs$alt,sep="")
+# mnvs$id=paste(mnvs$alt_start_pos,mnvs$ref,sep="")
+
+mnv_sum=mnvs%>%group_by(alt_start_pos,alt_end_pos,ref,alt)%>%dplyr::summarize(ct=n(),depth=mean(depth))
+
+##########Annotating SNPS###############
+snps_sum=cds_to_hg38(snps_sum)
+
+###Removing L298L because VEP can't deal with seeing an "ALT" that shows up as REF in hg38.
+# snps_sum=snps_sum%>%filter(!c(alt_start_hg38%in%130872200&alt=="G"), #L298L
+#                            !c(alt_start_hg38%in%130872215&alt=="T"), #Splice inconsistency ex4-5
+#                            !c(alt_start_hg38%in%130873038&alt=="G")) #Splice inconsistency ex5-6
+# 130873038
+
+
+# snps_sum_ann=vep_fromdf(snps_sum)
+
+tic()
+# a=vep_fromdf_parralel(snps_sum[c(1:100),],chr,enst)
+snps_sum_ann=vep_fromdf_parralel(snps_sum,chr,enst)
+toc() 
+snps_sum_ann$type="snp"
+
+snps_ann=merge(snps,snps_sum_ann%>%dplyr::select(-depth),by=c("alt_start_pos","alt_end_pos","ref","alt"))
+
+##########Annotating MNVs###############
+mnv_sum=cds_to_hg38(mnv_sum)
+
+# mnv_sum_ann=vep_fromdf(mnv_sum)
+tic()
+mnv_sum_ann=vep_fromdf_parralel(mnv_sum,chr,enst)
+toc()
+mnv_sum_ann$type="mnv"
+mnvs_ann=merge(mnvs,mnv_sum_ann%>%dplyr::select(-depth),by=c("alt_start_pos","alt_end_pos","ref","alt"))
+# a=vep_fromdf(a)
+
+
+#####Merging MNVs and SNPS#####
+
+snps_sum_ann$alt_end_pos=snps_sum_ann$alt_start_pos+1
+snps_sum_ann_reformatted=snps_sum_ann%>%dplyr::select(type,
+                                          alt_start_pos,
+                                          alt_end_pos,
+                                          ref,
+                                          alt,
+                                          ct,
+                                          depth,
+                                          protein_start,
+                                          protein_end,
+                                          amino_acids,
+                                          codons,
+                                          impact,
+                                          polyphen_prediction,
+                                          consequence_terms)
+# snps_sum_ann$protein_start
+
+mnv_sum_ann_reformatted=mnv_sum_ann%>%dplyr::select(type,
+                                          alt_start_pos,
+                                          alt_end_pos,
+                                          ref,
+                                          alt,
+                                          ct,
+                                          depth,
+                                          protein_start,
+                                          protein_end,
+                                          amino_acids,
+                                          codons,
+                                          impact,
+                                          polyphen_prediction,
+                                          consequence_terms)
+
+calls_sum_merged=rbind(snps_sum_ann_reformatted,mnv_sum_ann_reformatted)
+
+# write.csv(calls_sum_merged,gsub(files[filecurr],pattern = ".tsv",replacement = "_calls.csv"))
+calls_missense=calls_sum_merged%>%filter(consequence_terms%in%"missense_variant")
+# a=mnv_sum_ann%>%filter(consequence_terms%in%"missense_variant")
+# }
+# calls_duplex=calls_sum_merged
+# a=snps_ann%>%filter(protein_start%in%479)
+# snps_ann_reformatted=snps_ann_reformatted%>%dplyr::select(type,
+#                                           alt_start_pos,
+#                                           alt_end_pos,
+#                                           ref,
+#                                           alt,
+#                                           ct,
+#                                           protein_start,
+#                                           protein_end,
+#                                           amino_acids,
+#                                           codons,
+#                                           impact,
+#                                           polyphen_prediction,
+#                                           consequence_terms)
+calls_missense_sum=calls_sum_merged%>%filter(consequence_terms%in%"missense_variant")%>%group_by(protein_start)%>%summarize(count=n())
+
+#####Combining the annotated read data########
+calls_ann=rbind(snps_ann%>%dplyr::select(pos,ref,alt,depth,protein_start,protein_end,amino_acids,consequence_terms,cigar,seq,mdz,n_nuc,ct,codons,type),
+                mnvs_ann%>%dplyr::select(pos,ref,alt,depth,protein_start,protein_end,amino_acids,consequence_terms,cigar,seq,mdz,n_nuc,ct,codons,type))
+
+
+# write.csv(calls_ann,paste(outdir,"variants_ann.csv"),row.names = F)
+# write.csv(calls_sum_merged,paste(outdir,"variants_unique_ann.csv"),row.names=F)
+```
+
+
+```{r}
+##############Doing some basic plotting#############
+#Plotting Coverage Statistics
+ggplot(coverage_stats,aes(x=pos,y=depth))+geom_col()
+
+#Plotting the number of missense substitutions detected per residue
+ggplot(calls_missense_sum,aes(x=protein_start,y=count))+geom_col()
+
+#Plotting the AF of all mutants seen in the sample
+ggplot(calls_missense,aes(x=protein_start,y=alt_aa))+
+  geom_tile(color="black",aes(fill=(ct/depth)))+
+  scale_x_continuous(name="Position along CDS",expand=c(0,0),limits=c(717,870))+
+  scale_y_discrete(name="Amino Acid Substitution",expand=c(0,0))+
+  scale_fill_continuous(name="Allele \nFrequency",trans="log10")+
+  cleanup+
+  theme(legend.position = "none")
+#Plotting Barcode Statistics
+# alldata$rowname=rownames(alldata)
+# barcode_dist=alldata%>%group_by(rowname)
+```
+
+
+
+```{r,include=F}
+#The function below, ref_codon_finder,is not needed anymore, because the ref_genomic_coordinates dataframe has the codon for each residue
+# ref_codon_finder=function(position){
+#   ####Function that returns the codon number given the genomic position
+#   ref_genomic_coordinates$match=NA
+#   match=ref_genomic_coordinates$match
+# 
+#   for(i in 1:length(ref_genomic_coordinates$start)){
+#     match[i]=position>=ref_genomic_coordinates$start[i]&&position<=ref_genomic_coordinates$end[i]
+#   }
+#   if(TRUE%in%match){
+#     return(ref_genomic_coordinates[grep(TRUE,match),1])
+#   }
+#   # else{
+#     return(NaN)
+#   # }
+# }
+# position=130835456
+# (ref_codon_finder(130835456))
+# ref_codon_finder(130854218)
+# ref_codon_finder(130873014)
+```
+

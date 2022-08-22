@@ -7,7 +7,7 @@ output: html_document
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
-knitr::opts_knit$set(root.dir=rprojroot::find_rstudio_root_file())
+# knitr::opts_knit$set(root.dir=rprojroot::find_rstudio_root_file())
 ```
 
 Here I include some miscellaneous, pre-prod analyses
@@ -119,34 +119,34 @@ getPalette = colorRampPalette(brewer.pal(9, "Spectral"))
 
 
 #Plotting IC50s form 4 Parameter model
-plotly=ggplot(twinstrand_merge_forplot%>%filter(count_type=="totalmutant"),aes(x=time/24,y=count,fill=factor(mutant),shape=factor(count_type)))+geom_point()+
-  geom_line(aes(y=sd_mean_model),linetype="dashed")+
-  geom_ribbon(aes(ymin=sd_ll_model,ymax=sd_ul_model,alpha=.3))+
-  facet_wrap(~mutant,ncol=4)+
-  scale_y_continuous(trans="log2")+
-  cleanup+
-  scale_fill_manual(values = getPalette(length(unique(twinstrand_merge_forplot$mutant))))
-ggplotly(plotly)
+# plotly=ggplot(twinstrand_merge_forplot%>%filter(count_type=="totalmutant"),aes(x=time/24,y=count,fill=factor(mutant),shape=factor(count_type)))+geom_point()+
+#   geom_line(aes(y=sd_mean_model),linetype="dashed")+
+#   geom_ribbon(aes(ymin=sd_ll_model,ymax=sd_ul_model,alpha=.3))+
+#   facet_wrap(~mutant,ncol=4)+
+#   scale_y_continuous(trans="log2")+
+#   cleanup+
+#   scale_fill_manual(values = getPalette(length(unique(twinstrand_merge_forplot$mutant))))
+# ggplotly(plotly)
 
-plotly=ggplot(twinstrand_merge_forplot%>%filter(count_type=="MAF"),aes(x=time/24,y=count,fill=factor(mutant),shape=factor(count_type)))+geom_point()+
-  geom_line(aes(y=sd_mean_model),linetype="dashed")+
-  geom_ribbon(aes(ymin=sd_ll_model,ymax=sd_ul_model,alpha=.3))+
-  facet_wrap(~mutant,ncol=4)+
-  scale_y_continuous(trans="log2")+
-  cleanup+
-  scale_fill_manual(values = getPalette(length(unique(twinstrand_merge_forplot$mutant))))
-ggplotly(plotly)
+# plotly=ggplot(twinstrand_merge_forplot%>%filter(count_type=="MAF"),aes(x=time/24,y=count,fill=factor(mutant),shape=factor(count_type)))+geom_point()+
+#   geom_line(aes(y=sd_mean_model),linetype="dashed")+
+#   geom_ribbon(aes(ymin=sd_ll_model,ymax=sd_ul_model,alpha=.3))+
+#   facet_wrap(~mutant,ncol=4)+
+#   scale_y_continuous(trans="log2")+
+#   cleanup+
+#   scale_fill_manual(values = getPalette(length(unique(twinstrand_merge_forplot$mutant))))
+# ggplotly(plotly)
 
 
 
-plotly=ggplot(twinstrand_merge_forplot%>%filter(mutant%in%"T315I",count_type=="totalmutant"),aes(x=time/24,y=count,fill=factor(mutant),shape=factor(count_type)))+geom_boxplot()+
-  geom_line(aes(y=sd_mean_model),linetype="dashed")+
-  geom_ribbon(aes(ymin=sd_ll_model,ymax=sd_ul_model,alpha=.3))+
-  facet_wrap(~mutant,ncol=4)+
-  scale_y_continuous(trans="log2")+
-  cleanup+
-  scale_fill_manual(values = getPalette(length(unique(twinstrand_merge_forplot$mutant))))
-ggplotly(plotly)
+# plotly=ggplot(twinstrand_merge_forplot%>%filter(mutant%in%"T315I",count_type=="totalmutant"),aes(x=time/24,y=count,fill=factor(mutant),shape=factor(count_type)))+geom_boxplot()+
+#   geom_line(aes(y=sd_mean_model),linetype="dashed")+
+#   geom_ribbon(aes(ymin=sd_ll_model,ymax=sd_ul_model,alpha=.3))+
+#   facet_wrap(~mutant,ncol=4)+
+#   scale_y_continuous(trans="log2")+
+#   cleanup+
+#   scale_fill_manual(values = getPalette(length(unique(twinstrand_merge_forplot$mutant))))
+# ggplotly(plotly)
 #Calculating errors in observed datapoints.
 twinstrand_merge_forplot_means=twinstrand_merge_forplot%>%group_by(mutant,count_type,time_point)%>%summarize(time=mean(time),count_mean_obs=mean(count),count_sd_obs=sd(count),sd_mean_model=mean(sd_mean_model),sd_ll_model=mean(sd_ll_model),sd_ul_model=mean(sd_ul_model))
 
@@ -333,14 +333,14 @@ getPalette = colorRampPalette(brewer.pal(9, "Spectral"))
 
 
 #Plotting IC50s form 4 Parameter model
-plotly=ggplot(twinstrand_merge_forplot%>%filter(count_type=="totalmutant"),aes(x=time/24,y=count,fill=factor(mutant),shape=factor(count_type)))+geom_point()+
-  geom_line(aes(y=sd_mean_model),linetype="dashed")+
-  geom_ribbon(aes(ymin=sd_ll_model,ymax=sd_ul_model,alpha=.3))+
-  facet_wrap(~mutant,ncol=4)+
-  scale_y_continuous(trans="log2")+
-  cleanup+
-  scale_fill_manual(values = getPalette(length(unique(twinstrand_merge_forplot$mutant))))
-ggplotly(plotly)
+# plotly=ggplot(twinstrand_merge_forplot%>%filter(count_type=="totalmutant"),aes(x=time/24,y=count,fill=factor(mutant),shape=factor(count_type)))+geom_point()+
+#   geom_line(aes(y=sd_mean_model),linetype="dashed")+
+#   geom_ribbon(aes(ymin=sd_ll_model,ymax=sd_ul_model,alpha=.3))+
+#   facet_wrap(~mutant,ncol=4)+
+#   scale_y_continuous(trans="log2")+
+#   cleanup+
+#   scale_fill_manual(values = getPalette(length(unique(twinstrand_merge_forplot$mutant))))
+# ggplotly(plotly)
 
 
 netgr_corrected_compiled=read.csv("output/twinstrand_microvariations_normalized.csv")
@@ -353,25 +353,25 @@ twinstrand_simple_merge=merge(twinstrand_simple,netgr_corrected_compiled,by = c(
 twinstrand_simple_merge=twinstrand_simple_merge%>%mutate(count_inferred=round(count_D0*exp(netgr_obs*time),0))
 
 # a=twinstrand_simple_merge%>%filter(mu)
-plotly=ggplot(twinstrand_simple_merge,aes(x=time/24,y=count_inferred,fill=factor(mutant)))+
-  geom_point()+
-  # geom_line(aes(y=sd_mean_model),linetype="dashed")+
-  # geom_ribbon(aes(ymin=sd_ll_model,ymax=sd_ul_model,alpha=.3))+
-  facet_wrap(~mutant+correction_status)+
-  scale_y_continuous(trans="log2")+
-  cleanup+
-  scale_fill_manual(values = getPalette(length(unique(twinstrand_merge_forplot$mutant))))
-ggplotly(plotly)
+# plotly=ggplot(twinstrand_simple_merge,aes(x=time/24,y=count_inferred,fill=factor(mutant)))+
+#   geom_point()+
+#   # geom_line(aes(y=sd_mean_model),linetype="dashed")+
+#   # geom_ribbon(aes(ymin=sd_ll_model,ymax=sd_ul_model,alpha=.3))+
+#   facet_wrap(~mutant+correction_status)+
+#   scale_y_continuous(trans="log2")+
+#   cleanup+
+#   scale_fill_manual(values = getPalette(length(unique(twinstrand_merge_forplot$mutant))))
+# ggplotly(plotly)
 
-plotly=ggplot(twinstrand_simple_merge%>%filter(correction_status%in%"netgr_obs_corrected"),aes(x=time/24,y=count_inferred,fill=factor(mutant)))+
-  geom_point()+
-  # geom_line(aes(y=sd_mean_model),linetype="dashed")+
-  # geom_ribbon(aes(ymin=sd_ll_model,ymax=sd_ul_model,alpha=.3))+
-  facet_wrap(~mutant)+
-  scale_y_continuous(trans="log2")+
-  cleanup+
-  scale_fill_manual(values = getPalette(length(unique(twinstrand_merge_forplot$mutant))))
-ggplotly(plotly)
+# plotly=ggplot(twinstrand_simple_merge%>%filter(correction_status%in%"netgr_obs_corrected"),aes(x=time/24,y=count_inferred,fill=factor(mutant)))+
+#   geom_point()+
+#   # geom_line(aes(y=sd_mean_model),linetype="dashed")+
+#   # geom_ribbon(aes(ymin=sd_ll_model,ymax=sd_ul_model,alpha=.3))+
+#   facet_wrap(~mutant)+
+#   scale_y_continuous(trans="log2")+
+#   cleanup+
+#   scale_fill_manual(values = getPalette(length(unique(twinstrand_merge_forplot$mutant))))
+# ggplotly(plotly)
 
 ###
 twinstrand_simple_errorbars=twinstrand_simple_merge%>%group_by(mutant,correction_status,time_point,time)%>%summarize(count_inferred_mean=mean(count_inferred),count_inferred_sd=sd(count_inferred),sd_mean_model=mean(sd_mean_model),sd_ul_model=mean(sd_ul_model),sd_ll_model=mean(sd_ll_model))
@@ -407,7 +407,7 @@ ggplot(twinstrand_simple_errorbars%>%filter(correction_status%in%"netgr_obs",!mu
         axis.title.x = element_blank(),
         axis.title.y=element_blank())
 
-####################If all I want to do is show the improvement in error correction between the two replicates, why don't I just do that?####################
+####################Just showing the improvement in error correction between the two replicates####################
 #How much do the standard deviations across replicates change in all replicates
 # netgr_corrected_compiled=read.csv("../output/twinstrand_microvariations_normalized.csv")
 netgr_corrected_compiled=read.csv("output/twinstrand_microvariations_normalized.csv")
@@ -456,57 +456,16 @@ corrected=netgr_corrected_errorbars%>%filter(!netgr_obs_sd%in%NA,!mutant%in%"E25
 t.test(x=raw[[1]],y=corrected[[1]],mu = 0,paired = T,conf.level = 0.95)
 
 
-###Making boxplot: (ended up not looking good aesthetically)
-netgr_corrected_compiled=netgr_corrected_compiled%>%
-  mutate(correction_status_name=case_when(correction_status%in%"netgr_obs"~"Raw",
-                                          correction_status%in%"netgr_obs_corrected"~"Corrected"))
-netgr_corrected_compiled$correction_status_name=factor(netgr_corrected_compiled$correction_status_name,levels=c("Raw","Corrected"))
-
-ggplot(netgr_corrected_compiled%>%filter(!netgr_obs%in%NA),aes(x=factor(correction_status_name),y=netgr_obs,fill=mutant))+
-  geom_boxplot()+
-  geom_dotplot(binaxis='y',stackdir='center')+
-  facet_wrap(~mutant)+
-  cleanup+
-  scale_fill_manual(values = getPalette(length(unique(netgr_corrected_errorbars$mutant))))+
-  theme(legend.position = "none",
-        axis.text.y=element_blank(),
-        axis.title.x = element_blank(),
-        axis.text.x=element_text(angle=20,hjust=.5,vjust=.5),
-        strip.text=element_blank())
-
 ```
 
-Plotting Deviation from expectations for all mutants
+Looking at Accuracy of our method vs Shendure
 ```{r}
-###############################################################
-############D3############
 twinstrand_merge_forplot_means=twinstrand_merge_forplot_means%>%mutate(percent_error=abs((count_mean_obs-sd_mean_model)*100/count_mean_obs))
 
 twinstrand_merge_forplot_means=twinstrand_merge_forplot_means%>%
   mutate(count_type_name=case_when(count_type%in%"totalmutant"~"Total Count",
                                           count_type%in%"MAF"~"Allele Frequency"))
 twinstrand_merge_forplot_means$count_type_name=factor(twinstrand_merge_forplot_means$count_type_name,levels=c("Allele Frequency","Total Count"))
-
-deviations=twinstrand_merge_forplot_means%>%filter(time_point=="D3",count_type=="totalmutant")
-ggplot(deviations,aes(x=mutant,y=(count_mean_obs-sd_mean_model)*100/sd_mean_model,color=mutant,label=mutant))+geom_text()
-#####Plotting it in a hazard ratio fashion. Wheras the other plots show %increase in counts vs expectations, this hazard ratio plot also helps hone in on some of the mutants that got decreased by a lot. In a sense, it is a fairer plot.
-ggplot(deviations,aes(y=mutant,x=(count_mean_obs/sd_mean_model),color=mutant,label=mutant))+geom_text()+scale_x_continuous(trans="log10")+geom_vline(aes(xintercept=1))
-
-ggplot(deviations,aes(x=mutant,y=(count_mean_obs-sd_mean_model)*100/sd_mean_model,fill=mutant))+geom_col()+cleanup+theme(legend.position = "none")+scale_y_continuous(name=" % Difference between observed and expected cell counts")+scale_fill_manual(values = getPalette(length(unique(twinstrand_merge_forplot$mutant))))+
-  scale_color_manual(values = getPalette(length(unique(twinstrand_merge_forplot$mutant))))+
-  theme(axis.title.x = element_blank())
-############D6############
-deviations=twinstrand_merge_forplot_means%>%filter(time_point=="D6",count_type=="totalmutant")
-ggplot(deviations,aes(x=mutant,y=(count_mean_obs-sd_mean_model)*100/sd_mean_model,color=mutant,label=mutant))+geom_text()
-
-ggplot(deviations,aes(x=mutant,y=(count_mean_obs-sd_mean_model)*100/sd_mean_model))+geom_col(color="black",aes(fill=mutant))+cleanup+theme(legend.position = "none")+scale_y_continuous(name=" % Difference between observed \n and expected cell counts")+scale_fill_manual(values = getPalette(length(unique(twinstrand_merge_forplot$mutant))))+
-  scale_fill_manual(values = getPalette(length(unique(twinstrand_merge_forplot$mutant))))+
-  theme(axis.title.x = element_blank(),
-        axis.text.x=element_text(angle=90,hjust=.5,vjust=.5))
-# ggsave("m351t_deviation.pdf",width=4,height = 2,units="in",useDingbats=F)
- 
-###Things that I would like to do to see if this huge M351T deviation from expectations is real: 1) Right now, you were only looking at M3, M5, M7. Look at M4, M6 too. Maybe make a boxplot with errorbars. 2) You were only looking at the %age deviation of observed vs predicted counts at D3, D6 etc. Look at %age deviation in *netgrowthrate* between observed and predicted.
-
 
 ggplot(twinstrand_merge_forplot_means%>%filter(time_point=="D3"),aes(x=count_type_name,y=abs((count_mean_obs-sd_mean_model)*100/count_mean_obs),group=factor(mutant)))+
   geom_line()+
@@ -549,55 +508,40 @@ t.test(x=maf_error_d6[[1]],y=totalmutant_error_d6[[1]],mu = 0,paired = T,conf.le
 ```
 
 
-
-Plotting Shendure's observed vs predicted plots
+Plotting Deviation from expectations for all mutants
 ```{r}
-# twinstrand_simple_melt_merge=read.csv("../output/twinstrand_simple_melt_merge.csv",header = T,stringsAsFactors = F,row.names = 1)
-twinstrand_simple_melt_merge=read.csv("output/twinstrand_simple_melt_merge.csv",header = T,stringsAsFactors = F,row.names = 1)
+###############################################################
+############D3############
+twinstrand_merge_forplot_means=twinstrand_merge_forplot_means%>%mutate(percent_error=abs((count_mean_obs-sd_mean_model)*100/count_mean_obs))
 
+twinstrand_merge_forplot_means=twinstrand_merge_forplot_means%>%
+  mutate(count_type_name=case_when(count_type%in%"totalmutant"~"Total Count",
+                                          count_type%in%"MAF"~"Allele Frequency"))
+twinstrand_merge_forplot_means$count_type_name=factor(twinstrand_merge_forplot_means$count_type_name,levels=c("Allele Frequency","Total Count"))
 
-a_sum=twinstrand_merge_forplot%>%filter(experiment%in%"M3")%>%group_by(mutant,count_type)%>%summarize(netgr_obs=log(count[time_point=="D6"]/count[time_point=="D3"])/72,netgr_pred=mean(netgr_pred_mean),netgr_pred_ul=mean(netgr_pred_sd_ul),netgr_pred_ll=mean(netgr_pred_sd_ll),netgr_pred_model=mean(netgr_pred_model))
-# a_sum=merge(a_sum,ic50data_long%>%filter(conc==.8)%>%dplyr::select(mutant,conc,netgr_pred_model=netgr_pred),by = "mutant")
+deviations=twinstrand_merge_forplot_means%>%filter(time_point=="D3",count_type=="totalmutant")
+ggplot(deviations,aes(x=mutant,y=(count_mean_obs-sd_mean_model)*100/sd_mean_model,color=mutant,label=mutant))+geom_text()
+#####Plotting it in a hazard ratio fashion. Wheras the other plots show %increase in counts vs expectations, this hazard ratio plot also helps hone in on some of the mutants that got decreased by a lot. In a sense, it is a fairer plot.
+ggplot(deviations,aes(y=mutant,x=(count_mean_obs/sd_mean_model),color=mutant,label=mutant))+geom_text()+scale_x_continuous(trans="log10")+geom_vline(aes(xintercept=1))
 
-getPalette2 = colorRampPalette(brewer.pal(9, "Spectral"))
+ggplot(deviations,aes(x=mutant,y=(count_mean_obs-sd_mean_model)*100/sd_mean_model,fill=mutant))+geom_col()+cleanup+theme(legend.position = "none")+scale_y_continuous(name=" % Difference between observed and expected cell counts")+scale_fill_manual(values = getPalette(length(unique(twinstrand_merge_forplot$mutant))))+
+  scale_color_manual(values = getPalette(length(unique(twinstrand_merge_forplot$mutant))))+
+  theme(axis.title.x = element_blank())
+############D6############
+deviations=twinstrand_merge_forplot_means%>%filter(time_point=="D6",count_type=="totalmutant")
+ggplot(deviations,aes(x=mutant,y=(count_mean_obs-sd_mean_model)*100/sd_mean_model,color=mutant,label=mutant))+geom_text()
 
-###Troubleshooting plotting colors
-plotly=ggplot(a_sum%>%filter(count_type=="MAF"),aes(x=netgr_pred,y=netgr_obs,label=mutant,color=factor(mutant)))+geom_text()+geom_abline()+cleanup+scale_x_continuous(limits=c(-.02,.06))+scale_y_continuous(limits=c(-.02,.06))+scale_color_manual(values = getPalette2(length(unique(a_sum$mutant))))
-ggplotly(plotly)
-###
+ggplot(deviations,aes(x=mutant,y=(count_mean_obs-sd_mean_model)*100/sd_mean_model))+geom_col(color="black",aes(fill=mutant))+cleanup+theme(legend.position = "none")+scale_y_continuous(name=" % Difference between observed \n and expected cell counts")+scale_fill_manual(values = getPalette(length(unique(twinstrand_merge_forplot$mutant))))+
+  scale_fill_manual(values = getPalette(length(unique(twinstrand_merge_forplot$mutant))))+
+  theme(axis.title.x = element_blank(),
+        axis.text.x=element_text(angle=90,hjust=.5,vjust=.5))
+# ggsave("m351t_deviation.pdf",width=4,height = 2,units="in",useDingbats=F)
+ 
+###Things that I would like to do to see if this huge M351T deviation from expectations is real: 1) Right now, you were only looking at M3, M5, M7. Look at M4, M6 too. Maybe make a boxplot with errorbars. 2) You were only looking at the %age deviation of observed vs predicted counts at D3, D6 etc. Look at %age deviation in *netgrowthrate* between observed and predicted.
 
-plotly=ggplot(a_sum%>%filter(count_type=="MAF"),aes(x=netgr_pred,y=netgr_obs,label=mutant,color=mutant))+geom_text()+geom_abline()+cleanup+scale_x_continuous(limits=c(-.02,.06))+scale_y_continuous(limits=c(-.02,.06))+scale_color_manual(values = getPalette(length(unique(a_sum$mutant))))
-ggplotly(plotly)
-
-plotly=ggplot(a_sum%>%filter(count_type=="totalmutant"),aes(x=netgr_pred,y=netgr_obs,label=mutant,color=mutant))+geom_text()+geom_abline()+cleanup+scale_x_continuous(limits=c(-.02,.06))+scale_y_continuous(limits=c(-.02,.06))+scale_color_manual(values = getPalette(length(unique(twinstrand_merge_forplot$mutant))))
-ggplotly(plotly)
-
-plotly=ggplot(a_sum%>%filter(count_type=="totalmutant"),aes(x=netgr_pred_model,y=netgr_obs,label=mutant,color=mutant))+geom_text()+geom_abline()+cleanup+scale_color_manual(values = getPalette(length(unique(twinstrand_merge_forplot$mutant))))
-  # scale_x_continuous(limits=c(-.02,.06))+
-  # scale_y_continuous(limits=c(-.02,.06))
-ggplotly(plotly)
-
-plotly=ggplot(a_sum%>%filter(count_type=="totalmutant"),aes(x=netgr_pred_model,y=netgr_pred,color=mutant))+geom_errorbar(aes(ymin=netgr_pred_ul,ymax=netgr_pred_ll))+geom_point()+geom_abline()+cleanup+
-  scale_x_continuous(limits=c(0,.06))+
-  scale_y_continuous(limits=c(0,.06))+scale_color_manual(values = getPalette(length(unique(twinstrand_merge_forplot$mutant))))
-ggplotly(plotly)
-
-plotly=ggplot(a_sum%>%filter(count_type=="totalmutant"),aes(x=netgr_pred,y=netgr_pred,color=mutant))+geom_errorbar(aes(ymin=netgr_pred_ul,ymax=netgr_pred_ll))+geom_point()+geom_abline()+cleanup+
-  scale_x_continuous(limits=c(0,.06))+
-  scale_y_continuous(limits=c(0,.06))+scale_color_manual(values = getPalette(length(unique(twinstrand_merge_forplot$mutant))))
-ggplotly(plotly)
-
-# a_sum=twinstrand_merge_forplot%>%group_by(mutant,count_type)%>%summarize(netgr_obs=log(count[time_point=="D3"]/count[time_point=="D0"])/72,netgr_pred=mean(netgr_pred_mean))
-# ggplot(a_sum%>%filter(count_type=="MAF"),aes(x=netgr_pred,y=netgr_obs,label=mutant))+geom_text()+geom_abline()+cleanup+scale_x_continuous(limits=c(-.02,.06))+scale_y_continuous(limits=c(-.02,.06))
-# ggplot(a_sum%>%filter(count_type=="totalmutant"),aes(x=netgr_pred,y=netgr_obs,label=mutant))+geom_text()+geom_abline()+cleanup+scale_x_continuous(limits=c(-.02,.06))+scale_y_continuous(limits=c(-.02,.06))
-
-a=twinstrand_simple_melt_merge%>%
-  mutate(netgr_obs=case_when(experiment=="M5"~netgr_obs+.015,
-                                   experiment%in%c("M6","M3","M5","M4","M7")~netgr_obs))
-
-plotly=ggplot(a%>%filter(experiment%in%c("M3","M4","M5","M6","M7"),duration=="d3d6"),aes(x=netgr_pred,y=netgr_obs,color=factor(experiment),label=factor(mutant)))+geom_text()+geom_abline()+cleanup+scale_x_continuous(trans="log10")+scale_y_continuous(trans="log10")
-ggplotly(plotly)
 ```
+
+###Archive:  
 Shendure vs Our Method using CIs generated from 4-parameter logistic IC50s:
 Getting error bars a different way. Instead of calculating the 95% confidence intervals and standard deviations for IC50 datapoints, I'm going to calculate the sd and the 95% conf int for the 4-param fit off of the original data
 Therefore, this code combines the method of getting 4-parameter fits from the spike-ins-data-generation code (and updates it so that it retains information on multiple replicates) and adds a method of obtaining and plotting predicted confidence intervals. 

@@ -1,0 +1,83 @@
+---
+title: "simple_data_generation"
+author: "Haider Inam"
+date: "6/5/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+Here I include some miscellaneous, pre-prod analyses
+```{r,include=F}
+# rm(list=ls())
+library(knitr)
+library(tictoc)
+library(workflowr)
+library(VennDiagram)
+library(dplyr)
+library(foreach)
+library(doParallel)
+library(ggplot2)
+library(reshape2)
+library(RColorBrewer)
+library(devtools)
+library(ggsignif)
+library(plotly)
+library(BiocManager)
+library(drc)
+# library(ensembldb) #Loading this with Dplyr commands seems to throw an error in Rmd
+# library(EnsDb.Hsapiens.v86) #Loading this with Dplyr commands seems to throw an error in Rmd
+
+######################Cleanup for GGPlot2#########################################
+cleanup=theme_bw() +
+  theme(plot.title = element_text(hjust=.5),
+        panel.grid.major = element_blank(),
+        panel.grid.major.y = element_blank(),
+        panel.background = element_blank(),
+        axis.line = element_line(color = "black"),
+        axis.text = element_text(face="bold",color="black",size="11"),
+        text=element_text(size=11,face="bold"),
+        axis.title=element_text(face="bold",size="11"))
+```
+
+```{r}
+net_gr_wodrug=0.055
+conc_for_predictions=0.8
+########################Reading IC50 Data########################
+# ic50data_all=read.csv("data/IC50HeatMap.csv",header = T,stringsAsFactors = F)
+# ic50data_all=read.csv("../data/IC50HeatMap.csv",header = T,stringsAsFactors = F)
+
+# twinstrand_maf_merge=read.csv("output/twinstrand_maf_merge.csv",header = T,stringsAsFactors = F)
+twinstrand_maf_merge=read.csv("../output/twinstrand_maf_merge.csv",header = T,stringsAsFactors = F)
+
+twinstrand_simple_melt_merge=read.csv("../output/twinstrand_simple_melt_merge.csv",header = T,stringsAsFactors = F)
+# twinstrand_simple_melt_merge=read.csv("output/twinstrand_simple_melt_merge.csv",header = T,stringsAsFactors = F)
+
+# ic50data_long=read.csv("../output/ic50data_all_conc.csv",header = T,stringsAsFactors = F)
+# ic50data_long=read.csv("output/ic50data_all_conc.csv",header = T,stringsAsFactors = F)
+# ic50data_long$netgr_pred=net_gr_wodrug-ic50data_long$drug_effect
+```
+
+Twinstrand_MAF_Merge
+```{r}
+##Selecting columns to keep
+twinstrand_maf_merge_simple=twinstrand_maf_merge%>%filter(tki_resistant_mutation=="True")%>%dplyr::select(!c(X,Sample,Chromosome,Start,End,REF,ALT,tki_resistant_mutation,tki_resistant_mutation_evidence,CustomerName,VariationType))
+##Rearranging
+twinstrand_maf_merge_simple=twinstrand_maf_merge_simple%>%dplyr::select(experiment,Annotation,Spike_in_freq,time_point,mutant,AltDepth,Depth,totalcells_live_counted_facs=totalcells,totalmutant)
+
+##Filtering
+twinstrand_maf_merge_simple=twinstrand_maf_merge_simple%>%filter(AltDepth>=3)
+write.csv(twinstrand_maf_merge_simple,"twinstrand_maf_merge_simple.csv")
+```
+
+Twinstrand_Simple_Melt_Merge
+```{r}
+twinstrand_growthrates_simple=twinstrand_simple_melt_merge%>%mutate(net_gr_wodrug_perhours=0.055,netgr_wodrug_perdays=net_gr_wodrug_perhours*24)%>%dplyr::select(!c(X))%>%dplyr::select(experiment,Spike_in_freq,duration,mutant,net_gr_wodrug_perhours,netgr_wodrug_perdays,netgr_obs,drug_effect_obs,conc_for_ic50_predictions=conc,y_pred=y_model,drug_effect_pred=drug_effect,netgr_pred)
+twinstrand_growthrates_simple=twinstrand_growthrates_simple%>%filter(!(duration%in%"d0d3"&experiment%in%c("M4","M5","M7","Enu_3")),!(duration%in%"d0d6"&experiment%in%c("M4","M5","M7","Enu_3")))
+write.csv(twinstrand_growthrates_simple,"twinstrand_growthrates_simple.csv")
+
+# a=twinstrand_growthrates_simple%>%filter(experiment%in%"Enu_3")
+```
+

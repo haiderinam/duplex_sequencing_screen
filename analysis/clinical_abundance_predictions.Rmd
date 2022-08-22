@@ -13,6 +13,8 @@ knitr::opts_chunk$set(echo = TRUE)
 knitr::opts_chunk$set(echo = TRUE)
 # rm(list=ls())
 library("lmtest")
+# install.packages("ggplot2")
+# update.packages("ggplot2")
 library("ggplot2")
 library("MASS")
 library("fitdistrplus")
@@ -32,11 +34,11 @@ cleanup=theme_bw() +
         axis.title=element_text(face="bold",size="11"))
 
 ###Downloading mutation bias data. Source of this data: https://github.com/pritchardlabatpsu/SurvivalOfTheLikeliest/tree/master/Figures/Figure3
-# compicmut=read.csv("../data/Combined_data_frame_IC_Mutprob_abundance.csv",header=T,stringsAsFactors=F)
-compicmut=read.csv("data/Combined_data_frame_IC_Mutprob_abundance.csv",header=T,stringsAsFactors=F)
+compicmut=read.csv("../data/Combined_data_frame_IC_Mutprob_abundance.csv",header=T,stringsAsFactors=F)
+# compicmut=read.csv("data/Combined_data_frame_IC_Mutprob_abundance.csv",header=T,stringsAsFactors=F)
 
-# twinstrand_simple_melt_merge=read.csv("../output/twinstrand_simple_melt_merge.csv",header = T,stringsAsFactors = F)
-twinstrand_simple_melt_merge=read.csv("output/twinstrand_simple_melt_merge.csv",header = T,stringsAsFactors = F)
+twinstrand_simple_melt_merge=read.csv("../output/twinstrand_simple_melt_merge.csv",header = T,stringsAsFactors = F)
+# twinstrand_simple_melt_merge=read.csv("output/twinstrand_simple_melt_merge.csv",header = T,stringsAsFactors = F)
 
 ```
 
@@ -91,7 +93,7 @@ Predicting clinical abundances using the best spike-in mix
 #Using just the experiment that ended up giving us the best growth rates.
 mean_netgr=twinstrand_simple_melt_merge%>%filter(experiment%in%c("M3"),duration%in%("d3d6"))
 mean_netgr=mean_netgr%>%filter(!netgr_obs%in%NA)%>%
-  select(mutant,netgr_obs)
+  dplyr::select(mutant,netgr_obs)
 
 
 
@@ -100,14 +102,61 @@ compicmut2=merge(compicmut,mean_netgr,by.x ="Compound",by.y="mutant")
 compicmut=compicmut2
 #Notice that value here is your fitted IC50s
 ################Predictions using pooled IC50s################
+# fit5_pooled<-glm.nb(Abundance ~ netgr_mean+(Mutation.Probability), data=compicmut)
+# summary(fit5_pooled)
 fit5_pooled<-glm.nb(Abundance ~ netgr_mean+log10(Mutation.Probability), data=compicmut)
-summary(fit5_pooled)
+############Adding the CIs of predictions and plotting################
+# Could have used confint(fit5_pooled)
+linkinv=family(fit5_pooled)$linkinv #Using the inverse link function. Whatever the fuck that means. Got it from here https://stackoverflow.com/questions/35235939/how-to-plot-logistic-glm-predicted-values-and-confidence-interval-in-r
+pred=predict(fit5_pooled,newdata=compicmut,type="link", se.fit = T)
+
+upper=linkinv(pred$fit)+(1.96*pred$se.fit)
+lower=linkinv(pred$fit)-(1.96*pred$se.fit)
 
 Data_fit=data.frame(cbind(compicmut,fit5_pooled$fitted.values)) ###Need to check that doing a cbind this way makes the right mutants go to the right row in compicmut. Pretty sure it does.
+Data_fit=cbind(Data_fit,upper,lower)
+
 x=ggplot(data =Data_fit,aes(fit5_pooled.fitted.values,Abundance))
 x+stat_function(fun=function(x)x, geom="line", aes(colour="square",size=1.0))+geom_point(aes(size=1))+theme_classic()+theme(axis.text.x = element_text(size=15),axis.text.y = element_text(size=15))
 # ggplot(compicmut,aes(x=IC50,y=(drug_effect_obs^.5),label=Compound))+geom_text()
-
+############Saving Predictions using pooled IC50s as a BMES figure################
+x=ggplot(data =Data_fit,aes(Abundance,fit5_pooled.fitted.values))
+x+geom_abline()+
+  # stat_function(fun=function(x)x, geom="line", aes(colour="square",size=1.0))+
+  # geom_point(aes(size=1))+
+  geom_point(aes(alpha=.7))+
+  geom_errorbar(aes(ymin=lower,ymax=upper))+
+  scale_y_continuous(name="Model Predicted Clinical Abundance",limits=c(0,42))+
+  scale_x_continuous(name="Clinical Abundance",limits=c(0,42))+
+  theme_classic()+
+  theme(axis.text.x = element_text(size=15),
+        axis.text.y = element_text(size=15))+
+  cleanup+
+  theme(legend.position = "none")
+###Coloring mutants by factor for Scott 5/28/21###
+Data_fit$Compound=factor(Data_fit$Compound)
+Data_fit$Compound=reorder(Data_fit$Compound,-Data_fit$Abundance)
+Data_fit_simple=Data_fit%>%dplyr::select(Compound,IC50,Mutation.Probability,Abundance,Nuc_change,netgr_obs,Abundance_fit=fit5_pooled.fitted.values)
+write.csv(Data_fit_simple,"clinicalabundance_predictions_pooled.csv")
+x=ggplot(data =Data_fit,aes(Abundance,fit5_pooled.fitted.values,color=Compound))
+x+geom_abline()+
+  # stat_function(fun=function(x)x, geom="line", aes(colour="square",size=1.0))+
+  # geom_point(aes(size=1))+
+  geom_point()+
+  # geom_errorbar(aes(ymin=lower,ymax=upper))+
+  scale_y_continuous(name="Model Predicted Clinical Abundance",limits=c(0,42))+
+  scale_x_continuous(name="Clinical Abundance",limits=c(0,42))+
+  theme_classic()+
+  theme(axis.text.x = element_text(size=15),
+        axis.text.y = element_text(size=15))+
+  cleanup+
+  scale_color_manual(values=c(Palette("#FD0D39","#FF839E",19,mode="RGB",circular=F)))+
+  theme(legend.position = "none")
+###
+ggsave("clinicalabundancepredictions_pooled_52821.pdf",width=3,height=3,units="in",useDingbats=F)
+ggplot(data =Data_fit,aes(Abundance,fit5_pooled.fitted.values,label=Compound))+geom_abline()+
+  geom_text()+
+  cleanup
 ################Predictions using individual IC50s################
 fit5<-glm.nb(Abundance ~ IC50+log10(Mutation.Probability), data=compicmut) #Best 2 variable model
 summary(fit5)
@@ -125,6 +174,83 @@ cor(Data_fit$fit5_pooled.fitted.values,Data_fit$Abundance,method="pearson")
 cor(Data_fit$fit5.fitted.values,Data_fit$Abundance,method="pearson")
 ```
 
+Same chunk as above except that it makes a neat figure but the ic50 predictions rather than the pooled predictions
+```{r}
+#Using just the experiment that ended up giving us the best growth rates.
+mean_netgr=twinstrand_simple_melt_merge%>%filter(experiment%in%c("M3"),duration%in%("d3d6"))
+mean_netgr=mean_netgr%>%filter(!netgr_obs%in%NA)%>%
+  dplyr::select(mutant,netgr_obs)
+
+
+
+compicmut2=merge(compicmut,mean_netgr,by.x ="Compound",by.y="mutant")
+# compicmut2$IC50=compicmut2$netgr
+compicmut=compicmut2
+#Notice that value here is your fitted IC50s
+################Predictions using pooled IC50s################
+# fit5_pooled<-glm.nb(Abundance ~ netgr_mean+(Mutation.Probability), data=compicmut)
+# summary(fit5_pooled)
+fit5_pooled<-glm.nb(Abundance ~ IC50+log10(Mutation.Probability), data=compicmut)
+############Adding the CIs of predictions and plotting################
+# Could have used confint(fit5_pooled)
+linkinv=family(fit5_pooled)$linkinv #Using the inverse link function. Whatever the fuck that means. Got it from here https://stackoverflow.com/questions/35235939/how-to-plot-logistic-glm-predicted-values-and-confidence-interval-in-r
+pred=predict(fit5_pooled,newdata=compicmut,type="link", se.fit = T)
+
+upper=linkinv(pred$fit)+(1.96*pred$se.fit)
+lower=linkinv(pred$fit)-(1.96*pred$se.fit)
+
+Data_fit=data.frame(cbind(compicmut,fit5_pooled$fitted.values)) ###Need to check that doing a cbind this way makes the right mutants go to the right row in compicmut. Pretty sure it does.
+Data_fit=cbind(Data_fit,upper,lower)
+
+x=ggplot(data =Data_fit,aes(fit5_pooled.fitted.values,Abundance))
+x+stat_function(fun=function(x)x, geom="line", aes(colour="square",size=1.0))+geom_point(aes(size=1))+theme_classic()+theme(axis.text.x = element_text(size=15),axis.text.y = element_text(size=15))
+# ggplot(compicmut,aes(x=IC50,y=(drug_effect_obs^.5),label=Compound))+geom_text()
+############Saving Predictions using pooled IC50s as a BMES figure################
+library("painter")
+# library("ggplot2")
+####Converting mutants to factors and ordering by abundance###
+Data_fit$Compound=factor(Data_fit$Compound)
+Data_fit$Compound=reorder(Data_fit$Compound,-Data_fit$Abundance)
+###
+x=ggplot(data =Data_fit,aes(Abundance,fit5_pooled.fitted.values))
+x+geom_abline()+
+  # stat_function(fun=function(x)x, geom="line", aes(colour="square",size=1.0))+
+  # geom_point(aes(size=1))+
+  geom_point(aes(alpha=.7))+
+  geom_errorbar(aes(ymin=lower,ymax=upper))+
+  scale_y_continuous(name="Model Predicted Clinical Abundance",limits=c(0,42))+
+  scale_x_continuous(name="Clinical Abundance",limits=c(0,42))+
+  theme_classic()+
+  theme(axis.text.x = element_text(size=15),
+        axis.text.y = element_text(size=15))+
+  cleanup+
+  theme(legend.position = "none")
+# ggsave("clinicalabundancepredictions_ic50s_061020.pdf",width=2,height=2,units="in",useDingbats=F)
+###Adding colors to plot for Scott 5/28/21
+x=ggplot(data =Data_fit,aes(Abundance,fit5_pooled.fitted.values,color=(Compound)))
+x+geom_abline()+
+  # stat_function(fun=function(x)x, geom="line", aes(colour="square",size=1.0))+
+  # geom_point(aes(size=1))+
+  geom_point()+
+  # geom_errorbar(aes(ymin=lower,ymax=upper))+
+  scale_y_continuous(name="Model Predicted Clinical Abundance",limits=c(0,42))+
+  scale_x_continuous(name="Clinical Abundance",limits=c(0,42))+
+  theme_classic()+
+  theme(axis.text.x = element_text(size=15),
+        axis.text.y = element_text(size=15))+
+  cleanup+
+  scale_color_manual(values=c(Palette("#FD0D39","#FF839E",19,mode="RGB",circular=F)))+
+  theme(legend.position = "none")
+ggsave("clinicalabundancepredictions_ic50s_052821_v2.pdf",width=3,height=3,units="in",useDingbats=F)
+###
+
+
+
+
+ggplot(data =Data_fit,aes(Abundance,fit5_pooled.fitted.values,label=Compound))+geom_abline()+
+  geom_text()+
+  cleanup
+```
 
 Supplemental Analysis
 ```{r}

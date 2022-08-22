@@ -7,9 +7,9 @@ output: html_document
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_knit$set(root.dir=rprojroot::find_rstudio_root_file())
 ```
 
-Tasks:
 
 ```{r, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
@@ -29,10 +29,27 @@ cleanup=theme_bw() +
         panel.grid.major = element_blank(),
         panel.grid.major.y = element_blank(),
         panel.background = element_blank(),
-        axis.line = element_line(color = "black"),
+        # axis.line = element_line(color = "black"),
         axis.text = element_text(face="bold",color="black",size="11"),
         text=element_text(size=11,face="bold"),
         axis.title=element_text(face="bold",size="11"))
+
+# cleanup=theme_bw() +
+#   theme(plot.title = element_text(hjust=.5),
+#         panel.grid.major = element_blank(),
+#         panel.grid.major.y = element_blank(),
+#         panel.background = element_blank(),
+#         axis.line = element_line(color = "black"),
+#         axis.text = element_text(face="bold",color="black",size="11"),
+#         text=element_text(size=11,face="bold"),
+#         axis.title=element_text(face="bold",size="11"))
+
+# cleanup=theme_bw() +
+#   theme(plot.title = element_text(hjust=.5),
+#         panel.grid.major = element_blank(),
+#         panel.grid.major.y = element_blank(),
+#         panel.background = element_blank(),
+#         axis.line = element_line(color = "black"))
 
 conc_for_predictions=0.8
 net_gr_wodrug=0.05
@@ -206,6 +223,30 @@ cor(enu_cast$Enu_3,enu_cast$Enu_4)^2
 
 a=twinstrand_simple_melt_merge%>%filter(experiment%in%c("Enu_4","Enu_3"),duration%in%c("d0d3"))
 # ,!netgr_obs%in%NA
+
+
+
+cleanup=theme_bw() +
+  theme(plot.title = element_text(hjust=.5),
+        panel.grid.major = element_blank(),
+        panel.grid.major.y = element_blank(),
+        panel.background = element_blank(),
+        # axis.line = element_line(color = "black"),
+        axis.text = element_text(face="bold",color="black",size="11"),
+        text=element_text(size=11,face="bold"),
+        axis.title=element_text(face="bold",size="11"))
+
+ggplot(enu_cast,aes(x=Enu_3,y=Enu_4,label=mutant))+
+  geom_point()+
+  geom_text()+
+  cleanup+
+  geom_abline()+
+  scale_x_continuous(limits = c(0,.065),name="Observed growth rate (Mutagenesis Replicate 1)")+
+  scale_y_continuous(limits = c(0,.065),name="Observed growth rate (Mutagenesis replicate 2)")+
+  theme(axis.text = element_text(size=12,face="bold",color="black"),
+        axis.title = element_text(size=12,face="bold",color="black"))
+# ggsave("enu_correlation_plot_52621.pdf",width=3,height=3,units="in",useDingbats=F)
+cor(enu_cast$Enu_3,enu_cast$Enu_4)^2
 ```
 ###ENU vs spike in
 ```{r}

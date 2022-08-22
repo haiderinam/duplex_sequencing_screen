@@ -1,0 +1,196 @@
+---
+title: "ic50heatmaps_asciminib_newBCRABL"
+author: "Haider Inam"
+date: "4/27/2022"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(reshape2)
+library(ggplot2)
+library(dplyr)
+library(plotly)
+
+cleanup=theme_bw() +
+  theme(plot.title = element_text(hjust=.5),
+        panel.grid.major = element_blank(),
+        panel.grid.major.y = element_blank(),
+        panel.background = element_blank(),
+        # axis.line = element_line(color = "black"),
+        # axis.text = element_text(color="black",size="11"),
+        text=element_text(size=11))
+```
+
+```{r}
+# imatinib_data=read.csv("../data/IC50s_refseqBCRABL/Imatinib_heatmap.csv",header = T,stringsAsFactors = F)
+imatinib_data=read.csv("data/IC50s_refseqBCRABL/Imatinib_heatmap.csv",header = T,stringsAsFactors = F)
+imatinib_data=imatinib_data%>%dplyr::select(-X)
+# imatinib_data=imatinib_data%>%dplyr::select(Species,Replicate,X20,X10)
+imat_melt=melt(imatinib_data,
+               measure.vars = c("X20",
+                                "X10",
+                                "X5",
+                                "X2.5",
+                                "X1.25",
+                                "X0.625",
+                                "X0.3125",
+                                "X0.15625",
+                                "X0.078125"),
+               id.vars = c("Species","Replicate"),
+               variable.name ="Dose",
+               value.name = "Response")
+
+imat_melt=imat_melt%>%mutate(Dose=gsub("X","",Dose))
+imat_melt$Dose=as.numeric(as.character(imat_melt$Dose))
+imat_melt$Response=as.numeric(as.character(imat_melt$Response))
+imat_melt=imat_melt%>%mutate(Replicate=paste(Species,Replicate,sep = "-"))
+# imat_melt$Replicate=as.numeric(as.character(imat_melt$Replicate))
+imat_melt=imat_melt%>%filter(!Response%in%NaN)
+
+####Plotting#####
+
+imat_melt_sum=imat_melt%>%group_by(Species,Replicate,Dose)%>%summarize(Response_mean=mean(Response),Response_sd=sd(Response))
+
+imat_melt_sum$Species=factor(imat_melt_sum$Species,levels=c("plvx-AIG","pUltra-G2A-old","pUltra-G2A-new","plvx-AIG-T315I","pUltra-G2A-old-T315I","pUltra-G2A-new-T315I","plvx-AIG-F359C","pUltra-G2A-old-F359C","pUltra-G2A-new-F359C","pUltra-G2A-old-V468F","pUltra-G2A-new-V468F","plvx-E255K"))
+
+ggplot(imat_melt_sum,aes(x=Dose,y=Response_mean,color=Species))+facet_wrap(~Species,ncol=6)+geom_point()+geom_errorbar(aes(ymin=Response_mean-Response_sd,ymax=Response_mean+Response_sd))+geom_line(aes(group=factor(Replicate)))+scale_x_continuous(trans="log10")+scale_y_continuous(name="Response")+cleanup+theme(legend.position = "none")
+
+###Comparing WT###
+ggplot(imat_melt_sum%>%filter(Species%in%c("plvx-AIG","pUltra-G2A-old","pUltra-G2A-new")),aes(x=Dose,y=Response_mean,color=Species))+facet_wrap(~Species)+geom_point()+geom_errorbar(aes(ymin=Response_mean-Response_sd,ymax=Response_mean+Response_sd))+geom_line(aes(group=factor(Replicate)))+scale_x_continuous(trans="log10")
+###Comparing WT # 2 ###
+plotly=ggplot(imat_melt_sum%>%filter(Species%in%c("plvx-AIG","pUltra-G2A-old","pUltra-G2A-new")),aes(x=Dose,y=Response_mean,color=Species))+
+  geom_errorbar(aes(ymin=Response_mean-Response_sd,
+                    ymax=Response_mean+Response_sd),width=0.1)+
+  geom_line(aes(group=factor(Replicate)))+
+  geom_point(color="black",shape=21,aes(fill=Species))+
+  scale_x_continuous(trans="log10")+
+  scale_y_continuous(name="Response")+
+  cleanup
+ggplotly(plotly)
+
+###T315I###
+plotly=ggplot(imat_melt_sum%>%filter(Species%in%c("plvx-AIG-T315I","pUltra-G2A-old-T315I","pUltra-G2A-new-T315I")),aes(x=Dose,y=Response_mean,color=Species))+
+  geom_errorbar(aes(ymin=Response_mean-Response_sd,
+                    ymax=Response_mean+Response_sd),width=0.1)+
+  geom_line(aes(group=factor(Replicate)))+
+  geom_point(color="black",shape=21,aes(fill=Species))+
+  scale_x_continuous(trans="log10")+
+  scale_y_continuous(name="Response")+
+  cleanup
+ggplotly(plotly)
+
+
+###F359C###
+# 
+plotly=ggplot(imat_melt_sum%>%filter(Species%in%c("plvx-AIG-F359C","pUltra-G2A-old-F359C","pUltra-G2A-new-F359C")),aes(x=Dose,y=Response_mean,color=Species))+
+  geom_errorbar(aes(ymin=Response_mean-Response_sd,
+                    ymax=Response_mean+Response_sd),width=0.1)+
+  geom_line(aes(group=factor(Replicate)))+
+  geom_point(color="black",shape=21,aes(fill=Species))+
+  scale_x_continuous(trans="log10")+
+  scale_y_continuous(name="Response")+
+  cleanup
+ggplotly(plotly)
+
+###V468F###
+
+plotly=ggplot(imat_melt_sum%>%filter(Species%in%c("pUltra-G2A-old-V468F","pUltra-G2A-new-V468F")),aes(x=Dose,y=Response_mean,color=Species))+
+  geom_errorbar(aes(ymin=Response_mean-Response_sd,
+                    ymax=Response_mean+Response_sd),width=0.1)+
+  geom_line(aes(group=factor(Replicate)))+
+  geom_point(color="black",shape=21,aes(fill=Species))+
+  scale_x_continuous(trans="log10")+
+  scale_y_continuous(name="Response")+
+  cleanup
+ggplotly(plotly)
+
+```
+
+```{r}
+# asc_data=read.csv("../data/IC50s_refseqBCRABL/Asciminib_heatmap.csv",header = T,stringsAsFactors = F)
+asc_data=read.csv("data/IC50s_refseqBCRABL/Asciminib_heatmap.csv",header = T,stringsAsFactors = F)
+# sort(unique(asciminib_data))
+asc_melt=melt(asc_data,
+               measure.vars = c("X10",
+                                "X5",
+                                "X2.5",
+                                "X1.25",
+                                "X0.625",
+                                "X0.3125",
+                                "X0.15625",
+                                "X0.078125",
+                                "X0.0390625",
+                                "X0.01953125",
+                                "X0.009765625",
+                                "X0.004882813",
+                                "X0.002441406"),
+               id.vars = c("Species","Replicate"),
+               variable.name ="Dose",
+               value.name = "Response")
+
+asc_melt=asc_melt%>%mutate(Dose=gsub("X","",Dose))
+asc_melt$Dose=as.numeric(as.character(asc_melt$Dose))
+asc_melt$Response=as.numeric(as.character(asc_melt$Response))
+asc_melt=asc_melt%>%mutate(Replicate=paste(Species,Replicate,sep = "-"))
+# asc_melt$Replicate=as.numeric(as.character(asc_melt$Replicate))
+asc_melt=asc_melt%>%filter(!Response%in%NaN)
+
+asc_melt_sum=asc_melt%>%group_by(Species,Replicate,Dose)%>%summarize(Response_mean=mean(Response),Response_sd=sd(Response))
+sort(unique(asc_melt_sum$Species))
+asc_melt_sum$Species=factor(asc_melt_sum$Species,levels=c("plvx-AIG","pUltra-G2A-old","pUltra-G2A-new","pUltra-G2A-old-T315I","pUltra-G2A-new-T315I","pUltra-G2A-old-F359C","pUltra-G2A-new-F359C","pUltra-G2A-old-V468F","pUltra-G2A-new-V468F","plvx-E255K"))
+
+####Plotting#####
+ggplot(asc_melt_sum,aes(x=Dose,y=Response_mean,color=Species))+facet_wrap(~Species,ncol=3)+geom_point()+geom_errorbar(aes(ymin=Response_mean-Response_sd,ymax=Response_mean+Response_sd))+geom_line(aes(group=factor(Replicate)))+scale_x_continuous(trans="log10")+scale_y_continuous(name="Response")+cleanup+theme(legend.position = "none")
+
+###Comparing WT###
+ggplot(asc_melt_sum%>%filter(Species%in%c("plvx-AIG","pUltra-G2A-old","pUltra-G2A-new")),aes(x=Dose,y=Response_mean,color=Species))+facet_wrap(~Species)+geom_point()+geom_errorbar(aes(ymin=Response_mean-Response_sd,ymax=Response_mean+Response_sd))+geom_line(aes(group=factor(Replicate)))+scale_x_continuous(trans="log10")
+###Comparing WT # 2 ###
+plotly=ggplot(asc_melt_sum%>%filter(Species%in%c("plvx-AIG","pUltra-G2A-old","pUltra-G2A-new")),aes(x=Dose,y=Response_mean,color=Species))+
+  geom_errorbar(aes(ymin=Response_mean-Response_sd,
+                    ymax=Response_mean+Response_sd),width=0.1)+
+  geom_line(aes(group=factor(Replicate)))+
+  geom_point(color="black",shape=21,aes(fill=Species))+
+  scale_x_continuous(trans="log10")+
+  scale_y_continuous(name="Response")+
+  cleanup
+ggplotly(plotly)
+
+
+###T315I###
+plotly=ggplot(asc_melt_sum%>%filter(Species%in%c("pUltra-G2A-old-T315I","pUltra-G2A-new-T315I")),aes(x=Dose,y=Response_mean,color=Species))+
+  geom_errorbar(aes(ymin=Response_mean-Response_sd,
+                    ymax=Response_mean+Response_sd),width=0.1)+
+  geom_line(aes(group=factor(Replicate)))+
+  geom_point(color="black",shape=21,aes(fill=Species))+
+  scale_x_continuous(trans="log10")+
+  scale_y_continuous(name="Response")+
+  cleanup
+ggplotly(plotly)
+
+
+###F359C###
+# 
+plotly=ggplot(imat_melt_sum%>%filter(Species%in%c("pUltra-G2A-old-F359C","pUltra-G2A-new-F359C")),aes(x=Dose,y=Response_mean,color=Species))+
+  geom_errorbar(aes(ymin=Response_mean-Response_sd,
+                    ymax=Response_mean+Response_sd),width=0.1)+
+  geom_line(aes(group=factor(Replicate)))+
+  geom_point(color="black",shape=21,aes(fill=Species))+
+  scale_x_continuous(trans="log10")+
+  scale_y_continuous(name="Response")+
+  cleanup
+ggplotly(plotly)
+
+###V468F###
+
+plotly=ggplot(imat_melt_sum%>%filter(Species%in%c("pUltra-G2A-old-V468F","pUltra-G2A-new-V468F")),aes(x=Dose,y=Response_mean,color=Species))+
+  geom_errorbar(aes(ymin=Response_mean-Response_sd,
+                    ymax=Response_mean+Response_sd),width=0.1)+
+  geom_line(aes(group=factor(Replicate)))+
+  geom_point(color="black",shape=21,aes(fill=Species))+
+  scale_x_continuous(trans="log10")+
+  scale_y_continuous(name="Response")+
+  cleanup
+ggplotly(plotly)
+```
+

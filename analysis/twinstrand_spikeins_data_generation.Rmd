@@ -7,7 +7,7 @@ output: html_document
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
-
+knitr::opts_knit$set(root.dir=rprojroot::find_rstudio_root_file())
 ```
 
 ```{r,include=F}
@@ -46,11 +46,12 @@ cleanup=theme_bw() +
 ```{r}
 #Inputs:
 conc_for_predictions=0.8
-net_gr_wodrug=0.05
+net_gr_wodrug=0.055
 #Reading required tables
-ic50data_all_conc=read.csv("output/ic50data_all_conc.csv",header = T,stringsAsFactors = F)
-# ic50data_all_conc=read.csv("../output/ic50data_all_conc.csv",header = T,stringsAsFactors = F)
-ic50data_long=ic50data_all_conc%>%mutate(conc=="conc_for_predictions")
+ic50data_all_conc=read.csv("output/ic50data_all_conc.csv",header = T,stringsAsFactors = F,row.names=1)
+# ic50data_all_conc=read.csv("../output/ic50data_all_conc.csv",header = T,stringsAsFactors = F,row.names=1)
+ic50data_long=ic50data_all_conc%>%filter(conc==conc_for_predictions)
+ic50data_long$netgr_pred=net_gr_wodrug-ic50data_long$drug_effect
 
 twinstrand_maf=read.table("data/Twinstrand/prj00053-2019-12-02.deliverables/all.mut",sep="\t",header = T,stringsAsFactors = F)
 # twinstrand_maf=read.table("../data/Twinstrand/prj00053-2019-12-02.deliverables/all.mut",sep="\t",header = T,stringsAsFactors = F)
@@ -214,11 +215,34 @@ twinstrand_simple_melt$drug_effect_obs=net_gr_wodrug-twinstrand_simple_melt$netg
 # twinstrand_simple_melt_merge=merge(twinstrand_simple_melt,ic50data_long,"mutant")
 twinstrand_simple_melt_merge=merge(twinstrand_simple_melt,ic50data_long%>%filter(conc==conc_for_predictions),all.x = T)
 ```
+Looking at which samples I probably need to sequence again based on coverage
+```{r}
+#Spike in mutants
+a=twinstrand_maf_merge%>%filter(CustomerName%in%c("M7D0","M7D3","M7D6"),tki_resistant_mutation=="True",!mutant%in%c("D276G"),mutant%in%c("F317L","F359V","F359I","E355G","E459K"))%>%dplyr::select(mutant,CustomerName,time_point,AltDepth,Depth)
+
+plotly=ggplot(a,aes(x=time_point,y=AltDepth,color=factor(mutant),label=AltDepth))+geom_text(position = position_dodge(.5))+cleanup
+ggplotly(plotly)
+
+#ENU in mutants
+a=twinstrand_maf_merge%>%filter(CustomerName%in%c("Enu4_D0","Enu4_D3","Enu4_D6"),!mutant%in%c("D276G"),mutant%in%c("H214R","F359V","K285N","A397P","E355G"))%>%dplyr::select(mutant,CustomerName,time_point,AltDepth,Depth)
+
+plotly=ggplot(a,aes(x=time_point,y=AltDepth,color=factor(mutant),label=AltDepth))+geom_text(position = position_dodge(.5))+cleanup
+ggplotly(plotly)
+
+a=twinstrand_maf_merge%>%filter(CustomerName%in%c("Enu3_D3","Enu3_D6"),!mutant%in%c("D276G"),mutant%in%c("H214R","F359V","K285N","A397P","E355G"))%>%dplyr::select(mutant,CustomerName,time_point,AltDepth,Depth)
+b=twinstrand_maf_merge%>%filter(CustomerName%in%"Enu3_D6")
+c=twinstrand_maf_merge%>%filter(CustomerName%in%"Enu4_D0")
+plotly=ggplot(a,aes(x=time_point,y=AltDepth,color=factor(mutant),label=AltDepth))+geom_text(position = position_dodge(.5))+cleanup
+ggplotly(plotly)
+sort(unique(twinstrand_maf_merge$CustomerName))
+```
+
+
 ####Saving Dataframes
 ```{r}
 head(twinstrand_maf_merge)
 head(twinstrand_simple_melt_merge)
-# write.csv(twinstrand_maf_merge,"twinstrand_maf_merge.csv")
-# write.csv(twinstrand_simple_melt_merge,"twinstrand_simple_melt_merge.csv")
+write.csv(twinstrand_maf_merge,"twinstrand_maf_merge.csv")
+write.csv(twinstrand_simple_melt_merge,"twinstrand_simple_melt_merge.csv")
 ```
 

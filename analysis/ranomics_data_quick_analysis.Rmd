@@ -1,0 +1,20 @@
+---
+title: "Ranomics_data_quick_analysis"
+author: "Haider Inam"
+date: "5/8/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+table1=read.table("/Users/haiderinam/Downloads/il3_indep_1.1.consensus.variant-calls.mut.tsv",header = T,stringsAsFactors = F)
+sort(unique(table1$start))
+
+table2=read.table("/Users/haiderinam/Downloads/sorted_1.1.consensus.variant-calls.tsv",header = T,stringsAsFactors = F)
+sort(unique(table2$start))
+unique(c("a","b","c"),c("a","b","c","d"))
+```
+

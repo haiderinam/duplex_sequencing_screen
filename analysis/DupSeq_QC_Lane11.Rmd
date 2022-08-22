@@ -1,0 +1,191 @@
+---
+title: "DupSeq_QC_Lane11"
+author: "Haider Inam"
+date: '2022-08-22'
+output: html_document
+---
+
+```{r setup, include=FALSE}
+# rm(list=ls())
+knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_knit$set(root.dir = normalizePath(".."))
+
+library(stringr)
+library(dplyr)
+library(ggplot2)
+library(plotly)
+library(tictoc)
+library(doParallel)
+library(foreach)
+
+#Cleanup code for plotting
+cleanup=theme_bw() +
+  theme(plot.title = element_text(hjust=.5),
+        panel.grid.major = element_blank(),
+        panel.grid.major.y = element_blank(),
+        panel.background = element_blank(),
+        axis.line = element_line(color = "black"),
+        axis.text = element_text(face="bold",color="black",size="11"),
+        text=element_text(size=11,face="bold"),
+        axis.title=element_text(face="bold",size="11"))
+```
+
+In the following chunks, I'm going to be doing some QC with the duplex sequencing data from novogene lane 11
+This sequencing run had both EGFR and ABL data. The libraries are twist libraries.
+
+I'm going to be looking closely at the following:  
+* Count distributions of EGFR vs ABL
+* How much coverage do we get with a single sample of EGFR vs with two samples?
+  Answer: 100k for 1 sample, 200k for two SSCS samples
+* How much coverage do we get for DCS vs for SSCS?
+  Answer: For a dupseq coverage of 40k, our SSCS coverage was 100k
+  This is a very low % of SSCS reads that are orphaned. For schmitt's adapter types, about 80-90% of the SSCS reads are orphaned.
+* What is the error rate for SSCS vs for DCS?
+  Answer:
+* What is the % of mouse reads that we're seeing for the samples?
+  Answer: Mouse read %age is very low for EGFR (1% of the barcodes align to the mouse genome). For ABL, between 1 and 30% of the consensus reads align to the mouse genome
+* How many unique mutants do we see for EGFR? What percent coverage is that?
+  Answer: Combining two EGFR samples at the baseline and using SSCS counts, we achieve a coverage of 200k. At this coverage, we're seeing 2340 out of 2700 mutants that twist's QC data saw. That's 90% of the mutants at baseline.
+* What is the count distribution of the mutants in the data? aka how many times do we see each mutant?
+  Answer:
+* How many unique mutants do you see per 10k barcodes sequenced? How does downsampling influence the sequencing data output?
+  Answer: 
+* How well do the mutant allele frequencies agree with twist's MAFs?
+
+
+Sample 6
+```{r}
+
+calls_missense=calls_missense%>%
+  filter(protein_start==protein_end,consequence_terms%in%"missense_variant")%>%
+  rowwise()%>%
+  mutate(ref_aa=strsplit(amino_acids,"/")[[1]][1],
+         alt_aa=strsplit(amino_acids,"/")[[1]][2])
+
+ggplot(calls_missense,aes(x=protein_start,y=alt_aa))+
+  geom_tile(color="black",aes(fill=(ct/depth)))+
+  scale_x_continuous(name="Position along EGFR Kinase",expand=c(0,0),limits=c(717,870))+
+  scale_y_discrete(name="Amino Acid Substitution",expand=c(0,0))+
+  scale_fill_continuous(name="Allele \nFrequency",trans="log10")+
+  cleanup+
+  theme(legend.position = "none")
+# a=calls_missense%>%filter(protein_start>=715,protein_start<=880)
+# ggsave("egfr_heatmap_sample5.pdf",width=6,height=4,units = "in",useDingbats=F)
+
+ggplot(calls_missense_sum,aes(x=protein_start,y=count))+geom_col()+scale_x_continuous(limits=c(710,875))
+```
+
+
+SAMPLE 2
+```{r,eval=F}
+library("plotly")
+sscs_sum=read.csv("Novogene_lane11/sample2/sscs_sum_ann.csv",header = T,stringsAsFactors = F)[-1]
+sscs_sum$consensus="sscs"
+dcs_sum=read.csv("Novogene_lane11/sample2/duplex_sum_ann.csv",header = T,stringsAsFactors = F)[-1]
+dcs_sum$consensus="dcs"
+
+sscs_sum=sscs_sum%>%
+  filter(protein_start==protein_end,consequence_terms%in%"missense_variant")%>%
+  rowwise()%>%
+  mutate(ref_aa=strsplit(amino_acids,"/")[[1]][1],
+         alt_aa=strsplit(amino_acids,"/")[[1]][2])
+
+dcs_sum=dcs_sum%>%
+  filter(protein_start==protein_end,consequence_terms%in%"missense_variant")%>%
+  rowwise()%>%
+  mutate(ref_aa=strsplit(amino_acids,"/")[[1]][1],
+         alt_aa=strsplit(amino_acids,"/")[[1]][2])
+
+ggplot(sscs_sum,aes(x=protein_start,y=alt_aa))+
+  geom_tile(color="black",aes(fill=ct))+
+  scale_x_continuous(expand=c(0,0),limits=c(242,333))+
+  scale_y_discrete(expand=c(0,0))
+
+all_sum=rbind(sscs_sum,dcs_sum)
+
+plotly=ggplot(all_sum,aes(x=ct,fill=consensus,alpha=0.5))+
+  geom_density(position=position_dodge(),bins=100)+
+  scale_x_continuous(limits=c(0,100))
+  # scale_x_continuous(trans="log10")
+ggplotly(plotly)
+
+plotly=ggplot(all_sum,aes(x=ct,fill=consensus,alpha=0.5))+
+  geom_density(position=position_dodge(),bins=100)+
+  # scale_x_continuous(limits=c(0,100))+
+  scale_x_continuous(trans="log10")
+ggplotly(plotly)
+
+
+
+ggplot(all_sum,aes(x=protein_start,y=alt_aa))+
+  geom_tile(color="black",aes(fill=ct))+
+  facet_grid(~consensus)+
+  scale_x_continuous(expand=c(0,0),limits=c(241,333))+
+  scale_y_discrete(expand=c(0,0))+
+  scale_fill_gradient(na.value = "black",low="red",high="blue",name="Count")a
+
+a=sscs_sum%>%filter(protein_start>=242,protein_start<=289)
+a=a%>%group_by(protein_start)%>%summarize(count=n())
+```
+SAMPLE 10 and 11
+```{r,eval=F}
+###########Sample 10############
+sscs_sum=read.csv("Novogene_lane11/sample10/sscs_sum_ann.csv",header = T,stringsAsFactors = F)[-1]
+
+sscs_sum=sscs_sum%>%
+  filter(protein_start==protein_end,consequence_terms%in%"missense_variant")%>%
+  rowwise()%>%
+  mutate(ref_aa=strsplit(amino_acids,"/")[[1]][1],
+         alt_aa=strsplit(amino_acids,"/")[[1]][2])
+
+ggplot(sscs_sum,aes(x=protein_start,y=alt_aa))+
+  geom_tile(color="black",aes(fill=ct))+
+  scale_x_continuous(expand=c(0,0),limits=c(242,330))+
+  scale_y_discrete(expand=c(0,0))
+
+###########Sample 8############
+sscs_sum=read.csv("Novogene_lane11/sample8/sscs_sum_ann.csv",header = T,stringsAsFactors = F)[-1]
+
+sscs_sum=sscs_sum%>%
+  filter(protein_start==protein_end,consequence_terms%in%"missense_variant")%>%
+  rowwise()%>%
+  mutate(ref_aa=strsplit(amino_acids,"/")[[1]][1],
+         alt_aa=strsplit(amino_acids,"/")[[1]][2])
+
+ggplot(sscs_sum,aes(x=protein_start,y=alt_aa))+
+  geom_tile(color="black",aes(fill=ct))+
+  scale_x_continuous(expand=c(0,0),limits=c(242,330))+
+  scale_y_discrete(expand=c(0,0))
+```
+
+SAMPLE 7
+```{r,eval=F}
+###########Sample 10############
+sscs_sum=read.csv("Novogene_lane11/sample7/sscs_sum_ann.csv",header = T,stringsAsFactors = F)[-1]
+
+sscs_sum=sscs_sum%>%
+  filter(protein_start==protein_end,consequence_terms%in%"missense_variant")%>%
+  rowwise()%>%
+  mutate(ref_aa=strsplit(amino_acids,"/")[[1]][1],
+         alt_aa=strsplit(amino_acids,"/")[[1]][2])
+
+ggplot(sscs_sum,aes(x=protein_start,y=alt_aa))+
+  geom_tile(color="black",aes(fill=ct))+
+  # scale_x_continuous(expand=c(0,0),limits=c(242,330))+
+  scale_x_continuous(expand=c(0,0))+
+  scale_y_discrete(expand=c(0,0))
+
+###########Sample 8############
+sscs_sum=read.csv("Novogene_lane11/sample8/sscs_sum_ann.csv",header = T,stringsAsFactors = F)[-1]
+
+sscs_sum=sscs_sum%>%
+  filter(protein_start==protein_end,consequence_terms%in%"missense_variant")%>%
+  rowwise()%>%
+  mutate(ref_aa=strsplit(amino_acids,"/")[[1]][1],
+         alt_aa=strsplit(amino_acids,"/")[[1]][2])
+
+ggplot(sscs_sum,aes(x=protein_start,y=alt_aa))+
+  geom_tile(color="black",aes(fill=ct))+
+  scale_x_continuous(expand=c(0,0),limits=c(242,330))+
+  scale_y_discrete(expand=c(0,0))
+```

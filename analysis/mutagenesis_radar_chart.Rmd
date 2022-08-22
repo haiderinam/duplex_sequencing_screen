@@ -1,0 +1,153 @@
+---
+title: "mutagenesis_radar_chart"
+author: "Haider Inam"
+date: "7/6/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+# knitr::opts_knit$set(root.dir=rprojroot::find_rstudio_root_file())
+```
+
+```{r}
+library(ggplot2)
+library("fmsb")
+cleanup=theme_bw() +
+  theme(plot.title = element_text(hjust=.5),
+        panel.grid.major = element_blank(),
+        panel.grid.major.y = element_blank(),
+        panel.background = element_blank(),
+        axis.line = element_line(color = "black"),
+        axis.text = element_text(face="bold",color="black",size="11"),
+        text=element_text(size=11,face="bold"),
+        axis.title=element_text(face="bold",size="11"))
+
+signatures=data.frame(
+  rbind(c("CtoA","NA","0"),
+      c("CtoG","A397P","138"),
+      c("CtoG","L248V","70"),
+      c("CtoG","Q252H","55"),
+      c("CtoG","F311L","12"),
+      c("CtoT","T315I","665"),
+      c("CtoT","G250E","130"),
+      c("TtoA","K285N","12"),
+      c("TtoC","Y253H","758"),
+      c("TtoC","F317L","72"),
+      c("TtoC","H214R","45"),
+      c("TtoC","E355G","30"),
+      c("TtoG","H396P","208"),
+      c("TtoG","F359V","151"),
+      c("TtoG","L324R","96"),
+      c("TtoG","F359C","55")))
+names(signatures)=c("signature","mutation","readdepth")
+signatures$readdepth=as.numeric(signatures$readdepth)
+# total=2497 sum(signatures$readdepth[signatures$signature=="TtoG"])
+# CtoA=0
+# CtoG=275
+# CtoT=795
+# TtoA=12
+# TtoC=905
+# TtoG=510
+
+signatures_radar=data.frame(CtoG=c(2497,0,275),
+                            CtoT=c(2497,0,795),
+                            CtoA=c(2497,0,0),
+                            TtoA=c(2497,0,12),
+                            TtoC=c(2497,0,905),
+                            TtoG=c(2497,0,510))
+
+radarchart(signatures_radar,
+           seg=6,
+           title="Mutagenesis Screen Signatures",
+           pfcol=scales::alpha("gray",.3),
+           plwd=2)
+      
+
+#Clinical abundances of noncoding BCRABL
+##From SurvLikeliestPaperV1
+# total=238 sum(signatures$readdepth[signatures$signature=="TtoG"])
+# CtoA or GtoT=24
+# CtoG or GtoC=12
+# CtoT or GtoA=156
+# TtoA or AtoT=3
+# TtoC or AtoG=35
+# TtoG or AtoC=8
+
+signatures_radar=data.frame(CtoG=c(238,0,12),
+                            CtoT=c(238,0,156),
+                            CtoA=c(238,0,24),
+                            TtoA=c(238,0,3),
+                            TtoC=c(238,0,35),
+                            TtoG=c(238,0,8))
+radarchart(signatures_radar,
+           seg=6,
+           title="Mutagenesis Screen Signatures",
+           pfcol=scales::alpha("gray",.3),
+           plwd=2)
+
+#Plotting on same plot
+signatures_radar=data.frame(CtoG=c(.7,0,275/2497,12/238),
+                            CtoT=c(.7,0,795/2497,156/238),
+                            CtoA=c(.7,0,0/2497,24/238),
+                            TtoA=c(.7,0,12/2497,3/238),
+                            TtoC=c(.7,0,905/2497,35/238),
+                            TtoG=c(.7,0,510/2497,8/238),
+                            row.names=c("max","min","Mutagenized","Broad Synonymous"))
+colors_line=c(scales::alpha("gold",.9),
+              scales::alpha("royalblue",.9))
+radarchart(signatures_radar,
+           seg=6,
+           title="Mutagenesis Screen Signatures",
+           pcol=colors_line,
+           pfcol=scales::alpha("gray",.3),
+           plwd=2)
+legend(x=.6,
+       y=1.55,
+       legend=rownames(signatures_radar[-c(1,2),]),
+       bty="n",pch=20,col=colors_line,cex=1.2,pt.cex=3)
+
+
+```
+
+```{r}
+
+signatures=data.frame(
+  rbind(c("CtoA","NA",1),
+        c("CtoG","A397P",12),
+        c("CtoG","L248V",6),
+        c("CtoG","Q252H",5),
+        c("CtoG","F311L",1),
+        c("CtoT","T315I",55),
+        c("CtoT","G250E",11),
+        c("TtoA","K285N",5),
+        c("TtoC","Y253H",63),
+        c("TtoC","F317L",6),
+        c("TtoC","H214R",4),
+        c("TtoC","E355G",3),
+        c("TtoG","H396P",17),
+        c("TtoG","F359V",13),
+        c("TtoG","L324R",7),
+        c("TtoG","F359C",5)))
+names(signatures)=c("signature","mutant","colonies")
+signatures$colonies=as.numeric(signatures$colonies)
+
+
+# signatures$mutant=factor(signatures$mutant,levels = as.character(unique(signatures$mutant[order((signatures$colonies),decreasing = T)])))
+signatures$mutant=factor(signatures$mutant,levels =c("NA","A397P","L248V","Q252H","F311L","K285N","T315I","G250E","Y253H","F317L","H214R","E355G","H396P","F359V","L324R","F359C"))
+signatures$signature=factor(signatures$signature,levels =c("CtoA","CtoG","CtoT","TtoA","TtoC","TtoG"))
+class(signatures$mutant)
+
+ggplot(signatures,aes(x=mutant,y=colonies))+
+  geom_col(color="black",aes(fill=signature))+
+  cleanup+
+  scale_y_continuous(name="Resistant colonies")+
+  scale_fill_manual(values=c("cyan","black","red","gray","green","pink"))+
+  theme(legend.position = "none",
+        axis.title.x = element_blank(),
+        axis.text.x=element_text(angle=90,hjust=.5,vjust=.5,size=8))
+
+# ggsave("signatures_barplot.pdf",width=4,height=2,units="in",useDingbats=F)
+
+```
+

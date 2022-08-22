@@ -17,7 +17,9 @@ knitr::opts_chunk$set(echo = TRUE)
 conc_for_predictions=0.8
 net_gr_wodrug=0.055
 #Reading required tables
-ic50data=read.csv("data/heatmap_concat_data.csv",header = T,stringsAsFactors = F)
+# ic50data=read.csv("data/heatmap_concat_data.csv",header = T,stringsAsFactors = F)
+
+ic50data=read.csv("/Users/haiderinam/Box/RProjects/duplex_sequencing_screen/data/heatmap_concat_data.csv",header = T,stringsAsFactors = F)
 # ic50data=read.csv("../data/heatmap_concat_data.csv",header = T,stringsAsFactors = F)
 ```
 
@@ -138,7 +140,7 @@ ic50data_long$species=factor(ic50data_long$species,levels = as.character(ic50dat
 ic50data_long=ic50data_long%>%
   # filter(!species=="Wt")%>%
   mutate(drug_effect=-log(y_model)/72)
-
+# write.csv(ic50data_long,"ic50_growthratepredictions_forIvan.csv")
 #Adding Net growth rate
 ic50data_long$netgr_pred=net_gr_wodrug-ic50data_long$drug_effect
 ```
