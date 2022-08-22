@@ -1,0 +1,12 @@
+name: pooled_drug_resistance
+title: pooled_drug_resistance
+username:
+account: haider-inam
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 2113579
+bundleId: 3010700
+url: https://haider-inam.shinyapps.io/pooled_drug_resistance/
+when: 1586854637.31521
+asMultiple: FALSE
+asStatic: FALSE
