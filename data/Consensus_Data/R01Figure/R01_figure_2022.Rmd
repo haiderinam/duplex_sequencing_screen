@@ -1,0 +1,266 @@
+---
+title: "R01_figure_2022"
+author: "Haider Inam"
+date: "1/31/2022"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+# rm(list=ls())
+knitr::opts_chunk$set(echo = TRUE)
+library(stringr)
+library(dplyr)
+library(ggplot2)
+library(plotly)
+library(reshape2)
+```
+
+```{r}
+library(viridisLite)
+library("MASS")
+
+theme_set(theme_bw(base_size = 16))
+
+# Get density of points in 2 dimensions.
+# @param x A numeric vector.
+# @param y A numeric vector.
+# @param n Create a square n by n grid to compute density.
+# @return The density within each square.
+get_density <- function(x, y, ...) {
+  dens <- MASS::kde2d(x, y, ...)
+  ix <- findInterval(x, dens$x)
+  iy <- findInterval(y, dens$y)
+  ii <- cbind(ix, iy)
+  return(dens$z[ii])
+}
+
+set.seed(1)
+dat <- data.frame(
+  x = c(
+    rnorm(1e4, mean = 0, sd = 0.1),
+    rnorm(1e3, mean = 0, sd = 0.1)
+  ),
+  y = c(
+    rnorm(1e4, mean = 0, sd = 0.1),
+    rnorm(1e3, mean = 0.1, sd = 0.2)
+  )
+)
+```
+
+Where did these annotated reads come from?
+These are sscs reads from dunovo
+there were 6 samples that we ran for our iL3 independence screens
+for rp4 and rp5, we had d2 and d4 data for the low medium and high concentrations. I merged .fq files for all doses at all time points for rp4 and rp5. That's 6 for rp4 and 6 for rp5
+merged fqs>
+dunovo make barcodes >
+dunovo align families >
+dunovo make families >
+trimmomatic to filter out Ns >
+bwa-mem 2 to align to the ABL1 CDS >
+nvc to call variants >
+variant annotator to count variants and make the .mut files
+
+raw fastq files 
+
+```{r}
+###################RP4###################
+rp4_raw=read.table("rp4_annotated.tabular",header = T,stringsAsFactors = F)
+colnames(rp4_raw)=c("sample",
+                    "chr",
+                    "pos",
+                    "A",
+                    "C",
+                    "G",
+                    "T",
+                    "cvrg",
+                    "alleles",
+                    "major",
+                    "minor",
+                    "maf",
+                    "bias")
+rp4_raw$pos=as.numeric(rp4_raw$pos)
+rp4_concat=rp4_raw%>%dplyr::select(pos,A,C,G,T,ref=major,cvrg)
+rp4_melt=melt(rp4_concat,
+              id.vars=c("pos","cvrg","ref"),
+              measure.vars=c("A","C","G","T"),
+              value.name = "ct",
+              variable.name = "alt"
+              )
+rp4_melt=rp4_melt%>%filter(!ref==alt)
+
+
+###################RP5###################
+rp5_raw=read.table("rp5_annotated.tabular",header = T,stringsAsFactors = F)
+colnames(rp5_raw)=c("sample",
+                    "chr",
+                    "pos",
+                    "A",
+                    "C",
+                    "G",
+                    "T",
+                    "cvrg",
+                    "alleles",
+                    "major",
+                    "minor",
+                    "maf",
+                    "bias")
+rp5_raw$pos=as.numeric(rp5_raw$pos)
+rp5_concat=rp5_raw%>%dplyr::select(pos,A,C,G,T,ref=major,cvrg)
+rp5_melt=melt(rp5_concat,
+              id.vars=c("pos","cvrg","ref"),
+              measure.vars=c("A","C","G","T"),
+              value.name = "ct",
+              variable.name = "alt"
+              )
+rp5_melt=rp5_melt%>%filter(!ref==alt)
+
+###################iL3###################
+il3_raw=read.table("il3_all_annotated.tabular",header = T,stringsAsFactors = F)
+colnames(il3_raw)=c("sample",
+                    "chr",
+                    "pos",
+                    "A",
+                    "C",
+                    "G",
+                    "T",
+                    "cvrg",
+                    "alleles",
+                    "major",
+                    "minor",
+                    "maf",
+                    "bias")
+il3_raw$pos=as.numeric(il3_raw$pos)
+
+il3_concat=il3_raw%>%dplyr::select(pos,A,C,G,T,ref=major,cvrg)
+il3_melt=melt(il3_concat,
+              id.vars=c("pos","cvrg","ref"),
+              measure.vars=c("A","C","G","T"),
+              value.name = "ct",
+              variable.name = "alt"
+              )
+il3_melt=il3_melt%>%filter(!ref==alt)
+
+
+
+
+####Filtering for regions within ABL, can consider this later
+# a=rp4_melt%>%filter(pos>=645,pos<=1401)
+# a=rp4_melt%>%filter(pos>=645,pos<=1401,!ct%in%0)
+# a=rp4_melt%>%filter(pos>=645,pos<=1401,!ct%in%0)
+####Filtering for non-zero counts in alt alleles
+# a=rp4_melt%>%filter(!ct%in%0)
+```
+
+
+```{r}
+rp4rp5=merge(rp4_melt,rp5_melt,by = c("pos","ref","alt"),suffixes = c(".rp4",".rp5"))
+rp4rp5_nonzero=rp4rp5%>%filter(!ct.rp4%in%"0",!ct.rp5%in%"0")
+
+# rp4rp5_nonzero_inabl=rp4rp5_nonzero%>%filter(pos>=645,pos<=1401)
+rp4rp5_nonzero_inabl=rp4rp5_nonzero%>%filter(pos>=1,pos<=3196)
+rp4rp5=rp4rp5_nonzero_inabl
+rp4rp5=rp4rp5%>%mutate(maf.rp4=ct.rp4/cvrg.rp4,
+                       maf.rp5=ct.rp5/cvrg.rp5)
+
+ggplot(rp4rp5,aes(x=maf.rp4,y=maf.rp5))+
+  geom_point()+
+  scale_x_continuous(trans="log10")+
+  scale_y_continuous(trans="log10")
+# cor(rp4rp5$maf.rp4,rp4rp5$maf.rp5,method="pearson")
+cor(rp4rp5$maf.rp4,rp4rp5$maf.rp5,method="pearson")^2
+
+# rp4rp5_lowaf=rp4rp5%>%filter(maf.rp4<=.001,
+#                              maf.rp5<=.001,
+#                              maf.rp4>=5e-6,
+#                              maf.rp5>=5e-6)
+
+rp4rp5_lowaf=rp4rp5%>%filter(maf.rp4<=.001,
+                             maf.rp5<=.001)
+
+cor(rp4rp5_lowaf$maf.rp4,rp4rp5_lowaf$maf.rp5,method="pearson")^2
+
+rp4rp5_lowaf$density=get_density(x = rp4rp5_lowaf$maf.rp4,y=rp4rp5_lowaf$maf.rp5,n=200)
+
+ggplot(rp4rp5_lowaf,aes(x=maf.rp4,y=maf.rp5,color=density))+
+  geom_point()+
+  # geom_jitter(position = position_jitter(width = 0.05, height = 0.05))+
+  scale_color_viridis_c()+
+  scale_x_continuous(name="MAF Replicate 1",trans="log10",limits=c(5e-6,1e-3))+
+  scale_y_continuous(name="MAF Replicate 2",trans="log10",limits=c(5e-6,1e-3))+
+  geom_abline(linetype="dashed")+
+  theme(legend.position = "none")
+
+# ggsave("r01_mafs.pdf",width=6,height=6,units="in",useDingbats=F)
+
+ggplot(rp4rp5_lowaf,aes(x=maf.rp4,y=maf.rp5,color=density))+
+  # geom_point()+
+  geom_jitter(position = position_jitter(width = 0.03, height = 0.03))+
+  scale_color_viridis_c()+
+  scale_x_continuous(name="MAF Replicate 1",trans="log10",limits=c(5e-6,1e-3))+
+  scale_y_continuous(name="MAF Replicate 2",trans="log10",limits=c(5e-6,1e-3))+
+  geom_abline(linetype="dashed")+
+  theme(legend.position = "none")
+
+# ggsave("r01_mafs_jitter.pdf",width=6,height=6,units="in",useDingbats=F) 
+rp4rp5_mafs=rp4rp5_lowaf%>%filter(maf.rp4>=5e-6,maf.rp5>=5e-6,maf.rp4<=1e-3,maf.rp5<=1e-3)%>%dplyr::select(pos,ref,alt,maf.rep1=maf.rp4,maf.rep2=maf.rp5)
+write.csv(rp4rp5_mafs,"ranomoics_mafs.csv")
+```
+
+```{r}
+rp4rp5il3=merge(rp4rp5,il3_melt,by = c("pos","ref","alt"))
+rp4rp5il3=rename(rp4rp5il3,cvrg.il3=cvrg)
+rp4rp5il3=rename(rp4rp5il3,ct.il3=ct)
+rp4rp5il3=rp4rp5il3%>%filter(!ct.il3%in%"0")
+rp4rp5il3=rp4rp5il3%>%mutate(maf.il3=ct.il3/cvrg.il3)
+
+rp4rp5il3=rp4rp5il3%>%mutate(enr.rp5=log2(maf.rp5/maf.il3),
+                             enr.rp4=log2(maf.rp4/maf.il3))
+
+ggplot(rp4rp5il3,aes(x=enr.rp4,y=enr.rp5))+
+  geom_point()+
+  scale_x_continuous(trans="log10")+
+  scale_y_continuous(trans="log10")
+
+rp4rp5il3$density=get_density(x = rp4rp5il3$enr.rp4,y=rp4rp5il3$enr.rp5,n=100)
+ggplot(rp4rp5il3,aes(x=enr.rp4,y=enr.rp5,color=density))+
+  geom_point()+
+  scale_color_viridis_c()+
+  scale_x_continuous(name="Score Replicate 1",limits=c(-5,5))+
+  scale_y_continuous(name="Score Replicate 2",limits=c(-5,5))+
+  geom_abline(linetype="dashed")+
+  theme(legend.position = "none")
+# ggsave("r01_enr_scores.pdf",useDingbats=F)
+cor(rp4rp5il3$enr.rp4,rp4rp5il3$enr.rp5,method="pearson")
+
+rp4rp5il3_clean=rp4rp5il3%>%filter(enr.rp4<=5,enr.rp5<=5,ct.rp4>=2,ct.rp5>=2,ct.il3>=2)
+cor(rp4rp5il3_clean$enr.rp4,rp4rp5il3_clean$enr.rp5,method="pearson")
+
+# cor(rp4rp5il3$enr.rp4,rp4rp5il3$enr.rp5)^2
+
+#data filtered for allele frequencies in a reasonable range (aka not <1%)
+rp4rp5_mafs_il3=rp4rp5il3%>%filter(maf.rp4>=5e-6,maf.rp5>=5e-6,maf.rp4<=1e-3,maf.rp5<=1e-3)%>%dplyr::select(pos,ref,alt,maf.baseline=maf.il3,maf.rep1=maf.rp4,maf.rep2=maf.rp5)
+write.csv(rp4rp5_mafs_il3,"ranomoics_mafs_all.csv")
+
+#unfiltered data
+rp4rp5_mafs_il3=rp4rp5il3%>%dplyr::select(pos,ref,alt,maf.baseline=maf.il3,maf.rep1=maf.rp4,maf.rep2=maf.rp5)
+write.csv(rp4rp5_mafs_il3,"ranomoics_mafs_all_unfiltered.csv")
+
+rp4rp5_mafs_il3=rp4rp5il3%>%dplyr::select(pos,
+                                          ref,
+                                          alt,
+                                          ct.baseline=ct.il3,
+                                          cvrg.baseline=cvrg.il3,
+                                          maf.baseline=maf.il3,
+                                          ct.rep1=ct.rp4,
+                                          cvrg.rep1=cvrg.rp4,
+                                          maf.rep1=maf.rp4,
+                                          enr.rep1=enr.rp4,
+                                          ct.rep2=ct.rp5,
+                                          cvrg.rep2=cvrg.rp5,
+                                          maf.rep2=maf.rp5,
+                                          enr.rep2=enr.rp5
+                                          )
+colnames(rp4rp5_mafs_il3)
+write.csv(rp4rp5_mafs_il3,"ranomoics_mafs.csv")
+
+```

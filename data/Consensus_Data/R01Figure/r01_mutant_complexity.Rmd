@@ -1,0 +1,193 @@
+---
+title: "r01_mutant_complexity"
+author: "Haider Inam"
+date: "3/4/2022"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(dplyr)
+library(reshape2)
+library(ggplot2)
+library(RColorBrewer)
+library("pals")
+```
+
+```{r}
+r01_mutants=read.csv("ranomics2_counts/ngs_counts_ranomics2.csv")
+# mutants_small=r01_mutants[,c(1:5)]
+mutants_small=r01_mutants
+mutants_small=mutants_small%>%mutate(positional_read_count=Ala+Arg+Asn+Asp+Cys+Gln+Glu+Gly+His+Ile+Leu+Lys+Met+Phe+Pro+Ser+Ter+Thr+Trp+Tyr+Val)
+
+# mutants_melt=melt(mutants_small,id.vars = c("AA_Position","positional_read_count"),measure.vars = c("Ala","Arg","Asn","Asp"),variable.name = "residue_type",value.name = "counts")
+
+
+mutants_melt=melt(mutants_small,id.vars = c("AA_Position","positional_read_count"),measure.vars = colnames(r01_mutants)[-1],variable.name = "residue_type",value.name = "counts")
+
+c20 <- c(
+  "dodgerblue2", "#E31A1C", # red
+  "green4",
+  "#6A3D9A", # purple
+  "#FF7F00", # orange
+  "black", "gold1",
+  "skyblue2", "#FB9A99", # lt pink
+  "palegreen2",
+  "#CAB2D6", # lt purple
+  "#FDBF6F", # lt orange
+  "gray70", "khaki2",
+  "maroon", "orchid1", "deeppink1", "blue1", "steelblue4",
+  "darkturquoise","green1"
+)
+
+mutants_melt$AA_Position=as.factor(mutants_melt$AA_Position)
+
+
+cleanup=theme_bw() +
+  theme(plot.title = element_text(hjust=.5),
+        panel.grid.major = element_blank(),
+        panel.grid.major.y = element_blank(),
+        panel.background = element_blank(),
+        # axis.line = element_line(color = "black"),
+        # axis.text = element_text(color="black",size="11"),
+        text=element_text(size=11))
+
+
+ggplot(mutants_melt,aes(x=AA_Position,y=counts/positional_read_count))+geom_col(aes(fill=residue_type))+
+  scale_x_discrete(expand = c(0,0),name="Position Along ABL Kinase")+
+  scale_y_continuous(expand = c(0,0),name="%Variant AA")+theme(plot.title = element_text(hjust = 0.5))+
+  # scale_fill_brewer(palette="Set2")+
+  # scale_fill_manual(values=c20)
+  scale_fill_manual(values=as.vector(stepped(21)))+
+  cleanup+
+  theme(axis.text.x = element_blank(),
+        axis.ticks.x = element_blank(),
+        legend.title = element_blank(),
+        legend.direction = "horizontal",
+        legend.position = "bottom",
+        legend.box = "horizontal")
+
+
+
+# ggsave("ranomics2_mutants_aacr.pdf",width=16,height = 4,units="in",useDingbats=F)
+# a=mutants_melt%>%filter(counts%in%0)
+
+
+```
+
+
+```{r}
+cleanup=theme_bw() +
+  theme(plot.title = element_text(hjust=.5),
+        panel.grid.major = element_blank(),
+        panel.grid.major.y = element_blank(),
+        panel.background = element_blank(),
+        # axis.line = element_line(color = "black"),
+        axis.text = element_text(color="black",size="11"),
+        text=element_text(size=11),
+        axis.title=element_text(face="bold",size="11"))
+
+ggplot(mutants_melt,aes(x = counts))+
+  geom_histogram(bins=50)+
+  scale_x_continuous(limits=c(NA,100),name="Number of reads per mutant",expand=c(0.01,0.01))+
+  scale_y_continuous(name="Count",expand=c(0.01,0.01))+
+  cleanup
+
+# ggsave("ranomics2_readfrequency_dist.pdf",width=4,height = 4,units="in",useDingbats=F)
+
+
+ggplot(mutants_melt,aes(x = counts/72389))+
+  geom_histogram(bins=60)+
+  
+  # scale_x_continuous(name="Mutant Allele Frequency",expand=c(0.00001,0.00001),breaks=c(0,0.001,0.002,0.003,0.004,0.005),labels=c("0","1x10^-3","2x10^-3","3x10^-3","4x10^-3","5x10^-3"))+
+  scale_x_continuous(name="Mutant Allele Frequency",expand=c(0.00001,0.00001),limits=c(NA,0.0035))+
+  scale_y_continuous(name="Count",expand=c(0.00005,50))+
+  cleanup
+
+# ggsave("ranomics2_readfrequency_dist_v2.pdf",width=4,height = 4,units="in",useDingbats=F)
+
+
+```
+
+
+03/31/22:
+Eventual goal: how many mutants can you see with a coverage of 75k for 1) the twist library, and 2) the ranomics library?
+Another thing to study in the analysis: based on the ranomics twinstrand deep sequencing vs the numbers ranomcis sequenced themselves, how much more of a bias do you see, i.e. in how much bottlenecking happened in putting the library in cells? We would expect lower bottlenecks to happen for the twist library by the way
+```{r}
+twist_counts=read.csv("twist_counts/twist_variantcounts.csv",header = T,stringsAsFactors = F)
+twist_counts$variant_proportion=gsub("%","",twist_counts$variant_proportion)
+twist_counts$variant_proportion=as.numeric(twist_counts$variant_proportion)
+a=twist_counts%>%filter(variant_proportion<=.5)
+  
+cleanup=theme_bw() +
+  theme(plot.title = element_text(hjust=.5),
+        panel.grid.major = element_blank(),
+        panel.grid.major.y = element_blank(),
+        panel.background = element_blank(),
+        # axis.line = element_line(color = "black"),
+        # axis.text = element_text(color="black",size="11"),
+        text=element_text(size=11))
+
+
+ggplot(twist_counts,aes(x=AA.Position,y=variant_proportion))+
+  geom_col(aes(fill=variant_aa))+
+  scale_x_discrete(expand = c(0,0),name="Position Along ABL Kinase")+
+  scale_y_continuous(expand = c(0,0),name="%Variant AA")+theme(plot.title = element_text(hjust = 0.5))+
+  scale_fill_manual(values=as.vector(stepped(20)))+
+  cleanup+
+  theme(axis.text.x = element_blank(),
+        axis.ticks.x = element_blank(),
+        legend.title = element_blank(),
+        # legend.direction = "horizontal",
+        # legend.position = "right",
+        # legend.box = "horizontal",
+        legend.position="none")
+
+twist_counts$expected_read_ct=twist_counts$variant_proportion*75000/(252*100)
+a=twist_counts%>%filter(expected_read_ct>=3)
+a=mutants_melt%>%filter(counts>=20)
+
+
+
+ggsave("twist_mutants_aacr.pdf",width=16,height = 4,units="in",useDingbats=F)
+
+
+sort(unique(twist_counts$variant_aa))
+sort(unique(mutants_melt$residue_type))
+#Turns out the "Ter" in Ranomcis' library is a stop codon and we didn't include that in our library. So twist's library has 4788 mutants and ranomics' has 5040
+
+
+
+ggplot(twist_counts,aes(x=AA.Position,y=variant_proportion/252))+
+  geom_col(position=position_dodge(),aes(fill=variant_aa))+
+  scale_x_discrete(expand = c(0,0),name="Position Along ABL Kinase")+
+  scale_y_continuous(expand = c(0,0),name="%Variant AA")+theme(plot.title = element_text(hjust = 0.5))+
+  scale_fill_manual(values=as.vector(stepped(20)))+
+  cleanup+
+  theme(axis.text.x = element_blank(),
+        axis.ticks.x = element_blank(),
+        legend.title = element_blank(),
+        # legend.direction = "horizontal",
+        # legend.position = "right",
+        # legend.box = "horizontal",
+        legend.position="none")
+ggsave("twist_mutants_aacr_2.pdf",width=16,height = 4,units="in",useDingbats=F)
+
+mutants_melt$maf=mutants_melt$counts/72389
+ggplot(mutants_melt,aes(x=AA_Position,y=maf))+
+  geom_col(position=position_dodge(),aes(fill=residue_type))+
+  scale_x_discrete(expand = c(0,0),name="Position Along ABL Kinase")+
+  scale_y_continuous(expand = c(0,0),name="%Variant AA")+theme(plot.title = element_text(hjust = 0.5))+
+  # scale_fill_brewer(palette="Set2")+
+  # scale_fill_manual(values=c20)
+  # scale_fill_manual(values=as.vector(stepped(21)))+
+  cleanup+
+  theme(axis.text.x = element_blank(),
+        axis.ticks.x = element_blank(),
+        legend.title = element_blank(),
+        # legend.direction = "horizontal",
+        # legend.position = "bottom",
+        # legend.box = "horizontal",
+        legend.position="none")
+```
+

@@ -9,7 +9,6 @@ output: html_document
 # rm(list=ls())
 knitr::opts_chunk$set(echo = TRUE)
 knitr::opts_knit$set(root.dir = normalizePath(".."))
-
 library(stringr)
 library(dplyr)
 library(ggplot2)
@@ -46,8 +45,8 @@ cleanup=theme_bw() +
 #Instructions to find the coding sequence for a gene such as ABL: google ensembl + human ABL. That will take you to a page that lists out ABL's transcript variants. Look at the transcript that has the "Ensembl Canonical" transcript flag. That transcript,ENST00000318560, is the canonical transcript for ABL. You'll also see a REFSEQ entry for this transcript. For ABL, this is NM_005157.6. Go to NCBI Refseq, seach NM_005157.6. This will take you to an NCBI page with the mRNA/cDNA sequence NM_005157. To get just the coding sequence, click on "CDS". This will highglight the coding sequence in brown. At the bottom of the page, there will be a button to export the sequence as a .fasta file. Make sure only the coding sequence (starts with ATG and end with a stop codon) is exported.
 #Now go back to the ensembl transcript page and click on the first CCDS entry. For ABL, this is CCDS35166. This is the canonical coding sequence for ABL. The page on CCDS35166 shows the exact chromosomal coordinates of each position of the coding sequence. You can use this information to make the csv file (ref_csv_name) that maps out the full conversion between CDS and Chr.
 #Note: to combine two samples, you can simply make two different alldata dataframes, and combine them with rbind.
-setwd("~/OneDrive - The Pennsylvania State University/RProjects/duplex_sequencing_screen/")
-getwd()
+# setwd("~/OneDrive - The Pennsylvania State University/RProjects/duplex_sequencing_screen/")
+# getwd()
 source("code/variantcaller/cds_to_hg38.R")
 source("code/variantcaller/vep_fromdf_parralel.R")
 source("code/variantcaller/vep_fromdf.R")
@@ -131,6 +130,7 @@ ref_genomic_coordinates=ref_genomic_coordinates%>%filter(!codon%in%"")
 ```{r}
 
 alldata=read.table(seqdata_tsv_name,header = F,stringsAsFactors = F)
+"data/Consensus_Data/Novogene_lane11/sample5/"
 # alldata2=read.table("Novogene_lane11/sample5/sscs_L858R_aligned_filtered.tsv",header = F,stringsAsFactors = F)
 # alldata=rbind(alldata,alldata2)
       #If you want the script to look for all files that match a certain regular expression and loop through them, you can use the following code: 
@@ -216,7 +216,6 @@ alldata=alldata%>%filter(clipdistance_total<=25)
 
 #We are also going to filter for reads with a total length of mapped read >80. Mapped length is sequence length - length of split read
 alldata=alldata%>%filter(mlen>=70)
-n
 
 #######Filtering out deletions########
 alldata=alldata[!grepl("\\^",alldata$mdz),]
@@ -233,6 +232,7 @@ alldata=alldata[!grepl("N",alldata$seq),]
 #######Filtering for Non-Reference########
 # alt_positions=grepl("[0-9]{3}$",alldata$mdz)
 alt_positions=grepl("[a-zA-Z]",alldata$mdz)
+# a=alldata[!alt_positions,]
 alldata=alldata[alt_positions,]
 
 #######Dividing SNPs and MNVs########
@@ -270,6 +270,8 @@ snps_sum=snps%>%group_by(alt_start_pos,ref,alt)%>%dplyr::summarize(ct=n(),depth=
 #######Defining neighbor distance########
 ###For 2 nucleotide substitutions, 96% start at the start of the codon. The possibilites are for the substitutions to be side by side or be separated by a nucleotide. e.g. AAA could mutate to TTA or TAT. I need to know whether a TTA type substitution is happening or a TAT type substitution. Therefore I am defining a neighbordistance term
 mnvs=alldata%>%mutate(n_nuc=str_count(mdz,"A|T|C|G"))%>%filter(n_nuc>=2)
+# a=mnvs[grepl("N",alldata$seq),]
+# b=a%>%filter(n_nuc>=3)
 mnvs=mnvs%>%
   rowwise()%>%
   mutate(neighbordistance=case_when(
@@ -317,7 +319,15 @@ for(i in 1:length(list)){
   }
 }
 mnvs$mnv_status=mnv_status_compiled
-
+# a=mnvs%>%filter(mnv_status%in%F)
+# #For EGFR sample 5, a is "false" MNVs after 642 and before 903
+# a=a[c(704:end),]
+# a=a[c(1:384),]
+# 
+# b=a%>%filter(mut_extr%in%F)
+# b=b[c(19:219),]
+# c=b%>%filter(n_nuc>=3)
+#c is mutants in the mutagenesis window
 
 #### For my sscs replicates for novogene lane 4 il3 indep 1, I observed 3301 variant reads with >2 varaints out of which 1790 reads had variants that were side-by-side mnvs (hamming distance of 0 or 1)
 #### For my dcs replicates, I observed 3301 variant reads with >2 varaints out of which 1790 reads had variants that were side-by-side mnvs (hamming distance of 0 or 1)

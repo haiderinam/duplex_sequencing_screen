@@ -17,7 +17,6 @@ library(plotly)
 library(tictoc)
 library(doParallel)
 library(foreach)
-
 #Cleanup code for plotting
 cleanup=theme_bw() +
   theme(plot.title = element_text(hjust=.5),
@@ -37,6 +36,11 @@ I'm going to be looking closely at the following:
 * Count distributions of EGFR vs ABL
 * How much coverage do we get with a single sample of EGFR vs with two samples?
   Answer: 100k for 1 sample, 200k for two SSCS samples
+* What is the % on-target?
+* What is the % N?
+* What is the % of split reads?
+* What is the % mouse?
+
 * How much coverage do we get for DCS vs for SSCS?
   Answer: For a dupseq coverage of 40k, our SSCS coverage was 100k
   This is a very low % of SSCS reads that are orphaned. For schmitt's adapter types, about 80-90% of the SSCS reads are orphaned.
@@ -51,11 +55,85 @@ I'm going to be looking closely at the following:
 * How many unique mutants do you see per 10k barcodes sequenced? How does downsampling influence the sequencing data output?
   Answer: 
 * How well do the mutant allele frequencies agree with twist's MAFs?
+* How many reads/consensus barcodes are taken up by each of the residues?
+* What percent of the barcodes are taken up by the top 10 mutants? What about the top 50 mutants?
+* Modify the function so that you're not relying on ensembl's VEP. 
+
+Sample 6
+```{r}
+# sample5_all=read.csv("data/Consensus_Data/Novogene_lane11/sample5/variants_ann_sample5.csv")
+sample5_sum=read.csv("data/Consensus_Data/Novogene_lane11/sample5/variants_unique_ann_sample5.csv")
+# sample5_all=read.csv("data/Consensus_Data/Novogene_lane11/sample5/variants_ann_sample5.csv")
+# a=sample5_all%>%filter(protein_start%in%903,ref%in%"T",alt%in%"C")
+
+sample6_all=read.csv("data/Consensus_Data/Novogene_lane11/sample6/variants_ann_sample5&6.csv")
+sample6_sum=read.csv("data/Consensus_Data/Novogene_lane11/sample6/variants_unique_ann.csv")
+sample5_simple=sample5_sum%>%dplyr::select(alt_start_pos,protein_start,ref,alt,consequence_terms,amino_acids,ct,depth)
+sample5_simple$sample="sample5"
+sample6_simple=sample6_sum%>%dplyr::select(alt_start_pos,protein_start,ref,alt,consequence_terms,amino_acids,ct,depth)
+sample6_simple$sample="sample6"
+sample56=rbind(sample5_simple,sample6_simple)
+# a=sample56%>%filter(protein_start>=715,protein_start<=900,consequence_terms%in%"missense_variant")
+plotly=ggplot(sample56%>%filter(protein_start>=715,protein_start<=900,consequence_terms%in%"missense_variant"),aes(x=protein_start,y=depth,fill=sample))+geom_col(position=position_dodge())+facet_wrap(~sample)+cleanup
+ggplotly(plotly)
+```
+```{r}
+sample56_merged=merge(sample5_simple,sample6_simple,by=c("alt_start_pos","protein_start","ref","alt","consequence_terms","amino_acids"),all.x = T)
+
+# a=sample56_merged%>%filter(depth.x>=1000,protein_start>=715,protein_start<=870,consequence_terms%in%"missense_variant")
+sample56_merged[sample56_merged$ct.y%in%NA,10]=1000
+sample56_merged[sample56_merged$depth.y%in%NA,11]=1000
+# sample56_merged=sample56_merged%>%
+#   rowwise()%>%
+#   mutate(ct.y=case_when(ct.y%in%NA~0,
+#                         T~ct.y))
+ggplot(sample56_merged%>%filter(depth.x>=1000,protein_start>=715,protein_start<=870,consequence_terms%in%"missense_variant"),aes(x=ct.x/depth.x,y=ct.y/depth.y))+
+  geom_point(color="black",shape=21,aes(fill=log10(ct.x)))+
+  scale_x_continuous(trans="log10")+
+  scale_y_continuous(trans="log10")+
+  cleanup
+
+
+plotly=ggplot(sample5_sum%>%filter(protein_start>=715,protein_start<=870,consequence_terms%in%"missense_variant",ct<=50,type%in%"mnv"),aes(x=ct))+
+  geom_histogram(aes(y=..density..),color=1,fill="white",bins=50)+
+  geom_density(lwd = 1, colour = 4,fill = 4, alpha = 0.25)
+ggplotly(plotly)
+
+plotly=ggplot(sample6_sum%>%filter(protein_start>=715,protein_start<=870,consequence_terms%in%"missense_variant",ct<=50,type%in%"mnv"),aes(x=ct))+
+  geom_histogram(aes(y=..density..),color=1,fill="white",bins=50)+
+  geom_density(lwd = 1, colour = 4,fill = 4, alpha = 0.25)
+  # scale_x_continuous(trans="log10")
+ggplotly(plotly)
+
+
+a=sample5_sum%>%filter(protein_start>=715,protein_start<=870,consequence_terms%in%"missense_variant",ct==1)
+nrow(a%>%filter(type%in%"mnv"))
+b=sample6_sum%>%filter(protein_start>=715,protein_start<=870,consequence_terms%in%"missense_variant",ct==1)
+nrow(b%>%filter(type%in%"mnv"))
+#For sample 5, out of the mutants that are only seen once, 34% are mnvs (a lot of SNP errors). So a lot of the mutants that we are seeing at a coverage of 1 are false. This means that for sample 5, the distribution of mutants is centered >1
+#For sample 6, out of the mutants that are only seen once, 62% are mnvs (low SNP errors)
+
+calls_sum=sample5_sum%>%filter(consequence_terms%in%"missense_variant")%>%group_by(protein_start)%>%summarize(unique_mutants=n(),count=sum(ct))
+ggplot(calls_sum%>%filter(protein_start>=715,protein_start<=870),aes(x=protein_start,y=unique_mutants))+geom_col()+cleanup
+
+ggplot(calls_sum%>%filter(protein_start>=715,protein_start<=870),aes(x=protein_start,y=count))+geom_col()+cleanup
+
+
+calls_sum=sample6_sum%>%filter(consequence_terms%in%"missense_variant")%>%group_by(protein_start)%>%summarize(unique_mutants=n(),count=sum(ct))
+ggplot(calls_sum%>%filter(protein_start>=715,protein_start<=870),aes(x=protein_start,y=unique_mutants))+geom_col()+cleanup
+
+ggplot(calls_sum%>%filter(protein_start>=715,protein_start<=870),aes(x=protein_start,y=count))+geom_col()+cleanup
+ggplot(calls_sum%>%filter(protein_start>=715,protein_start<=870,!protein_start%in%861),aes(x=protein_start,y=count))+geom_col()+cleanup
+ggplot(calls_sum%>%filter(protein_start>=715,protein_start<=870,!protein_start%in%c(861,791)),aes(x=protein_start,y=count))+geom_col()+cleanup
+# a=sample5_sum%>%filter(consequence_terms%in%"missense_variant",protein_start>=715,protein_start<=870)
+# sum(a$ct)
+
+```
+
 
 
 Sample 6
 ```{r}
-
 calls_missense=calls_missense%>%
   filter(protein_start==protein_end,consequence_terms%in%"missense_variant")%>%
   rowwise()%>%
@@ -79,16 +157,27 @@ ggplot(calls_missense_sum,aes(x=protein_start,y=count))+geom_col()+scale_x_conti
 SAMPLE 2
 ```{r,eval=F}
 library("plotly")
-sscs_sum=read.csv("Novogene_lane11/sample2/sscs_sum_ann.csv",header = T,stringsAsFactors = F)[-1]
-sscs_sum$consensus="sscs"
-dcs_sum=read.csv("Novogene_lane11/sample2/duplex_sum_ann.csv",header = T,stringsAsFactors = F)[-1]
-dcs_sum$consensus="dcs"
-
-sscs_sum=sscs_sum%>%
-  filter(protein_start==protein_end,consequence_terms%in%"missense_variant")%>%
+sample2_sum=read.csv("data/Consensus_Data/Novogene_lane11/sample2/sscs_sum_ann.csv",header = T,stringsAsFactors = F)[-1]
+sample2_sum$consensus="sscs"
+sample2_sum=sample2_sum%>%
+  # filter(protein_start==protein_end,consequence_terms%in%"missense_variant")%>%
   rowwise()%>%
   mutate(ref_aa=strsplit(amino_acids,"/")[[1]][1],
          alt_aa=strsplit(amino_acids,"/")[[1]][2])
+
+sample2_all=read.csv("data/Consensus_Data/Novogene_lane11/sample2/sscs_reads_ann.csv",header = T,stringsAsFactors = F)[-1]
+sample2_all$consensus="sscs"
+# dcs_sum=read.csv("data/Consensus_Data/Novogene_lane11/sample2/duplex_sum_ann.csv",header = T,stringsAsFactors = F)[-1]
+# dcs_sum$consensus="dcs"
+
+sample2_all=sample2_all%>%
+  # filter(protein_start==protein_end,consequence_terms%in%"missense_variant")%>%
+  rowwise()%>%
+  mutate(ref_aa=strsplit(amino_acids,"/")[[1]][1],
+         alt_aa=strsplit(amino_acids,"/")[[1]][2])
+a=sample2_all%>%filter(protein_start%in%493,amino_acids%in%"F")
+
+sample2_sum
 
 dcs_sum=dcs_sum%>%
   filter(protein_start==protein_end,consequence_terms%in%"missense_variant")%>%
@@ -96,12 +185,12 @@ dcs_sum=dcs_sum%>%
   mutate(ref_aa=strsplit(amino_acids,"/")[[1]][1],
          alt_aa=strsplit(amino_acids,"/")[[1]][2])
 
-ggplot(sscs_sum,aes(x=protein_start,y=alt_aa))+
+ggplot(sample2_sum,aes(x=protein_start,y=alt_aa))+
   geom_tile(color="black",aes(fill=ct))+
   scale_x_continuous(expand=c(0,0),limits=c(242,333))+
   scale_y_discrete(expand=c(0,0))
 
-all_sum=rbind(sscs_sum,dcs_sum)
+all_sum=rbind(sample2_sum,dcs_sum)
 
 plotly=ggplot(all_sum,aes(x=ct,fill=consensus,alpha=0.5))+
   geom_density(position=position_dodge(),bins=100)+
@@ -126,6 +215,14 @@ ggplot(all_sum,aes(x=protein_start,y=alt_aa))+
 
 a=sscs_sum%>%filter(protein_start>=242,protein_start<=289)
 a=a%>%group_by(protein_start)%>%summarize(count=n())
+
+calls_sum=sample2_sum%>%filter(consequence_terms%in%"missense_variant")%>%group_by(protein_start)%>%summarize(unique_mutants=n(),count=sum(ct))
+
+ggplot(calls_sum%>%filter(protein_start>=242,protein_start<=500),aes(x=protein_start,y=count))+geom_col()+cleanup
+ggplot(calls_sum%>%filter(protein_start>=242,protein_start<=500),aes(x=protein_start,y=unique_mutants))+geom_col()+cleanup
+
+a=sample2_sum%>%filter(consequence_terms%in%"missense_variant",protein_start>=242,protein_start<=500)
+sum(a$ct)
 ```
 SAMPLE 10 and 11
 ```{r,eval=F}
