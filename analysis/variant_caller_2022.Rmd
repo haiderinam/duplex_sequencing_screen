@@ -53,7 +53,7 @@ source("code/variantcaller/vep_fromdf.R")
 source("code/variantcaller/vep_fromquery.R")
 source("code/variantcaller/transcript_verifier.R")
 
-outdir="data/Consensus_data/Novogene_lane11/sample5"
+outdir="data/Consensus_data/Novogene_lane11/sample5/variant_caller_outputs"
 ref_offset=0
 # ref_offset=723
 #############For EGFR#############
@@ -519,8 +519,8 @@ calls_ann=rbind(snps_ann%>%dplyr::select(pos,ref,alt,depth,protein_start,protein
                 mnvs_ann%>%dplyr::select(pos,ref,alt,depth,protein_start,protein_end,amino_acids,consequence_terms,cigar,seq,mdz,n_nuc,ct,codons,type))
 
 
-# write.csv(calls_ann,paste(outdir,"variants_ann.csv"),row.names = F)
-# write.csv(calls_sum_merged,paste(outdir,"variants_unique_ann.csv"),row.names=F)
+write.csv(calls_ann,paste(outdir,"variants_ann.csv"),row.names = F)
+write.csv(calls_sum_merged,paste(outdir,"variants_unique_ann.csv"),row.names=F)
 ```
 
 
