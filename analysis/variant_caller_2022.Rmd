@@ -53,15 +53,16 @@ source("code/variantcaller/vep_fromdf.R")
 source("code/variantcaller/vep_fromquery.R")
 source("code/variantcaller/transcript_verifier.R")
 
-outdir="data/Consensus_data/Novogene_lane11/sample5/variant_caller_outputs"
 ref_offset=0
 # ref_offset=723
 #############For EGFR#############
-enst="ENST00000275493" 
+enst="ENST00000275493"
 chr=7
-ref_txt_name="data/Refs/EGFR/NM_005228.5_L858R.txt"
+# ref_txt_name="data/Refs/EGFR/NM_005228.5_L858R.txt"
+# ref_csv_name="data/Refs/EGFR/egfr_NM_005228.5_full_coordinates.csv"
+
+ref_txt_name="data/Refs/EGFR/L858R_629_903/NM_005228.5_L858R_629_903.txt"
 ref_csv_name="data/Refs/EGFR/egfr_NM_005228.5_full_coordinates.csv"
-seqdata_tsv_name="data/Consensus_data/Novogene_lane11/sample5/sscs_L858R_aligned_filtered.tsv"
 
 
 
@@ -69,8 +70,12 @@ seqdata_tsv_name="data/Consensus_data/Novogene_lane11/sample5/sscs_L858R_aligned
 # enst="ENST00000318560" #Ensembl transcript ID for the canonical transcript
 # chr=9 #The chromosome number on hg38. This argument is passed into the ensembl variant effect predictor
 # ref_txt_name="data/Refs/ABL/NM_005157.6_CDS.txt"
-# ref_csv_name="data/Refs/ABL/abl1_full_coordinates.csv"
+# ref_csv_name="data/Refs/ABL/abl1_NM_005157.6_full_coordinates.csv"
+
 # seqdata_tsv_name="data/Consensus_data/Novogene_lane11/sample10/sscs_corrected_aligned_filtered.tsv"
+seqdata_tsv_name="data/Consensus_data/Novogene_lane13/sample2/sscs_sorted_filtered.tsv"
+# outdir="data/Consensus_data/Novogene_lane11/sample5/variant_caller_outputs"
+outdir="data/Consensus_data/Novogene_lane13/sample2/variant_caller_outputs"
 ```
 
 
@@ -130,7 +135,6 @@ ref_genomic_coordinates=ref_genomic_coordinates%>%filter(!codon%in%"")
 ```{r}
 
 alldata=read.table(seqdata_tsv_name,header = F,stringsAsFactors = F)
-"data/Consensus_Data/Novogene_lane11/sample5/"
 # alldata2=read.table("Novogene_lane11/sample5/sscs_L858R_aligned_filtered.tsv",header = F,stringsAsFactors = F)
 # alldata=rbind(alldata,alldata2)
       #If you want the script to look for all files that match a certain regular expression and loop through them, you can use the following code: 
@@ -439,6 +443,7 @@ snps_sum=cds_to_hg38(snps_sum)
 
 tic()
 # a=vep_fromdf_parralel(snps_sum[c(1:100),],chr,enst)
+# enst
 snps_sum_ann=vep_fromdf_parralel(snps_sum,chr,enst)
 toc() 
 snps_sum_ann$type="snp"
@@ -512,30 +517,37 @@ calls_missense=calls_sum_merged%>%filter(consequence_terms%in%"missense_variant"
 #                                           impact,
 #                                           polyphen_prediction,
 #                                           consequence_terms)
-calls_missense_sum=calls_sum_merged%>%filter(consequence_terms%in%"missense_variant")%>%group_by(protein_start)%>%summarize(count=n())
+calls_missense_sum=calls_sum_merged%>%filter(consequence_terms%in%"missense_variant")%>%group_by(protein_start)%>%summarize(unique_mutants=n(),count=(sum(ct)))
 
 #####Combining the annotated read data########
 calls_ann=rbind(snps_ann%>%dplyr::select(pos,ref,alt,depth,protein_start,protein_end,amino_acids,consequence_terms,cigar,seq,mdz,n_nuc,ct,codons,type),
                 mnvs_ann%>%dplyr::select(pos,ref,alt,depth,protein_start,protein_end,amino_acids,consequence_terms,cigar,seq,mdz,n_nuc,ct,codons,type))
 
 
-write.csv(calls_ann,paste(outdir,"variants_ann.csv"),row.names = F)
-write.csv(calls_sum_merged,paste(outdir,"variants_unique_ann.csv"),row.names=F)
+write.csv(calls_ann,paste(outdir,"/variants_ann.csv",sep = ""),row.names = F)
+write.csv(calls_sum_merged,paste(outdir,"/variants_unique_ann.csv",sep = ""),row.names=F)
 ```
 
 
 ```{r}
 ##############Doing some basic plotting#############
+calls_missense=calls_missense%>%
+  filter(protein_start==protein_end,consequence_terms%in%"missense_variant")%>%
+  rowwise()%>%
+  mutate(ref_aa=strsplit(amino_acids,"/")[[1]][1],
+         alt_aa=strsplit(amino_acids,"/")[[1]][2])
 #Plotting Coverage Statistics
 ggplot(coverage_stats,aes(x=pos,y=depth))+geom_col()
 
 #Plotting the number of missense substitutions detected per residue
-ggplot(calls_missense_sum,aes(x=protein_start,y=count))+geom_col()
+ggplot(calls_missense_sum,aes(x=protein_start,y=unique_mutants))+geom_col()+scale_x_continuous(limits=c(242,494))
+ggplot(calls_missense_sum,aes(x=protein_start,y=count))+geom_col()+scale_x_continuous(limits=c(242,494))
+sum(calls_missense_sum$count)
 
 #Plotting the AF of all mutants seen in the sample
 ggplot(calls_missense,aes(x=protein_start,y=alt_aa))+
   geom_tile(color="black",aes(fill=(ct/depth)))+
-  scale_x_continuous(name="Position along CDS",expand=c(0,0),limits=c(717,870))+
+  scale_x_continuous(name="Position along CDS",expand=c(0,0),limits=c(242,500))+
   scale_y_discrete(name="Amino Acid Substitution",expand=c(0,0))+
   scale_fill_continuous(name="Allele \nFrequency",trans="log10")+
   cleanup+

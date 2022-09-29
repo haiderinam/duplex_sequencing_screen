@@ -1,7 +1,8 @@
 vep_fromdf_parralel=function(input_df,chr,enst){
-  # input_df=mnv_sum
-  # chr=7
+  # input_df=snps_sum[c(1:100),]
+  # chr=9
   # enst="ENST00000275493"
+  # enst="ENST00000318560"
   ##########This function parallelizes ENSEBML annotations, making them 10x faster
   snps_sum=input_df #please make all instances of snps_sum input df
   library(foreach)
@@ -16,8 +17,8 @@ vep_fromdf_parralel=function(input_df,chr,enst){
   snps_sum_ann=foreach(i=seq(1,nrow(snps_sum[,1])),combine=rbind,.packages = c("dplyr",
                                                                                "httr",
                                                                                "xml2")) %dopar% {
-source("vep_fromdf.R") #I don't know how to make it so that it doesn't have to initialize the function for each row
-source("vep_fromquery.R")
+source("code/variantcaller/vep_fromdf.R") #I don't know how to make it so that it doesn't have to initialize the function for each row
+source("code/variantcaller/vep_fromquery.R")
     # seq(1,10,2)
      #for some reason, each of these packages needs to be re-initialized upon
     # library(jsonlite)

@@ -22,7 +22,7 @@ vep_fromdf=function(input_df,chr,enst){
   # i=4
   # for(i in 276:nrow(input_df)){
   for(i in 1:nrow(input_df)){
-    # i=63
+    # i=1
     transcript_consequences=vep_fromquery(paste(input_df$alt_start_hg38[i],":",input_df$alt_end_hg38[i]-1,"/",input_df$alt[i],sep = ""),chr=chr,enst=enst)
 
     # b=vep_fromquery("130862936:130862938/TAA")
