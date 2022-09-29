@@ -73,9 +73,9 @@ ref_csv_name="data/Refs/EGFR/egfr_NM_005228.5_full_coordinates.csv"
 # ref_csv_name="data/Refs/ABL/abl1_NM_005157.6_full_coordinates.csv"
 
 # seqdata_tsv_name="data/Consensus_data/Novogene_lane11/sample10/sscs_corrected_aligned_filtered.tsv"
-seqdata_tsv_name="data/Consensus_data/Novogene_lane13/sample2/sscs_sorted_filtered.tsv"
+seqdata_tsv_name="data/Consensus_data/Novogene_lane13/sample5/sscs_sorted_filtered.tsv"
 # outdir="data/Consensus_data/Novogene_lane11/sample5/variant_caller_outputs"
-outdir="data/Consensus_data/Novogene_lane13/sample2/variant_caller_outputs"
+outdir="data/Consensus_data/Novogene_lane13/sample5/variant_caller_outputs"
 ```
 
 
@@ -133,7 +133,6 @@ ref_genomic_coordinates=ref_genomic_coordinates%>%filter(!codon%in%"")
 
 ####This is the main chunk of code for reading, sorting the tsv file, variant calling, variant annotation using ensembl
 ```{r}
-
 alldata=read.table(seqdata_tsv_name,header = F,stringsAsFactors = F)
 # alldata2=read.table("Novogene_lane11/sample5/sscs_L858R_aligned_filtered.tsv",header = F,stringsAsFactors = F)
 # alldata=rbind(alldata,alldata2)
