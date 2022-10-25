@@ -155,18 +155,20 @@ sample1=sample1%>%mutate(region=case_when(protein_start<250&protein_start>=242~1
                                               protein_start<490&protein_start>=482~31,
                                               protein_start<498&protein_start>=490~32,
                                               T~0))
+library(RColorBrewer)
+getPalette = colorRampPalette(brewer.pal(33, "Set2"))
 sample1=sample1%>%rowwise()%>%mutate(ID=paste(protein_start,amino_acids,sep=""))
 plotly=ggplot(sample1%>%filter(consequence_terms%in%"missense_variant",protein_start>=242,protein_start<=494),aes(x=protein_start,y=ct))+geom_col(color="black",aes(fill=factor(region)))+cleanup+scale_fill_manual(values=getPalette(33))
 ggplotly(plotly)
 calls_sum=sample1%>%filter(consequence_terms%in%"missense_variant")%>%group_by(protein_start,region)%>%summarize(unique_mutants=n(),count=sum(ct))
 # calls_sum=calls_sum
 ggplot(calls_sum%>%filter(protein_start>=242,protein_start<=500),aes(x=protein_start,y=unique_mutants))+geom_col()+cleanup
-getPalette = colorRampPalette(brewer.pal(33, "Set2"))
+
 
 ggplot(calls_sum%>%filter(protein_start>=242,protein_start<=500),aes(x=protein_start,y=count))+geom_col()+cleanup
 plotly=ggplot(calls_sum%>%filter(protein_start>=242,protein_start<=500),aes(x=protein_start,y=count))+geom_col(color="black",aes(fill=factor(region)))+cleanup+scale_fill_manual(values=getPalette(33))
 ggplotly(plotly)
-# library(RColorBrewer)
+
 
 ###The following plot is proof that I pooled in our iL3 independent regions very well.
 calls_sum_byregion=calls_sum%>%group_by(region)%>%summarize(unique_regions=n(),counts=sum(count))
