@@ -75,10 +75,12 @@ ref_csv_name="data/Refs/EGFR/egfr_NM_005228.5_full_coordinates.csv"
 # ref_txt_name="data/Refs/ABL/NM_005157.6_CDS.txt"
 # ref_csv_name="data/Refs/ABL/abl1_NM_005157.6_full_coordinates.csv"
 
+### Denote LANE and SAMPLE ###
+
 # seqdata_tsv_name="data/Consensus_data/Novogene_lane11/sample10/sscs_corrected_aligned_filtered.tsv"
-seqdata_tsv_name="data/Consensus_Data/Novogene_lane14/sample2_combined/sscs_sorted_filtered.tsv"
+seqdata_tsv_name="data/Consensus_Data/Novogene_lane14/sample8/sscs_sorted_filtered.tsv"
 # outdir="data/Consensus_data/Novogene_lane11/sample5/variant_caller_outputs"
-outdir="data/Consensus_data/Novogene_lane13/sample12/variant_caller_outputs"
+outdir="data/Consensus_data/Novogene_lane14/sample8/variant_caller_outputs"
 if (file.exists(outdir)){
           
         # specifying the working directory
@@ -541,7 +543,7 @@ write.csv(calls_sum_merged,paste(outdir,"/variants_unique_ann.csv",sep = ""),row
 
 
 ```{r}
-##############Doing some basic plotting#############
+############## Doing some basic plotting#############
 calls_missense=calls_missense%>%
   filter(protein_start==protein_end,consequence_terms%in%"missense_variant")%>%
   rowwise()%>%
