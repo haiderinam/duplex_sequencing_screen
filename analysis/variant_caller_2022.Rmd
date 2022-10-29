@@ -70,9 +70,9 @@ ref_txt_name="data/Refs/ABL/NM_005157.6_CDS.txt"
 ref_csv_name="data/Refs/ABL/abl1_NM_005157.6_full_coordinates.csv"
 
 # seqdata_tsv_name="data/Consensus_data/Novogene_lane11/sample10/sscs_corrected_aligned_filtered.tsv"
-seqdata_tsv_name="data/Consensus_data/Novogene_lane14/sample10_combined/sscs_sorted_filtered.tsv"
+seqdata_tsv_name="data/Consensus_data/Novogene_lane11/sample7/sscs_sorted_filtered.tsv"
 # outdir="data/Consensus_data/Novogene_lane11/sample5/variant_caller_outputs"
-outdir="data/Consensus_data/Novogene_lane14/sample10_combined/variant_caller_outputs"
+outdir="data/Consensus_data/Novogene_lane11/sample7/variant_caller_outputs/"
 ```
 
 

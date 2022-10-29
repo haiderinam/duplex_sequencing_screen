@@ -8,7 +8,7 @@ output: html_document
 ```{r setup, include=FALSE}
 # rm(list=ls())
 knitr::opts_chunk$set(echo = TRUE)
-knitr::opts_knit$set(root.dir = normalizePath(".."))
+# knitr::opts_knit$set(root.dir = normalizePath(".."))
 
 library(stringr)
 library(dplyr)
@@ -285,7 +285,7 @@ ggplot(calls_missense_sum,aes(x=protein_start,y=count))+geom_col()+scale_x_conti
 SAMPLE 2
 ```{r,eval=F}
 library("plotly")
-sample2_sum=read.csv("data/Consensus_Data/Novogene_lane11/sample2/variants_unique_ann_sample2.csv",header = T,stringsAsFactors = F)[-1]
+sample2_sum=read.csv("data/Consensus_Data/Novogene_lane11/sample2/archive/variants_unique_ann_sample2.csv",header = T,stringsAsFactors = F)[-1]
 sample2_sum$consensus="sscs"
 sample2_sum=sample2_sum%>%
   # filter(protein_start==protein_end,consequence_terms%in%"missense_variant")%>%
@@ -293,9 +293,9 @@ sample2_sum=sample2_sum%>%
   mutate(ref_aa=strsplit(amino_acids,"/")[[1]][1],
          alt_aa=strsplit(amino_acids,"/")[[1]][2])
 
-sample2_all=read.csv("data/Consensus_Data/Novogene_lane11/sample2/variants_ann_sample2.csv",header = T,stringsAsFactors = F)[-1]
+sample2_all=read.csv("data/Consensus_Data/Novogene_lane11/sample2/archive/variants_ann_sample2.csv",header = T,stringsAsFactors = F)[-1]
 sample2_all$consensus="sscs"
-dcs_sum=read.csv("data/Consensus_Data/Novogene_lane11/sample2/duplex_sum_ann.csv",header = T,stringsAsFactors = F)[-1]
+dcs_sum=read.csv("data/Consensus_Data/Novogene_lane11/sample2/archive/duplex_sum_ann.csv",header = T,stringsAsFactors = F)[-1]
 dcs_sum$consensus="dcs"
 
 sample2_all=sample2_all%>%
@@ -352,7 +352,7 @@ ggplot(calls_sum%>%filter(protein_start>=242,protein_start<=500),aes(x=protein_s
 # a=sample2_sum%>%filter(consequence_terms%in%"missense_variant",protein_start>=242,protein_start<=500)
 # sum(a$ct)
 ```
-SAMPLE 10 and 11
+Lane 11 SAMPLE 10 and 11
 ```{r,eval=F}
 ###########Sample 10############
 sscs_sum=read.csv("data/Consensus_Data/Novogene_lane11/sample10/sscs_sum_ann.csv",header = T,stringsAsFactors = F)[-1]
@@ -383,10 +383,10 @@ ggplot(sscs_sum,aes(x=protein_start,y=alt_aa))+
   scale_y_discrete(expand=c(0,0))
 ```
 
-SAMPLE 7
+Lane 11 SAMPLE 7 
 ```{r,eval=F}
 ###########Sample 10############
-sscs_sum=read.csv("data/Consensus_Data/Novogene_lane11/sample7/sscs_sum_ann.csv",header = T,stringsAsFactors = F)[-1]
+sscs_sum=read.csv("data/Consensus_Data/Novogene_lane11/sample7/archive/sscs_sum_ann.csv",header = T,stringsAsFactors = F)[-1]
 
 sscs_sum=sscs_sum%>%
   filter(protein_start==protein_end,consequence_terms%in%"missense_variant")%>%
@@ -414,3 +414,144 @@ ggplot(sscs_sum,aes(x=protein_start,y=alt_aa))+
   scale_x_continuous(expand=c(0,0),limits=c(242,330))+
   scale_y_discrete(expand=c(0,0))
 ```
+
+Plotting the correlation of allele frequencies of stuff that I see in sample 2 vs in sample 7
+```{r}
+samplex=read.csv("data/Consensus_Data/Novogene_lane14/sample15/variant_caller_outputs/variants_unique_ann.csv",header=T,stringsAsFactors = F)
+samplex=samplex%>%
+  rowwise()%>%
+  mutate(ref_aa=strsplit(amino_acids,"/")[[1]][1],
+         alt_aa=strsplit(amino_acids,"/")[[1]][2])
+samplex=samplex%>%mutate(maf=ct/depth)
+samplex_simple=samplex%>%dplyr::select(alt_start_pos,protein_start,ref,alt,ref_aa,alt_aa,consequence_terms,ct,depth,maf)
+
+sampley=read.csv("data/Consensus_Data/Novogene_lane14/sample17/variant_caller_outputs/variants_unique_ann.csv",header=T,stringsAsFactors = F)
+
+sampley=sampley%>%
+  rowwise()%>%
+  mutate(ref_aa=strsplit(amino_acids,"/")[[1]][1],
+         alt_aa=strsplit(amino_acids,"/")[[1]][2])
+sampley=sampley%>%mutate(maf=ct/depth)
+sampley_simple=sampley%>%dplyr::select(alt_start_pos,protein_start,ref,alt,ref_aa,alt_aa,consequence_terms,ct,depth,maf)
+
+samples_xy=merge(samplex_simple%>%filter(consequence_terms%in%"missense_variant"),sampley_simple%>%filter(consequence_terms%in%"missense_variant"),by=c("ref_aa","protein_start","alt_aa","ref","alt","alt_start_pos","consequence_terms"),all = T)
+
+plotly=ggplot(samples_xy%>%filter(protein_start>=242,protein_start<=492),aes(x=maf.x,y=maf.y))+
+  geom_point(color="black",shape=21,aes(fill=ct.x))+
+    scale_x_continuous(trans="log")+
+    scale_y_continuous(trans="log")+
+  geom_abline()+
+  theme_bw()
+ggplotly(plotly)
+# cor(samples_xy$maf.x,samples_xy$maf.y)
+```
+
+```{r}
+source("code/merge_samples.R")
+
+lane12sortedsamples=merge_samples("Novogene_lane11/Sample1","Novogene_lane11/Sample2")
+lane12sortedsamples=merge_samples(lane12sortedsamples,"Novogene_lane11/Sample3")
+lane12sortedsamples=merge_samples(lane12sortedsamples,"Novogene_lane11/Sample4")
+
+lane12sortedsamples=lane12sortedsamples%>%
+  rowwise()%>%
+  mutate(ref_aa=strsplit(amino_acids,"/")[[1]][1],
+         alt_aa=strsplit(amino_acids,"/")[[1]][2])
+lane12sortedsamples=lane12sortedsamples%>%mutate(maf=ct/depth)
+# samplex_simple=samplex%>%dplyr::select(alt_start_pos,protein_start,ref,alt,ref_aa,alt_aa,consequence_terms,ct,depth,maf)
+
+
+
+# sampley=sampley%>%
+#   rowwise()%>%
+#   mutate(ref_aa=strsplit(amino_acids,"/")[[1]][1],
+#          alt_aa=strsplit(amino_acids,"/")[[1]][2])
+# sampley=sampley%>%mutate(maf=ct/depth)
+# sampley_simple=sampley%>%dplyr::select(alt_start_pos,protein_start,ref,alt,ref_aa,alt_aa,consequence_terms,ct,depth,maf)
+
+
+ggplot(lane12sortedsamples%>%
+                filter(nchar(alt_aa)%in%1,
+                       consequence_terms%in%"missense_variant",
+                       protein_start>=242,
+                       protein_start<=282),
+              aes(x=protein_start,y=alt_aa,fill=maf))+
+  geom_tile()+
+  theme_bw()
+
+ggplot(lane12sortedsamples)
+       #To do: error plot where red lines outside mutagenized rgn
+       #plot how many variants do you see with 1 sample vs 2 vs 3 etc
+# a=lane12sortedsamples%>%
+#                 filter(nchar(alt_aa)%in%1,
+#                        consequence_terms%in%"missense_variant",
+#                        protein_start>=242,
+#                        protein_start<300)
+  qc_data=read.csv("data/QC_Data_Cloning/TwistQC-ABL252residues-Q-146958.csv",header = T,stringsAsFactors = F)
+  qc_data=qc_data%>%filter(!AA.Position%in%NA)
+  ggplot(qc_data,aes(x=AA.Position,y=variant_aa,fill=variant_maf))+
+    geom_tile()+
+    theme_bw()
+  
+  qc_data_formerge=qc_data%>%filter(AA.Position<60)
+  lane12sorted_formerge=lane12sortedsamples%>%filter(nchar(alt_aa)%in%1,
+                         consequence_terms%in%"missense_variant",
+                         protein_start>=242,
+                         protein_start<302)%>%
+    dplyr::select(wt_aa=ref_aa,
+                  variant_aa=alt_aa,
+                  protein_start,
+                  variant_maf=maf,
+                  ct)%>%
+    mutate(AA.Position=protein_start-241)
+  
+qc_data_merged=merge(qc_data,lane12sorted_formerge,by=c("AA.Position","wt_aa","variant_aa"),all.x = T)
+qc_data_merged$detected="Yes"
+qc_data_merged[qc_data_merged$variant_maf.y%in%NA,"detected"]="No"
+qc_data_merged[qc_data_merged$variant_maf.y%in%NA,"variant_maf.y"]=1e-5
+
+
+# With this plot, we can see that most of the variants are within 4 fold of each other in both the twist library and with our librayr
+qc_data_merged[qc_data_merged$ct%in%NA,"ct"]=0
+qc_data_merged$counts="0"
+qc_data_merged[qc_data_merged$ct%in%1,"counts"]="1"
+qc_data_merged[qc_data_merged$ct%in%2,"counts"]="2"
+qc_data_merged[qc_data_merged$ct%in%3,"counts"]="3"
+qc_data_merged[qc_data_merged$ct>=4,"counts"]=">3"
+plotly=ggplot(qc_data_merged,aes(x=variant_maf.x,y=variant_maf.y,color=ct))+
+  geom_point()+
+  scale_x_continuous(trans="log2")+
+  scale_y_continuous(trans="log2")+
+  theme_bw()
+ggplotly(plotly)
+
+plotly=ggplot(qc_data_merged,aes(x=variant_maf.x,y=variant_maf.y))+
+  geom_point(color="black",shape=21,aes(fill=counts))+
+  scale_x_continuous(trans="log2")+
+  scale_y_continuous(trans="log2")+
+  theme_bw()
+ggplotly(plotly)
+a=qc_data_merged%>%filter(AA.Position<=49,detected%in%"No")
+#With the following plot, we can see that of the variants that we don't see in our library, they're not the low AF samples. 
+ggplot(qc_data_merged%>%filter(AA.Position<=49),aes(x=detected,y=variant_maf.x,fill=detected))+
+  geom_violin()+
+  scale_y_continuous(trans="log10")+
+  theme_bw()+
+  geom_jitter(shape=16, position=position_jitter(0.2))
+
+
+# ggplot(qc_data_merged%>%filter(variant_maf.x>0),aes(x=variant_maf.x,y=variant_maf.y))+
+#   stat_density_2d(aes(fill=..level..),geom = "polygon", colour="white")+
+#   scale_fill_continuous(type="viridis")+
+#   theme_bw()+
+#   scale_x_continuous(trans="log")+
+#   scale_y_continuous(trans="log")
+
+
+# a=qc_data_merged%>%filter(ct>=10)
+cor(qc_data_merged$variant_maf.x,qc_data_merged$variant_maf.y)
+# cor(a$variant_maf.x,a$variant_maf.y)
+```
+
+#Numbers: Between AAs 242 and 291, twist made 909 QC-confirmed mutants, we detected 839, or 92% of those.
+#Numbers: Between AAs 242 and 291, twist made 999 mutants overall (including QC-failed mutants), we detected 839, or 82% of those.
