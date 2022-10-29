@@ -11,7 +11,7 @@ The sequencing here was done on EGFR il3 indep and ABL il3 indep and imat, asc t
 ```{r setup, include=FALSE}
 # rm(list=ls())
 knitr::opts_chunk$set(echo = TRUE)
-knitr::opts_knit$set(root.dir = normalizePath(".."))
+# knitr::opts_knit$set(root.dir = normalizePath(".."))
 library(stringr)
 library(dplyr)
 library(ggplot2)
