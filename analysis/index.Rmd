@@ -46,7 +46,9 @@ editor_options:
 
 * ###Click [here](E255K_alphas_figure.html) showing the conformity between the growth rates in the presence of drug measured at a low MAF via FACs, sequencing, and via IC50 studies for a single mutant.  
 <img src="assets/e255k_alphas.png" width="400" height="300"  alt="">  
-
+  
+* Click [here](lane14_comparisons.html) to view preliminary BCRABL Imatinib and Asciminib heatmaps  
+<img src="assets/bcrabl_heatmap.png" width="400" height="300"  alt="">  
 
 
 
