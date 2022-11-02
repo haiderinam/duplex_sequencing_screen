@@ -19,7 +19,7 @@ library(doParallel)
 library(foreach)
 #Cleanup code for plotting
 cleanup=theme_bw() +
-  theme(plot.title = element_text(hjust=.5),
+  theme(plot.title = element_text(hjust=.5), 
         panel.grid.major = element_blank(),
         panel.grid.major.y = element_blank(),
         panel.background = element_blank(),
