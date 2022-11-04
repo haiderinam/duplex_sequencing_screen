@@ -8,7 +8,7 @@ output: html_document
 ```{r setup, include=FALSE}
 # rm(list=ls())
 knitr::opts_chunk$set(echo = TRUE)
-# knitr::opts_knit$set(root.dir = normalizePath(".."))
+knitr::opts_knit$set(root.dir = normalizePath(".."))
 
 library(stringr)
 library(dplyr)
@@ -182,7 +182,7 @@ plotly=ggplot(highscore,aes(x=reorder(subs_name,-score),y=score,fill=resmuts))+g
 ggplotly(plotly)
 a=highscore%>%filter(protein_start%in%"255")
 ```
-####Novogene Lane 11####
+###Novogene Lane 11####
 
 Sample 6
 ```{r}
@@ -551,6 +551,128 @@ ggplot(qc_data_merged%>%filter(AA.Position<=49),aes(x=detected,y=variant_maf.x,f
 # a=qc_data_merged%>%filter(ct>=10)
 cor(qc_data_merged$variant_maf.x,qc_data_merged$variant_maf.y)
 # cor(a$variant_maf.x,a$variant_maf.y)
+```
+
+
+```{r}
+source("code/merge_samples.R")
+
+lane12sortedsamples=merge_samples("Novogene_lane11/Sample1/duplex","Novogene_lane11/Sample2/duplex")
+lane12sortedsamples=merge_samples(lane12sortedsamples,"Novogene_lane11/Sample3/duplex")
+lane12sortedsamples=merge_samples(lane12sortedsamples,"Novogene_lane11/Sample4/duplex")
+
+lane12sortedsamples=lane12sortedsamples%>%
+  rowwise()%>%
+  mutate(ref_aa=strsplit(amino_acids,"/")[[1]][1],
+         alt_aa=strsplit(amino_acids,"/")[[1]][2])
+lane12sortedsamples=lane12sortedsamples%>%mutate(maf=ct/depth)
+# samplex_simple=samplex%>%dplyr::select(alt_start_pos,protein_start,ref,alt,ref_aa,alt_aa,consequence_terms,ct,depth,maf)
+
+
+
+# sampley=sampley%>%
+#   rowwise()%>%
+#   mutate(ref_aa=strsplit(amino_acids,"/")[[1]][1],
+#          alt_aa=strsplit(amino_acids,"/")[[1]][2])
+# sampley=sampley%>%mutate(maf=ct/depth)
+# sampley_simple=sampley%>%dplyr::select(alt_start_pos,protein_start,ref,alt,ref_aa,alt_aa,consequence_terms,ct,depth,maf)
+
+
+ggplot(lane12sortedsamples%>%
+                filter(nchar(alt_aa)%in%1,
+                       consequence_terms%in%"missense_variant",
+                       protein_start>=242,
+                       protein_start<=282),
+              aes(x=protein_start,y=alt_aa,fill=maf))+
+  geom_tile()+
+  theme_bw()
+
+ggplot(lane12sortedsamples)
+       #To do: error plot where red lines outside mutagenized rgn
+       #plot how many variants do you see with 1 sample vs 2 vs 3 etc
+# a=lane12sortedsamples%>%
+#                 filter(nchar(alt_aa)%in%1,
+#                        consequence_terms%in%"missense_variant",
+#                        protein_start>=242,
+#                        protein_start<300)
+  qc_data=read.csv("data/QC_Data_Cloning/TwistQC-ABL252residues-Q-146958.csv",header = T,stringsAsFactors = F)
+  qc_data=qc_data%>%filter(!AA.Position%in%NA)
+  ggplot(qc_data,aes(x=AA.Position,y=variant_aa,fill=variant_maf))+
+    geom_tile()+
+    theme_bw()
+  
+  qc_data_formerge=qc_data%>%filter(AA.Position<60)
+  lane12sorted_formerge=lane12sortedsamples%>%filter(nchar(alt_aa)%in%1,
+                         consequence_terms%in%"missense_variant",
+                         protein_start>=242,
+                         protein_start<302)%>%
+    dplyr::select(wt_aa=ref_aa,
+                  variant_aa=alt_aa,
+                  protein_start,
+                  variant_maf=maf,
+                  ct)%>%
+    mutate(AA.Position=protein_start-241)
+  
+qc_data_merged=merge(qc_data,lane12sorted_formerge,by=c("AA.Position","wt_aa","variant_aa"),all.x = T)
+qc_data_merged$detected="Yes"
+qc_data_merged[qc_data_merged$variant_maf.y%in%NA,"detected"]="No"
+qc_data_merged[qc_data_merged$variant_maf.y%in%NA,"variant_maf.y"]=1e-5
+
+
+# With this plot, we can see that most of the variants are within 4 fold of each other in both the twist library and with our librayr
+qc_data_merged[qc_data_merged$ct%in%NA,"ct"]=0
+qc_data_merged$counts="0"
+qc_data_merged[qc_data_merged$ct%in%1,"counts"]="1"
+qc_data_merged[qc_data_merged$ct%in%2,"counts"]="2"
+qc_data_merged[qc_data_merged$ct%in%3,"counts"]="3"
+qc_data_merged[qc_data_merged$ct>=4,"counts"]=">3"
+plotly=ggplot(qc_data_merged,aes(x=variant_maf.x,y=variant_maf.y,color=ct))+
+  geom_point()+
+  scale_x_continuous(trans="log2")+
+  scale_y_continuous(trans="log2")+
+  theme_bw()
+ggplotly(plotly)
+
+plotly=ggplot(qc_data_merged,aes(x=variant_maf.x,y=variant_maf.y))+
+  geom_point(color="black",shape=21,aes(fill=counts))+
+  scale_x_continuous(trans="log2")+
+  scale_y_continuous(trans="log2")+
+  theme_bw()
+ggplotly(plotly)
+a=qc_data_merged%>%filter(AA.Position<=49,detected%in%"No")
+#With the following plot, we can see that of the variants that we don't see in our library, they're not the low AF samples. 
+ggplot(qc_data_merged%>%filter(AA.Position<=49),aes(x=detected,y=variant_maf.x,fill=detected))+
+  geom_violin()+
+  scale_y_continuous(trans="log10")+
+  theme_bw()+
+  geom_jitter(shape=16, position=position_jitter(0.2))
+
+
+# ggplot(qc_data_merged%>%filter(variant_maf.x>0),aes(x=variant_maf.x,y=variant_maf.y))+
+#   stat_density_2d(aes(fill=..level..),geom = "polygon", colour="white")+
+#   scale_fill_continuous(type="viridis")+
+#   theme_bw()+
+#   scale_x_continuous(trans="log")+
+#   scale_y_continuous(trans="log")
+
+
+# a=qc_data_merged%>%filter(ct>=10)
+cor(qc_data_merged$variant_maf.x,qc_data_merged$variant_maf.y)
+# cor(a$variant_maf.x,a$variant_maf.y)
+
+plotly=ggplot(lane12sortedsamples%>%filter(!alt_start_pos%in%1479),aes(x=ct))+geom_histogram()+scale_x_continuous(trans="log10")
+ggplotly(plotly)
+
+ggplot(lane12sortedsamples%>%filter(!alt_start_pos%in%1479),aes(x=ct))+geom_density()+scale_x_continuous(trans="log10")
+
+plotly=ggplot(lane12sortedsamples%>%filter(!alt_start_pos%in%1479,consequence_terms%in%"missense_variant")%>%group_by(ct)%>%summarize(total=n()),aes(x=ct,y=total))+geom_col()
+ggplotly(plotly)
+
+a=lane12sortedsamples%>%filter(!alt_start_pos%in%1479,consequence_terms%in%"missense_variant")%>%group_by(ct)%>%summarize(total=n())
+sum(a$total)
+a=lane12sortedsamples%>%filter(!alt_start_pos%in%1479,consequence_terms%in%"missense_variant")
+sum(a$ct)
+                               
 ```
 
 #Numbers: Between AAs 242 and 291, twist made 909 QC-confirmed mutants, we detected 839, or 92% of those.
