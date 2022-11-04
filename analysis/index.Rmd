@@ -50,8 +50,8 @@ editor_options:
 * Click [here](lane14_comparisons.html) to view preliminary BCRABL Imatinib and Asciminib heatmaps  
 <img src="assets/bcrabl_heatmap.png" width="400" height="300"  alt="">  
   
-* Click [here](DupSeq_QC_Lane11.html) to view iL3 independence data  
-<img src="assets/bcrabl_heatmap.png" width="800" height="300"  alt="">  
+* Click [here](DupSeq_QC_Lane11.html) and to view iL3 independence data and [here](BCRABL_FunctionalKinaseAnalysis.html) to view iL3 independence heatmap
+<img src="assets/il3heatmap.png" width="1200" height="300"  alt="">  
 
 
 
