@@ -1,0 +1,105 @@
+---
+title: "BCRABL_FunctionalKinaseAnalysis"
+author: "Haider Inam"
+date: '2022-11-02'
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_knit$set(root.dir = normalizePath(".."))
+
+library(stringr)
+library(dplyr)
+library(ggplot2)
+library(plotly)
+library(tictoc)
+library(doParallel)
+library(foreach)
+#Cleanup code for plotting
+cleanup=theme_bw() +
+  theme(plot.title = element_text(hjust=.5), 
+        panel.grid.major = element_blank(),
+        panel.grid.major.y = element_blank(),
+        panel.background = element_blank(),
+        axis.line = element_line(color = "black"),
+        axis.text = element_text(face="bold",color="black",size="11"),
+        text=element_text(size=11,face="bold"),
+        axis.title=element_text(face="bold",size="11"))
+```
+
+
+Plotting the correlation of allele frequencies of stuff that I see in sample 2 vs in sample 7
+```{r}
+samplex=read.csv("data/Consensus_Data/Novogene_lane13/sample15/variant_caller_outputs/variants_unique_ann.csv",header=T,stringsAsFactors = F)
+samplex=samplex%>%
+  rowwise()%>%
+  mutate(ref_aa=strsplit(amino_acids,"/")[[1]][1],
+         alt_aa=strsplit(amino_acids,"/")[[1]][2])
+samplex=samplex%>%mutate(maf=ct/depth)
+samplex_simple=samplex%>%dplyr::select(alt_start_pos,protein_start,ref,alt,ref_aa,alt_aa,consequence_terms,ct,depth,maf)
+
+sampley=read.csv("data/Consensus_Data/Novogene_lane14/sample17/variant_caller_outputs/variants_unique_ann.csv",header=T,stringsAsFactors = F)
+
+sampley=sampley%>%
+  rowwise()%>%
+  mutate(ref_aa=strsplit(amino_acids,"/")[[1]][1],
+         alt_aa=strsplit(amino_acids,"/")[[1]][2])
+sampley=sampley%>%mutate(maf=ct/depth)
+sampley_simple=sampley%>%dplyr::select(alt_start_pos,protein_start,ref,alt,ref_aa,alt_aa,consequence_terms,ct,depth,maf)
+
+samples_xy=merge(samplex_simple%>%filter(consequence_terms%in%"missense_variant"),sampley_simple%>%filter(consequence_terms%in%"missense_variant"),by=c("ref_aa","protein_start","alt_aa","ref","alt","alt_start_pos","consequence_terms"),all = T)
+
+plotly=ggplot(samples_xy%>%filter(protein_start>=242,protein_start<=492),aes(x=maf.x,y=maf.y))+
+  geom_point(color="black",shape=21,aes(fill=ct.x))+
+    scale_x_continuous(trans="log")+
+    scale_y_continuous(trans="log")+
+  geom_abline()+
+  theme_bw()
+ggplotly(plotly)
+# cor(samples_xy$maf.x,samples_xy$maf.y)
+```
+
+Background samples: Lane13 Sample 5,6, Lane 14 Sample 10, 11?
+D2 Post iL3 withdrawal: Lane 13 Sample 9,10
+D4 Post iL3 withdrawal: Lane 13 Sample 11,12
+
+```{r}
+source("code/merge_samples.R")
+a=il3D0%>%filter(consequence_terms%in%"missense_variant",protein_start>=242,protein_start<=494)
+il3D0=merge_samples("Novogene_lane14/Sample10_combined","Novogene_lane13/Sample11")
+il3D0=il3D0%>%
+  rowwise()%>%
+  mutate(ref_aa=strsplit(amino_acids,"/")[[1]][1],
+         alt_aa=strsplit(amino_acids,"/")[[1]][2])
+il3D0=il3D0%>%mutate(maf=ct/depth)
+il3D0_simple=il3D0%>%dplyr::select(alt_start_pos,protein_start,ref,alt,ref_aa,alt_aa,consequence_terms,ct,depth,maf)
+
+
+il3D2=merge_samples("Novogene_lane13/Sample9","Novogene_lane13/Sample10")
+il3D2=il3D2%>%
+  rowwise()%>%
+  mutate(ref_aa=strsplit(amino_acids,"/")[[1]][1],
+         alt_aa=strsplit(amino_acids,"/")[[1]][2])
+il3D2=il3D2%>%mutate(maf=ct/depth)
+il3D2_simple=il3D2%>%dplyr::select(alt_start_pos,protein_start,ref,alt,ref_aa,alt_aa,consequence_terms,ct,depth,maf)
+
+
+il3D0.D2=merge(il3D0_simple%>%filter(consequence_terms%in%"missense_variant"),il3D2_simple%>%filter(consequence_terms%in%"missense_variant"),by=c("ref_aa","protein_start","alt_aa","ref","alt","alt_start_pos","consequence_terms"),all.x = T)
+il3D0.D2[il3D0.D2$ct.y%in%NA,"ct.y"]=0
+
+il3D0.D2=il3D0.D2%>%mutate(score=log2(maf.y/maf.x))
+il3D0.D2[il3D0.D2$score%in%NA,"score"]=-6
+il3D0.D2$conserved=F
+il3D0.D2[il3D0.D2$protein_start%in%c(271,381,382,383),"conserved"]=T
+ggplot(il3D0.D2%>%filter(nchar(alt_aa)%in%1,protein_start>=242,protein_start<=494),aes(x=protein_start,y=alt_aa,fill=score,color=conserved))+geom_tile()+theme(panel.background=element_rect(fill="white", colour="white"))+scale_fill_gradient2(low ="blue",midpoint=-1,mid="white", high ="red",name="Enrichment Score")+scale_color_manual(values=c("black","green"))
+
+
+ggplot(il3D0.D2%>%filter(nchar(alt_aa)%in%1,protein_start>=242,protein_start<=494),aes(x=protein_start,y=alt_aa,fill=score))+geom_tile()+theme(panel.background=element_rect(fill="white", colour="white"))+scale_fill_gradient2(low ="white",midpoint=0,mid="pink", high ="red",name="Enrichment Score")
+
+ggsave("BCRABL_iL3Independence_D2.pdf",height=4,width=16,units="in")
+write.csv(il3D0.D2,"BCRABL_Il3Independence_D2.csv")
+```
+
+#Next: plot iL3 D2 D4 scores
+#Correlate Il3 D2 D4 scores with il3 D0 D2 scores
