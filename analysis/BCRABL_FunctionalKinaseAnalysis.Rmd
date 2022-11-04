@@ -7,7 +7,7 @@ output: html_document
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
-knitr::opts_knit$set(root.dir = normalizePath(".."))
+# knitr::opts_knit$set(root.dir = normalizePath(".."))
 
 library(stringr)
 library(dplyr)
@@ -31,7 +31,7 @@ cleanup=theme_bw() +
 
 Plotting the correlation of allele frequencies of stuff that I see in sample 2 vs in sample 7
 ```{r}
-samplex=read.csv("data/Consensus_Data/Novogene_lane13/sample15/variant_caller_outputs/variants_unique_ann.csv",header=T,stringsAsFactors = F)
+samplex=read.csv("data/Consensus_Data/Novogene_lane14/sample15/sscs/variant_caller_outputs/variants_unique_ann.csv",header=T,stringsAsFactors = F)
 samplex=samplex%>%
   rowwise()%>%
   mutate(ref_aa=strsplit(amino_acids,"/")[[1]][1],
@@ -39,7 +39,7 @@ samplex=samplex%>%
 samplex=samplex%>%mutate(maf=ct/depth)
 samplex_simple=samplex%>%dplyr::select(alt_start_pos,protein_start,ref,alt,ref_aa,alt_aa,consequence_terms,ct,depth,maf)
 
-sampley=read.csv("data/Consensus_Data/Novogene_lane14/sample17/variant_caller_outputs/variants_unique_ann.csv",header=T,stringsAsFactors = F)
+sampley=read.csv("data/Consensus_Data/Novogene_lane14/sample17/sscs/variant_caller_outputs/variants_unique_ann.csv",header=T,stringsAsFactors = F)
 
 sampley=sampley%>%
   rowwise()%>%
@@ -66,8 +66,8 @@ D4 Post iL3 withdrawal: Lane 13 Sample 11,12
 
 ```{r}
 source("code/merge_samples.R")
-a=il3D0%>%filter(consequence_terms%in%"missense_variant",protein_start>=242,protein_start<=494)
-il3D0=merge_samples("Novogene_lane14/Sample10_combined","Novogene_lane13/Sample11")
+
+il3D0=merge_samples("Novogene_lane14/Sample10_combined","Novogene_lane13/sample7")
 il3D0=il3D0%>%
   rowwise()%>%
   mutate(ref_aa=strsplit(amino_acids,"/")[[1]][1],
@@ -92,13 +92,13 @@ il3D0.D2=il3D0.D2%>%mutate(score=log2(maf.y/maf.x))
 il3D0.D2[il3D0.D2$score%in%NA,"score"]=-6
 il3D0.D2$conserved=F
 il3D0.D2[il3D0.D2$protein_start%in%c(271,381,382,383),"conserved"]=T
-ggplot(il3D0.D2%>%filter(nchar(alt_aa)%in%1,protein_start>=242,protein_start<=494),aes(x=protein_start,y=alt_aa,fill=score,color=conserved))+geom_tile()+theme(panel.background=element_rect(fill="white", colour="white"))+scale_fill_gradient2(low ="blue",midpoint=-1,mid="white", high ="red",name="Enrichment Score")+scale_color_manual(values=c("black","green"))
+ggplot(il3D0.D2%>%filter(nchar(as.character(alt_aa))%in%1,protein_start>=242,protein_start<=494),aes(x=protein_start,y=alt_aa,fill=score,color=conserved))+geom_tile()+theme(panel.background=element_rect(fill="white", colour="white"))+scale_fill_gradient2(low ="blue",midpoint=-1,mid="white", high ="red",name="Enrichment Score")+scale_color_manual(values=c("black","green"))
+il3D0.D2$alt_aa=factor(il3D0.D2$alt_aa,levels=c("P","G","Y","W","F","V","L","I","A","T","S","Q","N","M","C","E","D","R","K","H"))
 
+# ggplot(il3D0.D2%>%filter(nchar(alt_aa)%in%1,protein_start>=242,protein_start<=494),aes(x=protein_start,y=alt_aa,fill=score))+geom_tile()+theme(panel.background=element_rect(fill="white", colour="white"))+scale_fill_gradient2(low ="white",midpoint=0,mid="pink", high ="red",name="Enrichment Score")
 
-ggplot(il3D0.D2%>%filter(nchar(alt_aa)%in%1,protein_start>=242,protein_start<=494),aes(x=protein_start,y=alt_aa,fill=score))+geom_tile()+theme(panel.background=element_rect(fill="white", colour="white"))+scale_fill_gradient2(low ="white",midpoint=0,mid="pink", high ="red",name="Enrichment Score")
-
-ggsave("BCRABL_iL3Independence_D2.pdf",height=4,width=16,units="in")
-write.csv(il3D0.D2,"BCRABL_Il3Independence_D2.csv")
+# ggsave("BCRABL_iL3Independence_D2.pdf",height=4,width=16,units="in")
+# write.csv(il3D0.D2,"BCRABL_Il3Independence_D2.csv")
 ```
 
 #Next: plot iL3 D2 D4 scores
