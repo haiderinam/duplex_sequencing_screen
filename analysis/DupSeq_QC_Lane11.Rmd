@@ -8,7 +8,7 @@ output: html_document
 ```{r setup, include=FALSE}
 # rm(list=ls())
 knitr::opts_chunk$set(echo = TRUE)
-knitr::opts_knit$set(root.dir = normalizePath(".."))
+# knitr::opts_knit$set(root.dir = normalizePath(".."))
 
 library(stringr)
 library(dplyr)
@@ -417,7 +417,7 @@ ggplot(sscs_sum,aes(x=protein_start,y=alt_aa))+
 
 Plotting the correlation of allele frequencies of stuff that I see in sample 2 vs in sample 7
 ```{r}
-samplex=read.csv("data/Consensus_Data/Novogene_lane14/sample15/variant_caller_outputs/variants_unique_ann.csv",header=T,stringsAsFactors = F)
+samplex=read.csv("data/Consensus_Data/Novogene_lane14/sample15/sscs/variant_caller_outputs/variants_unique_ann.csv",header=T,stringsAsFactors = F)
 samplex=samplex%>%
   rowwise()%>%
   mutate(ref_aa=strsplit(amino_acids,"/")[[1]][1],
@@ -425,7 +425,7 @@ samplex=samplex%>%
 samplex=samplex%>%mutate(maf=ct/depth)
 samplex_simple=samplex%>%dplyr::select(alt_start_pos,protein_start,ref,alt,ref_aa,alt_aa,consequence_terms,ct,depth,maf)
 
-sampley=read.csv("data/Consensus_Data/Novogene_lane14/sample17/variant_caller_outputs/variants_unique_ann.csv",header=T,stringsAsFactors = F)
+sampley=read.csv("data/Consensus_Data/Novogene_lane14/sample17/sscs/variant_caller_outputs/variants_unique_ann.csv",header=T,stringsAsFactors = F)
 
 sampley=sampley%>%
   rowwise()%>%
@@ -449,9 +449,9 @@ ggplotly(plotly)
 ```{r}
 source("code/merge_samples.R")
 
-lane12sortedsamples=merge_samples("Novogene_lane11/Sample1","Novogene_lane11/Sample2")
-lane12sortedsamples=merge_samples(lane12sortedsamples,"Novogene_lane11/Sample3")
-lane12sortedsamples=merge_samples(lane12sortedsamples,"Novogene_lane11/Sample4")
+lane12sortedsamples=merge_samples("Novogene_lane11/Sample1/sscs","Novogene_lane11/Sample2/sscs")
+lane12sortedsamples=merge_samples(lane12sortedsamples,"Novogene_lane11/Sample3/sscs")
+lane12sortedsamples=merge_samples(lane12sortedsamples,"Novogene_lane11/Sample4/sscs")
 
 lane12sortedsamples=lane12sortedsamples%>%
   rowwise()%>%
