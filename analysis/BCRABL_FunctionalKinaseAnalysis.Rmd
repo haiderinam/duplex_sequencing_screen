@@ -7,7 +7,7 @@ output: html_document
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
-knitr::opts_knit$set(root.dir = normalizePath(".."))
+# knitr::opts_knit$set(root.dir = normalizePath(".."))
 
 library(stringr)
 library(dplyr)
@@ -67,9 +67,17 @@ D2 Post Imatinib treatment: Lane 14 Sample 12
 
 ```{r}
 source("code/merge_samples.R")
+# il3all=merge_samples("Novogene_lane14/Sample10_combined","Novogene_lane13/sample7")
+# il3all=merge_samples(il3all,"Novogene_lane14/sample11")
+# il3all=merge_samples(il3all,"Novogene_lane15/sample_3/sscs")
+# il3all=merge_samples(il3all,"Novogene_lane13/Sample10")
+# # il3all=merge_samples(il3all,"Novogene_lane13/Sample9")
+# # a=il3all%>%filter(protein_start%in%c(242:494),consequence_terms%in%"missense_variant")
+
 
 il3D0=merge_samples("Novogene_lane14/Sample10_combined","Novogene_lane13/sample7")
 il3D0=merge_samples(il3D0,"Novogene_lane14/sample11")
+il3D0=merge_samples(il3D0,"Novogene_lane15/sample_3/sscs")
 
 il3D0=il3D0%>%
   rowwise()%>%
@@ -77,9 +85,10 @@ il3D0=il3D0%>%
          alt_aa=strsplit(amino_acids,"/")[[1]][2])
 il3D0=il3D0%>%mutate(maf=ct/depth)
 il3D0_simple=il3D0%>%dplyr::select(alt_start_pos,protein_start,ref,alt,ref_aa,alt_aa,consequence_terms,ct,depth,maf)
-
+# a=il3D0%>%filter(protein_start%in%c(242:494),consequence_terms%in%"missense_variant")
 
 il3D2=merge_samples("Novogene_lane13/Sample9","Novogene_lane13/Sample10")
+il3D2=merge_samples(il3D2,"Novogene_lane15/Sample_4/sscs")
 il3D2=il3D2%>%
   rowwise()%>%
   mutate(ref_aa=strsplit(amino_acids,"/")[[1]][1],
@@ -87,7 +96,9 @@ il3D2=il3D2%>%
 il3D2=il3D2%>%mutate(maf=ct/depth)
 il3D2_simple=il3D2%>%dplyr::select(alt_start_pos,protein_start,ref,alt,ref_aa,alt_aa,consequence_terms,ct,depth,maf)
 
-imatD2=read.csv("data/Consensus_Data/Novogene_lane14/sample12/variant_caller_outputs/variants_unique_ann.csv",stringsAsFactors = F)
+# imatD2=read.csv("data/Consensus_Data/Novogene_lane14/sample12/variant_caller_outputs/variants_unique_ann.csv",stringsAsFactors = F)
+imatD2=merge_samples("Novogene_lane14/sample12","Novogene_lane15/sample_6/sscs")
+# imatD2=merge_samples(imatD2,"Novogene_lane15/Sample4")
 imatD2=imatD2%>%
   rowwise()%>%
   mutate(ref_aa=strsplit(amino_acids,"/")[[1]][1],
@@ -100,6 +111,10 @@ il3D0.D2=merge(il3D0_simple%>%filter(consequence_terms%in%"missense_variant"),il
 il3D0.D2[il3D0.D2$ct.y%in%NA,"ct.y"]=0
 
 il3D0.D2$alt_aa=factor(il3D0.D2$alt_aa,levels=c("P","G","Y","W","F","V","L","I","A","T","S","Q","N","M","C","E","D","R","K","H"))
+il3D0.D2[il3D0.D2$ct.y%in%NA,"ct.y"]=0
+
+il3D0.D2=il3D0.D2%>%mutate(score=log2(maf.y/maf.x))
+il3D0.D2[il3D0.D2$score%in%NA,"score"]=-6
 
 imatD0.D2=merge(il3D0_simple%>%filter(consequence_terms%in%"missense_variant"),imatD2_simple%>%filter(consequence_terms%in%"missense_variant"),by=c("ref_aa","protein_start","alt_aa","ref","alt","alt_start_pos","consequence_terms"),all.x = T)
 imatD0.D2[imatD0.D2$ct.y%in%NA,"ct.y"]=0
@@ -264,7 +279,7 @@ ggplot(highscore2,aes(x=reorder(subs_name,-score),y=score,fill=resmuts))+geom_co
 ggsave("BCRABL_Imatinib_Scores_Resmuts.pdf",height=4,width=8,units="in",useDingbats=F)
 
 ggplot(highscore2,aes(x=reorder(subs_name,-score),y=score,fill=resresids))+geom_col()+theme(axis.text.x=element_blank(),axis.ticks.x=element_blank())+scale_y_continuous(name="Enrithcment Score")+scale_x_discrete(name="Mutant")+guides(fill = guide_legend(title = "Clinically\n Observed \n Resistant Residue"))+scale_fill_manual(values=c("gray90","red"))
-ggsave("BCRABL_Imatinib_Scores_Resresids.pdf",height=4,width=8,units="in",useDingbats=F)
+# ggsave("BCRABL_Imatinib_Scores_Resresids.pdf",height=4,width=8,units="in",useDingbats=F)
 
 ###Merging cosmic data and highscore
 # highscore$cosmic_present=F
@@ -272,7 +287,7 @@ highscore_cosmic=merge(highscore,cosmic_simple,by="subs_name",all.x = T)
 highscore_cosmic[highscore_cosmic$cosmic_present%in%NA,"cosmic_present"]=F
 highscore_cosmic[highscore_cosmic$cosmic_count%in%NA,"cosmic_count"]=0
 
-plotly=ggplot(highscore_cosmic,aes(x=reorder(subs_name,-score),y=score,fill=cosmic_present))+geom_col()+theme(axis.text.x=element_text(angle=90, hjust=1))+scale_y_continuous(name="Enrithcment Score")+scale_x_discrete(name="Mutant")+guides(fill = guide_legend(title = "Cosmic\n Observed"))
+plotly=ggplot(highscore_cosmic,aes(x=reorder(subs_name,-score),y=score,fill=cosmic_present))+geom_col()+theme(axis.text.x=element_text(angle=90, hjust=1))+scale_y_continuous(name="Enrichment Score")+scale_x_discrete(name="Mutant")+guides(fill = guide_legend(title = "Cosmic\n Observed"))
 ggplotly(plotly)
 a=cosmic_data%>%filter(AA.Mutation%in%"L248V")
 a=highscore%>%filter(subs_name%in%"M388L")
