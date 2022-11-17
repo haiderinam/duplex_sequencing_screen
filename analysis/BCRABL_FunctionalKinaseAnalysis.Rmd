@@ -7,7 +7,7 @@ output: html_document
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
-# knitr::opts_knit$set(root.dir = normalizePath(".."))
+knitr::opts_knit$set(root.dir = normalizePath(".."))
 
 library(stringr)
 library(dplyr)
@@ -31,7 +31,7 @@ cleanup=theme_bw() +
 
 Plotting the correlation of allele frequencies of stuff that I see in sample 2 vs in sample 7
 ```{r}
-samplex=read.csv("data/Consensus_Data/Novogene_lane14/sample15/sscs/variant_caller_outputs/variants_unique_ann.csv",header=T,stringsAsFactors = F)
+samplex=read.csv("data/Consensus_Data/Novogene_lane14/sample10_combined/sscs/variant_caller_outputs/variants_unique_ann.csv",header=T,stringsAsFactors = F)
 samplex=samplex%>%
   rowwise()%>%
   mutate(ref_aa=strsplit(amino_acids,"/")[[1]][1],
@@ -39,7 +39,7 @@ samplex=samplex%>%
 samplex=samplex%>%mutate(maf=ct/depth)
 samplex_simple=samplex%>%dplyr::select(alt_start_pos,protein_start,ref,alt,ref_aa,alt_aa,consequence_terms,ct,depth,maf)
 
-sampley=read.csv("data/Consensus_Data/Novogene_lane14/sample17/sscs/variant_caller_outputs/variants_unique_ann.csv",header=T,stringsAsFactors = F)
+sampley=read.csv("data/Consensus_Data/Novogene_lane15/sample_3/sscs/variant_caller_outputs/variants_unique_ann.csv",header=T,stringsAsFactors = F)
 
 sampley=sampley%>%
   rowwise()%>%
@@ -65,6 +65,7 @@ D2 Post iL3 withdrawal: Lane 13 Sample 9,10
 D4 Post iL3 withdrawal: Lane 13 Sample 11,12
 D2 Post Imatinib treatment: Lane 14 Sample 12
 
+SSCS
 ```{r}
 source("code/merge_samples.R")
 # il3all=merge_samples("Novogene_lane14/Sample10_combined","Novogene_lane13/sample7")
@@ -74,9 +75,11 @@ source("code/merge_samples.R")
 # # il3all=merge_samples(il3all,"Novogene_lane13/Sample9")
 # # a=il3all%>%filter(protein_start%in%c(242:494),consequence_terms%in%"missense_variant")
 
-
-il3D0=merge_samples("Novogene_lane14/Sample10_combined","Novogene_lane13/sample7")
-il3D0=merge_samples(il3D0,"Novogene_lane14/sample11")
+# il3D0=merge_samples("Novogene_lane14/Sample10_combined/sscs","Novogene_lane15/sample_3/sscs")
+# a=il3D0%>%filter(!protein_start%in%c(242:494),type%in%"mnv")
+# a=il3D0%>%filter(protein_start%in%c(242:494),consequence_terms%in%"missense_variant")
+il3D0=merge_samples("Novogene_lane14/Sample10_combined/sscs","Novogene_lane13/sample7/sscs")
+il3D0=merge_samples(il3D0,"Novogene_lane14/sample11/sscs")
 il3D0=merge_samples(il3D0,"Novogene_lane15/sample_3/sscs")
 
 il3D0=il3D0%>%
@@ -87,7 +90,7 @@ il3D0=il3D0%>%mutate(maf=ct/depth)
 il3D0_simple=il3D0%>%dplyr::select(alt_start_pos,protein_start,ref,alt,ref_aa,alt_aa,consequence_terms,ct,depth,maf)
 # a=il3D0%>%filter(protein_start%in%c(242:494),consequence_terms%in%"missense_variant")
 
-il3D2=merge_samples("Novogene_lane13/Sample9","Novogene_lane13/Sample10")
+il3D2=merge_samples("Novogene_lane13/Sample9/sscs","Novogene_lane13/Sample10/sscs")
 il3D2=merge_samples(il3D2,"Novogene_lane15/Sample_4/sscs")
 il3D2=il3D2%>%
   rowwise()%>%
@@ -97,7 +100,7 @@ il3D2=il3D2%>%mutate(maf=ct/depth)
 il3D2_simple=il3D2%>%dplyr::select(alt_start_pos,protein_start,ref,alt,ref_aa,alt_aa,consequence_terms,ct,depth,maf)
 
 # imatD2=read.csv("data/Consensus_Data/Novogene_lane14/sample12/variant_caller_outputs/variants_unique_ann.csv",stringsAsFactors = F)
-imatD2=merge_samples("Novogene_lane14/sample12","Novogene_lane15/sample_6/sscs")
+imatD2=merge_samples("Novogene_lane14/sample12/sscs","Novogene_lane15/sample_6/sscs")
 # imatD2=merge_samples(imatD2,"Novogene_lane15/Sample4")
 imatD2=imatD2%>%
   rowwise()%>%
@@ -107,24 +110,64 @@ imatD2=imatD2%>%mutate(maf=ct/depth)
 imatD2_simple=imatD2%>%dplyr::select(alt_start_pos,protein_start,ref,alt,ref_aa,alt_aa,consequence_terms,ct,depth,maf)
 
 
-il3D0.D2=merge(il3D0_simple%>%filter(consequence_terms%in%"missense_variant"),il3D2_simple%>%filter(consequence_terms%in%"missense_variant"),by=c("ref_aa","protein_start","alt_aa","ref","alt","alt_start_pos","consequence_terms"),all.x = T)
-il3D0.D2[il3D0.D2$ct.y%in%NA,"ct.y"]=0
+il3D4=read.csv("data/Consensus_Data/novogene_lane15/sample_5/sscs/variant_caller_outputs/variants_unique_ann.csv")
+# imatD2=merge_samples(imatD2,"Novogene_lane15/Sample4")
+il3D4=il3D4%>%
+  rowwise()%>%
+  mutate(ref_aa=strsplit(amino_acids,"/")[[1]][1],
+         alt_aa=strsplit(amino_acids,"/")[[1]][2])
+il3D4=il3D4%>%mutate(maf=ct/depth)
+il3D4_simple=il3D4%>%dplyr::select(alt_start_pos,protein_start,ref,alt,ref_aa,alt_aa,consequence_terms,ct,depth,maf)
 
+imatD4=read.csv("data/Consensus_Data/novogene_lane15/sample_7/sscs/variant_caller_outputs/variants_unique_ann.csv")
+# imatD2=merge_samples(imatD2,"Novogene_lane15/Sample4")
+imatD4=imatD4%>%
+  rowwise()%>%
+  mutate(ref_aa=strsplit(amino_acids,"/")[[1]][1],
+         alt_aa=strsplit(amino_acids,"/")[[1]][2])
+imatD4=imatD4%>%mutate(maf=ct/depth)
+imatD4_simple=imatD4%>%dplyr::select(alt_start_pos,protein_start,ref,alt,ref_aa,alt_aa,consequence_terms,ct,depth,maf)
+
+
+##########IL3 Day 2 vs IL3 D0############
+il3D0.D2=merge(il3D0_simple%>%filter(consequence_terms%in%"missense_variant"),il3D2_simple%>%filter(consequence_terms%in%"missense_variant"),by=c("ref_aa","protein_start","alt_aa","ref","alt","alt_start_pos","consequence_terms"),all.x = T)
 il3D0.D2$alt_aa=factor(il3D0.D2$alt_aa,levels=c("P","G","Y","W","F","V","L","I","A","T","S","Q","N","M","C","E","D","R","K","H"))
 il3D0.D2[il3D0.D2$ct.y%in%NA,"ct.y"]=0
-
 il3D0.D2=il3D0.D2%>%mutate(score=log2(maf.y/maf.x))
 il3D0.D2[il3D0.D2$score%in%NA,"score"]=-6
 
+##########IL3 Day 4 vs IL3 D2############
+il3D2.D4=merge(il3D2_simple%>%filter(consequence_terms%in%"missense_variant"),il3D4_simple%>%filter(consequence_terms%in%"missense_variant"),by=c("ref_aa","protein_start","alt_aa","ref","alt","alt_start_pos","consequence_terms"),all.x = T)
+il3D2.D4[il3D2.D4$ct.y%in%NA,"ct.y"]=0
+il3D2.D4=il3D2.D4%>%mutate(score=log2(maf.y/maf.x))
+il3D2.D4[il3D2.D4$score%in%NA,"score"]=-6
+
+##########IL3 Day 4 vs Imat D0############
+il3D0.D4=merge(il3D0_simple%>%filter(consequence_terms%in%"missense_variant"),il3D4_simple%>%filter(consequence_terms%in%"missense_variant"),by=c("ref_aa","protein_start","alt_aa","ref","alt","alt_start_pos","consequence_terms"),all.x = T)
+il3D0.D4[il3D0.D4$ct.y%in%NA,"ct.y"]=0
+il3D0.D4=il3D0.D4%>%mutate(score=log2(maf.y/maf.x))
+il3D0.D4[il3D0.D4$score%in%NA,"score"]=-6
+
+##########Imatinib Day 2 vs Imat D0############
 imatD0.D2=merge(il3D0_simple%>%filter(consequence_terms%in%"missense_variant"),imatD2_simple%>%filter(consequence_terms%in%"missense_variant"),by=c("ref_aa","protein_start","alt_aa","ref","alt","alt_start_pos","consequence_terms"),all.x = T)
 imatD0.D2[imatD0.D2$ct.y%in%NA,"ct.y"]=0
-
 imatD0.D2=imatD0.D2%>%mutate(score=log2(maf.y/maf.x))
 imatD0.D2[imatD0.D2$score%in%NA,"score"]=-6
-# imatD0.D2$conserved=F
-# imatD0.D2[imatD0.D2$protein_start%in%c(271,381,382,383),"conserved"]=T
 
-imatD0.D2$alt_aa=factor(il3D0.D2$alt_aa,levels=c("P","G","Y","W","F","V","L","I","A","T","S","Q","N","M","C","E","D","R","K","H"))
+
+##########Imatinib Day 4 vs Imat D2############
+imatD2.D4=merge(imatD2_simple%>%filter(consequence_terms%in%"missense_variant"),imatD4_simple%>%filter(consequence_terms%in%"missense_variant"),by=c("ref_aa","protein_start","alt_aa","ref","alt","alt_start_pos","consequence_terms"),all.x = T)
+imatD2.D4[imatD2.D4$ct.y%in%NA,"ct.y"]=0
+imatD2.D4=imatD2.D4%>%mutate(score=log2(maf.y/maf.x))
+imatD2.D4[imatD2.D4$score%in%NA,"score"]=-6
+
+##########Imatinib Day 4 vs Imat D0############
+imatD0.D4=merge(il3D0_simple%>%filter(consequence_terms%in%"missense_variant"),imatD4_simple%>%filter(consequence_terms%in%"missense_variant"),by=c("ref_aa","protein_start","alt_aa","ref","alt","alt_start_pos","consequence_terms"),all.x = T)
+imatD0.D4[imatD0.D4$ct.y%in%NA,"ct.y"]=0
+imatD0.D4=imatD0.D4%>%mutate(score=log2(maf.y/maf.x))
+imatD0.D4[imatD0.D4$score%in%NA,"score"]=-6
+
+
 ######Plotting imat D0 D2 Heatmap####
 ggplot(imatD0.D2%>%filter(nchar(as.character(alt_aa))%in%1,protein_start>=242,protein_start<=494),aes(x=protein_start,y=alt_aa,fill=score))+
   geom_tile()+
@@ -132,7 +175,7 @@ ggplot(imatD0.D2%>%filter(nchar(as.character(alt_aa))%in%1,protein_start>=242,pr
   scale_fill_gradient2(low ="blue",midpoint=-1,mid="white", high ="red",name="Enrichment Score")+
   scale_color_manual(values=c("black"))+scale_x_continuous(name="Residue on the ABL Kinase",limits=c(242,493),expand=c(0,0),breaks = c(250,253,255,276,299,315,317,351,355,359,396,459,486))+
   ylab("Mutant Amino Acid")
-ggsave("BCRABL_imatinib_D2.pdf",height=6,width=24,units="in",useDingbats=F)
+# ggsave("BCRABL_imatinib_D2.pdf",height=6,width=24,units="in",useDingbats=F)
 
 ######Plotting resistant imat D0 D2 Heatmap####
 ggplot(imatD0.D2%>%filter(nchar(as.character(alt_aa))%in%1,protein_start%in%c(250,253,255,276,299,315,317,351,355,359,396,459,486)),aes(x=protein_start,y=alt_aa,fill=score))+
@@ -178,7 +221,310 @@ ggplot(il3D0.D2%>%filter(nchar(as.character(alt_aa))%in%1,protein_start%in%c(271
 #   geom_tile(data=subset(il3D0.D2.merge,is.na(score)),aes(color="white"),linetype = "solid",color="black", fill = "gray", alpha = 0.5)+
 #   theme(panel.background=element_rect(fill="white", colour="black"))
 
+
+
+####Plotting Imatinib D4 D2 scores vs Imatinib D2 D0 scores
+#First merging IL3 D0 D2 to IL3 D2 D4
+scores_all=merge(il3D0.D2%>%dplyr::select(-ct.x,-depth.x,-maf.x,-ct.y,-depth.y,-maf.y),il3D2.D4%>%dplyr::select(-ct.x,-depth.x,-maf.x,-ct.y,-depth.y,-maf.y),by=c("ref_aa","protein_start","alt_aa","ref","alt","alt_start_pos","consequence_terms"),suffixes = c(".il3d0.d2",".il3d2.d4"))
+#Second, adding Imat D0 D2 to dataframe
+scores_all=merge(scores_all,imatD0.D2%>%dplyr::select(-ct.x,-depth.x,-maf.x,-ct.y,-depth.y,-maf.y),by=c("ref_aa","protein_start","alt_aa","ref","alt","alt_start_pos","consequence_terms"))
+scores_all=scores_all%>%rename(score.imatd0.d2=score)
+#Third, adding Imat D2 D4 to dataframe
+scores_all=merge(scores_all,imatD2.D4%>%dplyr::select(-ct.x,-depth.x,-maf.x,-ct.y,-depth.y,-maf.y),by=c("ref_aa","protein_start","alt_aa","ref","alt","alt_start_pos","consequence_terms"))
+scores_all=scores_all%>%rename(score.imatd2.d4=score)
+#Fourth, adding IL3 D4 D0 to dataframe
+scores_all=merge(scores_all,il3D0.D4%>%dplyr::select(-ct.x,-depth.x,-maf.x,-ct.y,-depth.y,-maf.y),by=c("ref_aa","protein_start","alt_aa","ref","alt","alt_start_pos","consequence_terms"))
+scores_all=scores_all%>%rename(score.il3d0.d4=score)
+#Fifth, adding Imatinib D4 D0 to dataframe
+scores_all=merge(scores_all,imatD0.D4%>%dplyr::select(-ct.x,-depth.x,-maf.x,-ct.y,-depth.y,-maf.y),by=c("ref_aa","protein_start","alt_aa","ref","alt","alt_start_pos","consequence_terms"))
+scores_all=scores_all%>%rename(score.imatd0.d4=score)
+
+scores_all=scores_all%>%mutate(resmuts=case_when(protein_start%in%253&alt_aa%in%"H"~T,
+                                                         protein_start%in%255&alt_aa%in%"V"~T,
+                                                         protein_start%in%486&alt_aa%in%"S"~T,
+                                                         protein_start%in%396&alt_aa%in%"P"~T,
+                                                         protein_start%in%255&alt_aa%in%"K"~T,
+                                                         protein_start%in%315&alt_aa%in%"I"~T,
+                                                         protein_start%in%252&alt_aa%in%"H"~T,
+                                                         protein_start%in%253&alt_aa%in%"F"~T,
+                                                         protein_start%in%250&alt_aa%in%"E"~T,
+                                                         protein_start%in%359&alt_aa%in%"C"~T,
+                                                         protein_start%in%351&alt_aa%in%"T"~T,
+                                                         protein_start%in%355&alt_aa%in%"G"~T,
+                                                         protein_start%in%317&alt_aa%in%"L"~T,
+                                                         protein_start%in%359&alt_aa%in%"I"~T,
+                                                         protein_start%in%355&alt_aa%in%"A"~T,
+                                                         protein_start%in%459&alt_aa%in%"K"~T,
+                                                         protein_start%in%276&alt_aa%in%"G"~T,
+                                                         protein_start%in%299&alt_aa%in%"L"~T,
+                                                         
+                                                         T~F))
+
+
+
+
+resmuts=scores_all%>%filter(resmuts%in%T)%>%mutate(species=paste(ref_aa,protein_start,alt_aa,sep = ""))
+ggplot(scores_all%>%filter(consequence_terms%in%"missense_variant",protein_start%in%c(242:494),!score.il3d2.d4%in%-6),aes(x=score.il3d0.d2,y=score.il3d2.d4))+geom_point()+geom_abline()
+ggplot(scores_all%>%filter(consequence_terms%in%"missense_variant",protein_start%in%c(242:494),!score.imatd2.d4%in%-6),aes(x=score.imatd0.d2,y=score.imatd2.d4))+geom_point()+geom_abline()
+
+
+ggplot(resmuts%>%filter(!protein_start%in%317),aes(x=score.imatd0.d2,y=score.imatd2.d4,label=species))+geom_text()+geom_abline()
+
+ic50data_all_sum=read.csv("output/ic50data_all_confidence_intervals_raw_data.csv",row.names = 1)
+resmuts_merged=merge(resmuts,ic50data_all_sum,by="species")
+#Plotting Imatinib D0 vs D2
+ggplot(resmuts_merged,aes(x=netgr_pred_model,y=score.imatd0.d2,label=species))+geom_text()
+#Plotting Imatinib D2 vs D4
+ggplot(resmuts_merged%>%filter(!protein_start%in%317),aes(x=netgr_pred_model,y=score.imatd2.d4,label=species))+geom_text()
+
+#Plotting Imatinib D0 vs D4
+ggplot(resmuts_merged%>%filter(!protein_start%in%317),aes(x=netgr_pred_model,y=score.imatd0.d4,label=species))+geom_text()
+
+#Plotting Imatinib D0 vs D2 Adjusted
+ggplot(resmuts_merged%>%filter(!protein_start%in%317),aes(x=netgr_pred_model,y=score.imatd0.d2-score.il3d0.d2,label=species))+geom_text()
+
+#Plotting Imatinib D2 vs D4 Adjusted
+ggplot(resmuts_merged%>%filter(!protein_start%in%317),aes(x=netgr_pred_model,y=score.imatd2.d4-score.il3d2.d4,label=species))+geom_text()
+
+#Plotting Imatinib D0 vs D4 Adjusted
+ggplot(resmuts_merged%>%filter(!protein_start%in%317),aes(x=netgr_pred_model,y=score.imatd0.d4-score.il3d0.d4,label=species))+geom_text()
+ggplot(resmuts_merged%>%filter(!protein_start%in%317),aes(x=netgr_pred_model,y=score.imatd0.d4-score.il3d0.d4,label=species))+geom_text()
+# Also plot IL3 D4 D2 scores vs iL3 D2 D0 scores
+# Also update imatininb scores by considering without drug (fitness in the absence of iL3). Do these scores match up better with the IC50 predictions?
+# Also, when looking at the distribution of enrichment scores, color the multiple nucleotide variants
 ```
+Duplex Consensus Sequencing
+```{r}
+source("code/merge_samples.R")
+# il3all=merge_samples("Novogene_lane14/Sample10_combined","Novogene_lane13/sample7")
+# il3all=merge_samples(il3all,"Novogene_lane14/sample11")
+# il3all=merge_samples(il3all,"Novogene_lane15/sample_3/sscs")
+# il3all=merge_samples(il3all,"Novogene_lane13/Sample10")
+# # il3all=merge_samples(il3all,"Novogene_lane13/Sample9")
+# # a=il3all%>%filter(protein_start%in%c(242:494),consequence_terms%in%"missense_variant")
+
+
+il3D0=merge_samples("Novogene_lane14/Sample10_combined/duplex","Novogene_lane15/sample_3/duplex")
+# il3D0=merge_samples("Novogene_lane14/Sample10_combined/duplex","Novogene_lane13/sample7/duplex")
+# a=il3D0%>%filter(protein_start%in%c(315:316))
+il3D0=merge_samples(il3D0,"Novogene_lane14/sample11/duplex")
+# il3D0=merge_samples(il3D0,"Novogene_lane13/sample7/duplex")
+
+# il3D0=merge_samples(il3D0,"Novogene_lane13/sample7/duplex")
+
+il3D0=il3D0%>%
+  rowwise()%>%
+  mutate(ref_aa=strsplit(amino_acids,"/")[[1]][1],
+         alt_aa=strsplit(amino_acids,"/")[[1]][2])
+il3D0=il3D0%>%mutate(maf=ct/depth)
+il3D0_simple=il3D0%>%dplyr::select(alt_start_pos,protein_start,ref,alt,ref_aa,alt_aa,consequence_terms,ct,depth,maf)
+# a=il3D0%>%filter(protein_start%in%c(242:494),consequence_terms%in%"missense_variant")
+
+il3D2=merge_samples("Novogene_lane13/Sample9/duplex","Novogene_lane13/Sample10/duplex")
+il3D2=merge_samples(il3D2,"Novogene_lane15/Sample_4/duplex")
+il3D2=il3D2%>%
+  rowwise()%>%
+  mutate(ref_aa=strsplit(amino_acids,"/")[[1]][1],
+         alt_aa=strsplit(amino_acids,"/")[[1]][2])
+il3D2=il3D2%>%mutate(maf=ct/depth)
+il3D2_simple=il3D2%>%dplyr::select(alt_start_pos,protein_start,ref,alt,ref_aa,alt_aa,consequence_terms,ct,depth,maf)
+
+# imatD2=read.csv("data/Consensus_Data/Novogene_lane14/sample12/variant_caller_outputs/variants_unique_ann.csv",stringsAsFactors = F)
+imatD2=merge_samples("Novogene_lane14/sample12/duplex","Novogene_lane15/sample_6/duplex")
+# imatD2=merge_samples(imatD2,"Novogene_lane15/Sample4")
+imatD2=imatD2%>%
+  rowwise()%>%
+  mutate(ref_aa=strsplit(amino_acids,"/")[[1]][1],
+         alt_aa=strsplit(amino_acids,"/")[[1]][2])
+imatD2=imatD2%>%mutate(maf=ct/depth)
+imatD2_simple=imatD2%>%dplyr::select(alt_start_pos,protein_start,ref,alt,ref_aa,alt_aa,consequence_terms,ct,depth,maf)
+
+
+il3D4=read.csv("data/Consensus_Data/novogene_lane15/sample_5/duplex/variant_caller_outputs/variants_unique_ann.csv")
+# imatD2=merge_samples(imatD2,"Novogene_lane15/Sample4")
+il3D4=il3D4%>%
+  rowwise()%>%
+  mutate(ref_aa=strsplit(amino_acids,"/")[[1]][1],
+         alt_aa=strsplit(amino_acids,"/")[[1]][2])
+il3D4=il3D4%>%mutate(maf=ct/depth)
+il3D4_simple=il3D4%>%dplyr::select(alt_start_pos,protein_start,ref,alt,ref_aa,alt_aa,consequence_terms,ct,depth,maf)
+
+imatD4=read.csv("data/Consensus_Data/novogene_lane15/sample_7/duplex/variant_caller_outputs/variants_unique_ann.csv")
+# imatD2=merge_samples(imatD2,"Novogene_lane15/Sample4")
+imatD4=imatD4%>%
+  rowwise()%>%
+  mutate(ref_aa=strsplit(amino_acids,"/")[[1]][1],
+         alt_aa=strsplit(amino_acids,"/")[[1]][2])
+imatD4=imatD4%>%mutate(maf=ct/depth)
+imatD4_simple=imatD4%>%dplyr::select(alt_start_pos,protein_start,ref,alt,ref_aa,alt_aa,consequence_terms,ct,depth,maf)
+
+
+##########IL3 Day 2 vs IL3 D0############
+il3D0.D2=merge(il3D0_simple%>%filter(consequence_terms%in%"missense_variant"),il3D2_simple%>%filter(consequence_terms%in%"missense_variant"),by=c("ref_aa","protein_start","alt_aa","ref","alt","alt_start_pos","consequence_terms"),all.x = T)
+il3D0.D2$alt_aa=factor(il3D0.D2$alt_aa,levels=c("P","G","Y","W","F","V","L","I","A","T","S","Q","N","M","C","E","D","R","K","H"))
+il3D0.D2[il3D0.D2$ct.y%in%NA,"ct.y"]=0
+il3D0.D2=il3D0.D2%>%mutate(score=log2(maf.y/maf.x))
+il3D0.D2[il3D0.D2$score%in%NA,"score"]=-6
+
+##########IL3 Day 4 vs IL3 D2############
+il3D2.D4=merge(il3D2_simple%>%filter(consequence_terms%in%"missense_variant"),il3D4_simple%>%filter(consequence_terms%in%"missense_variant"),by=c("ref_aa","protein_start","alt_aa","ref","alt","alt_start_pos","consequence_terms"),all.x = T)
+il3D2.D4[il3D2.D4$ct.y%in%NA,"ct.y"]=0
+il3D2.D4=il3D2.D4%>%mutate(score=log2(maf.y/maf.x))
+il3D2.D4[il3D2.D4$score%in%NA,"score"]=-6
+
+##########IL3 Day 4 vs Imat D0############
+il3D0.D4=merge(il3D0_simple%>%filter(consequence_terms%in%"missense_variant"),il3D4_simple%>%filter(consequence_terms%in%"missense_variant"),by=c("ref_aa","protein_start","alt_aa","ref","alt","alt_start_pos","consequence_terms"),all.x = T)
+il3D0.D4[il3D0.D4$ct.y%in%NA,"ct.y"]=0
+il3D0.D4=il3D0.D4%>%mutate(score=log2(maf.y/maf.x))
+il3D0.D4[il3D0.D4$score%in%NA,"score"]=-6
+
+##########Imatinib Day 2 vs Imat D0############
+imatD0.D2=merge(il3D0_simple%>%filter(consequence_terms%in%"missense_variant"),imatD2_simple%>%filter(consequence_terms%in%"missense_variant"),by=c("ref_aa","protein_start","alt_aa","ref","alt","alt_start_pos","consequence_terms"),all.x = T)
+imatD0.D2[imatD0.D2$ct.y%in%NA,"ct.y"]=0
+imatD0.D2=imatD0.D2%>%mutate(score=log2(maf.y/maf.x))
+imatD0.D2[imatD0.D2$score%in%NA,"score"]=-6
+
+
+##########Imatinib Day 4 vs Imat D2############
+imatD2.D4=merge(imatD2_simple%>%filter(consequence_terms%in%"missense_variant"),imatD4_simple%>%filter(consequence_terms%in%"missense_variant"),by=c("ref_aa","protein_start","alt_aa","ref","alt","alt_start_pos","consequence_terms"),all.x = T)
+imatD2.D4[imatD2.D4$ct.y%in%NA,"ct.y"]=0
+imatD2.D4=imatD2.D4%>%mutate(score=log2(maf.y/maf.x))
+imatD2.D4[imatD2.D4$score%in%NA,"score"]=-6
+
+##########Imatinib Day 4 vs Imat D0############
+imatD0.D4=merge(il3D0_simple%>%filter(consequence_terms%in%"missense_variant"),imatD4_simple%>%filter(consequence_terms%in%"missense_variant"),by=c("ref_aa","protein_start","alt_aa","ref","alt","alt_start_pos","consequence_terms"),all.x = T)
+imatD0.D4[imatD0.D4$ct.y%in%NA,"ct.y"]=0
+imatD0.D4=imatD0.D4%>%mutate(score=log2(maf.y/maf.x))
+imatD0.D4[imatD0.D4$score%in%NA,"score"]=-6
+
+
+######Plotting imat D0 D2 Heatmap####
+ggplot(imatD0.D2%>%filter(nchar(as.character(alt_aa))%in%1,protein_start>=242,protein_start<=494),aes(x=protein_start,y=alt_aa,fill=score))+
+  geom_tile()+
+  theme(panel.background=element_rect(fill="white", colour="black"))+
+  scale_fill_gradient2(low ="blue",midpoint=-1,mid="white", high ="red",name="Enrichment Score")+
+  scale_color_manual(values=c("black"))+scale_x_continuous(name="Residue on the ABL Kinase",limits=c(242,493),expand=c(0,0),breaks = c(250,253,255,276,299,315,317,351,355,359,396,459,486))+
+  ylab("Mutant Amino Acid")
+# ggsave("BCRABL_imatinib_D2.pdf",height=6,width=24,units="in",useDingbats=F)
+
+######Plotting resistant imat D0 D2 Heatmap####
+ggplot(imatD0.D2%>%filter(nchar(as.character(alt_aa))%in%1,protein_start%in%c(250,253,255,276,299,315,317,351,355,359,396,459,486)),aes(x=protein_start,y=alt_aa,fill=score))+
+  geom_tile()+
+  theme(panel.background=element_rect(fill="white", colour="black"))+
+  scale_fill_gradient2(low ="blue",midpoint=-1,mid="white", high ="red",name="Enrichment Score")+
+  scale_color_manual(values=c("black"))+scale_x_continuous(name="Residue on the ABL Kinase",limits=c(242,493),expand=c(0,0),breaks =c(250,253,255,276,299,315,317,351,355,359,396,459,486))+
+  ylab("Mutant Amino Acid")
+ggsave("BCRABL_imatinib_D2_resistantresidues.pdf",height=6,width=24,units="in",useDingbats=F)
+
+######Plotting iL3 D0 D2 Heatmap####
+ggplot(il3D0.D2%>%filter(nchar(as.character(alt_aa))%in%1,protein_start>=242,protein_start<=494),aes(x=protein_start,y=alt_aa,fill=score))+
+  geom_tile()+
+  theme(panel.background=element_rect(fill="white", colour="black"))+
+  scale_fill_gradient2(low ="blue",midpoint=-1,mid="white", high ="red",name="Enrichment Score")+
+  scale_color_manual(values=c("black"))+scale_x_continuous(name="Residue on the ABL Kinase",limits=c(242,493),expand=c(0,0),breaks = c(248,250,256, 271,275,300,325,350,363,375,381,400,405,425,450,475))+
+  ylab("Mutant Amino Acid")
+
+# ggsave("BCRABL_iL3Independence_D2.pdf",height=6,width=24,units="in",useDingbats=F)
+# write.csv(il3D0.D2,"BCRABL_Il3Independence_D2.csv")
+
+#####Focusing on conserved residues#####
+ggplot(il3D0.D2%>%filter(nchar(as.character(alt_aa))%in%1,protein_start%in%c(271,363,381:383)),aes(x=protein_start,y=alt_aa,fill=score))+
+  geom_tile()+
+  theme(panel.background=element_rect(fill="white", colour="black"))+
+  scale_fill_gradient2(low ="blue",midpoint=-1,mid="white", high ="red",name="Enrichment Score")+
+  scale_color_manual(values=c("black"))+scale_x_continuous(name="Residue on the ABL Kinase",limits=c(242,493),expand=c(0,0),breaks = c(248,250,256, 271,275,300,325,350,363,375,381,400,405,425,450,475))+
+  ylab("Mutant Amino Acid")
+# ggsave("BCRABL_iL3Independence_D2_essential.pdf",height=6,width=24,units="in",useDingbats=F)
+
+
+#####Graying out unseen residues#####
+# df_grid  = expand.grid(protein_start = c(242:493),alt_aa = unique(il3D0.D2$alt_aa))
+# 
+# il3D0.D2.merge=merge(df_grid,il3D0.D2,by=c("protein_start","alt_aa"),all=T)
+# il3D0.D2.merge=il3D0.D2.merge%>%filter(nchar(as.character(alt_aa))%in%1,protein_start>=242,protein_start<=494)
+# il3D0.D2.merge=il3D0.D2.merge%>%mutate(score=case_when(ref_aa==alt_aa~"wt",
+#                                                        T~"score"))
+# 
+# ggplot(il3D0.D2.merge,aes(x=protein_start,y=alt_aa))+
+#   geom_tile(data=subset(il3D0.D2.merge,!is.na(score)),aes(fill=score))+
+#   scale_fill_gradient2(low ="blue",midpoint=-1,mid="white", high ="red",name="Enrichment Score")+
+#   geom_tile(data=subset(il3D0.D2.merge,is.na(score)),aes(color="white"),linetype = "solid",color="black", fill = "gray", alpha = 0.5)+
+#   theme(panel.background=element_rect(fill="white", colour="black"))
+
+
+
+####Plotting Imatinib D4 D2 scores vs Imatinib D2 D0 scores
+#First merging IL3 D0 D2 to IL3 D2 D4
+scores_all=merge(il3D0.D2%>%dplyr::select(-ct.x,-depth.x,-maf.x,-ct.y,-depth.y,-maf.y),il3D2.D4%>%dplyr::select(-ct.x,-depth.x,-maf.x,-ct.y,-depth.y,-maf.y),by=c("ref_aa","protein_start","alt_aa","ref","alt","alt_start_pos","consequence_terms"),suffixes = c(".il3d0.d2",".il3d2.d4"),all.x = T)
+#Second, adding Imat D0 D2 to dataframe
+scores_all=merge(scores_all,imatD0.D2%>%dplyr::select(-ct.x,-depth.x,-maf.x,-ct.y,-depth.y,-maf.y),by=c("ref_aa","protein_start","alt_aa","ref","alt","alt_start_pos","consequence_terms"),all.x = T)
+scores_all=scores_all%>%rename(score.imatd0.d2=score)
+#Third, adding Imat D2 D4 to dataframe
+scores_all=merge(scores_all,imatD2.D4%>%dplyr::select(-ct.x,-depth.x,-maf.x,-ct.y,-depth.y,-maf.y),by=c("ref_aa","protein_start","alt_aa","ref","alt","alt_start_pos","consequence_terms"),all.x = T)
+scores_all=scores_all%>%rename(score.imatd2.d4=score)
+#Fourth, adding IL3 D4 D0 to dataframe
+scores_all=merge(scores_all,il3D0.D4%>%dplyr::select(-ct.x,-depth.x,-maf.x,-ct.y,-depth.y,-maf.y),by=c("ref_aa","protein_start","alt_aa","ref","alt","alt_start_pos","consequence_terms"),all.x = T)
+scores_all=scores_all%>%rename(score.il3d0.d4=score)
+#Fifth, adding Imatinib D4 D0 to dataframe
+scores_all=merge(scores_all,imatD0.D4%>%dplyr::select(-ct.x,-depth.x,-maf.x,-ct.y,-depth.y,-maf.y),by=c("ref_aa","protein_start","alt_aa","ref","alt","alt_start_pos","consequence_terms"),all.x = T)
+scores_all=scores_all%>%rename(score.imatd0.d4=score)
+
+scores_all=scores_all%>%mutate(resmuts=case_when(protein_start%in%253&alt_aa%in%"H"~T,
+                                                         protein_start%in%255&alt_aa%in%"V"~T,
+                                                         protein_start%in%486&alt_aa%in%"S"~T,
+                                                         protein_start%in%396&alt_aa%in%"P"~T,
+                                                         protein_start%in%255&alt_aa%in%"K"~T,
+                                                         protein_start%in%315&alt_aa%in%"I"~T,
+                                                         protein_start%in%252&alt_aa%in%"H"~T,
+                                                         protein_start%in%253&alt_aa%in%"F"~T,
+                                                         protein_start%in%250&alt_aa%in%"E"~T,
+                                                         protein_start%in%359&alt_aa%in%"C"~T,
+                                                         protein_start%in%351&alt_aa%in%"T"~T,
+                                                         protein_start%in%355&alt_aa%in%"G"~T,
+                                                         protein_start%in%317&alt_aa%in%"L"~T,
+                                                         protein_start%in%359&alt_aa%in%"I"~T,
+                                                         protein_start%in%355&alt_aa%in%"A"~T,
+                                                         protein_start%in%459&alt_aa%in%"K"~T,
+                                                         protein_start%in%276&alt_aa%in%"G"~T,
+                                                         protein_start%in%299&alt_aa%in%"L"~T,
+                                                         
+                                                         T~F))
+
+
+
+
+resmuts=scores_all%>%filter(resmuts%in%T)%>%mutate(species=paste(ref_aa,protein_start,alt_aa,sep = ""))
+ggplot(scores_all%>%filter(consequence_terms%in%"missense_variant",protein_start%in%c(242:494),!score.il3d2.d4%in%-6),aes(x=score.il3d0.d2,y=score.il3d2.d4))+geom_point()+geom_abline()
+ggplot(scores_all%>%filter(consequence_terms%in%"missense_variant",protein_start%in%c(242:494),!score.imatd2.d4%in%-6),aes(x=score.imatd0.d2,y=score.imatd2.d4))+geom_point()+geom_abline()
+
+
+ggplot(resmuts%>%filter(!protein_start%in%317),aes(x=score.imatd0.d2,y=score.imatd2.d4,label=species))+geom_text()+geom_abline()
+
+ic50data_all_sum=read.csv("output/ic50data_all_confidence_intervals_raw_data.csv",row.names = 1)
+resmuts_merged=merge(resmuts,ic50data_all_sum,by="species")
+#Plotting Imatinib D0 vs D2
+ggplot(resmuts_merged,aes(x=netgr_pred_model,y=score.imatd0.d2,label=species))+geom_text()
+#Plotting Imatinib D2 vs D4
+ggplot(resmuts_merged%>%filter(!protein_start%in%317),aes(x=netgr_pred_model,y=score.imatd2.d4,label=species))+geom_text()
+
+#Plotting Imatinib D0 vs D4
+ggplot(resmuts_merged%>%filter(!protein_start%in%317),aes(x=netgr_pred_model,y=score.imatd0.d4,label=species))+geom_text()
+
+#Plotting Imatinib D0 vs D2 Adjusted
+ggplot(resmuts_merged%>%filter(!protein_start%in%317),aes(x=netgr_pred_model,y=score.imatd0.d2-score.il3d0.d2,label=species))+geom_text()
+
+#Plotting Imatinib D2 vs D4 Adjusted
+ggplot(resmuts_merged%>%filter(!protein_start%in%317),aes(x=netgr_pred_model,y=score.imatd2.d4-score.il3d2.d4,label=species))+geom_text()
+
+#Plotting Imatinib D0 vs D4 Adjusted
+ggplot(resmuts_merged%>%filter(!protein_start%in%317),aes(x=netgr_pred_model,y=score.imatd0.d4-score.il3d0.d4,label=species))+geom_text()
+ggplot(resmuts_merged%>%filter(!protein_start%in%317),aes(x=netgr_pred_model,y=score.imatd0.d4-score.il3d0.d4,label=species))+geom_text()
+# Also plot IL3 D4 D2 scores vs iL3 D2 D0 scores
+# Also update imatininb scores by considering without drug (fitness in the absence of iL3). Do these scores match up better with the IC50 predictions?
+# Also, when looking at the distribution of enrichment scores, color the multiple nucleotide variants
+```
+
+
 
 #Next: plot iL3 D2 D4 scores
 #Correlate Il3 D2 D4 scores with il3 D0 D2 scores
@@ -201,7 +547,7 @@ cosmic_simple$cosmic_present=T
 
 ```{r}
 source("code/merge_samples.R")
-sample10=read.csv(file = "data/Consensus_Data/Novogene_lane14/sample10_combined/variant_caller_outputs/variants_unique_ann.csv",header=T,stringsAsFactors = F)
+sample10=read.csv(file = "data/Consensus_Data/Novogene_lane14/sample10_combined/sscs/variant_caller_outputs/variants_unique_ann.csv",header=T,stringsAsFactors = F)
 
 sample10=sample10%>%
   rowwise()%>%
@@ -209,14 +555,15 @@ sample10=sample10%>%
          alt_aa=strsplit(amino_acids,"/")[[1]][2])
 sample10=sample10%>%mutate(maf=ct/depth)
 sample10_simple=sample10%>%dplyr::select(alt_start_pos,protein_start,ref,alt,ref_aa,alt_aa,consequence_terms,ct,depth,maf)
-
-sample12=read.csv(file = "data/Consensus_Data/Novogene_lane14/sample12/variant_caller_outputs/variants_unique_ann.csv",header=T,stringsAsFactors = F)
+sample10=imatD2
+sample12=read.csv(file = "data/Consensus_Data/Novogene_lane14/sample12/sscs/variant_caller_outputs/variants_unique_ann.csv",header=T,stringsAsFactors = F)
 
 sample12=sample12%>%
   rowwise()%>%
   mutate(ref_aa=strsplit(amino_acids,"/")[[1]][1],
          alt_aa=strsplit(amino_acids,"/")[[1]][2])
 sample12=sample12%>%mutate(maf=ct/depth)
+sample12=imatD4
 sample12_simple=sample12%>%dplyr::select(alt_start_pos,protein_start,ref,alt,ref_aa,alt_aa,consequence_terms,ct,depth,maf)
 
 samples_10.12=merge(sample10_simple%>%filter(consequence_terms%in%"missense_variant"),sample12_simple%>%filter(consequence_terms%in%"missense_variant"),by=c("ref_aa","protein_start","alt_aa","ref","alt","alt_start_pos","consequence_terms"))
@@ -276,7 +623,7 @@ ggplot(highscore,aes(x=reorder(subs_name,-score),y=score,fill=resmuts))+geom_col
 highscore2=highscore%>%group_by(alt_aa,protein_start,subs_name,resmuts,resresids)%>%summarize(score=mean(score))
 
 ggplot(highscore2,aes(x=reorder(subs_name,-score),y=score,fill=resmuts))+geom_col()+theme(axis.text.x=element_blank(),axis.ticks.x=element_blank())+scale_y_continuous(name="Enrithcment Score")+scale_x_discrete(name="Mutant")+guides(fill = guide_legend(title = "Clinically\n Observed \n Resistant Mutant"))+scale_fill_manual(values=c("gray90","red"))
-ggsave("BCRABL_Imatinib_Scores_Resmuts.pdf",height=4,width=8,units="in",useDingbats=F)
+# ggsave("BCRABL_Imatinib_Scores_Resmuts.pdf",height=4,width=8,units="in",useDingbats=F)
 
 ggplot(highscore2,aes(x=reorder(subs_name,-score),y=score,fill=resresids))+geom_col()+theme(axis.text.x=element_blank(),axis.ticks.x=element_blank())+scale_y_continuous(name="Enrithcment Score")+scale_x_discrete(name="Mutant")+guides(fill = guide_legend(title = "Clinically\n Observed \n Resistant Residue"))+scale_fill_manual(values=c("gray90","red"))
 # ggsave("BCRABL_Imatinib_Scores_Resresids.pdf",height=4,width=8,units="in",useDingbats=F)
@@ -296,6 +643,7 @@ a=highscore%>%filter(subs_name%in%"M388L")
 plotly=ggplot(highscore_cosmic%>%filter(cosmic_present%in%T),aes(x=reorder(subs_name,-score),y=score,fill=cosmic_count))+geom_col()+theme_bw()
 ggplotly(plotly)
 # a=highscore_cosmic%>%filter(cosmic_present%in%T)
+# a=highscore2%>%filter(resmuts%in%T)
 ```
 
 Looking at the evenness of the K562 Library

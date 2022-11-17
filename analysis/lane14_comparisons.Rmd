@@ -223,7 +223,8 @@ ggplot(a,aes(x=netgr_pred_mean,y=score,label=subs_name))+geom_text()+theme_bw()+
 # write.csv(highscore,"BCRABL_EnrichmentScores_iL3Independent_Library.csv")
 
 ggplot(a,aes(x=netgr_pred_mean,y=score,label=subs_name))+geom_text()+theme_bw()+xlab("IC50 Predicted Growth Rates")+ylab("Observed Enrichment Score")
-ggsave("BCRABL_EnrichmentCorrelation.pdf",width=4,height=4,units="in",useDingbats=F)
+# ggsave("BCRABL_EnrichmentCorrelation.pdf",width=4,height=4,units="in",useDingbats=F)
+
 ```
 
 
