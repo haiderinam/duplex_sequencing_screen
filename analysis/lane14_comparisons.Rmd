@@ -36,7 +36,7 @@ cleanup=theme_bw() +
 
 
 ```{r}
-sample14=read.csv(file = "data/Consensus_Data/Novogene_lane14/sample14_combined/variant_caller_outputs/duplex/variants_unique_ann.csv",header=T,stringsAsFactors = F)
+sample14=read.csv(file = "data/Consensus_Data/Novogene_lane14/sample14_combined/duplex/variant_caller_outputs/variants_unique_ann.csv",header=T,stringsAsFactors = F)
 
 sample14=sample14%>%
   rowwise()%>%
@@ -45,7 +45,7 @@ sample14=sample14%>%
 sample14=sample14%>%mutate(maf=ct/depth)
 sample14_simple=sample14%>%dplyr::select(alt_start_pos,protein_start,ref,alt,ref_aa,alt_aa,consequence_terms,ct,depth,maf)
 
-sample15=read.csv(file = "data/Consensus_Data/Novogene_lane14/sample15/variant_caller_outputs/duplex/variants_unique_ann.csv",header=T,stringsAsFactors = F)
+sample15=read.csv(file = "data/Consensus_Data/Novogene_lane14/sample15/duplex/variant_caller_outputs/variants_unique_ann.csv",header=T,stringsAsFactors = F)
 
 sample15=sample15%>%
   rowwise()%>%
@@ -54,7 +54,7 @@ sample15=sample15%>%
 sample15=sample15%>%mutate(maf=ct/depth)
 sample15_simple=sample15%>%dplyr::select(alt_start_pos,protein_start,ref,alt,ref_aa,alt_aa,consequence_terms,ct,depth,maf)
 
-sample16=read.csv(file = "data/Consensus_Data/Novogene_lane14/sample16/variant_caller_outputs/duplex/variants_unique_ann.csv",header=T,stringsAsFactors = F)
+sample16=read.csv(file = "data/Consensus_Data/Novogene_lane14/sample16/duplex/variant_caller_outputs/variants_unique_ann.csv",header=T,stringsAsFactors = F)
 
 sample16=sample16%>%
   rowwise()%>%
@@ -63,7 +63,7 @@ sample16=sample16%>%
 sample16=sample16%>%mutate(maf=ct/depth)
 sample16_simple=sample16%>%dplyr::select(alt_start_pos,protein_start,ref,alt,ref_aa,alt_aa,consequence_terms,ct,depth,maf)
 
-sample17=read.csv(file = "data/Consensus_Data/Novogene_lane14/sample18/variant_caller_outputs/duplex/variants_unique_ann.csv",header=T,stringsAsFactors = F)
+sample17=read.csv(file = "data/Consensus_Data/Novogene_lane14/sample18/duplex/variant_caller_outputs/variants_unique_ann.csv",header=T,stringsAsFactors = F)
 
 sample17=sample17%>%
   rowwise()%>%
@@ -72,7 +72,7 @@ sample17=sample17%>%
 sample17=sample17%>%mutate(maf=ct/depth)
 sample17_simple=sample17%>%dplyr::select(alt_start_pos,protein_start,ref,alt,ref_aa,alt_aa,consequence_terms,ct,depth,maf)
 
-sample18=read.csv(file = "data/Consensus_Data/Novogene_lane14/sample18/variant_caller_outputs/duplex/variants_unique_ann.csv",header=T,stringsAsFactors = F)
+sample18=read.csv(file = "data/Consensus_Data/Novogene_lane14/sample18/duplex/variant_caller_outputs/variants_unique_ann.csv",header=T,stringsAsFactors = F)
 
 sample18=sample18%>%
   rowwise()%>%
@@ -155,7 +155,7 @@ sample1517=sample1517%>%mutate(maf=ct/depth)
 sample1517_simple=sample1517%>%dplyr::select(alt_start_pos,protein_start,ref,alt,ref_aa,alt_aa,consequence_terms,ct,depth,maf)
 
 
-samples_14.1517=merge(sample14_simple%>%filter(consequence_terms%in%"missense_variant"),sample1517_simple%>%filter(consequence_terms%in%"missense_variant"),by=c("ref_aa","protein_start","alt_aa","ref","alt","alt_start_pos","consequence_terms"))
+samples_14.1517=merge(sample14_simple%>%filter(consequence_terms%in%"missense_variant"),sample1517_simple%>%filter(consequence_terms%in%"missense_variant"),by=c("ref_aa","protein_start","alt_aa","ref","alt","alt_start_pos","consequence_terms"),all.x = T)
 samples_14.1517=samples_14.1517%>%mutate(score=log2(maf.y/maf.x),score2=log2(ct.y/ct.x))
 samples_14.1517_simple=samples_14.1517%>%dplyr::select(ref_aa,protein_start,alt_aa,consequence_terms,ct.x,score)
 
@@ -210,9 +210,9 @@ ggplotly(plotly)
 ggplot(highscore%>%filter(resmuts%in%"TRUE"),aes(x=reorder(subs_name,-score),y=score))+geom_col()+theme_bw()
 
 ic50data_all_sum=read.csv("output/ic50data_all_confidence_intervals_raw_data.csv",row.names = 1)
-a=merge(highscore%>%filter(resmuts%in%"TRUE")%>%dplyr::select(subs_name,score),
+resmuts_merged=merge(highscore%>%filter(resmuts%in%"TRUE")%>%dplyr::select(subs_name,score),
         ic50data_all_sum%>%dplyr::select(species,netgr_pred_model,netgr_pred_mean),by.x="subs_name",by.y="species")
-ggplot(a,aes(x=netgr_pred_mean,y=score,label=subs_name))+geom_text()+theme_bw()+xlab("IC50 Predicted Growth Rates")+ylab("Enrichment Score observed w 5k mutant library \n at 60k sscs at 2 days post 300nM Imatinib")+ggtitle("Imatinib Treatment on iL3 independent 384W library")
+ggplot(resmuts_merged,aes(x=netgr_pred_mean,y=score,label=subs_name))+geom_text()+theme_bw()+xlab("IC50 Predicted Growth Rates")+ylab("Enrichment Score observed w 5k mutant library \n at 60k sscs at 2 days post 300nM Imatinib")+ggtitle("Imatinib Treatment on iL3 independent 384W library")
 # ggplot(a,aes(x=netgr_pred_mean,y=netgr_pred_model,label=subs_name))+geom_text()
 # aa=a%>%filter(!subs_name%in%"D276G")
 # # cor(aa$score,aa$netgr_pred_mean)
@@ -222,8 +222,13 @@ ggplot(a,aes(x=netgr_pred_mean,y=score,label=subs_name))+geom_text()+theme_bw()+
 # ggplot(a%>%filter(!subs_name%in%"D276G"),aes(x=netgr_pred_mean,y=score,label=subs_name))+geom_point()+theme_bw()+xlab("IC50 Predicted Growth Rates")+ylab("Enrichment Score observed w 5k mutant library \n at 60k sscs")
 # write.csv(highscore,"BCRABL_EnrichmentScores_iL3Independent_Library.csv")
 
-ggplot(a,aes(x=netgr_pred_mean,y=score,label=subs_name))+geom_text()+theme_bw()+xlab("IC50 Predicted Growth Rates")+ylab("Observed Enrichment Score")
+ggplot(resmuts_merged,aes(x=netgr_pred_mean,y=score,label=subs_name))+geom_text()+theme_bw()+xlab("IC50 Predicted Growth Rates")+ylab("Observed Enrichment Score")
 # ggsave("BCRABL_EnrichmentCorrelation.pdf",width=4,height=4,units="in",useDingbats=F)
+
+a=resmuts_merged%>%filter(!score%in%NA)
+cor(a$netgr_pred_mean,a$score)
+a=sample1517%>%filter(protein_start%in%255)
+
 
 ```
 
