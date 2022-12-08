@@ -11,7 +11,7 @@ The sequencing here was done on EGFR il3 indep and ABL il3 indep and imat, asc t
 ```{r setup, include=FALSE}
 # rm(list=ls())
 knitr::opts_chunk$set(echo = TRUE)
-knitr::opts_knit$set(root.dir = normalizePath(".."))
+# knitr::opts_knit$set(root.dir = normalizePath(".."))
 library(stringr)
 library(dplyr)
 library(ggplot2)
@@ -32,6 +32,8 @@ cleanup=theme_bw() +
         axis.text = element_text(face="bold",color="black",size="11"),
         text=element_text(size=11,face="bold"),
         axis.title=element_text(face="bold",size="11"))
+
+source("code/merge_samples.R")
 ```
 
 
@@ -282,7 +284,7 @@ plotly=ggplot(calls_sum%>%filter(protein_start>=242,protein_start<=500),aes(x=pr
 ggplotly(plotly)
 
 
-sample11=read.csv(file = "data/Consensus_Data/Novogene_lane14/sample11/variant_caller_outputs/variants_unique_ann.csv",header=T,stringsAsFactors = F)
+sample11=read.csv(file = "data/Consensus_Data/Novogene_lane14/sample11/sscs/variant_caller_outputs/variants_unique_ann.csv",header=T,stringsAsFactors = F)
 
 sample11=sample11%>%
   rowwise()%>%
@@ -336,7 +338,7 @@ ggplotly(plotly)
 ```
 TSII Sample 11 and 12
 ```{r}
-sample11=read.csv(file = "data/Consensus_Data/Novogene_lane14/sample11/variant_caller_outputs/variants_unique_ann.csv",header=T,stringsAsFactors = F)
+sample11=read.csv(file = "data/Consensus_Data/Novogene_lane14/sample11/sscs/variant_caller_outputs/variants_unique_ann.csv",header=T,stringsAsFactors = F)
 
 sample11=sample11%>%
   rowwise()%>%
@@ -345,7 +347,7 @@ sample11=sample11%>%
 sample11=sample11%>%mutate(maf=ct/depth)
 sample11_simple=sample11%>%dplyr::select(alt_start_pos,protein_start,ref,alt,ref_aa,alt_aa,consequence_terms,ct,depth,maf)
 
-sample12=read.csv(file = "data/Consensus_Data/Novogene_lane14/sample12/variant_caller_outputs/variants_unique_ann.csv",header=T,stringsAsFactors = F)
+sample12=read.csv(file = "data/Consensus_Data/Novogene_lane14/sample12/sscs/variant_caller_outputs/variants_unique_ann.csv",header=T,stringsAsFactors = F)
 
 sample12=sample12%>%
   rowwise()%>%
@@ -424,7 +426,7 @@ ggplot(samples_11.12%>%filter(!alt_aa%in%c("LL","PA"),protein_start>=242,protein
 TSII Sample 10 and 12
 ```{r}
 source("code/merge_samples.R")
-sample10=read.csv(file = "data/Consensus_Data/Novogene_lane14/sample10_combined/variant_caller_outputs/variants_unique_ann.csv",header=T,stringsAsFactors = F)
+sample10=read.csv(file = "data/Consensus_Data/Novogene_lane14/sample10_combined/sscs/variant_caller_outputs/variants_unique_ann.csv",header=T,stringsAsFactors = F)
 
 sample10=sample10%>%
   rowwise()%>%
@@ -433,7 +435,7 @@ sample10=sample10%>%
 sample10=sample10%>%mutate(maf=ct/depth)
 sample10_simple=sample10%>%dplyr::select(alt_start_pos,protein_start,ref,alt,ref_aa,alt_aa,consequence_terms,ct,depth,maf)
 
-sample12=read.csv(file = "data/Consensus_Data/Novogene_lane14/sample12/variant_caller_outputs/variants_unique_ann.csv",header=T,stringsAsFactors = F)
+sample12=read.csv(file = "data/Consensus_Data/Novogene_lane14/sample12/sscs/variant_caller_outputs/variants_unique_ann.csv",header=T,stringsAsFactors = F)
 
 sample12=sample12%>%
   rowwise()%>%
@@ -566,8 +568,9 @@ ggplotly(plotly)
 #                                         "impact",
 #                                         "polyphen_prediction",
 #                                         "consequence_terms"),all = T)
+lane14sortedsamples=read.csv("data/Consensus_Data/novogene_lane15/sample_3/ngs/variants_unique_ann.csv")
 
-lane14sortedsamples=merge_samples("Novogene_lane14/sample10_combined","Novogene_lane14/sample11")
+# lane14sortedsamples=merge_samples("Novogene_lane14/sample10_combined/sscs","Novogene_lane14/sample11/sscs")
 lane14sortedsamples=lane14sortedsamples%>%
   rowwise()%>%
   mutate(ref_aa=strsplit(amino_acids,"/")[[1]][1],
@@ -578,7 +581,7 @@ lane14sorted_simple=lane14sorted_simple%>%
   mutate(error_status=case_when(protein_start%in%c(1:241,495:700)~T,
          T~F))
 plotly=ggplot(lane14sorted_simple%>%
-         filter(protein_start>=99,protein_start<=600,ct>=3)%>%
+         filter(protein_start>=99,protein_start<=650,ct>=3)%>%
          mutate(mutant=paste(protein_start,alt_aa)),aes(x=protein_start,y=maf))+
   geom_bar(aes(fill=error_status),stat="sum")+
   scale_fill_manual(values = c("blue","red"))+
@@ -588,18 +591,38 @@ ggplotly(plotly)
 
 # library(ggplot2)
 
-a=highscore%>%filter(resmuts%in%"TRUE")
+# il3D0.D2$alt_aa=factor(il3D0.D2$alt_aa,levels=c("P","G","Y","W","F","V","L","I","A","T","S","Q","N","M","C","E","D","R","K","H"))
+
+ggplot(lane14sorted_simple%>%filter(nchar(as.character(alt_aa))%in%1,protein_start>=242,protein_start<=494),aes(x=protein_start,y=alt_aa,fill=ct))+
+  geom_tile()+
+  theme(panel.background=element_rect(fill="gray", colour="black"))+
+  scale_fill_gradient2(low ="darkblue", high ="red",name="MAF")+
+  scale_color_manual(values=c("black"))+
+  scale_x_continuous(name="Residue on the ABL Kinase",limits=c(242,493),expand=c(0,0),breaks = c(248,250,256, 271,275,300,325,350,363,375,381,400,405,425,450,475))+
+  ylab("Mutant Amino Acid")
+a=lane14sorted_simple%>%filter(nchar(as.character(alt_aa))%in%1,protein_start>=242,protein_start<=494,consequence_terms%in%"missense_variant")
 ```
 Now I'm going to look at how much reduction in error rates we get with duplex sequencing
 ```{r}
-sample10_duplex=read.csv(file = "data/Consensus_Data/Novogene_lane14/sample10_combined/variant_caller_outputs/duplex/variants_unique_ann.csv",header=T,stringsAsFactors = F)
+ngs=read.csv(file = "data/Consensus_Data/Novogene_lane15/sample_3/ngs/variants_unique_ann.csv",header=T,stringsAsFactors = F)
+ngs$consensus="NGS"
+
+sscs=read.csv(file = "data/Consensus_Data/Novogene_lane15/sample_3/sscs/variant_caller_outputs/variants_unique_ann.csv",header=T,stringsAsFactors = F)
+sscs$consensus="SSCS"
+
+duplex=read.csv(file = "data/Consensus_Data/Novogene_lane15/sample_3/duplex/variant_caller_outputs/variants_unique_ann.csv",header=T,stringsAsFactors = F)
+duplex$consensus="Duplex"
+
+sample10_duplex=rbind(ngs,sscs,duplex)
+
+# sample10_duplex=read.csv(file = "data/Consensus_Data/Novogene_lane14/sample10_combined/duplex/variant_caller_outputs/variants_unique_ann.csv",header=T,stringsAsFactors = F)
 
 sample10_duplex=sample10_duplex%>%
   rowwise()%>%
   mutate(ref_aa=strsplit(amino_acids,"/")[[1]][1],
          alt_aa=strsplit(amino_acids,"/")[[1]][2])
 sample10_duplex=sample10_duplex%>%mutate(maf=ct/depth)
-sample10_duplex_simple=sample10_duplex%>%dplyr::select(alt_start_pos,protein_start,ref,alt,ref_aa,alt_aa,consequence_terms,ct,depth,maf)
+sample10_duplex_simple=sample10_duplex%>%dplyr::select(alt_start_pos,protein_start,ref,alt,ref_aa,alt_aa,consequence_terms,ct,depth,maf,consensus)
 
 sample10_duplex_simple=sample10_duplex_simple%>%
   mutate(error_status=case_when(protein_start%in%c(1:241,495:700)~T,
@@ -614,13 +637,30 @@ plotly=ggplot(sample10_duplex_simple%>%
   theme(legend.position = "none")
 ggplotly(plotly)
 
+sample10_duplex_simple$consensus=factor(sample10_duplex_simple$consensus,levels=c("NGS","SSCS","Duplex"))
 plotly=ggplot(sample10_duplex_simple%>%
-         filter(protein_start>=99,protein_start<=600,ct>=3)%>%
+         filter(protein_start>=118,protein_start<=600,!protein_start%in%c(411,493,321,417),ct>=2)%>%
          mutate(mutant=paste(protein_start,alt_aa)),aes(x=protein_start,y=maf,color=error_status))+
-  geom_col()+
-  scale_color_manual(values = c("red","blue"))+
+  geom_col(aes(position="dodge"))+
+  facet_wrap(~consensus,ncol=1)+
+  scale_color_manual(values = c("blue","red"))+
   theme_bw()+
+  scale_x_continuous(name="Position on ABL")+
+  scale_y_continuous(limits=c(0,.01),name="MAF")+
   theme(legend.position = "none")
 ggplotly(plotly)
+
+
+ggplot(sample10_duplex_simple%>%
+         filter(protein_start>=118,protein_start<=600,!protein_start%in%c(411,493,321,417),ct>=2)%>%
+         mutate(mutant=paste(protein_start,alt_aa)),aes(x=protein_start,y=maf,color=error_status))+
+  geom_col(aes(position="dodge"))+
+  facet_wrap(~consensus,ncol=1)+
+  scale_color_manual(values = c("blue","red"))+
+  theme_bw()+
+  scale_x_continuous(name="Position on ABL")+
+  scale_y_continuous(limits=c(0,.01),name="MAF")+
+  theme(legend.position = "none")
+# ggsave("errorrates.pdf",width=8,height=8,units="in",useDingbats=F)  
 ```
 
