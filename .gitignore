@@ -12,3 +12,6 @@ data/Consensus_data/archive/
 data/Consensus_data/Novogene_lane7/
 data/Consensus_data/Ranomics_Pooled/
 data/Consensus_data/Novogene_lane15/sample_4/sscs/sscs_sorted_filtered.tsv.gz
+data/Consensus_data/Novogene_lane15/sample_3/ngs/sample3_sorted_filtered.tsv.gz
+data/Consensus_data/Novogene_lane15/sample_3/ngs/sample3_sorted_filtered.tsv
+

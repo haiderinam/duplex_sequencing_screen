@@ -52,6 +52,9 @@ editor_options:
   
 * Click [here](DupSeq_QC_Lane11.html) and to view iL3 independence data and [here](BCRABL_FunctionalKinaseAnalysis.html) to view iL3 independence heatmap
 <img src="assets/il3heatmap.png" width="1200" height="300"  alt="">  
+  
+* Click [here](ErrorRate_Analysis.html) to view error rates without barcodes, with single strand conseensi, and with dupleex consensus sequencing.
+<img src="assets/Error_Rates.png" width="400" height="400"  alt="">  
 
 
 
