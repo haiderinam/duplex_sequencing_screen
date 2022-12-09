@@ -54,8 +54,10 @@ editor_options:
 <img src="assets/il3heatmap.png" width="1200" height="300"  alt="">  
   
 * Click [here](ErrorRate_Analysis.html) to view error rates without barcodes, with single strand conseensi, and with dupleex consensus sequencing.
-<img src="assets/Error_Rates.png" width="400" height="400"  alt="">  
+<img src="assets/Error_rates.png" width="450" height="400"  alt="">  
 
+* Click [here](K562_BCRABL_Analysis.html) to view the results of the BCRABL Library transduced in K562 Cells
+<img src="assets/k562_plot.png" width="1200" height="350"  alt="">  
 
 
 #### Click [here](https://github.com/haiderinam/duplex_sequencing_screen) to be redirected to the github page that contains all the data and analysis rmd files.  
