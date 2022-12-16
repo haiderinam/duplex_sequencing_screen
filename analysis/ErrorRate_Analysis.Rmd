@@ -134,3 +134,4 @@ ggplot(sample10_duplex_simple%>%
   theme(legend.position = "none")
 # ggsave("errorrates.pdf",width=8,height=8,units="in",useDingbats=F)  
 ```
+

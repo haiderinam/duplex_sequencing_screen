@@ -7,7 +7,7 @@ output: html_document
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
-# knitr::opts_knit$set(root.dir = normalizePath(".."))
+knitr::opts_knit$set(root.dir = normalizePath(".."))
 
 library(stringr)
 library(dplyr)
@@ -27,7 +27,7 @@ cleanup=theme_bw() +
         axis.text = element_text(face="bold",color="black",size="11"),
         text=element_text(size=11,face="bold"),
         axis.title=element_text(face="bold",size="11"))
-source("code/depth_finder.R")
+
 ```
 
 
@@ -74,6 +74,7 @@ D2 Post Imatinib treatment: Lane 14 Sample 12
 SSCS
 ```{r}
 source("code/merge_samples.R")
+source("code/depth_finder.R")
 il3all=merge_samples("Novogene_lane14/Sample10_combined/sscs","Novogene_lane13/sample7/sscs")
 il3all=merge_samples(il3all,"Novogene_lane14/sample11/sscs")
 il3all=merge_samples(il3all,"Novogene_lane15/sample_3/sscs")
@@ -328,7 +329,7 @@ ggplot(il3D0.D2.merge.filtered,aes(x=protein_start,y=alt_aa))+
   geom_tile(data=subset(il3D0.D2.merge.filtered,is.na(score)&wt%in%T),aes(color="white"),linetype = "solid",color="white", fill = "yellow", alpha = 0.4)+
   theme(panel.background=element_rect(fill="white", colour="black"))+scale_x_continuous(name="Residue on the ABL Kinase",limits=c(242,493),expand=c(0,0))+
   ylab("Mutant Amino Acid")
-ggsave("BCRABL_il3_D2_gray.pdf",height=6,width=24,units="in",useDingbats=F)
+# ggsave("BCRABL_il3_D2_gray.pdf",height=6,width=24,units="in",useDingbats=F)
 
 
 
@@ -369,7 +370,7 @@ ggplot(il3D0.D4.merge.filtered,aes(x=protein_start,y=alt_aa))+
   theme(panel.background=element_rect(fill="white", colour="black"))+scale_x_continuous(name="Residue on the ABL Kinase",limits=c(242,493),expand=c(0,0))+
   ylab("Mutant Amino Acid")
 
-ggsave("BCRABL_il3_D4_scores.pdf",height=6,width=24,units="in",useDingbats=F)
+# ggsave("BCRABL_il3_D4_scores_updated.pdf",height=6,width=24,units="in",useDingbats=F)
 
 
 ###D0 D4 Imat
@@ -399,7 +400,7 @@ ggplot(imatD0.D4.merge.filtered,aes(x=protein_start,y=alt_aa))+
   geom_tile(data=subset(imatD0.D4.merge.filtered,is.na(score)&wt%in%T),aes(color="white"),linetype = "solid",color="white", fill = "yellow", alpha = 0.4)+
   theme(panel.background=element_rect(fill="white", colour="black"))+scale_x_continuous(name="Residue on the ABL Kinase",limits=c(242,493),expand=c(0,0))+
   ylab("Mutant Amino Acid")
-ggsave("BCRABL_imat_D4_gray.pdf",height=6,width=24,units="in",useDingbats=F)
+ggsave("BCRABL_imat_D4_gray_updated.pdf",height=6,width=24,units="in",useDingbats=F)
 
 
 ggplot(imatD0.D4.merge.filtered,aes(x=protein_start,y=alt_aa))+
@@ -409,8 +410,9 @@ ggplot(imatD0.D4.merge.filtered,aes(x=protein_start,y=alt_aa))+
   geom_tile(data=subset(imatD0.D4.merge.filtered,is.na(score)&wt%in%T),aes(color="white"),linetype = "solid",color="white", fill = "yellow", alpha = 0.4)+
   theme(panel.background=element_rect(fill="white", colour="black"))+scale_x_continuous(name="Residue on the ABL Kinase",limits=c(242,493),expand=c(0,0))+
   ylab("Mutant Amino Acid")
-ggsave("BCRABL_imat_D4_scores.pdf",height=6,width=24,units="in",useDingbats=F)
+# ggsave("BCRABL_imat_D4_scores.pdf",height=6,width=24,units="in",useDingbats=F)
 
+b=imatD0.D4%>%filter(consequence_terms%in%"missense_variant",protein_start>=242,protein_start<=494)
 ```
 
 Plotting enrichment scores

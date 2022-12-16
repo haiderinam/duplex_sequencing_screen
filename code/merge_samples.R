@@ -17,13 +17,15 @@ merge_samples=function(inputx,inputy){
                                         "alt_start_pos",
                                         "alt_end_pos",
                                         "ref",
+                                        "ref_codon",
                                         "alt",
+                                        "alt_codon",
+                                        "frame_pos",
                                         "protein_start",
                                         "protein_end",
+                                        "ref_aa",
+                                        "alt_aa",
                                         "amino_acids",
-                                        "codons",
-                                        "impact",
-                                        "polyphen_prediction",
                                         "consequence_terms"),all=T)
 
   samples_xy=merge(samples_xy,samplex_depths,by="protein_start")
@@ -40,15 +42,17 @@ merge_samples=function(inputx,inputy){
                   "alt_start_pos",
                   "alt_end_pos",
                   "ref",
+                  "ref_codon",
                   "alt",
+                  "alt_codon",
+                  "frame_pos",
                   "ct",
                   "depth",
                   "protein_start",
                   "protein_end",
+                  "ref_aa",
+                  "alt_aa",
                   "amino_acids",
-                  "codons",
-                  "impact",
-                  "polyphen_prediction",
                   "consequence_terms")
 
   samples_xy
