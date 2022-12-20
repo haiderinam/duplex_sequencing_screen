@@ -78,9 +78,10 @@ ref_csv_name="data/Refs/EGFR/egfr_NM_005228.5_full_coordinates.csv"
 ### Denote LANE and SAMPLE ###
 
 # seqdata_tsv_name="data/Consensus_data/Novogene_lane11/sample10/sscs_corrected_aligned_filtered.tsv"
-seqdata_tsv_name="data/Consensus_Data/Novogene_lane14/sample8/sscs_sorted_filtered.tsv"
+# seqdata_tsv_name="data/Consensus_Data/Novogene_lane13/sample1_2/sscs_sorted_filtered.tsv"
+seqdata_tsv_name="data/Consensus_Data/Novogene_lane13/sample1/duplex/duplex_sorted_filtered.tsv"
 # outdir="data/Consensus_data/Novogene_lane11/sample5/variant_caller_outputs"
-outdir="data/Consensus_data/Novogene_lane14/sample8/variant_caller_outputs"
+outdir="data/Consensus_data/Novogene_lane13/sample1/duplex/variant_caller_outputs"
 if (file.exists(outdir)){
           
         # specifying the working directory
