@@ -557,9 +557,9 @@ cor(qc_data_merged$variant_maf.x,qc_data_merged$variant_maf.y)
 ```{r}
 source("code/merge_samples.R")
 
-lane12sortedsamples=merge_samples("Novogene_lane11/Sample1/duplex","Novogene_lane11/Sample2/duplex")
-lane12sortedsamples=merge_samples(lane12sortedsamples,"Novogene_lane11/Sample3/duplex")
-lane12sortedsamples=merge_samples(lane12sortedsamples,"Novogene_lane11/Sample4/duplex")
+lane12sortedsamples=merge_samples("Novogene_lane11/Sample1/duplex","Novogene_lane11/Sample2/sscs")
+lane12sortedsamples=merge_samples(lane12sortedsamples,"Novogene_lane11/Sample3/sscs")
+lane12sortedsamples=merge_samples(lane12sortedsamples,"Novogene_lane11/Sample4/sscs")
 
 lane12sortedsamples=lane12sortedsamples%>%
   rowwise()%>%
@@ -672,8 +672,13 @@ a=lane12sortedsamples%>%filter(!alt_start_pos%in%1479,consequence_terms%in%"miss
 sum(a$total)
 a=lane12sortedsamples%>%filter(!alt_start_pos%in%1479,consequence_terms%in%"missense_variant")
 sum(a$ct)
-                               
+a=lane12sortedsamples%>%
+                filter(nchar(alt_aa)%in%1,
+                       consequence_terms%in%"missense_variant",
+                       protein_start>=242,
+                       protein_start<=291)
 ```
 
 #Numbers: Between AAs 242 and 291, twist made 909 QC-confirmed mutants, we detected 839, or 92% of those.
 #Numbers: Between AAs 242 and 291, twist made 999 mutants overall (including QC-failed mutants), we detected 839, or 82% of those.
+
