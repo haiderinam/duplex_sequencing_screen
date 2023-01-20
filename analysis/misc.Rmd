@@ -8,6 +8,7 @@ output: html_document
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 # knitr::opts_knit$set(root.dir=rprojroot::find_rstudio_root_file())
+knitr::opts_knit$set(root.dir = normalizePath(".."))
 ```
 
 Here I include some miscellaneous, pre-prod analyses
@@ -538,7 +539,8 @@ ggplot(deviations,aes(x=mutant,y=(count_mean_obs-sd_mean_model)*100/sd_mean_mode
 # ggsave("m351t_deviation.pdf",width=4,height = 2,units="in",useDingbats=F)
  
 ###Things that I would like to do to see if this huge M351T deviation from expectations is real: 1) Right now, you were only looking at M3, M5, M7. Look at M4, M6 too. Maybe make a boxplot with errorbars. 2) You were only looking at the %age deviation of observed vs predicted counts at D3, D6 etc. Look at %age deviation in *netgrowthrate* between observed and predicted.
-
+deviations_forexport=deviations%>%ungroup()%>%dplyr::select(mutant,percent_error,count_mean_obs,count_sd_obs,count_mean_pred=sd_mean_model)
+write.csv(deviations_forexport,"deviations.csv")
 ```
 
 ###Archive:  

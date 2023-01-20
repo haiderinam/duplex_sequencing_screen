@@ -8,7 +8,7 @@ output: html_document
 ```{r setup, include=FALSE}
 # rm(list=ls())
 knitr::opts_chunk$set(echo = TRUE)
-# knitr::opts_knit$set(root.dir = normalizePath(".."))
+knitr::opts_knit$set(root.dir = normalizePath(".."))
 
 library(stringr)
 library(dplyr)
@@ -557,9 +557,9 @@ cor(qc_data_merged$variant_maf.x,qc_data_merged$variant_maf.y)
 ```{r}
 source("code/merge_samples.R")
 
-lane12sortedsamples=merge_samples("Novogene_lane11/Sample1/duplex","Novogene_lane11/Sample2/sscs")
-lane12sortedsamples=merge_samples(lane12sortedsamples,"Novogene_lane11/Sample3/sscs")
-lane12sortedsamples=merge_samples(lane12sortedsamples,"Novogene_lane11/Sample4/sscs")
+lane12sortedsamples=merge_samples("Novogene_lane11/sample1/duplex","Novogene_lane11/sample2/sscs")
+lane12sortedsamples=merge_samples(lane12sortedsamples,"data/Consensus_Data/Novogene_lane11/sample3/sscs")
+lane12sortedsamples=merge_samples(lane12sortedsamples,"data/Consensus_Data/Novogene_lane11/sample4/sscs/")
 
 lane12sortedsamples=lane12sortedsamples%>%
   rowwise()%>%

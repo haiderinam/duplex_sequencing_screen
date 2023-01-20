@@ -70,20 +70,22 @@ chr=9 #The chromosome number on hg38. This argument is passed into the ensembl v
 ref_txt_name="data/Refs/ABL/NM_005157.6_CDS.txt"
 ref_csv_name="data/Refs/ABL/abl1_NM_005157.6_full_coordinates.csv"
 
+#############For LTK#############
+# enst="ENST00000263800" #Ensembl transcript ID for the canonical transcript
+# chr=15 #The chromosome number on hg38. This argument is passed into the ensembl variant effect predictor
+# ref_txt_name="data/Refs/LTK/nm_002344.6_cds.txt"
+# ref_csv_name="data/Refs/LTK/ltk_NM_002344.6_full_coordinates.csv"
 
-seqdata_tsv_name=c("data/Consensus_data/novogene_lane16a/Sample2/sscs/sscs_sorted_filtered.tsv.gz",
-                   "data/Consensus_data/novogene_lane16a/Sample3/sscs/sscs_sorted_filtered.tsv.gz",
-                   "data/Consensus_data/novogene_lane16a/Sample4/sscs/sscs_sorted_filtered.tsv.gz",
-                   "data/Consensus_data/novogene_lane16a/Sample5/sscs/sscs_sorted_filtered.tsv.gz",
-                   "data/Consensus_data/novogene_lane16a/Sample6/sscs/sscs_sorted_filtered.tsv.gz",
-                   "data/Consensus_data/novogene_lane16a/Sample7/sscs/sscs_sorted_filtered.tsv.gz")
 
-outdir=c("data/Consensus_data/novogene_lane16a/Ssample2/sscs/variant_caller_outputs/",
-                   "data/Consensus_data/novogene_lane16a/Sample3/sscs/variant_caller_outputs/",
-                   "data/Consensus_data/novogene_lane16a/Sample4/variant_caller_outputs/",
-                   "data/Consensus_data/novogene_lane16a/Sample5/variant_caller_outputs/",
-                   "data/Consensus_data/novogene_lane16a/Sample6/variant_caller_outputs/",
-                   "data/Consensus_data/novogene_lane16a/Sample7/variant_caller_outputs/")
+seqdata_tsv_name=c("data/Consensus_data/novogene_lane16a/Sample11/sscs/sscs_sorted_filtered.tsv.gz",
+                   "data/Consensus_data/novogene_lane16a/Sample12/sscs/sscs_sorted_filtered.tsv.gz",
+                   "data/Consensus_data/novogene_lane16a/Sample13/sscs/sscs_sorted_filtered.tsv.gz",
+                   "data/Consensus_data/novogene_lane16a/Sample14/sscs/sscs_sorted_filtered.tsv.gz")
+
+outdir=c("data/Consensus_data/novogene_lane16a/Sample11/sscs/variant_caller_outputs/",
+         "data/Consensus_data/novogene_lane16a/Sample12/sscs/variant_caller_outputs/",
+         "data/Consensus_data/novogene_lane16a/Sample13/sscs/variant_caller_outputs/",
+         "data/Consensus_data/novogene_lane16a/Sample14/sscs/variant_caller_outputs/")
 
 
 
@@ -91,6 +93,52 @@ outdir=c("data/Consensus_data/novogene_lane16a/Ssample2/sscs/variant_caller_outp
 mode="local"
 # mode="ensembl"
 ```
+
+
+```{r}
+seqdata_tsv_name=c("data/Consensus_Data/novogene_lane17/sample1_combined/duplex/duplex_sorted_filtered.tsv.gz",
+                   "data/Consensus_Data/novogene_lane17/sample1_combined/sscs/sscs_sorted_filtered.tsv.gz",
+                   "data/Consensus_Data/novogene_lane17/sample2/duplex/duplex_sorted_filtered.tsv.gz",
+                   "data/Consensus_Data/novogene_lane17/sample2/sscs/sscs_sorted_filtered.tsv.gz",
+                   "data/Consensus_Data/novogene_lane17/sample3/duplex/duplex_sorted_filtered.tsv.gz",
+                   "data/Consensus_Data/novogene_lane17/sample3/sscs/sscs_sorted_filtered.tsv.gz",
+                   "data/Consensus_Data/novogene_lane17/sample4/duplex/duplex_sorted_filtered.tsv.gz",
+                   "data/Consensus_Data/novogene_lane17/sample4/sscs/sscs_sorted_filtered.tsv.gz",
+                   "data/Consensus_Data/novogene_lane17/sample5/duplex/duplex_sorted_filtered.tsv.gz",
+                   "data/Consensus_Data/novogene_lane17/sample5/sscs/sscs_sorted_filtered.tsv.gz",
+                   "data/Consensus_Data/novogene_lane17/sample6/duplex/duplex_sorted_filtered.tsv.gz",
+                   "data/Consensus_Data/novogene_lane17/sample6/sscs/sscs_sorted_filtered.tsv.gz",
+                   "data/Consensus_Data/novogene_lane17/sample7/duplex/duplex_sorted_filtered.tsv.gz",
+                   "data/Consensus_Data/novogene_lane17/sample7/sscs/sscs_sorted_filtered.tsv.gz",
+                   "data/Consensus_Data/novogene_lane17/sample8/duplex/duplex_sorted_filtered.tsv.gz",
+                   "data/Consensus_Data/novogene_lane17/sample8/sscs/sscs_sorted_filtered.tsv.gz",
+                   "data/Consensus_Data/novogene_lane17/sample9/duplex/duplex_sorted_filtered.tsv.gz",
+                   "data/Consensus_Data/novogene_lane17/sample9/sscs/sscs_sorted_filtered.tsv.gz",
+                   "data/Consensus_Data/novogene_lane17/sample10/duplex/duplex_sorted_filtered.tsv.gz",
+                   "data/Consensus_Data/novogene_lane17/sample10/sscs/sscs_sorted_filtered.tsv.gz")
+
+outdir=c("data/Consensus_Data/novogene_lane17/sample1_combined/duplex/variant_caller_outputs",
+                   "data/Consensus_Data/novogene_lane17/sample1_combined/sscs/variant_caller_outputs",
+                   "data/Consensus_Data/novogene_lane17/sample2/duplex/variant_caller_outputs",
+                   "data/Consensus_Data/novogene_lane17/sample2/sscs/variant_caller_outputs",
+                   "data/Consensus_Data/novogene_lane17/sample3/duplex/variant_caller_outputs",
+                   "data/Consensus_Data/novogene_lane17/sample3/sscs/variant_caller_outputs",
+                   "data/Consensus_Data/novogene_lane17/sample4/duplex/variant_caller_outputs",
+                   "data/Consensus_Data/novogene_lane17/sample4/sscs/variant_caller_outputs",
+                   "data/Consensus_Data/novogene_lane17/sample5/duplex/variant_caller_outputs",
+                   "data/Consensus_Data/novogene_lane17/sample5/sscs/variant_caller_outputs",
+                   "data/Consensus_Data/novogene_lane17/sample6/duplex/variant_caller_outputs",
+                   "data/Consensus_Data/novogene_lane17/sample6/sscs/variant_caller_outputs",
+                   "data/Consensus_Data/novogene_lane17/sample7/duplex/variant_caller_outputs",
+                   "data/Consensus_Data/novogene_lane17/sample7/sscs/variant_caller_outputs",
+                   "data/Consensus_Data/novogene_lane17/sample8/duplex/variant_caller_outputs",
+                   "data/Consensus_Data/novogene_lane17/sample8/sscs/variant_caller_outputs",
+                   "data/Consensus_Data/novogene_lane17/sample9/duplex/variant_caller_outputs",
+                   "data/Consensus_Data/novogene_lane17/sample9/sscs/variant_caller_outputs",
+                   "data/Consensus_Data/novogene_lane17/sample10/duplex/variant_caller_outputs",
+                   "data/Consensus_Data/novogene_lane17/sample10/sscs/variant_caller_outputs")
+```
+
 
 
 ```{r}
@@ -117,6 +165,7 @@ for(i in seq(1:length(ref_genomic_coordinates$chr_start))){
 toc()
 ####At this point, look in ref_genomic_coordinates to make sure that your chromosome annotations match the annotations from ensembl
 ```
+
 
 
 ####Reading and processing the reference txt and csv file
@@ -264,6 +313,7 @@ paste("Data imported and filtered")
 snps=alldata%>%mutate(n_nuc=str_count(mdz,"A|T|C|G"))%>%filter(n_nuc==1)
 
 snps=snps%>%rowwise()%>%mutate(alt_start_pos=pos+as.numeric(strsplit(mdz,"A|C|G|T")[[1]][1]),alt_end_pos=alt_start_pos+1)
+# a=mnvs%>%mutate(ab=as.numeric(strsplit(mdz,"A|C|G|T")[[1]][1]))
 # ggplot(snps,aes(x=alt_start_pos))+geom_histogram()
 
 snps=snps%>%
@@ -286,6 +336,7 @@ snps=snps%>%filter(mut_extr%in%FALSE)
 
 snps=snps%>%rowwise()%>%mutate(alt=substr(seq,alt_start_pos-pos+1+clipdistance_left,alt_start_pos-pos+1+clipdistance_left))
 
+# snps=snps%>%filter(!alt_start_pos%in%NA)
 snps=snps%>%rowwise()%>%mutate(ref_codon=(ref_genomic_coordinates[(alt_start_pos-ref_genomic_coordinates$start)%in%c(0,1,2),"codon"])[[1]],
                                        ref_resi=(ref_genomic_coordinates[(alt_start_pos-ref_genomic_coordinates$start)%in%c(0,1,2),"resi"])[[1]])
 
@@ -476,7 +527,7 @@ mnvs=mnvs%>%
                        (neighbordistance%in%0)&&(n_nuc%in%3)~substr(seq,alt_start_pos-pos+1+clipdistance_left,alt_start_pos-pos+3+clipdistance_left),
     T~substr(seq,alt_start_pos-pos+1+clipdistance_left,alt_start_pos-pos+3+clipdistance_left)))
 
-# a=mnvs%>%filter(n_nuc%in%2,neighbordistance%in%1)
+
 #Filtering out ALT codons that contain Ns
 #Do same for snps when you're there
 # mnvs=mnvs[!grepl("N",mnvs$alt),]
@@ -555,6 +606,8 @@ if(mode%in%"local"){
                   consequence_terms)
   
   #####Combining the annotated read data########
+  # calls_ann=snps_ann%>%mutate(amino_acids=paste(ref_aa,"/",alt_aa,sep=""))%>%dplyr::select(pos,ref,ref_codon,alt,alt_codon,frame_pos=in_frame_pos,depth,protein_start=ref_resi,protein_end=ref_resi,amino_acids,consequence_terms,cigar,seq,mdz,n_nuc,ct,type)
+  
 calls_ann=rbind(snps_ann%>%mutate(amino_acids=paste(ref_aa,"/",alt_aa,sep=""))%>%dplyr::select(pos,ref,ref_codon,alt,alt_codon,frame_pos=in_frame_pos,depth,protein_start=ref_resi,protein_end=ref_resi,amino_acids,consequence_terms,cigar,seq,mdz,n_nuc,ct,type),
                 mnvs_ann%>%mutate(amino_acids=paste(ref_aa,"/",alt_aa,sep=""))%>%dplyr::select(pos,ref,ref_codon,alt,alt_codon,frame_pos=in_frame_pos,depth,protein_start=ref_resi,protein_end=ref_resi,amino_acids,consequence_terms,cigar,seq,mdz,n_nuc,ct,type))
 } else if(mode%in%"ensembl"){
@@ -628,7 +681,7 @@ calls_ann=rbind(snps_ann%>%dplyr::select(pos,ref,alt,depth,protein_start,protein
 }
 
 
-
+# calls_sum_merged=snps_sum_ann_reformatted
 calls_sum_merged=rbind(snps_sum_ann_reformatted,mnv_sum_ann_reformatted)
 # write.csv(calls_sum_merged,gsub(files[filecurr],pattern = ".tsv",replacement = "_calls.csv"))
 

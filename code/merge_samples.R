@@ -1,5 +1,7 @@
 merge_samples=function(inputx,inputy){
   #This function takes variant from two samples, merges them, and adds counts and allele frequencies
+  # inputx="Novogene_lane11/sample1/duplex"
+  # inputy="Novogene_lane11/sample2/sscs"
   # inputx="Novogene_lane14/Sample10_combined/sscs" #Input the directory names for the sequencing Lane and the sample name
   # inputy="Novogene_lane15/sample_3/sscs" #Input the directory names for the sequencing Lane and the sample name
   samplex=inputx

@@ -84,7 +84,7 @@ il3all=merge_samples(il3all,"Novogene_lane15/sample_4/sscs")
 il3all=merge_samples(il3all,"Novogene_lane15/sample_5/sscs")
 il3all=merge_samples(il3all,"Novogene_lane15/sample_6/sscs")
 il3all=merge_samples(il3all,"Novogene_lane15/sample_7/sscs")
-a=il3all%>%filter(protein_start%in%c(242:494),consequence_terms%in%"missense_variant")
+# a=il3all%>%filter(protein_start%in%c(242:494),consequence_terms%in%"missense_variant")
 
 # il3D0=merge_samples("Novogene_lane14/Sample10_combined/sscs","Novogene_lane15/sample_3/sscs")
 # a=il3D0%>%filter(!protein_start%in%c(242:494),type%in%"mnv")

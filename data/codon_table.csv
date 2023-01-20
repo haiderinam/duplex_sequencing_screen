@@ -12,7 +12,7 @@ AGC,Ser,S,Serine,T
 AGG,Arg,R,Arginine,F
 AGT,Ser,S,Serine,F
 ATA,Ile,I,Isoleucine,F
-ATC,Ile,I,Isoleucine,F
+ATC,Ile,I,Isoleucine,T
 ATG,Met,M,Methionine,T
 ATT,Ile,I,Isoleucine,F
 CAA,Gln,Q,Glutamine,F

@@ -11,7 +11,7 @@ The sequencing here was done on EGFR il3 indep and ABL il3 indep and imat, asc t
 ```{r setup, include=FALSE}
 # rm(list=ls())
 knitr::opts_chunk$set(echo = TRUE)
-# knitr::opts_knit$set(root.dir = normalizePath(".."))
+knitr::opts_knit$set(root.dir = normalizePath(".."))
 library(stringr)
 library(dplyr)
 library(ggplot2)
@@ -33,6 +33,9 @@ cleanup=theme_bw() +
         text=element_text(size=11,face="bold"),
         axis.title=element_text(face="bold",size="11"))
 
+
+```
+```{r}
 source("code/merge_samples.R")
 ```
 
@@ -224,10 +227,10 @@ ggplot(resmuts_merged,aes(x=netgr_pred_mean,y=score,label=subs_name))+geom_text(
 # ggplot(a%>%filter(!subs_name%in%"D276G"),aes(x=netgr_pred_mean,y=score,label=subs_name))+geom_point()+theme_bw()+xlab("IC50 Predicted Growth Rates")+ylab("Enrichment Score observed w 5k mutant library \n at 60k sscs")
 # write.csv(highscore,"BCRABL_EnrichmentScores_iL3Independent_Library.csv")
 
-ggplot(resmuts_merged,aes(x=netgr_pred_mean,y=score,label=subs_name))+geom_text()+theme_bw()+xlab("IC50 Predicted Growth Rates")+ylab("Observed Enrichment Score")
+ggplot(resmuts_merged%>%filter(!subs_name%in%"H396P"),aes(x=netgr_pred_mean,y=score,label=subs_name))+geom_text()+theme_bw()+xlab("IC50 Predicted Growth Rates")+ylab("Observed Enrichment Score")
 # ggsave("BCRABL_EnrichmentCorrelation.pdf",width=4,height=4,units="in",useDingbats=F)
 
-a=resmuts_merged%>%filter(!score%in%NA)
+a=resmuts_merged%>%filter(!score%in%NA,!subs_name%in%"H396P")
 cor(a$netgr_pred_mean,a$score)
 a=sample1517%>%filter(protein_start%in%255)
 
