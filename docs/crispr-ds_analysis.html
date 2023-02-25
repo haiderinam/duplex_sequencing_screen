@@ -1,0 +1,1898 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta charset="utf-8" />
+<meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+
+<meta name="author" content="Haider Inam" />
+
+<meta name="date" content="2023-02-23" />
+
+<title>crispr-ds_analysis</title>
+
+<script src="site_libs/header-attrs-2.14/header-attrs.js"></script>
+<script src="site_libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link href="site_libs/bootstrap-3.3.5/css/cosmo.min.css" rel="stylesheet" />
+<script src="site_libs/bootstrap-3.3.5/js/bootstrap.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/html5shiv.min.js"></script>
+<script src="site_libs/bootstrap-3.3.5/shim/respond.min.js"></script>
+<style>h1 {font-size: 34px;}
+       h1.title {font-size: 38px;}
+       h2 {font-size: 30px;}
+       h3 {font-size: 24px;}
+       h4 {font-size: 18px;}
+       h5 {font-size: 16px;}
+       h6 {font-size: 12px;}
+       code {color: inherit; background-color: rgba(0, 0, 0, 0.04);}
+       pre:not([class]) { background-color: white }</style>
+<script src="site_libs/jqueryui-1.11.4/jquery-ui.min.js"></script>
+<link href="site_libs/tocify-1.9.1/jquery.tocify.css" rel="stylesheet" />
+<script src="site_libs/tocify-1.9.1/jquery.tocify.js"></script>
+<script src="site_libs/navigation-1.1/tabsets.js"></script>
+<link href="site_libs/highlightjs-9.12.0/textmate.css" rel="stylesheet" />
+<script src="site_libs/highlightjs-9.12.0/highlight.js"></script>
+<script src="site_libs/htmlwidgets-1.5.1/htmlwidgets.js"></script>
+<script src="site_libs/plotly-binding-4.9.2.1/plotly.js"></script>
+<script src="site_libs/typedarray-0.1/typedarray.min.js"></script>
+<link href="site_libs/crosstalk-1.1.0.1/css/crosstalk.css" rel="stylesheet" />
+<script src="site_libs/crosstalk-1.1.0.1/js/crosstalk.min.js"></script>
+<link href="site_libs/plotly-htmlwidgets-css-1.52.2/plotly-htmlwidgets.css" rel="stylesheet" />
+<script src="site_libs/plotly-main-1.52.2/plotly-latest.min.js"></script>
+<link href="site_libs/font-awesome-5.1.0/css/all.css" rel="stylesheet" />
+<link href="site_libs/font-awesome-5.1.0/css/v4-shims.css" rel="stylesheet" />
+
+<link rel="icon" href="https://github.com/workflowr/workflowr-assets/raw/master/img/reproducible.png">
+<!-- Add a small amount of space between sections. -->
+<style type="text/css">
+div.section {
+  padding-top: 12px;
+}
+</style>
+
+
+
+<style type="text/css">
+  code{white-space: pre-wrap;}
+  span.smallcaps{font-variant: small-caps;}
+  span.underline{text-decoration: underline;}
+  div.column{display: inline-block; vertical-align: top; width: 50%;}
+  div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+  ul.task-list{list-style: none;}
+    </style>
+
+<style type="text/css">code{white-space: pre;}</style>
+<script type="text/javascript">
+if (window.hljs) {
+  hljs.configure({languages: []});
+  hljs.initHighlightingOnLoad();
+  if (document.readyState && document.readyState === "complete") {
+    window.setTimeout(function() { hljs.initHighlighting(); }, 0);
+  }
+}
+</script>
+
+
+
+
+
+
+
+
+
+<style type = "text/css">
+.main-container {
+  max-width: 940px;
+  margin-left: auto;
+  margin-right: auto;
+}
+img {
+  max-width:100%;
+}
+.tabbed-pane {
+  padding-top: 12px;
+}
+.html-widget {
+  margin-bottom: 20px;
+}
+button.code-folding-btn:focus {
+  outline: none;
+}
+summary {
+  display: list-item;
+}
+details > summary > p:only-child {
+  display: inline;
+}
+pre code {
+  padding: 0;
+}
+</style>
+
+
+<style type="text/css">
+.dropdown-submenu {
+  position: relative;
+}
+.dropdown-submenu>.dropdown-menu {
+  top: 0;
+  left: 100%;
+  margin-top: -6px;
+  margin-left: -1px;
+  border-radius: 0 6px 6px 6px;
+}
+.dropdown-submenu:hover>.dropdown-menu {
+  display: block;
+}
+.dropdown-submenu>a:after {
+  display: block;
+  content: " ";
+  float: right;
+  width: 0;
+  height: 0;
+  border-color: transparent;
+  border-style: solid;
+  border-width: 5px 0 5px 5px;
+  border-left-color: #cccccc;
+  margin-top: 5px;
+  margin-right: -10px;
+}
+.dropdown-submenu:hover>a:after {
+  border-left-color: #adb5bd;
+}
+.dropdown-submenu.pull-left {
+  float: none;
+}
+.dropdown-submenu.pull-left>.dropdown-menu {
+  left: -100%;
+  margin-left: 10px;
+  border-radius: 6px 0 6px 6px;
+}
+</style>
+
+<script type="text/javascript">
+// manage active state of menu based on current page
+$(document).ready(function () {
+  // active menu anchor
+  href = window.location.pathname
+  href = href.substr(href.lastIndexOf('/') + 1)
+  if (href === "")
+    href = "index.html";
+  var menuAnchor = $('a[href="' + href + '"]');
+
+  // mark it active
+  menuAnchor.tab('show');
+
+  // if it's got a parent navbar menu mark it active as well
+  menuAnchor.closest('li.dropdown').addClass('active');
+
+  // Navbar adjustments
+  var navHeight = $(".navbar").first().height() + 15;
+  var style = document.createElement('style');
+  var pt = "padding-top: " + navHeight + "px; ";
+  var mt = "margin-top: -" + navHeight + "px; ";
+  var css = "";
+  // offset scroll position for anchor links (for fixed navbar)
+  for (var i = 1; i <= 6; i++) {
+    css += ".section h" + i + "{ " + pt + mt + "}\n";
+  }
+  style.innerHTML = "body {" + pt + "padding-bottom: 40px; }\n" + css;
+  document.head.appendChild(style);
+});
+</script>
+
+<!-- tabsets -->
+
+<style type="text/css">
+.tabset-dropdown > .nav-tabs {
+  display: inline-table;
+  max-height: 500px;
+  min-height: 44px;
+  overflow-y: auto;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.tabset-dropdown > .nav-tabs > li.active:before {
+  content: "";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li.active:before {
+  content: "&#xe258;";
+  border: none;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open:before {
+  content: "";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs > li.active {
+  display: block;
+}
+
+.tabset-dropdown > .nav-tabs > li > a,
+.tabset-dropdown > .nav-tabs > li > a:focus,
+.tabset-dropdown > .nav-tabs > li > a:hover {
+  border: none;
+  display: inline-block;
+  border-radius: 4px;
+  background-color: transparent;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li {
+  display: block;
+  float: none;
+}
+
+.tabset-dropdown > .nav-tabs > li {
+  display: none;
+}
+</style>
+
+<!-- code folding -->
+
+
+
+<style type="text/css">
+
+#TOC {
+  margin: 25px 0px 20px 0px;
+}
+@media (max-width: 768px) {
+#TOC {
+  position: relative;
+  width: 100%;
+}
+}
+
+@media print {
+.toc-content {
+  /* see https://github.com/w3c/csswg-drafts/issues/4434 */
+  float: right;
+}
+}
+
+.toc-content {
+  padding-left: 30px;
+  padding-right: 40px;
+}
+
+div.main-container {
+  max-width: 1200px;
+}
+
+div.tocify {
+  width: 20%;
+  max-width: 260px;
+  max-height: 85%;
+}
+
+@media (min-width: 768px) and (max-width: 991px) {
+  div.tocify {
+    width: 25%;
+  }
+}
+
+@media (max-width: 767px) {
+  div.tocify {
+    width: 100%;
+    max-width: none;
+  }
+}
+
+.tocify ul, .tocify li {
+  line-height: 20px;
+}
+
+.tocify-subheader .tocify-item {
+  font-size: 0.90em;
+}
+
+.tocify .list-group-item {
+  border-radius: 0px;
+}
+
+
+</style>
+
+
+
+</head>
+
+<body>
+
+
+<div class="container-fluid main-container">
+
+
+<!-- setup 3col/9col grid for toc_float and main content  -->
+<div class="row">
+<div class="col-xs-12 col-sm-4 col-md-3">
+<div id="TOC" class="tocify">
+</div>
+</div>
+
+<div class="toc-content col-xs-12 col-sm-8 col-md-9">
+
+
+
+
+<div class="navbar navbar-default  navbar-fixed-top" role="navigation">
+  <div class="container">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-bs-toggle="collapse" data-target="#navbar" data-bs-target="#navbar">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="index.html">duplex_sequencing_screen</a>
+    </div>
+    <div id="navbar" class="navbar-collapse collapse">
+      <ul class="nav navbar-nav">
+        <li>
+  <a href="index.html">Home</a>
+</li>
+<li>
+  <a href="about.html">About</a>
+</li>
+<li>
+  <a href="license.html">License</a>
+</li>
+      </ul>
+      <ul class="nav navbar-nav navbar-right">
+        <li>
+  <a href="https://github.com/haiderinam/duplex_sequencing_screen">
+    <span class="fa fa-github"></span>
+     
+    Source code
+  </a>
+</li>
+      </ul>
+    </div><!--/.nav-collapse -->
+  </div><!--/.container -->
+</div><!--/.navbar -->
+
+<div id="header">
+
+
+
+<h1 class="title toc-ignore">crispr-ds_analysis</h1>
+<h4 class="author">Haider Inam</h4>
+<h4 class="date">2023-02-23</h4>
+
+</div>
+
+
+<p>
+<button type="button" class="btn btn-default btn-workflowr btn-workflowr-report" data-toggle="collapse" data-target="#workflowr-report">
+<span class="glyphicon glyphicon-list" aria-hidden="true"></span>
+workflowr <span class="glyphicon glyphicon-exclamation-sign text-danger"
+aria-hidden="true"></span>
+</button>
+</p>
+<div id="workflowr-report" class="collapse">
+<ul class="nav nav-tabs">
+<li class="active">
+<a data-toggle="tab" href="#summary">Summary</a>
+</li>
+<li>
+<a data-toggle="tab" href="#checks"> Checks <span
+class="glyphicon glyphicon-exclamation-sign text-danger"
+aria-hidden="true"></span> </a>
+</li>
+<li>
+<a data-toggle="tab" href="#versions">Past versions</a>
+</li>
+</ul>
+<div class="tab-content">
+<div id="summary" class="tab-pane fade in active">
+<p>
+<strong>Last updated:</strong> 2023-02-22
+</p>
+<p>
+<strong>Checks:</strong> <span
+class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> 6
+<span class="glyphicon glyphicon-exclamation-sign text-danger"
+aria-hidden="true"></span> 1
+</p>
+<p>
+<strong>Knit directory:</strong> <code>duplex_sequencing_screen/</code>
+<span class="glyphicon glyphicon-question-sign" aria-hidden="true"
+title="This is the local directory in which the code in this file was executed.">
+</span>
+</p>
+<p>
+This reproducible <a href="http://rmarkdown.rstudio.com">R Markdown</a>
+analysis was created with <a
+  href="https://github.com/jdblischak/workflowr">workflowr</a> (version
+1.6.2). The <em>Checks</em> tab describes the reproducibility checks
+that were applied when the results were created. The <em>Past
+versions</em> tab lists the development history.
+</p>
+<hr>
+</div>
+<div id="checks" class="tab-pane fade">
+<div id="workflowr-checks" class="panel-group">
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRMarkdownfilestronguncommittedchanges">
+<span class="glyphicon glyphicon-exclamation-sign text-danger"
+aria-hidden="true"></span> <strong>R Markdown file:</strong> uncommitted
+changes </a>
+</p>
+</div>
+<div id="strongRMarkdownfilestronguncommittedchanges"
+class="panel-collapse collapse">
+<div class="panel-body">
+<p>The R Markdown is untracked by Git. To know which version of the R
+Markdown file created these results, you’ll want to first commit it to
+the Git repo. If you’re still working on the analysis, you can ignore
+this warning. When you’re finished, you can run
+<code>wflow_publish</code> to commit the R Markdown file and build the
+HTML.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongEnvironmentstrongempty">
+<span class="glyphicon glyphicon-ok text-success"
+aria-hidden="true"></span> <strong>Environment:</strong> empty </a>
+</p>
+</div>
+<div id="strongEnvironmentstrongempty" class="panel-collapse collapse">
+<div class="panel-body">
+<p>Great job! The global environment was empty. Objects defined in the
+global environment can affect the analysis in your R Markdown file in
+unknown ways. For reproduciblity it’s best to always run the code in an
+empty environment.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongSeedstrongcodesetseed20200402code">
+<span class="glyphicon glyphicon-ok text-success"
+aria-hidden="true"></span> <strong>Seed:</strong>
+<code>set.seed(20200402)</code> </a>
+</p>
+</div>
+<div id="strongSeedstrongcodesetseed20200402code"
+class="panel-collapse collapse">
+<div class="panel-body">
+<p>The command <code>set.seed(20200402)</code> was run prior to running
+the code in the R Markdown file. Setting a seed ensures that any results
+that rely on randomness, e.g. subsampling or permutations, are
+reproducible.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongSessioninformationstrongrecorded">
+<span class="glyphicon glyphicon-ok text-success"
+aria-hidden="true"></span> <strong>Session information:</strong>
+recorded </a>
+</p>
+</div>
+<div id="strongSessioninformationstrongrecorded"
+class="panel-collapse collapse">
+<div class="panel-body">
+<p>Great job! Recording the operating system, R version, and package
+versions is critical for reproducibility.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongCachestrongnone">
+<span class="glyphicon glyphicon-ok text-success"
+aria-hidden="true"></span> <strong>Cache:</strong> none </a>
+</p>
+</div>
+<div id="strongCachestrongnone" class="panel-collapse collapse">
+<div class="panel-body">
+<p>Nice! There were no cached chunks for this analysis, so you can be
+confident that you successfully produced the results during this
+run.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongFilepathsstrongrelative">
+<span class="glyphicon glyphicon-ok text-success"
+aria-hidden="true"></span> <strong>File paths:</strong> relative </a>
+</p>
+</div>
+<div id="strongFilepathsstrongrelative" class="panel-collapse collapse">
+<div class="panel-body">
+<p>Great job! Using relative paths to the files within your workflowr
+project makes it easier to run your code on other machines.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomhaiderinamduplexsequencingscreentree7ac4a415d3c2756c8bd219109782d131bace1f4btargetblank7ac4a41a">
+<span class="glyphicon glyphicon-ok text-success"
+aria-hidden="true"></span> <strong>Repository version:</strong>
+<a href="https://github.com/haiderinam/duplex_sequencing_screen/tree/7ac4a415d3c2756c8bd219109782d131bace1f4b" target="_blank">7ac4a41</a>
+</a>
+</p>
+</div>
+<div
+id="strongRepositoryversionstrongahrefhttpsgithubcomhaiderinamduplexsequencingscreentree7ac4a415d3c2756c8bd219109782d131bace1f4btargetblank7ac4a41a"
+class="panel-collapse collapse">
+<div class="panel-body">
+<p>
+Great! You are using Git for version control. Tracking code development
+and connecting the code version to the results is critical for
+reproducibility.
+</p>
+<p>
+The results in this page were generated with repository version
+<a href="https://github.com/haiderinam/duplex_sequencing_screen/tree/7ac4a415d3c2756c8bd219109782d131bace1f4b" target="_blank">7ac4a41</a>.
+See the <em>Past versions</em> tab to see a history of the changes made
+to the R Markdown and HTML files.
+</p>
+<p>
+Note that you need to be careful to ensure that all relevant files for
+the analysis have been committed to Git prior to generating the results
+(you can use <code>wflow_publish</code> or
+<code>wflow_git_commit</code>). workflowr only checks the R Markdown
+file, but you know if there are other scripts or data files that it
+depends on. Below is the status of the Git repository when the results
+were generated:
+</p>
+<pre><code>
+Ignored files:
+    Ignored:    .Rhistory
+    Ignored:    .Rproj.user/
+    Ignored:    data/Consensus_Data/.Rhistory
+    Ignored:    data/Consensus_Data/Novogene_lane11/sample1/duplex/duplex_sorted_filtered.tsv.gz
+    Ignored:    data/Consensus_Data/Novogene_lane11/sample1/sscs/sscs_sorted_filtered.tsv.gz
+    Ignored:    data/Consensus_Data/Novogene_lane11/sample2/archive/sscs_aligned_filtered.tsv.gz
+    Ignored:    data/Consensus_Data/Novogene_lane11/sample2/duplex/duplex_sorted_filtered.tsv.gz
+    Ignored:    data/Consensus_Data/Novogene_lane11/sample2/sscs/sscs_sorted_filtered.tsv.gz
+    Ignored:    data/Consensus_Data/Novogene_lane11/sample3/duplex/duplex_sorted_filtered.tsv.gz
+    Ignored:    data/Consensus_Data/Novogene_lane11/sample3/sscs/sscs_sorted_filtered.tsv.gz
+    Ignored:    data/Consensus_Data/Novogene_lane11/sample4/duplex/duplex_sorted_filtered.tsv.gz
+    Ignored:    data/Consensus_Data/Novogene_lane11/sample4/sscs/sscs_sorted_filtered.tsv.gz
+    Ignored:    data/Consensus_Data/Novogene_lane11/sample5/variant_caller_outputs/sscs_L858R_aligned_filtered.tsv.gz
+    Ignored:    data/Consensus_Data/Novogene_lane11/sample5/variant_caller_outputs/sscs_L858R_aligned_filtered_sample5.tsv.gz
+    Ignored:    data/Consensus_Data/Novogene_lane11/sample6/archive/sscs_aligned_filtered.tsv.gz
+    Ignored:    data/Consensus_Data/Novogene_lane11/sample6/sscs_L858R_aligned_filtered.tsv.gz
+    Ignored:    data/Consensus_Data/Novogene_lane11/sample6/variant_caller_outputs/variants_ann_sample6.csv.gz
+    Ignored:    data/Consensus_Data/Novogene_lane11/sample7/sscs/sscs_sorted_filtered.tsv.gz
+    Ignored:    data/Consensus_Data/Novogene_lane12/sample1/low_sscscounts/sscs_aligned_filtered.tsv.gz
+    Ignored:    data/Consensus_Data/Novogene_lane12/sample1/sscs_aligned_filtered.tsv.gz
+    Ignored:    data/Consensus_Data/Novogene_lane12/sample3/sscs_combined_filtered.tsv.gz
+    Ignored:    data/Consensus_Data/Novogene_lane12/sample5/sscs_combined_filtered.tsv.gz
+    Ignored:    data/Consensus_Data/Novogene_lane12/sample7/sscs_combined_filtered.tsv.gz
+    Ignored:    data/Consensus_Data/Novogene_lane12/sample9/sscs_combined_filtered.tsv.gz
+    Ignored:    data/Consensus_Data/Novogene_lane13/sample1/duplex/duplex_sorted_filtered.tsv.gz
+    Ignored:    data/Consensus_Data/Novogene_lane13/sample1/sscs/sscs_sorted_filtered.tsv.gz
+    Ignored:    data/Consensus_Data/Novogene_lane13/sample10/duplex/duplex_sorted_filtered.tsv.gz
+    Ignored:    data/Consensus_Data/Novogene_lane13/sample10/sscs/sscs_sorted_filtered.tsv.gz
+    Ignored:    data/Consensus_Data/Novogene_lane13/sample11/duplex/duplex_sorted_filtered.tsv.gz
+    Ignored:    data/Consensus_Data/Novogene_lane13/sample11/sscs/sscs_sorted_filtered.tsv.gz
+    Ignored:    data/Consensus_Data/Novogene_lane13/sample12/duplex/duplex_sorted_filtered.tsv.gz
+    Ignored:    data/Consensus_Data/Novogene_lane13/sample12/sscs/sscs_sorted_filtered.tsv.gz
+    Ignored:    data/Consensus_Data/Novogene_lane13/sample2/sscs_sorted_filtered.tsv.gz
+    Ignored:    data/Consensus_Data/Novogene_lane13/sample3/sscs_sorted_filtered.tsv.gz
+    Ignored:    data/Consensus_Data/Novogene_lane13/sample4/sscs_sorted_filtered.tsv.gz
+    Ignored:    data/Consensus_Data/Novogene_lane13/sample5/sscs_sorted_filtered.tsv.gz
+    Ignored:    data/Consensus_Data/Novogene_lane13/sample6/sscs_sorted_filtered.tsv.gz
+    Ignored:    data/Consensus_Data/Novogene_lane13/sample7/duplex/duplex_sorted_filtered.tsv.gz
+    Ignored:    data/Consensus_Data/Novogene_lane13/sample7/sscs/sscs_sorted_filtered.tsv.gz
+    Ignored:    data/Consensus_Data/Novogene_lane13/sample8/sscs_sorted_filtered.tsv.gz
+    Ignored:    data/Consensus_Data/Novogene_lane13/sample8/variant_caller_outputs/
+    Ignored:    data/Consensus_Data/Novogene_lane13/sample9/duplex/duplex_sorted_filtered.tsv.gz
+    Ignored:    data/Consensus_Data/Novogene_lane13/sample9/sscs/sscs_sorted_filtered.tsv.gz
+    Ignored:    data/Consensus_Data/Novogene_lane14/sample10_combined/duplex/duplex_sorted_filtered.tsv.gz
+    Ignored:    data/Consensus_Data/Novogene_lane14/sample10_combined/sscs/sscs_sorted_filtered.tsv.gz
+    Ignored:    data/Consensus_Data/Novogene_lane14/sample10_combined/sscs/variant_caller_outputs/archive/variants_ann.csv.gz
+    Ignored:    data/Consensus_Data/Novogene_lane14/sample11/duplex/duplex_sorted_filtered.tsv.gz
+    Ignored:    data/Consensus_Data/Novogene_lane14/sample11/sscs/sscs_sorted_filtered.tsv.gz
+    Ignored:    data/Consensus_Data/Novogene_lane14/sample11/sscs/variant_caller_outputs/archive/variants_ann.csv.gz
+    Ignored:    data/Consensus_Data/Novogene_lane14/sample12/duplex/duplex_sorted_filtered.tsv.gz
+    Ignored:    data/Consensus_Data/Novogene_lane14/sample12/sscs/sscs_sorted_filtered.tsv.gz
+    Ignored:    data/Consensus_Data/Novogene_lane14/sample12/sscs/variant_caller_outputs/archive/variants_ann.csv.gz
+    Ignored:    data/Consensus_Data/Novogene_lane14/sample13/
+    Ignored:    data/Consensus_Data/Novogene_lane14/sample14_combined/duplex/duplex_sorted_filtered.tsv.gz
+    Ignored:    data/Consensus_Data/Novogene_lane14/sample14_combined/sscs.filt_1.fa.gz
+    Ignored:    data/Consensus_Data/Novogene_lane14/sample14_combined/sscs/sscs_sorted_filtered.tsv.gz
+    Ignored:    data/Consensus_Data/Novogene_lane14/sample14_combined/sscs/variant_caller_outputs/archive/variants_ann.csv.gz
+    Ignored:    data/Consensus_Data/Novogene_lane14/sample14b/
+    Ignored:    data/Consensus_Data/Novogene_lane14/sample15/duplex/duplex_sorted_filtered.tsv.gz
+    Ignored:    data/Consensus_Data/Novogene_lane14/sample15/sscs/sscs_sorted_filtered.tsv.gz
+    Ignored:    data/Consensus_Data/Novogene_lane14/sample15/sscs/variant_caller_outputs/archive/variants_ann.csv.gz
+    Ignored:    data/Consensus_Data/Novogene_lane14/sample16/duplex/duplex_sorted_filtered.tsv.gz
+    Ignored:    data/Consensus_Data/Novogene_lane14/sample16/sscs/sscs_sorted_filtered.tsv.gz
+    Ignored:    data/Consensus_Data/Novogene_lane14/sample16/sscs/variant_caller_outputs/archive/variants_ann.csv.gz
+    Ignored:    data/Consensus_Data/Novogene_lane14/sample17/duplex/duplex_sorted_filtered.tsv.gz
+    Ignored:    data/Consensus_Data/Novogene_lane14/sample17/sscs/sscs_sorted_filtered.tsv.gz
+    Ignored:    data/Consensus_Data/Novogene_lane14/sample17/sscs/variant_caller_outputs/archive/variants_ann.csv.gz
+    Ignored:    data/Consensus_Data/Novogene_lane14/sample18/duplex/duplex_sorted_filtered.tsv.gz
+    Ignored:    data/Consensus_Data/Novogene_lane14/sample18/sscs/sscs_sorted_filtered.tsv.gz
+    Ignored:    data/Consensus_Data/Novogene_lane14/sample18/sscs/variant_caller_outputs/archive/variants_ann.csv.gz
+    Ignored:    data/Consensus_Data/Novogene_lane14/sample1_combined/
+    Ignored:    data/Consensus_Data/Novogene_lane14/sample2_combined/sscs_sorted_filtered.tsv.gz
+    Ignored:    data/Consensus_Data/Novogene_lane14/sample3/sscs_sorted_filtered.tsv.gz
+    Ignored:    data/Consensus_Data/Novogene_lane14/sample4/sscs_sorted_filtered.tsv.gz
+    Ignored:    data/Consensus_Data/Novogene_lane14/sample5/sscs_sorted_filtered.tsv.gz
+    Ignored:    data/Consensus_Data/Novogene_lane14/sample6/sscs_sorted_filtered.tsv.gz
+    Ignored:    data/Consensus_Data/Novogene_lane14/sample7/sscs_sorted_filtered.tsv.gz
+    Ignored:    data/Consensus_Data/Novogene_lane14/sample7/variant_caller_outputs/duplex/
+    Ignored:    data/Consensus_Data/Novogene_lane14/sample8/sscs_sorted_filtered.tsv.gz
+    Ignored:    data/Consensus_Data/Novogene_lane14/sample8/variant_caller_outputs/
+    Ignored:    data/Consensus_Data/Novogene_lane14/sample9/duplex/duplex_sorted_filtered.tsv.gz
+    Ignored:    data/Consensus_Data/Novogene_lane14/sample9/sscs/sscs_sorted_filtered.tsv.gz
+    Ignored:    data/Consensus_Data/Novogene_lane2/
+    Ignored:    data/Consensus_Data/Novogene_lane3/
+    Ignored:    data/Consensus_Data/Novogene_lane4/
+    Ignored:    data/Consensus_Data/Novogene_lane5/
+    Ignored:    data/Consensus_Data/Novogene_lane6/
+    Ignored:    data/Consensus_Data/Novogene_lane7/
+    Ignored:    data/Consensus_Data/Ranomics_Pooled/
+    Ignored:    data/Consensus_Data/archive/
+    Ignored:    data/Consensus_Data/novogene_lane15/sample_1/duplex/duplex_sorted_filtered.tsv.gz
+    Ignored:    data/Consensus_Data/novogene_lane15/sample_1/firstrun(lowsequencing)/duplex/
+    Ignored:    data/Consensus_Data/novogene_lane15/sample_1/firstrun(lowsequencing)/sscs/
+    Ignored:    data/Consensus_Data/novogene_lane15/sample_1/sscs/sscs_sorted_filtered.tsv.gz
+    Ignored:    data/Consensus_Data/novogene_lane15/sample_2/duplex/duplex_sorted_filtered.tsv.gz
+    Ignored:    data/Consensus_Data/novogene_lane15/sample_2/firstrun(lowsequencing)/sscs/
+    Ignored:    data/Consensus_Data/novogene_lane15/sample_2/sscs/sscs_sorted_filtered.tsv.gz
+    Ignored:    data/Consensus_Data/novogene_lane15/sample_3/duplex/duplex_sorted_filtered.tsv.gz
+    Ignored:    data/Consensus_Data/novogene_lane15/sample_3/firstrun(lowsequencing)/duplex/duplex_sorted_filtered.tsv.gz
+    Ignored:    data/Consensus_Data/novogene_lane15/sample_3/firstrun(lowsequencing)/sscs/sscs_sorted_filtered.tsv.gz
+    Ignored:    data/Consensus_Data/novogene_lane15/sample_3/ngs/Sample3_sorted_filtered.tsv.gz
+    Ignored:    data/Consensus_Data/novogene_lane15/sample_3/ngs/sample3a(firsthalf)/Sample3_sorted_filtered.tsv.gz
+    Ignored:    data/Consensus_Data/novogene_lane15/sample_3/ngs/variants_ann.csv.gz
+    Ignored:    data/Consensus_Data/novogene_lane15/sample_3/sscs/sscs_sorted_filtered.tsv.gz
+    Ignored:    data/Consensus_Data/novogene_lane15/sample_4/duplex/duplex_sorted_filtered.tsv.gz
+    Ignored:    data/Consensus_Data/novogene_lane15/sample_4/firstrun(lowsequencing)/duplex/duplex_sorted_filtered.tsv.gz
+    Ignored:    data/Consensus_Data/novogene_lane15/sample_4/firstrun(lowsequencing)/sscs/sscs_sorted_filtered.tsv.gz
+    Ignored:    data/Consensus_Data/novogene_lane15/sample_4/sscs/sscs_sorted_filtered.tsv.gz
+    Ignored:    data/Consensus_Data/novogene_lane15/sample_5/duplex/duplex_sorted_filtered.tsv.gz
+    Ignored:    data/Consensus_Data/novogene_lane15/sample_5/firstrun(lowsequencing)/duplex/duplex_sorted_filtered.tsv.gz
+    Ignored:    data/Consensus_Data/novogene_lane15/sample_5/firstrun(lowsequencing)/sscs/sscs_sorted_filtered.tsv.gz
+    Ignored:    data/Consensus_Data/novogene_lane15/sample_5/firstrun(lowsequencing)/sscs/variant_caller_outputs/.empty/
+    Ignored:    data/Consensus_Data/novogene_lane15/sample_5/sscs/sscs_sorted_filtered.tsv.gz
+    Ignored:    data/Consensus_Data/novogene_lane15/sample_6/duplex/duplex_sorted_filtered.tsv.gz
+    Ignored:    data/Consensus_Data/novogene_lane15/sample_6/firstrun(lowsequencing)/duplex/duplex_sorted_filtered.tsv.gz
+    Ignored:    data/Consensus_Data/novogene_lane15/sample_6/firstrun(lowsequencing)/sscs/sscs_sorted_filtered.tsv.gz
+    Ignored:    data/Consensus_Data/novogene_lane15/sample_6/sscs/sscs_sorted_filtered.tsv.gz
+    Ignored:    data/Consensus_Data/novogene_lane15/sample_7/duplex/duplex_sorted_filtered.tsv.gz
+    Ignored:    data/Consensus_Data/novogene_lane15/sample_7/firstrun(lowsequencing)/duplex/duplex_sorted_filtered.tsv.gz
+    Ignored:    data/Consensus_Data/novogene_lane15/sample_7/firstrun(lowsequencing)/sscs/sscs_sorted_filtered.tsv.gz
+    Ignored:    data/Consensus_Data/novogene_lane15/sample_7/sscs/sscs_sorted_filtered.tsv.gz
+    Ignored:    data/Consensus_Data/novogene_lane16a/Sample10/duplex/duplex_sorted_filtered.tsv.gz
+    Ignored:    data/Consensus_Data/novogene_lane16a/Sample10/sscs/sscs_sorted_filtered.tsv.gz
+    Ignored:    data/Consensus_Data/novogene_lane16a/Sample11/duplex/duplex_sorted_filtered.tsv.gz
+    Ignored:    data/Consensus_Data/novogene_lane16a/Sample11/sscs/sscs_sorted_filtered.tsv.gz
+    Ignored:    data/Consensus_Data/novogene_lane16a/Sample12/duplex/duplex_sorted_filtered.tsv.gz
+    Ignored:    data/Consensus_Data/novogene_lane16a/Sample12/sscs/sscs_sorted_filtered.tsv.gz
+    Ignored:    data/Consensus_Data/novogene_lane16a/Sample12/sscs/variant_caller_outputs/
+    Ignored:    data/Consensus_Data/novogene_lane16a/Sample13/duplex/duplex_sorted_filtered.tsv.gz
+    Ignored:    data/Consensus_Data/novogene_lane16a/Sample13/sscs/sscs_sorted_filtered.tsv.gz
+    Ignored:    data/Consensus_Data/novogene_lane16a/Sample13/sscs/variant_caller_outputs/
+    Ignored:    data/Consensus_Data/novogene_lane16a/Sample14/duplex/duplex_sorted_filtered.tsv.gz
+    Ignored:    data/Consensus_Data/novogene_lane16a/Sample14/sscs/sscs_sorted_filtered.tsv.gz
+    Ignored:    data/Consensus_Data/novogene_lane16a/Sample1_combined/duplex/duplex_sorted_filtered.tsv.gz
+    Ignored:    data/Consensus_Data/novogene_lane16a/Sample1_combined/sscs/sscs_sorted_filtered.tsv.gz
+    Ignored:    data/Consensus_Data/novogene_lane16a/Sample2/duplex/duplex_sorted_filtered.tsv.gz
+    Ignored:    data/Consensus_Data/novogene_lane16a/Sample2/sscs/sscs_sorted_filtered.tsv.gz
+    Ignored:    data/Consensus_Data/novogene_lane16a/Sample3/duplex/duplex_sorted_filtered.tsv.gz
+    Ignored:    data/Consensus_Data/novogene_lane16a/Sample3/sscs/sscs_sorted_filtered.tsv.gz
+    Ignored:    data/Consensus_Data/novogene_lane16a/Sample4/duplex/duplex_sorted_filtered.tsv.gz
+    Ignored:    data/Consensus_Data/novogene_lane16a/Sample4/sscs/sscs_sorted_filtered.tsv.gz
+    Ignored:    data/Consensus_Data/novogene_lane16a/Sample5/duplex/duplex_sorted_filtered.tsv.gz
+    Ignored:    data/Consensus_Data/novogene_lane16a/Sample5/sscs/sscs_sorted_filtered.tsv.gz
+    Ignored:    data/Consensus_Data/novogene_lane16a/Sample6/duplex/duplex_sorted_filtered.tsv.gz
+    Ignored:    data/Consensus_Data/novogene_lane16a/Sample6/sscs/sscs_sorted_filtered.tsv.gz
+    Ignored:    data/Consensus_Data/novogene_lane16a/Sample7/duplex/duplex_sorted_filtered.tsv.gz
+    Ignored:    data/Consensus_Data/novogene_lane16a/Sample7/sscs/sscs_sorted_filtered.tsv.gz
+    Ignored:    data/Consensus_Data/novogene_lane16a/Sample8/duplex/duplex_sorted_filtered.tsv.gz
+    Ignored:    data/Consensus_Data/novogene_lane16a/Sample8/sscs/sscs_sorted_filtered.tsv.gz
+    Ignored:    data/Consensus_Data/novogene_lane16a/Sample9/duplex/duplex_sorted_filtered.tsv.gz
+    Ignored:    data/Consensus_Data/novogene_lane16a/Sample9/sscs/sscs_sorted_filtered.tsv.gz
+    Ignored:    data/Consensus_Data/novogene_lane16a/duplex/variant_caller_outputs/
+    Ignored:    data/Consensus_Data/novogene_lane16b/Sample10/duplex/duplex_sorted_filtered.tsv.gz
+    Ignored:    data/Consensus_Data/novogene_lane16b/Sample10/sscs/sscs_sorted_filtered.tsv.gz
+    Ignored:    data/Consensus_Data/novogene_lane16b/Sample11/sscs/variant_caller_outputs/
+    Ignored:    data/Consensus_Data/novogene_lane16b/Sample15/duplex/duplex_sorted_filtered.tsv.gz
+    Ignored:    data/Consensus_Data/novogene_lane16b/Sample15/sscs/sscs_sorted_filtered.tsv.gz
+    Ignored:    data/Consensus_Data/novogene_lane16b/Sample1_combined/duplex/duplex_sorted_filtered.tsv.gz
+    Ignored:    data/Consensus_Data/novogene_lane16b/Sample1_combined/sscs/sscs_sorted_filtered.tsv.gz
+    Ignored:    data/Consensus_Data/novogene_lane16b/Sample2/duplex/duplex_sorted_filtered.tsv.gz
+    Ignored:    data/Consensus_Data/novogene_lane16b/Sample2/sscs/sscs_sorted_filtered.tsv.gz
+    Ignored:    data/Consensus_Data/novogene_lane16b/Sample3/duplex/duplex_sorted_filtered.tsv.gz
+    Ignored:    data/Consensus_Data/novogene_lane16b/Sample3/sscs/sscs_sorted_filtered.tsv.gz
+    Ignored:    data/Consensus_Data/novogene_lane16b/Sample4/duplex/duplex_sorted_filtered.tsv.gz
+    Ignored:    data/Consensus_Data/novogene_lane16b/Sample4/sscs/sscs_sorted_filtered.tsv.gz
+    Ignored:    data/Consensus_Data/novogene_lane16b/Sample5/duplex/duplex_sorted_filtered.tsv.gz
+    Ignored:    data/Consensus_Data/novogene_lane16b/Sample5/sscs/sscs_sorted_filtered.tsv.gz
+    Ignored:    data/Consensus_Data/novogene_lane16b/Sample6/duplex/duplex_sorted_filtered.tsv.gz
+    Ignored:    data/Consensus_Data/novogene_lane16b/Sample6/sscs/sscs_sorted_filtered.tsv.gz
+    Ignored:    data/Consensus_Data/novogene_lane16b/Sample7_combined/duplex/duplex_sorted_filtered.tsv.gz
+    Ignored:    data/Consensus_Data/novogene_lane16b/Sample7_combined/sscs/sscs_sorted_filtered.tsv.gz
+    Ignored:    data/Consensus_Data/novogene_lane16b/Sample8_combined/duplex/duplex_sorted_filtered.tsv.gz
+    Ignored:    data/Consensus_Data/novogene_lane16b/Sample8_combined/sscs/sscs_sorted_filtered.tsv.gz
+    Ignored:    data/Consensus_Data/novogene_lane16b/Sample9/duplex/duplex_sorted_filtered.tsv.gz
+    Ignored:    data/Consensus_Data/novogene_lane16b/Sample9/sscs/sscs_sorted_filtered.tsv.gz
+    Ignored:    data/Consensus_Data/novogene_lane17/sample10/duplex/duplex_sorted_filtered.tsv.gz
+    Ignored:    data/Consensus_Data/novogene_lane17/sample10/duplex/variant_caller_outputs/
+    Ignored:    data/Consensus_Data/novogene_lane17/sample10/sscs/sscs_sorted_filtered.tsv.gz
+    Ignored:    data/Consensus_Data/novogene_lane17/sample11/duplex/duplex_sorted_filtered.tsv.gz
+    Ignored:    data/Consensus_Data/novogene_lane17/sample11/sscs/sscs_sorted_filtered.tsv.gz
+    Ignored:    data/Consensus_Data/novogene_lane17/sample1_combined/duplex/duplex_sorted_filtered.tsv.gz
+    Ignored:    data/Consensus_Data/novogene_lane17/sample1_combined/low_depth/duplex/duplex_sorted_filtered.tsv.gz
+    Ignored:    data/Consensus_Data/novogene_lane17/sample1_combined/low_depth/duplex/low_depth/
+    Ignored:    data/Consensus_Data/novogene_lane17/sample1_combined/low_depth/sscs/sscs_sorted_filtered.tsv.gz
+    Ignored:    data/Consensus_Data/novogene_lane17/sample1_combined/sscs/sscs_sorted_filtered.tsv.gz
+    Ignored:    data/Consensus_Data/novogene_lane17/sample2/duplex/duplex_sorted_filtered.tsv.gz
+    Ignored:    data/Consensus_Data/novogene_lane17/sample2/sscs/sscs_sorted_filtered.tsv.gz
+    Ignored:    data/Consensus_Data/novogene_lane17/sample3/duplex/duplex_sorted_filtered.tsv.gz
+    Ignored:    data/Consensus_Data/novogene_lane17/sample3/sscs/sscs_sorted_filtered.tsv.gz
+    Ignored:    data/Consensus_Data/novogene_lane17/sample4/duplex/duplex_sorted_filtered.tsv.gz
+    Ignored:    data/Consensus_Data/novogene_lane17/sample4/sscs/sscs_sorted_filtered.tsv.gz
+    Ignored:    data/Consensus_Data/novogene_lane17/sample5/duplex/duplex_sorted_filtered.tsv.gz
+    Ignored:    data/Consensus_Data/novogene_lane17/sample5/low_seq_depth/duplex/duplex_sorted_filtered.tsv.gz
+    Ignored:    data/Consensus_Data/novogene_lane17/sample5/low_seq_depth/sscs/sscs_sorted_filtered.tsv.gz
+    Ignored:    data/Consensus_Data/novogene_lane17/sample5/sscs/sscs_sorted_filtered.tsv.gz
+    Ignored:    data/Consensus_Data/novogene_lane17/sample6/low_seq_depths/duplex/duplex_sorted_filtered.tsv.gz
+    Ignored:    data/Consensus_Data/novogene_lane17/sample6/low_seq_depths/sscs/sscs_sorted_filtered.tsv.gz
+    Ignored:    data/Consensus_Data/novogene_lane17/sample6/sscs/sscs_sorted_filtered.tsv.gz
+    Ignored:    data/Consensus_Data/novogene_lane17/sample7/duplex/duplex_sorted_filtered.tsv.gz
+    Ignored:    data/Consensus_Data/novogene_lane17/sample7/low_seq_depths/duplex/duplex_sorted_filtered.tsv.gz
+    Ignored:    data/Consensus_Data/novogene_lane17/sample7/low_seq_depths/sscs/sscs_sorted_filtered.tsv.gz
+    Ignored:    data/Consensus_Data/novogene_lane17/sample7/sscs/sscs_sorted_filtered.tsv.gz
+    Ignored:    data/Consensus_Data/novogene_lane17/sample8/duplex/duplex_sorted_filtered.tsv.gz
+    Ignored:    data/Consensus_Data/novogene_lane17/sample8/sscs/sscs_sorted_filtered.tsv.gz
+    Ignored:    data/Consensus_Data/novogene_lane17/sample9/duplex/duplex_sorted_filtered.tsv.gz
+    Ignored:    data/Consensus_Data/novogene_lane17/sample9/sscs/sscs_sorted_filtered.tsv.gz
+    Ignored:    data/Consensus_Data/novogene_lane17b/Sample1 copy 2/duplex/variant_caller_outputs/
+    Ignored:    data/Consensus_Data/novogene_lane17b/Sample1 copy 2/sscs/variant_caller_outputs/
+    Ignored:    data/Consensus_Data/novogene_lane17b/Sample1 copy 3/duplex/variant_caller_outputs/
+    Ignored:    data/Consensus_Data/novogene_lane17b/Sample1 copy 3/sscs/variant_caller_outputs/
+    Ignored:    data/Consensus_Data/novogene_lane17b/Sample1/duplex/duplex_sorted_filtered.tsv.gz
+    Ignored:    data/Consensus_Data/novogene_lane17b/Sample1/sscs/sscs_sorted_filtered.tsv.gz
+    Ignored:    data/Consensus_Data/novogene_lane17b/Sample2/duplex/duplex.consensus.counts.tsv.gz
+    Ignored:    data/Consensus_Data/novogene_lane17b/Sample2/duplex/duplex_sorted_filtered.tsv.gz
+    Ignored:    data/Consensus_Data/novogene_lane17b/Sample2/sscs/sscs_sorted_filtered.tsv.gz
+    Ignored:    data/Consensus_Data/sscs_dcs_comparisons/
+
+Untracked files:
+    Untracked:  BCRABL_iL3Independence_D2_essential.pdf
+    Untracked:  BCRABL_imat_D2.pdf
+    Untracked:  BCRABL_imatinib_D2_resistant.pdf
+    Untracked:  Baf3_egfr_background.pdf
+    Untracked:  IL3_Enrichment_mergedbackgro.textClipping
+    Untracked:  IL3_Enrichment_mergedbackground_2.20.23.csv
+    Untracked:  ImatinibEnrichment_BoxPlot_2.21.23.pdf
+    Untracked:  ImatinibEnrichment_Distribution.pdf
+    Untracked:  ImatinibEnrichment_Distribution_legend.pdf
+    Untracked:  ImatinibEnrichment_Distribution_zoom.pdf
+    Untracked:  ImatinibEnrichment_Plot_2.21.23.pdf
+    Untracked:  analysis/ABL_cosmic_analysis.Rmd
+    Untracked:  analysis/crispr-ds_analysis.Rmd
+    Untracked:  crisprds_depth.pdf
+    Untracked:  crisprds_readcount.pdf
+    Untracked:  imatd0d2.d0d4_score_2.15.23.pdf
+    Untracked:  library_comlexity.pdf
+    Untracked:  output/ABLEnrichmentScreens/
+
+Unstaged changes:
+    Modified:   .DS_Store
+    Modified:   .gitattributes
+    Modified:   BCRABL_iL3Independence_D2.pdf
+    Modified:   analysis/ABL_unevenness_analysis.Rmd
+    Modified:   analysis/variant_caller_2022.Rmd
+    Modified:   data/.DS_Store
+    Modified:   data/Consensus_Data/.DS_Store
+    Modified:   data/Consensus_Data/Novogene_lane11/.DS_Store
+    Modified:   data/Consensus_Data/Novogene_lane12/.DS_Store
+    Modified:   data/Consensus_Data/Novogene_lane13/.DS_Store
+    Modified:   data/Consensus_Data/Novogene_lane14/.DS_Store
+    Modified:   data/Consensus_Data/Novogene_lane14/sample10_combined/.DS_Store
+    Modified:   data/Consensus_Data/Novogene_lane14/sample10_combined/duplex/.DS_Store
+    Modified:   data/Consensus_Data/Novogene_lane14/sample10_combined/duplex/variant_caller_outputs/.DS_Store
+    Modified:   data/Consensus_Data/Novogene_lane14/sample10_combined/sscs/.DS_Store
+    Modified:   data/Consensus_Data/Novogene_lane14/sample10_combined/sscs/variant_caller_outputs/.DS_Store
+    Modified:   data/Consensus_Data/Novogene_lane14/sample14_combined/.DS_Store
+    Modified:   data/Consensus_Data/Novogene_lane14/sample9/.DS_Store
+    Modified:   data/Consensus_Data/R01Figure/.DS_Store
+    Modified:   data/Consensus_Data/novogene_lane15/.DS_Store
+    Modified:   data/Consensus_Data/novogene_lane15/sample_6/.DS_Store
+    Modified:   data/Consensus_Data/novogene_lane15/sample_6/duplex/.DS_Store
+    Modified:   data/Consensus_Data/novogene_lane15/sample_6/duplex/variant_caller_outputs/.DS_Store
+    Modified:   data/Consensus_Data/novogene_lane15/sample_7/.DS_Store
+    Modified:   data/Consensus_Data/novogene_lane15/sample_7/duplex/.DS_Store
+    Modified:   data/Consensus_Data/novogene_lane15/sample_7/duplex/variant_caller_outputs/.DS_Store
+    Modified:   data/Consensus_Data/novogene_lane15/sample_7/duplex/variant_caller_outputs/variants_ann.csv
+    Modified:   data/Consensus_Data/novogene_lane15/sample_7/duplex/variant_caller_outputs/variants_unique_ann.csv
+    Modified:   data/Consensus_Data/novogene_lane15/sample_7/firstrun(lowsequencing)/duplex/.DS_Store
+    Modified:   data/Consensus_Data/novogene_lane15/sample_7/sscs/.DS_Store
+    Modified:   data/Consensus_Data/novogene_lane15/sample_7/sscs/variant_caller_outputs/.DS_Store
+    Modified:   data/Consensus_Data/novogene_lane15/sample_7/sscs/variant_caller_outputs/variants_ann.csv
+    Modified:   data/Consensus_Data/novogene_lane15/sample_7/sscs/variant_caller_outputs/variants_unique_ann.csv
+    Modified:   data/Consensus_Data/novogene_lane16a/.DS_Store
+    Modified:   data/Consensus_Data/novogene_lane16a/Sample10/.DS_Store
+    Modified:   data/Consensus_Data/novogene_lane16a/Sample10/sscs/.DS_Store
+    Modified:   data/Consensus_Data/novogene_lane16a/Sample14/.DS_Store
+    Modified:   data/Consensus_Data/novogene_lane16a/Sample3/.DS_Store
+    Modified:   data/Consensus_Data/novogene_lane16a/Sample4/.DS_Store
+    Modified:   data/Consensus_Data/novogene_lane16a/Sample5/.DS_Store
+    Modified:   data/Consensus_Data/novogene_lane16a/Sample7/.DS_Store
+    Modified:   data/Consensus_Data/novogene_lane16a/Sample8/.DS_Store
+    Modified:   data/Consensus_Data/novogene_lane16a/Sample8/sscs/.DS_Store
+    Modified:   data/Consensus_Data/novogene_lane16a/Sample9/.DS_Store
+    Modified:   data/Consensus_Data/novogene_lane16a/Sample9/sscs/.DS_Store
+    Modified:   data/Consensus_Data/novogene_lane16b/.DS_Store
+    Modified:   data/Consensus_Data/novogene_lane16b/Sample10/.DS_Store
+    Modified:   data/Consensus_Data/novogene_lane16b/Sample10/duplex/.DS_Store
+    Modified:   data/Consensus_Data/novogene_lane16b/Sample10/sscs/.DS_Store
+    Modified:   data/Consensus_Data/novogene_lane16b/Sample8_combined/.DS_Store
+    Modified:   data/Consensus_Data/novogene_lane16b/Sample8_combined/sscs/.DS_Store
+    Modified:   data/Consensus_Data/novogene_lane16b/Sample9/.DS_Store
+    Modified:   data/Consensus_Data/novogene_lane16b/Sample9/sscs/.DS_Store
+    Modified:   data/Consensus_Data/novogene_lane17/.DS_Store
+    Modified:   data/Consensus_Data/novogene_lane17/sample1_combined/.DS_Store
+    Modified:   data/Consensus_Data/novogene_lane17/sample1_combined/duplex/.DS_Store
+    Modified:   data/Consensus_Data/novogene_lane17/sample1_combined/low_depth/.DS_Store
+    Modified:   data/Consensus_Data/novogene_lane17/sample1_combined/sscs/.DS_Store
+    Modified:   data/Consensus_Data/novogene_lane17/sample3/.DS_Store
+    Modified:   data/Consensus_Data/novogene_lane17/sample3/sscs/.DS_Store
+    Modified:   data/Consensus_Data/novogene_lane17/sample4/.DS_Store
+    Modified:   data/Consensus_Data/novogene_lane17/sample4/sscs/.DS_Store
+    Modified:   data/Consensus_Data/novogene_lane17/sample6/.DS_Store
+    Modified:   data/Consensus_Data/novogene_lane17/sample6/duplex/.DS_Store
+    Modified:   data/Consensus_Data/novogene_lane17/sample6/sscs/.DS_Store
+    Modified:   data/Refs/.DS_Store
+    Modified:   ltk_analyses.Rmd
+    Modified:   output/.DS_Store
+
+Staged changes:
+    Modified:   .DS_Store
+    Modified:   .gitignore
+    New:        BCRABL_IL3_D0D4_2.8.23.pdf
+    New:        Baf3_ltk_background.pdf
+    New:        IL3_Enrichment_2.12.23.csv
+    New:        IL3_Enrichment_2.8.23.csv
+    New:        analysis/ABL_unevenness_analysis.Rmd
+    Modified:   analysis/BCRABL_FunctionalKinaseAnalysis.Rmd
+    Modified:   analysis/ErrorRate_Analysis.Rmd
+    Modified:   analysis/ic50heatmaps_asciminib_newBCRABL.Rmd
+    Modified:   analysis/index.Rmd
+    Modified:   analysis/lane14_comparisons.Rmd
+    Modified:   analysis/variant_caller_2022.Rmd
+    Modified:   code/.DS_Store
+    Modified:   data/.DS_Store
+    Modified:   data/Consensus_Data/.DS_Store
+    Modified:   data/Consensus_Data/Novogene_lane11/.DS_Store
+    Modified:   data/Consensus_Data/Novogene_lane11/sample1/.DS_Store
+    Modified:   data/Consensus_Data/Novogene_lane11/sample1/duplex/.DS_Store
+    Deleted:    data/Consensus_Data/Novogene_lane11/sample1/duplex/duplex_sorted_filtered.tsv.gz
+    Modified:   data/Consensus_Data/Novogene_lane11/sample1/duplex/variant_caller_outputs/.DS_Store
+    Modified:   data/Consensus_Data/Novogene_lane11/sample1/sscs/.DS_Store
+    Deleted:    data/Consensus_Data/Novogene_lane11/sample1/sscs/sscs_sorted_filtered.tsv.gz
+    Modified:   data/Consensus_Data/Novogene_lane11/sample1/sscs/variant_caller_outputs/.DS_Store
+    Modified:   data/Consensus_Data/Novogene_lane11/sample2/.DS_Store
+    Deleted:    data/Consensus_Data/Novogene_lane11/sample2/archive/sscs_aligned_filtered.tsv.gz
+    Modified:   data/Consensus_Data/Novogene_lane11/sample2/duplex/.DS_Store
+    Deleted:    data/Consensus_Data/Novogene_lane11/sample2/duplex/duplex_sorted_filtered.tsv.gz
+    Modified:   data/Consensus_Data/Novogene_lane11/sample2/sscs/.DS_Store
+    Deleted:    data/Consensus_Data/Novogene_lane11/sample2/sscs/sscs_sorted_filtered.tsv.gz
+    Modified:   data/Consensus_Data/Novogene_lane11/sample3/.DS_Store
+    Modified:   data/Consensus_Data/Novogene_lane11/sample3/duplex/.DS_Store
+    Deleted:    data/Consensus_Data/Novogene_lane11/sample3/duplex/duplex_sorted_filtered.tsv.gz
+    Modified:   data/Consensus_Data/Novogene_lane11/sample3/sscs/.DS_Store
+    Deleted:    data/Consensus_Data/Novogene_lane11/sample3/sscs/sscs_sorted_filtered.tsv.gz
+    Modified:   data/Consensus_Data/Novogene_lane11/sample4/.DS_Store
+    Modified:   data/Consensus_Data/Novogene_lane11/sample4/duplex/.DS_Store
+    Deleted:    data/Consensus_Data/Novogene_lane11/sample4/duplex/duplex_sorted_filtered.tsv.gz
+    Modified:   data/Consensus_Data/Novogene_lane11/sample4/sscs/.DS_Store
+    Deleted:    data/Consensus_Data/Novogene_lane11/sample4/sscs/sscs_sorted_filtered.tsv.gz
+    Deleted:    data/Consensus_Data/Novogene_lane11/sample5/variant_caller_outputs/sscs_L858R_aligned_filtered.tsv.gz
+    Deleted:    data/Consensus_Data/Novogene_lane11/sample5/variant_caller_outputs/sscs_L858R_aligned_filtered_sample5.tsv.gz
+    Deleted:    data/Consensus_Data/Novogene_lane11/sample6/archive/sscs_aligned_filtered.tsv.gz
+    Deleted:    data/Consensus_Data/Novogene_lane11/sample6/sscs_L858R_aligned_filtered.tsv.gz
+    Deleted:    data/Consensus_Data/Novogene_lane11/sample6/variant_caller_outputs/variants_ann_sample6.csv.gz
+    Modified:   data/Consensus_Data/Novogene_lane11/sample7/.DS_Store
+    Modified:   data/Consensus_Data/Novogene_lane11/sample7/sscs/.DS_Store
+    Deleted:    data/Consensus_Data/Novogene_lane11/sample7/sscs/sscs_sorted_filtered.tsv.gz
+    Deleted:    data/Consensus_Data/Novogene_lane12/sample1/low_sscscounts/sscs_aligned_filtered.tsv.gz
+    Deleted:    data/Consensus_Data/Novogene_lane12/sample1/sscs_aligned_filtered.tsv.gz
+    Deleted:    data/Consensus_Data/Novogene_lane12/sample3/sscs_combined_filtered.tsv.gz
+    Deleted:    data/Consensus_Data/Novogene_lane12/sample5/sscs_combined_filtered.tsv.gz
+    Deleted:    data/Consensus_Data/Novogene_lane12/sample7/sscs_combined_filtered.tsv.gz
+    Deleted:    data/Consensus_Data/Novogene_lane12/sample9/sscs_combined_filtered.tsv.gz
+    Modified:   data/Consensus_Data/Novogene_lane13/.DS_Store
+    Deleted:    data/Consensus_Data/Novogene_lane13/sample1/duplex/duplex_sorted_filtered.tsv.gz
+    Deleted:    data/Consensus_Data/Novogene_lane13/sample1/sscs/sscs_sorted_filtered.tsv.gz
+    Deleted:    data/Consensus_Data/Novogene_lane13/sample10/duplex/duplex_sorted_filtered.tsv.gz
+    Deleted:    data/Consensus_Data/Novogene_lane13/sample10/sscs/sscs_sorted_filtered.tsv.gz
+    Deleted:    data/Consensus_Data/Novogene_lane13/sample11/duplex/duplex_sorted_filtered.tsv.gz
+    Deleted:    data/Consensus_Data/Novogene_lane13/sample11/sscs/sscs_sorted_filtered.tsv.gz
+    Deleted:    data/Consensus_Data/Novogene_lane13/sample12/duplex/duplex_sorted_filtered.tsv.gz
+    Deleted:    data/Consensus_Data/Novogene_lane13/sample12/sscs/sscs_sorted_filtered.tsv.gz
+    Modified:   data/Consensus_Data/Novogene_lane13/sample2/.DS_Store
+    Deleted:    data/Consensus_Data/Novogene_lane13/sample2/sscs_sorted_filtered.tsv.gz
+    Modified:   data/Consensus_Data/Novogene_lane13/sample3/.DS_Store
+    Deleted:    data/Consensus_Data/Novogene_lane13/sample3/sscs_sorted_filtered.tsv.gz
+    Deleted:    data/Consensus_Data/Novogene_lane13/sample4/sscs_sorted_filtered.tsv.gz
+    Modified:   data/Consensus_Data/Novogene_lane13/sample5/.DS_Store
+    Deleted:    data/Consensus_Data/Novogene_lane13/sample5/sscs_sorted_filtered.tsv.gz
+    Modified:   data/Consensus_Data/Novogene_lane13/sample6/.DS_Store
+    Deleted:    data/Consensus_Data/Novogene_lane13/sample6/sscs_sorted_filtered.tsv.gz
+    Modified:   data/Consensus_Data/Novogene_lane13/sample7/.DS_Store
+    Modified:   data/Consensus_Data/Novogene_lane13/sample7/duplex/.DS_Store
+    Deleted:    data/Consensus_Data/Novogene_lane13/sample7/duplex/duplex_sorted_filtered.tsv.gz
+    Modified:   data/Consensus_Data/Novogene_lane13/sample7/sscs/.DS_Store
+    Deleted:    data/Consensus_Data/Novogene_lane13/sample7/sscs/sscs_sorted_filtered.tsv.gz
+    Deleted:    data/Consensus_Data/Novogene_lane13/sample8/sscs_sorted_filtered.tsv.gz
+    Deleted:    data/Consensus_Data/Novogene_lane13/sample9/duplex/duplex_sorted_filtered.tsv.gz
+    Deleted:    data/Consensus_Data/Novogene_lane13/sample9/sscs/sscs_sorted_filtered.tsv.gz
+    Modified:   data/Consensus_Data/Novogene_lane14/.DS_Store
+    Deleted:    data/Consensus_Data/Novogene_lane14/sample10_combined/duplex/duplex_sorted_filtered.tsv.gz
+    Deleted:    data/Consensus_Data/Novogene_lane14/sample10_combined/sscs/sscs_sorted_filtered.tsv.gz
+    Deleted:    data/Consensus_Data/Novogene_lane14/sample10_combined/sscs/variant_caller_outputs/archive/variants_ann.csv.gz
+    Deleted:    data/Consensus_Data/Novogene_lane14/sample11/duplex/duplex_sorted_filtered.tsv.gz
+    Deleted:    data/Consensus_Data/Novogene_lane14/sample11/sscs/sscs_sorted_filtered.tsv.gz
+    Deleted:    data/Consensus_Data/Novogene_lane14/sample11/sscs/variant_caller_outputs/archive/variants_ann.csv.gz
+    Modified:   data/Consensus_Data/Novogene_lane14/sample12/.DS_Store
+    Modified:   data/Consensus_Data/Novogene_lane14/sample12/duplex/.DS_Store
+    Deleted:    data/Consensus_Data/Novogene_lane14/sample12/duplex/duplex_sorted_filtered.tsv.gz
+    Modified:   data/Consensus_Data/Novogene_lane14/sample12/sscs/.DS_Store
+    Deleted:    data/Consensus_Data/Novogene_lane14/sample12/sscs/sscs_sorted_filtered.tsv.gz
+    Deleted:    data/Consensus_Data/Novogene_lane14/sample12/sscs/variant_caller_outputs/archive/variants_ann.csv.gz
+    Deleted:    data/Consensus_Data/Novogene_lane14/sample14_combined/duplex/duplex_sorted_filtered.tsv.gz
+    Deleted:    data/Consensus_Data/Novogene_lane14/sample14_combined/sscs.filt_1.fa.gz
+    Deleted:    data/Consensus_Data/Novogene_lane14/sample14_combined/sscs/sscs_sorted_filtered.tsv.gz
+    Deleted:    data/Consensus_Data/Novogene_lane14/sample14_combined/sscs/variant_caller_outputs/archive/variants_ann.csv.gz
+    Deleted:    data/Consensus_Data/Novogene_lane14/sample15/duplex/duplex_sorted_filtered.tsv.gz
+    Deleted:    data/Consensus_Data/Novogene_lane14/sample15/sscs/sscs_sorted_filtered.tsv.gz
+    Deleted:    data/Consensus_Data/Novogene_lane14/sample15/sscs/variant_caller_outputs/archive/variants_ann.csv.gz
+    Deleted:    data/Consensus_Data/Novogene_lane14/sample16/duplex/duplex_sorted_filtered.tsv.gz
+    Deleted:    data/Consensus_Data/Novogene_lane14/sample16/sscs/sscs_sorted_filtered.tsv.gz
+    Deleted:    data/Consensus_Data/Novogene_lane14/sample16/sscs/variant_caller_outputs/archive/variants_ann.csv.gz
+    Deleted:    data/Consensus_Data/Novogene_lane14/sample17/duplex/duplex_sorted_filtered.tsv.gz
+    Deleted:    data/Consensus_Data/Novogene_lane14/sample17/sscs/sscs_sorted_filtered.tsv.gz
+    Deleted:    data/Consensus_Data/Novogene_lane14/sample17/sscs/variant_caller_outputs/archive/variants_ann.csv.gz
+    Deleted:    data/Consensus_Data/Novogene_lane14/sample18/duplex/duplex_sorted_filtered.tsv.gz
+    Deleted:    data/Consensus_Data/Novogene_lane14/sample18/sscs/sscs_sorted_filtered.tsv.gz
+    Deleted:    data/Consensus_Data/Novogene_lane14/sample18/sscs/variant_caller_outputs/archive/variants_ann.csv.gz
+    Modified:   data/Consensus_Data/Novogene_lane14/sample2_combined/.DS_Store
+    Deleted:    data/Consensus_Data/Novogene_lane14/sample2_combined/sscs_sorted_filtered.tsv.gz
+    Deleted:    data/Consensus_Data/Novogene_lane14/sample3/sscs_sorted_filtered.tsv.gz
+    Deleted:    data/Consensus_Data/Novogene_lane14/sample4/sscs_sorted_filtered.tsv.gz
+    Deleted:    data/Consensus_Data/Novogene_lane14/sample5/sscs_sorted_filtered.tsv.gz
+    Deleted:    data/Consensus_Data/Novogene_lane14/sample6/sscs_sorted_filtered.tsv.gz
+    Deleted:    data/Consensus_Data/Novogene_lane14/sample7/sscs_sorted_filtered.tsv.gz
+    Deleted:    data/Consensus_Data/Novogene_lane14/sample8/sscs_sorted_filtered.tsv.gz
+    Deleted:    data/Consensus_Data/Novogene_lane14/sample9/duplex/duplex_sorted_filtered.tsv.gz
+    Deleted:    data/Consensus_Data/Novogene_lane14/sample9/sscs/sscs_sorted_filtered.tsv.gz
+    Deleted:    data/Consensus_Data/Novogene_lane2/.DS_Store
+    Deleted:    data/Consensus_Data/Novogene_lane2/10k_dcs_filtered.tsv
+    Deleted:    data/Consensus_Data/Novogene_lane2/10k_dcs_filtered_calls.csv
+    Deleted:    data/Consensus_Data/Novogene_lane2/10k_old_dcs_filtered.tsv
+    Deleted:    data/Consensus_Data/Novogene_lane2/10k_old_dcs_filtered_calls.csv
+    Deleted:    data/Consensus_Data/Novogene_lane2/10k_old_sscs_filtered.tsv
+    Deleted:    data/Consensus_Data/Novogene_lane2/10k_old_sscs_filtered_calls.csv
+    Deleted:    data/Consensus_Data/Novogene_lane2/10k_sscs_filtered.tsv
+    Deleted:    data/Consensus_Data/Novogene_lane2/10k_sscs_filtered_calls.csv
+    Deleted:    data/Consensus_Data/Novogene_lane2/10kmutants_inhouse/A10k.1.consensus.variant-calls.novogenelane2.mut
+    Deleted:    data/Consensus_Data/Novogene_lane2/10kmutants_inhouse/Sp2_D2_300.1.consensus.variant-calls.novogenelane2.mut
+    Deleted:    data/Consensus_Data/Novogene_lane2/10kmutants_inhouse/Sp2_D2_600.1.consensus.variant-calls.novogenelane2.mut
+    Deleted:    data/Consensus_Data/Novogene_lane2/10kmutants_inhouse/Sp2_D4_300.1.consensus.variant-calls.novogenelane2.mut
+    Deleted:    data/Consensus_Data/Novogene_lane2/10kmutants_inhouse/sp2_d0.1.consensus.variant-calls.mut
+    Deleted:    data/Consensus_Data/Novogene_lane2/10kmutants_inhouse/sp2_d2_300.1.consensus.variant-calls.mut
+    Deleted:    data/Consensus_Data/Novogene_lane2/10kmutants_inhouse/sp2_d2_600.1.consensus.variant-calls.mut
+    Deleted:    data/Consensus_Data/Novogene_lane2/10kmutants_inhouse/sp2_d4_300.1.consensus.variant-calls.mut
+    Deleted:    data/Consensus_Data/Novogene_lane2/10kmutants_inhouse/sp2_d4_600.1.consensus.variant-calls.mut
+    Deleted:    data/Consensus_Data/Novogene_lane2/10kmutants_nowt.csv
+    Deleted:    data/Consensus_Data/Novogene_lane2/10kmutants_wt_1_1.csv
+    Deleted:    data/Consensus_Data/Novogene_lane2/Galaxy102-[BamLeftAlign_on_data_101_(alignments)].bai
+    Deleted:    data/Consensus_Data/Novogene_lane2/Galaxy102-[BamLeftAlign_on_data_101_(alignments)].bam
+    Deleted:    data/Consensus_Data/Novogene_lane2/Galaxy106-[BamLeftAlign_on_data_105_(alignments)].bai
+    Deleted:    data/Consensus_Data/Novogene_lane2/Galaxy106-[BamLeftAlign_on_data_105_(alignments)].bam
+    Deleted:    data/Consensus_Data/Novogene_lane2/Galaxy110-[BamLeftAlign_on_data_109_(alignments)].bai
+    Deleted:    data/Consensus_Data/Novogene_lane2/Galaxy110-[BamLeftAlign_on_data_109_(alignments)].bam
+    Deleted:    data/Consensus_Data/Novogene_lane2/Galaxy114-[BamLeftAlign_on_data_113_(alignments)].bai
+    Deleted:    data/Consensus_Data/Novogene_lane2/Galaxy114-[BamLeftAlign_on_data_113_(alignments)].bam
+    Deleted:    data/Consensus_Data/Novogene_lane2/Galaxy118-[BamLeftAlign_on_data_117_(alignments)].bai
+    Deleted:    data/Consensus_Data/Novogene_lane2/Galaxy118-[BamLeftAlign_on_data_117_(alignments)].bam
+    Deleted:    data/Consensus_Data/Novogene_lane2/Galaxy122-[BamLeftAlign_on_data_121_(alignments)].bai
+    Deleted:    data/Consensus_Data/Novogene_lane2/Galaxy122-[BamLeftAlign_on_data_121_(alignments)].bam
+    Deleted:    data/Consensus_Data/Novogene_lane2/Galaxy126-[BamLeftAlign_on_data_125_(alignments)].bai
+    Deleted:    data/Consensus_Data/Novogene_lane2/Galaxy126-[BamLeftAlign_on_data_125_(alignments)].bam
+    Deleted:    data/Consensus_Data/Novogene_lane2/Galaxy130-[BamLeftAlign_on_data_129_(alignments)].bai
+    Deleted:    data/Consensus_Data/Novogene_lane2/Galaxy130-[BamLeftAlign_on_data_129_(alignments)].bam
+    Deleted:    data/Consensus_Data/Novogene_lane2/Galaxy46-[BamLeftAlign_on_data_45_(alignments)].bai
+    Deleted:    data/Consensus_Data/Novogene_lane2/Galaxy46-[BamLeftAlign_on_data_45_(alignments)].bam
+    Deleted:    data/Consensus_Data/Novogene_lane2/Galaxy50-[BamLeftAlign_on_data_49_(alignments)].bai
+    Deleted:    data/Consensus_Data/Novogene_lane2/Galaxy50-[BamLeftAlign_on_data_49_(alignments)].bam
+    Deleted:    data/Consensus_Data/Novogene_lane2/Galaxy54-[BamLeftAlign_on_data_53_(alignments)].bai
+    Deleted:    data/Consensus_Data/Novogene_lane2/Galaxy54-[BamLeftAlign_on_data_53_(alignments)].bam
+    Deleted:    data/Consensus_Data/Novogene_lane2/Galaxy58-[BamLeftAlign_on_data_57_(alignments)].bai
+    Deleted:    data/Consensus_Data/Novogene_lane2/Galaxy58-[BamLeftAlign_on_data_57_(alignments)].bam
+    Deleted:    data/Consensus_Data/Novogene_lane2/Galaxy62-[BamLeftAlign_on_data_61_(alignments)].bai
+    Deleted:    data/Consensus_Data/Novogene_lane2/Galaxy62-[BamLeftAlign_on_data_61_(alignments)].bam
+    Deleted:    data/Consensus_Data/Novogene_lane2/Galaxy66-[BamLeftAlign_on_data_65_(alignments)].bai
+    Deleted:    data/Consensus_Data/Novogene_lane2/Galaxy66-[BamLeftAlign_on_data_65_(alignments)].bam
+    Deleted:    data/Consensus_Data/Novogene_lane2/Galaxy70-[BamLeftAlign_on_data_69_(alignments)].bai
+    Deleted:    data/Consensus_Data/Novogene_lane2/Galaxy70-[BamLeftAlign_on_data_69_(alignments)].bam
+    Deleted:    data/Consensus_Data/Novogene_lane2/Galaxy74-[BamLeftAlign_on_data_73_(alignments)].bai
+    Deleted:    data/Consensus_Data/Novogene_lane2/Galaxy74-[BamLeftAlign_on_data_73_(alignments)].bam
+    Deleted:    data/Consensus_Data/Novogene_lane2/Galaxy78-[BamLeftAlign_on_data_77_(alignments)].bai
+    Deleted:    data/Consensus_Data/Novogene_lane2/Galaxy78-[BamLeftAlign_on_data_77_(alignments)].bam
+    Deleted:    data/Consensus_Data/Novogene_lane2/Galaxy82-[BamLeftAlign_on_data_81_(alignments)].bai
+    Deleted:    data/Consensus_Data/Novogene_lane2/Galaxy82-[BamLeftAlign_on_data_81_(alignments)].bam
+    Deleted:    data/Consensus_Data/Novogene_lane2/Galaxy86-[BamLeftAlign_on_data_85_(alignments)].bai
+    Deleted:    data/Consensus_Data/Novogene_lane2/Galaxy86-[BamLeftAlign_on_data_85_(alignments)].bam
+    Deleted:    data/Consensus_Data/Novogene_lane2/Galaxy90-[BamLeftAlign_on_data_89_(alignments)].bai
+    Deleted:    data/Consensus_Data/Novogene_lane2/Galaxy90-[BamLeftAlign_on_data_89_(alignments)].bam
+    Deleted:    data/Consensus_Data/Novogene_lane2/Galaxy94-[BamLeftAlign_on_data_93_(alignments)].bai
+    Deleted:    data/Consensus_Data/Novogene_lane2/Galaxy94-[BamLeftAlign_on_data_93_(alignments)].bam
+    Deleted:    data/Consensus_Data/Novogene_lane2/Galaxy98-[BamLeftAlign_on_data_97_(alignments)].bai
+    Deleted:    data/Consensus_Data/Novogene_lane2/Galaxy98-[BamLeftAlign_on_data_97_(alignments)].bam
+    Deleted:    data/Consensus_Data/Novogene_lane2/a.txt
+    Deleted:    data/Consensus_Data/Novogene_lane2/abl_ref/Galaxy10-[Map_with_BWA-MEM_on_data_2,_data_1,_and_data_5_(mapped_reads_in_BAM_format)].bai
+    Deleted:    data/Consensus_Data/Novogene_lane2/abl_ref/Galaxy10-[Map_with_BWA-MEM_on_data_2,_data_1,_and_data_5_(mapped_reads_in_BAM_format)].bam
+    Deleted:    data/Consensus_Data/Novogene_lane2/abl_ref/Galaxy12-[Map_with_BWA-MEM_on_data_2,_data_1,_and_data_11_(mapped_reads_in_BAM_format)].bai
+    Deleted:    data/Consensus_Data/Novogene_lane2/abl_ref/Galaxy12-[Map_with_BWA-MEM_on_data_2,_data_1,_and_data_11_(mapped_reads_in_BAM_format)].bam
+    Deleted:    data/Consensus_Data/Novogene_lane2/abl_ref/Galaxy13-[Map_with_BWA-MEM_on_data_4,_data_3,_and_data_5_(mapped_reads_in_BAM_format)].bai
+    Deleted:    data/Consensus_Data/Novogene_lane2/abl_ref/Galaxy13-[Map_with_BWA-MEM_on_data_4,_data_3,_and_data_5_(mapped_reads_in_BAM_format)].bam
+    Deleted:    data/Consensus_Data/Novogene_lane2/abl_ref/Galaxy14-[Map_with_BWA-MEM_on_data_4,_data_3,_and_data_11_(mapped_reads_in_BAM_format)].bai
+    Deleted:    data/Consensus_Data/Novogene_lane2/abl_ref/Galaxy14-[Map_with_BWA-MEM_on_data_4,_data_3,_and_data_11_(mapped_reads_in_BAM_format)].bam
+    Deleted:    data/Consensus_Data/Novogene_lane2/abl_ref/abl1_kd_reference.fa
+    Deleted:    data/Consensus_Data/Novogene_lane2/abl_ref/abl1_reference_all.fa
+    Deleted:    data/Consensus_Data/Novogene_lane2/abl_ref/d0_dcs_filtered_cdna_aln.tsv
+    Deleted:    data/Consensus_Data/Novogene_lane2/abl_ref/d0_dcs_filtered_cdna_aln_kd.tsv
+    Deleted:    data/Consensus_Data/Novogene_lane2/abl_ref/d0_duplex.filt_1.fa
+    Deleted:    data/Consensus_Data/Novogene_lane2/abl_ref/d0_duplex.filt_2.fa
+    Deleted:    data/Consensus_Data/Novogene_lane2/abl_ref/d0_sscs_filtered_cdna_aln.tsv.gz
+    Deleted:    data/Consensus_Data/Novogene_lane2/abl_ref/d0_sscs_filtered_cdna_aln_kd.tsv
+    Deleted:    data/Consensus_Data/Novogene_lane2/abl_ref/kraken2-master.zip
+    Deleted:    data/Consensus_Data/Novogene_lane2/abl_ref/kraken2-master/.gitignore
+    Deleted:    data/Consensus_Data/Novogene_lane2/abl_ref/kraken2-master/.travis.yml
+    Deleted:    data/Consensus_Data/Novogene_lane2/abl_ref/kraken2-master/CHANGELOG.md
+    Deleted:    data/Consensus_Data/Novogene_lane2/abl_ref/kraken2-master/CMakeLists.txt
+    Deleted:    data/Consensus_Data/Novogene_lane2/abl_ref/kraken2-master/LICENSE
+    Deleted:    data/Consensus_Data/Novogene_lane2/abl_ref/kraken2-master/README.md
+    Deleted:    data/Consensus_Data/Novogene_lane2/abl_ref/kraken2-master/data/COVID_19.fa
+    Deleted:    data/Consensus_Data/Novogene_lane2/abl_ref/kraken2-master/data/FluA_H1N1.fa
+    Deleted:    data/Consensus_Data/Novogene_lane2/abl_ref/kraken2-master/data/FluA_H2N2.fa
+    Deleted:    data/Consensus_Data/Novogene_lane2/abl_ref/kraken2-master/data/FluA_H3N2.fa
+    Deleted:    data/Consensus_Data/Novogene_lane2/abl_ref/kraken2-master/data/FluB.fa
+    Deleted:    data/Consensus_Data/Novogene_lane2/abl_ref/kraken2-master/data/HIV_1.fa
+    Deleted:    data/Consensus_Data/Novogene_lane2/abl_ref/kraken2-master/data/HIV_2.fa
+    Deleted:    data/Consensus_Data/Novogene_lane2/abl_ref/kraken2-master/data/Lambda.fa
+    Deleted:    data/Consensus_Data/Novogene_lane2/abl_ref/kraken2-master/data/MERS.fa
+    Deleted:    data/Consensus_Data/Novogene_lane2/abl_ref/kraken2-master/data/README.md
+    Deleted:    data/Consensus_Data/Novogene_lane2/abl_ref/kraken2-master/data/SARS.fa
+    Deleted:    data/Consensus_Data/Novogene_lane2/abl_ref/kraken2-master/data/names.dmp
+    Deleted:    data/Consensus_Data/Novogene_lane2/abl_ref/kraken2-master/data/nodes.dmp
+    Deleted:    data/Consensus_Data/Novogene_lane2/abl_ref/kraken2-master/data/simulator.pl
+    Deleted:    data/Consensus_Data/Novogene_lane2/abl_ref/kraken2-master/docs/MANUAL.html
+    Deleted:    data/Consensus_Data/Novogene_lane2/abl_ref/kraken2-master/docs/MANUAL.markdown
+    Deleted:    data/Consensus_Data/Novogene_lane2/abl_ref/kraken2-master/docs/Makefile
+    Deleted:    data/Consensus_Data/Novogene_lane2/abl_ref/kraken2-master/docs/bar-bg.png
+    Deleted:    data/Consensus_Data/Novogene_lane2/abl_ref/kraken2-master/docs/head.html
+    Deleted:    data/Consensus_Data/Novogene_lane2/abl_ref/kraken2-master/docs/kraken.css
+    Deleted:    data/Consensus_Data/Novogene_lane2/abl_ref/kraken2-master/docs/top.html
+    Deleted:    data/Consensus_Data/Novogene_lane2/abl_ref/kraken2-master/install_kraken2.sh
+    Deleted:    data/Consensus_Data/Novogene_lane2/abl_ref/kraken2-master/scripts/16S_gg_installation.sh
+    Deleted:    data/Consensus_Data/Novogene_lane2/abl_ref/kraken2-master/scripts/16S_rdp_installation.sh
+    Deleted:    data/Consensus_Data/Novogene_lane2/abl_ref/kraken2-master/scripts/16S_silva_installation.sh
+    Deleted:    data/Consensus_Data/Novogene_lane2/abl_ref/kraken2-master/scripts/add_to_library.sh
+    Deleted:    data/Consensus_Data/Novogene_lane2/abl_ref/kraken2-master/scripts/build_gg_taxonomy.pl
+    Deleted:    data/Consensus_Data/Novogene_lane2/abl_ref/kraken2-master/scripts/build_kraken2_db.sh
+    Deleted:    data/Consensus_Data/Novogene_lane2/abl_ref/kraken2-master/scripts/build_rdp_taxonomy.pl
+    Deleted:    data/Consensus_Data/Novogene_lane2/abl_ref/kraken2-master/scripts/build_silva_taxonomy.pl
+    Deleted:    data/Consensus_Data/Novogene_lane2/abl_ref/kraken2-master/scripts/clean_db.sh
+    Deleted:    data/Consensus_Data/Novogene_lane2/abl_ref/kraken2-master/scripts/cp_into_tempfile.pl
+    Deleted:    data/Consensus_Data/Novogene_lane2/abl_ref/kraken2-master/scripts/download_genomic_library.sh
+    Deleted:    data/Consensus_Data/Novogene_lane2/abl_ref/kraken2-master/scripts/download_taxonomy.sh
+    Deleted:    data/Consensus_Data/Novogene_lane2/abl_ref/kraken2-master/scripts/kraken2
+    Deleted:    data/Consensus_Data/Novogene_lane2/abl_ref/kraken2-master/scripts/kraken2-build
+    Deleted:    data/Consensus_Data/Novogene_lane2/abl_ref/kraken2-master/scripts/kraken2-inspect
+    Deleted:    data/Consensus_Data/Novogene_lane2/abl_ref/kraken2-master/scripts/kraken2lib.pm
+    Deleted:    data/Consensus_Data/Novogene_lane2/abl_ref/kraken2-master/scripts/lookup_accession_numbers.pl
+    Deleted:    data/Consensus_Data/Novogene_lane2/abl_ref/kraken2-master/scripts/make_seqid2taxid_map.pl
+    Deleted:    data/Consensus_Data/Novogene_lane2/abl_ref/kraken2-master/scripts/mask_low_complexity.sh
+    Deleted:    data/Consensus_Data/Novogene_lane2/abl_ref/kraken2-master/scripts/rsync_from_ncbi.pl
+    Deleted:    data/Consensus_Data/Novogene_lane2/abl_ref/kraken2-master/scripts/scan_fasta_file.pl
+    Deleted:    data/Consensus_Data/Novogene_lane2/abl_ref/kraken2-master/scripts/standard_installation.sh
+    Deleted:    data/Consensus_Data/Novogene_lane2/abl_ref/kraken2-master/src/CMakeLists.txt
+    Deleted:    data/Consensus_Data/Novogene_lane2/abl_ref/kraken2-master/src/Makefile
+    Deleted:    data/Consensus_Data/Novogene_lane2/abl_ref/kraken2-master/src/aa_translate.cc
+    Deleted:    data/Consensus_Data/Novogene_lane2/abl_ref/kraken2-master/src/aa_translate.h
+    Deleted:    data/Consensus_Data/Novogene_lane2/abl_ref/kraken2-master/src/build_db.cc
+    Deleted:    data/Consensus_Data/Novogene_lane2/abl_ref/kraken2-master/src/classify.cc
+    Deleted:    data/Consensus_Data/Novogene_lane2/abl_ref/kraken2-master/src/compact_hash.cc
+    Deleted:    data/Consensus_Data/Novogene_lane2/abl_ref/kraken2-master/src/compact_hash.h
+    Deleted:    data/Consensus_Data/Novogene_lane2/abl_ref/kraken2-master/src/dump_table.cc
+    Deleted:    data/Consensus_Data/Novogene_lane2/abl_ref/kraken2-master/src/estimate_capacity.cc
+    Deleted:    data/Consensus_Data/Novogene_lane2/abl_ref/kraken2-master/src/hyperloglogplus-bias.h
+    Deleted:    data/Consensus_Data/Novogene_lane2/abl_ref/kraken2-master/src/hyperloglogplus.cc
+    Deleted:    data/Consensus_Data/Novogene_lane2/abl_ref/kraken2-master/src/hyperloglogplus.h
+    Deleted:    data/Consensus_Data/Novogene_lane2/abl_ref/kraken2-master/src/kraken2_data.h
+    Deleted:    data/Consensus_Data/Novogene_lane2/abl_ref/kraken2-master/src/kraken2_headers.h
+    Deleted:    data/Consensus_Data/Novogene_lane2/abl_ref/kraken2-master/src/kv_store.h
+    Deleted:    data/Consensus_Data/Novogene_lane2/abl_ref/kraken2-master/src/lookup_accession_numbers.cc
+    Deleted:    data/Consensus_Data/Novogene_lane2/abl_ref/kraken2-master/src/mmap_file.cc
+    Deleted:    data/Consensus_Data/Novogene_lane2/abl_ref/kraken2-master/src/mmap_file.h
+    Deleted:    data/Consensus_Data/Novogene_lane2/abl_ref/kraken2-master/src/mmscanner.cc
+    Deleted:    data/Consensus_Data/Novogene_lane2/abl_ref/kraken2-master/src/mmscanner.h
+    Deleted:    data/Consensus_Data/Novogene_lane2/abl_ref/kraken2-master/src/mmtest.cc
+    Deleted:    data/Consensus_Data/Novogene_lane2/abl_ref/kraken2-master/src/omp_hack.cc
+    Deleted:    data/Consensus_Data/Novogene_lane2/abl_ref/kraken2-master/src/omp_hack.h
+    Deleted:    data/Consensus_Data/Novogene_lane2/abl_ref/kraken2-master/src/readcounts.h
+    Deleted:    data/Consensus_Data/Novogene_lane2/abl_ref/kraken2-master/src/reports.cc
+    Deleted:    data/Consensus_Data/Novogene_lane2/abl_ref/kraken2-master/src/reports.h
+    Deleted:    data/Consensus_Data/Novogene_lane2/abl_ref/kraken2-master/src/seqreader.cc
+    Deleted:    data/Consensus_Data/Novogene_lane2/abl_ref/kraken2-master/src/seqreader.h
+    Deleted:    data/Consensus_Data/Novogene_lane2/abl_ref/kraken2-master/src/taxonomy.cc
+    Deleted:    data/Consensus_Data/Novogene_lane2/abl_ref/kraken2-master/src/taxonomy.h
+    Deleted:    data/Consensus_Data/Novogene_lane2/abl_ref/kraken2-master/src/utilities.cc
+    Deleted:    data/Consensus_Data/Novogene_lane2/abl_ref/kraken2-master/src/utilities.h
+    Deleted:    data/Consensus_Data/Novogene_lane2/abl_ref/lane3_il31/Galaxy74-[Map_with_BWA-MEM_on_data_2,_data_1,_and_data_73_(mapped_reads_in_BAM_format)].bai
+    Deleted:    data/Consensus_Data/Novogene_lane2/abl_ref/lane3_il31/Galaxy74-[Map_with_BWA-MEM_on_data_2,_data_1,_and_data_73_(mapped_reads_in_BAM_format)].bam
+    Deleted:    data/Consensus_Data/Novogene_lane2/abl_ref/lane3_il31/Galaxy75-[Map_with_BWA-MEM_on_data_4,_data_3,_and_data_73_(mapped_reads_in_BAM_format)].bai
+    Deleted:    data/Consensus_Data/Novogene_lane2/abl_ref/lane3_il31/Galaxy75-[Map_with_BWA-MEM_on_data_4,_data_3,_and_data_73_(mapped_reads_in_BAM_format)].bam
+    Deleted:    data/Consensus_Data/Novogene_lane2/abl_ref/lane3_il31/il31_dcs_filtered_cdna_aln.tsv
+    Deleted:    data/Consensus_Data/Novogene_lane2/abl_ref/lane3_il31/il31_sscs_filtered_cdna_aln.tsv.gz
+    Deleted:    data/Consensus_Data/Novogene_lane2/adapt2_dcs_filtered.tsv
+    Deleted:    data/Consensus_Data/Novogene_lane2/adapt2_sscs_filtered.tsv
+    Deleted:    data/Consensus_Data/Novogene_lane2/adapt_dcs_filtered.tsv
+    Deleted:    data/Consensus_Data/Novogene_lane2/adapt_sscs_filtered.tsv
+    Deleted:    data/Consensus_Data/Novogene_lane2/d0_dcs_filtered.tsv
+    Deleted:    data/Consensus_Data/Novogene_lane2/d0_dcs_filtered_bigger.tsv
+    Deleted:    data/Consensus_Data/Novogene_lane2/d0_dcs_filtered_calls.csv
+    Deleted:    data/Consensus_Data/Novogene_lane2/d0_old_dcs_filtered.tsv
+    Deleted:    data/Consensus_Data/Novogene_lane2/d0_old_dcs_filtered_calls.csv
+    Deleted:    data/Consensus_Data/Novogene_lane2/d0_old_sscs_filtered.tsv
+    Deleted:    data/Consensus_Data/Novogene_lane2/d0_old_sscs_filtered_calls.csv
+    Deleted:    data/Consensus_Data/Novogene_lane2/d0_sscs_filtered.tsv
+    Deleted:    data/Consensus_Data/Novogene_lane2/d0_sscs_filtered_calls.csv
+    Deleted:    data/Consensus_Data/Novogene_lane2/d2_300_dcs_filtered.tsv
+    Deleted:    data/Consensus_Data/Novogene_lane2/d2_300_dcs_filtered_calls.csv
+    Deleted:    data/Consensus_Data/Novogene_lane2/d2_300_old_dcs_filtered.tsv
+    Deleted:    data/Consensus_Data/Novogene_lane2/d2_300_old_dcs_filtered_calls.csv
+    Deleted:    data/Consensus_Data/Novogene_lane2/d2_300_old_sscs_filtered.tsv
+    Deleted:    data/Consensus_Data/Novogene_lane2/d2_300_old_sscs_filtered_calls.csv
+    Deleted:    data/Consensus_Data/Novogene_lane2/d2_300_sscs_filtered.tsv.gz
+    Deleted:    data/Consensus_Data/Novogene_lane2/d2_600_dcs_filtered.tsv
+    Deleted:    data/Consensus_Data/Novogene_lane2/d2_600_sscs_filtered.tsv
+    Deleted:    data/Consensus_Data/Novogene_lane2/d4_300_dcs_filtered.tsv
+    Deleted:    data/Consensus_Data/Novogene_lane2/d4_300_sscs_filtered.tsv
+    Deleted:    data/Consensus_Data/Novogene_lane2/d4_600_dcs_filtered.tsv
+    Deleted:    data/Consensus_Data/Novogene_lane2/d4_600_sscs_filtered.tsv
+    Deleted:    data/Consensus_Data/Novogene_lane3/Galaxy26-[BamLeftAlign_on_data_25_(alignments)].bai
+    Deleted:    data/Consensus_Data/Novogene_lane3/Galaxy30-[BamLeftAlign_on_data_29_(alignments)].bai
+    Deleted:    data/Consensus_Data/Novogene_lane3/Galaxy30-[BamLeftAlign_on_data_29_(alignments)].bam
+    Deleted:    data/Consensus_Data/Novogene_lane3/Galaxy34-[BamLeftAlign_on_data_33_(alignments)].bai
+    Deleted:    data/Consensus_Data/Novogene_lane3/Galaxy34-[BamLeftAlign_on_data_33_(alignments)].bam
+    Deleted:    data/Consensus_Data/Novogene_lane3/Galaxy38-[BamLeftAlign_on_data_37_(alignments)].bai
+    Deleted:    data/Consensus_Data/Novogene_lane3/Galaxy38-[BamLeftAlign_on_data_37_(alignments)].bam
+    Deleted:    data/Consensus_Data/Novogene_lane3/Galaxy42-[BamLeftAlign_on_data_41_(alignments)].bai
+    Deleted:    data/Consensus_Data/Novogene_lane3/Galaxy42-[BamLeftAlign_on_data_41_(alignments)].bam
+    Deleted:    data/Consensus_Data/Novogene_lane3/Galaxy46-[BamLeftAlign_on_data_45_(alignments)].bai
+    Deleted:    data/Consensus_Data/Novogene_lane3/Galaxy46-[BamLeftAlign_on_data_45_(alignments)].bam
+    Deleted:    data/Consensus_Data/Novogene_lane3/Galaxy50-[BamLeftAlign_on_data_49_(alignments)].bai
+    Deleted:    data/Consensus_Data/Novogene_lane3/Galaxy50-[BamLeftAlign_on_data_49_(alignments)].bam
+    Deleted:    data/Consensus_Data/Novogene_lane3/Galaxy54-[BamLeftAlign_on_data_53_(alignments)].bai
+    Deleted:    data/Consensus_Data/Novogene_lane3/Galaxy54-[BamLeftAlign_on_data_53_(alignments)].bam
+    Deleted:    data/Consensus_Data/Novogene_lane3/Galaxy58-[BamLeftAlign_on_data_57_(alignments)].bai
+    Deleted:    data/Consensus_Data/Novogene_lane3/Galaxy58-[BamLeftAlign_on_data_57_(alignments)].bam
+    Deleted:    data/Consensus_Data/Novogene_lane3/Galaxy62-[BamLeftAlign_on_data_61_(alignments)].bai
+    Deleted:    data/Consensus_Data/Novogene_lane3/Galaxy62-[BamLeftAlign_on_data_61_(alignments)].bam
+    Deleted:    data/Consensus_Data/Novogene_lane3/Galaxy66-[BamLeftAlign_on_data_65_(alignments)].bai
+    Deleted:    data/Consensus_Data/Novogene_lane3/Galaxy66-[BamLeftAlign_on_data_65_(alignments)].bam
+    Deleted:    data/Consensus_Data/Novogene_lane3/Galaxy70-[BamLeftAlign_on_data_69_(alignments)].bai
+    Deleted:    data/Consensus_Data/Novogene_lane3/Galaxy70-[BamLeftAlign_on_data_69_(alignments)].bam
+    Deleted:    data/Consensus_Data/Novogene_lane4/GalaxyData/Galaxy102-[BamLeftAlign_on_data_101_(alignments)].bai
+    Deleted:    data/Consensus_Data/Novogene_lane4/GalaxyData/Galaxy102-[BamLeftAlign_on_data_101_(alignments)].bam
+    Deleted:    data/Consensus_Data/Novogene_lane4/GalaxyData/Galaxy106-[BamLeftAlign_on_data_105_(alignments)].bai
+    Deleted:    data/Consensus_Data/Novogene_lane4/GalaxyData/Galaxy106-[BamLeftAlign_on_data_105_(alignments)].bam
+    Deleted:    data/Consensus_Data/Novogene_lane4/GalaxyData/Galaxy110-[BamLeftAlign_on_data_109_(alignments)].bai
+    Deleted:    data/Consensus_Data/Novogene_lane4/GalaxyData/Galaxy110-[BamLeftAlign_on_data_109_(alignments)].bam
+    Deleted:    data/Consensus_Data/Novogene_lane4/GalaxyData/Galaxy114-[BamLeftAlign_on_data_113_(alignments)].bai
+    Deleted:    data/Consensus_Data/Novogene_lane4/GalaxyData/Galaxy114-[BamLeftAlign_on_data_113_(alignments)].bam
+    Deleted:    data/Consensus_Data/Novogene_lane4/GalaxyData/Galaxy118-[BamLeftAlign_on_data_117_(alignments)].bai
+    Deleted:    data/Consensus_Data/Novogene_lane4/GalaxyData/Galaxy118-[BamLeftAlign_on_data_117_(alignments)].bam
+    Deleted:    data/Consensus_Data/Novogene_lane4/GalaxyData/Galaxy122-[BamLeftAlign_on_data_121_(alignments)].bai
+    Deleted:    data/Consensus_Data/Novogene_lane4/GalaxyData/Galaxy122-[BamLeftAlign_on_data_121_(alignments)].bam
+    Deleted:    data/Consensus_Data/Novogene_lane4/GalaxyData/Galaxy126-[BamLeftAlign_on_data_125_(alignments)].bai
+    Deleted:    data/Consensus_Data/Novogene_lane4/GalaxyData/Galaxy126-[BamLeftAlign_on_data_125_(alignments)].bam
+    Deleted:    data/Consensus_Data/Novogene_lane4/GalaxyData/Galaxy130-[BamLeftAlign_on_data_129_(alignments)].bai
+    Deleted:    data/Consensus_Data/Novogene_lane4/GalaxyData/Galaxy130-[BamLeftAlign_on_data_129_(alignments)].bam
+    Deleted:    data/Consensus_Data/Novogene_lane4/GalaxyData/Galaxy46-[BamLeftAlign_on_data_45_(alignments)].bai
+    Deleted:    data/Consensus_Data/Novogene_lane4/GalaxyData/Galaxy46-[BamLeftAlign_on_data_45_(alignments)].bam
+    Deleted:    data/Consensus_Data/Novogene_lane4/GalaxyData/Galaxy50-[BamLeftAlign_on_data_49_(alignments)].bai
+    Deleted:    data/Consensus_Data/Novogene_lane4/GalaxyData/Galaxy50-[BamLeftAlign_on_data_49_(alignments)].bam
+    Deleted:    data/Consensus_Data/Novogene_lane4/GalaxyData/Galaxy54-[BamLeftAlign_on_data_53_(alignments)].bai
+    Deleted:    data/Consensus_Data/Novogene_lane4/GalaxyData/Galaxy54-[BamLeftAlign_on_data_53_(alignments)].bam
+    Deleted:    data/Consensus_Data/Novogene_lane4/GalaxyData/Galaxy58-[BamLeftAlign_on_data_57_(alignments)].bai
+    Deleted:    data/Consensus_Data/Novogene_lane4/GalaxyData/Galaxy58-[BamLeftAlign_on_data_57_(alignments)].bam
+    Deleted:    data/Consensus_Data/Novogene_lane4/GalaxyData/Galaxy62-[BamLeftAlign_on_data_61_(alignments)].bai
+    Deleted:    data/Consensus_Data/Novogene_lane4/GalaxyData/Galaxy62-[BamLeftAlign_on_data_61_(alignments)].bam
+    Deleted:    data/Consensus_Data/Novogene_lane4/GalaxyData/Galaxy66-[BamLeftAlign_on_data_65_(alignments)].bai
+    Deleted:    data/Consensus_Data/Novogene_lane4/GalaxyData/Galaxy66-[BamLeftAlign_on_data_65_(alignments)].bam
+    Deleted:    data/Consensus_Data/Novogene_lane4/GalaxyData/Galaxy70-[BamLeftAlign_on_data_69_(alignments)].bai
+    Deleted:    data/Consensus_Data/Novogene_lane4/GalaxyData/Galaxy70-[BamLeftAlign_on_data_69_(alignments)].bam
+    Deleted:    data/Consensus_Data/Novogene_lane4/GalaxyData/Galaxy74-[BamLeftAlign_on_data_73_(alignments)].bai
+    Deleted:    data/Consensus_Data/Novogene_lane4/GalaxyData/Galaxy74-[BamLeftAlign_on_data_73_(alignments)].bam
+    Deleted:    data/Consensus_Data/Novogene_lane4/GalaxyData/Galaxy78-[BamLeftAlign_on_data_77_(alignments)] (1).bai
+    Deleted:    data/Consensus_Data/Novogene_lane4/GalaxyData/Galaxy78-[BamLeftAlign_on_data_77_(alignments)].bai
+    Deleted:    data/Consensus_Data/Novogene_lane4/GalaxyData/Galaxy78-[BamLeftAlign_on_data_77_(alignments)].bam
+    Deleted:    data/Consensus_Data/Novogene_lane4/GalaxyData/Galaxy82-[BamLeftAlign_on_data_81_(alignments)].bai
+    Deleted:    data/Consensus_Data/Novogene_lane4/GalaxyData/Galaxy82-[BamLeftAlign_on_data_81_(alignments)].bam
+    Deleted:    data/Consensus_Data/Novogene_lane4/GalaxyData/Galaxy86-[BamLeftAlign_on_data_85_(alignments)].bai
+    Deleted:    data/Consensus_Data/Novogene_lane4/GalaxyData/Galaxy86-[BamLeftAlign_on_data_85_(alignments)].bam
+    Deleted:    data/Consensus_Data/Novogene_lane4/GalaxyData/Galaxy90-[BamLeftAlign_on_data_89_(alignments)].bai
+    Deleted:    data/Consensus_Data/Novogene_lane4/GalaxyData/Galaxy90-[BamLeftAlign_on_data_89_(alignments)].bam
+    Deleted:    data/Consensus_Data/Novogene_lane4/GalaxyData/Galaxy94-[BamLeftAlign_on_data_93_(alignments)].bai
+    Deleted:    data/Consensus_Data/Novogene_lane4/GalaxyData/Galaxy94-[BamLeftAlign_on_data_93_(alignments)].bam
+    Deleted:    data/Consensus_Data/Novogene_lane4/GalaxyData/Galaxy98-[BamLeftAlign_on_data_97_(alignments)].bai
+    Deleted:    data/Consensus_Data/Novogene_lane4/GalaxyData/Galaxy98-[BamLeftAlign_on_data_97_(alignments)].bam
+    Deleted:    data/Consensus_Data/Novogene_lane5/GalaxyData/RP4/Galaxy14-[BamLeftAlign_on_data_13_(alignments)].bai
+    Deleted:    data/Consensus_Data/Novogene_lane5/GalaxyData/RP4/Galaxy14-[BamLeftAlign_on_data_13_(alignments)].bam
+    Deleted:    data/Consensus_Data/Novogene_lane5/GalaxyData/RP4/Galaxy18-[BamLeftAlign_on_data_17_(alignments)].bai
+    Deleted:    data/Consensus_Data/Novogene_lane5/GalaxyData/RP4/Galaxy18-[BamLeftAlign_on_data_17_(alignments)].bam
+    Deleted:    data/Consensus_Data/Novogene_lane5/GalaxyData/RP4/Galaxy22-[BamLeftAlign_on_data_21_(alignments)].bai
+    Deleted:    data/Consensus_Data/Novogene_lane5/GalaxyData/RP4/Galaxy22-[BamLeftAlign_on_data_21_(alignments)].bam
+    Deleted:    data/Consensus_Data/Novogene_lane5/GalaxyData/RP4/Galaxy26-[BamLeftAlign_on_data_25_(alignments)].bai
+    Deleted:    data/Consensus_Data/Novogene_lane5/GalaxyData/RP4/Galaxy26-[BamLeftAlign_on_data_25_(alignments)].bam
+    Deleted:    data/Consensus_Data/Novogene_lane5/GalaxyData/RP4/Galaxy30-[BamLeftAlign_on_data_29_(alignments)].bai
+    Deleted:    data/Consensus_Data/Novogene_lane5/GalaxyData/RP4/Galaxy30-[BamLeftAlign_on_data_29_(alignments)].bam
+    Deleted:    data/Consensus_Data/Novogene_lane5/GalaxyData/RP4/Galaxy34-[BamLeftAlign_on_data_33_(alignments)].bai
+    Deleted:    data/Consensus_Data/Novogene_lane5/GalaxyData/RP4/Galaxy34-[BamLeftAlign_on_data_33_(alignments)].bam
+    Deleted:    data/Consensus_Data/Novogene_lane5/GalaxyData/RP4/Galaxy57-[BamLeftAlign_on_data_56_(alignments)].bai
+    Deleted:    data/Consensus_Data/Novogene_lane5/GalaxyData/RP4/Galaxy57-[BamLeftAlign_on_data_56_(alignments)].bam
+    Deleted:    data/Consensus_Data/Novogene_lane5/GalaxyData/RP4/Galaxy61-[BamLeftAlign_on_data_60_(alignments)].bai
+    Deleted:    data/Consensus_Data/Novogene_lane5/GalaxyData/RP4/Galaxy61-[BamLeftAlign_on_data_60_(alignments)].bam
+    Deleted:    data/Consensus_Data/Novogene_lane5/GalaxyData/RP4/Galaxy65-[BamLeftAlign_on_data_64_(alignments)].bai
+    Deleted:    data/Consensus_Data/Novogene_lane5/GalaxyData/RP4/Galaxy65-[BamLeftAlign_on_data_64_(alignments)].bam
+    Deleted:    data/Consensus_Data/Novogene_lane5/GalaxyData/RP4/Galaxy69-[BamLeftAlign_on_data_68_(alignments)].bai
+    Deleted:    data/Consensus_Data/Novogene_lane5/GalaxyData/RP4/Galaxy69-[BamLeftAlign_on_data_68_(alignments)].bam
+    Deleted:    data/Consensus_Data/Novogene_lane5/GalaxyData/RP4/Galaxy73-[BamLeftAlign_on_data_72_(alignments)].bai
+    Deleted:    data/Consensus_Data/Novogene_lane5/GalaxyData/RP4/Galaxy73-[BamLeftAlign_on_data_72_(alignments)].bam
+    Deleted:    data/Consensus_Data/Novogene_lane5/GalaxyData/RP4/Galaxy77-[BamLeftAlign_on_data_76_(alignments)].bai
+    Deleted:    data/Consensus_Data/Novogene_lane5/GalaxyData/RP4/Galaxy77-[BamLeftAlign_on_data_76_(alignments)].bam
+    Deleted:    data/Consensus_Data/Novogene_lane5/GalaxyData/RP5/Galaxy26-[BamLeftAlign_on_data_25_(alignments)].bai
+    Deleted:    data/Consensus_Data/Novogene_lane5/GalaxyData/RP5/Galaxy26-[BamLeftAlign_on_data_25_(alignments)].bam
+    Deleted:    data/Consensus_Data/Novogene_lane5/GalaxyData/RP5/Galaxy30-[BamLeftAlign_on_data_29_(alignments)].bai
+    Deleted:    data/Consensus_Data/Novogene_lane5/GalaxyData/RP5/Galaxy30-[BamLeftAlign_on_data_29_(alignments)].bam
+    Deleted:    data/Consensus_Data/Novogene_lane5/GalaxyData/RP5/Galaxy34-[BamLeftAlign_on_data_33_(alignments)].bai
+    Deleted:    data/Consensus_Data/Novogene_lane5/GalaxyData/RP5/Galaxy34-[BamLeftAlign_on_data_33_(alignments)].bam
+    Deleted:    data/Consensus_Data/Novogene_lane5/GalaxyData/RP5/Galaxy38-[BamLeftAlign_on_data_37_(alignments)].bai
+    Deleted:    data/Consensus_Data/Novogene_lane5/GalaxyData/RP5/Galaxy38-[BamLeftAlign_on_data_37_(alignments)].bam
+    Deleted:    data/Consensus_Data/Novogene_lane5/GalaxyData/RP5/Galaxy42-[BamLeftAlign_on_data_41_(alignments)].bai
+    Deleted:    data/Consensus_Data/Novogene_lane5/GalaxyData/RP5/Galaxy42-[BamLeftAlign_on_data_41_(alignments)].bam
+    Deleted:    data/Consensus_Data/Novogene_lane5/GalaxyData/RP5/Galaxy46-[BamLeftAlign_on_data_45_(alignments)].bai
+    Deleted:    data/Consensus_Data/Novogene_lane5/GalaxyData/RP5/Galaxy46-[BamLeftAlign_on_data_45_(alignments)].bam
+    Deleted:    data/Consensus_Data/Novogene_lane5/GalaxyData/RP5/Galaxy50-[BamLeftAlign_on_data_49_(alignments)].bai
+    Deleted:    data/Consensus_Data/Novogene_lane5/GalaxyData/RP5/Galaxy50-[BamLeftAlign_on_data_49_(alignments)].bam
+    Deleted:    data/Consensus_Data/Novogene_lane5/GalaxyData/RP5/Galaxy54-[BamLeftAlign_on_data_53_(alignments)].bai
+    Deleted:    data/Consensus_Data/Novogene_lane5/GalaxyData/RP5/Galaxy54-[BamLeftAlign_on_data_53_(alignments)].bam
+    Deleted:    data/Consensus_Data/Novogene_lane5/GalaxyData/RP5/Galaxy58-[BamLeftAlign_on_data_57_(alignments)].bai
+    Deleted:    data/Consensus_Data/Novogene_lane5/GalaxyData/RP5/Galaxy58-[BamLeftAlign_on_data_57_(alignments)].bam
+    Deleted:    data/Consensus_Data/Novogene_lane5/GalaxyData/RP5/Galaxy62-[BamLeftAlign_on_data_61_(alignments)].bai
+    Deleted:    data/Consensus_Data/Novogene_lane5/GalaxyData/RP5/Galaxy62-[BamLeftAlign_on_data_61_(alignments)].bam
+    Deleted:    data/Consensus_Data/Novogene_lane5/GalaxyData/RP5/Galaxy66-[BamLeftAlign_on_data_65_(alignments)].bai
+    Deleted:    data/Consensus_Data/Novogene_lane5/GalaxyData/RP5/Galaxy66-[BamLeftAlign_on_data_65_(alignments)].bam
+    Deleted:    data/Consensus_Data/Novogene_lane5/GalaxyData/RP5/Galaxy70-[BamLeftAlign_on_data_69_(alignments)].bai
+    Deleted:    data/Consensus_Data/Novogene_lane5/GalaxyData/RP5/Galaxy70-[BamLeftAlign_on_data_69_(alignments)].bam
+    Deleted:    data/Consensus_Data/Ranomics_Pooled/ToDo/RP4_Low_D2_Duplex_routput.csv
+    Deleted:    data/Consensus_Data/Ranomics_Pooled/ToDo/RP4_Low_D2_Duplex_routput_processedSep-23-2021.csv
+    Deleted:    data/Consensus_Data/Ranomics_Pooled/ToDo/RP4_Low_D2_SSCS_routput.csv
+    Deleted:    data/Consensus_Data/Ranomics_Pooled/ToDo/RP4_Low_D2_SSCS_routput_processedSep-23-2021.csv
+    Deleted:    data/Consensus_Data/Ranomics_Pooled/ToDo/RP4_Low_D4_Duplex_routput.csv
+    Deleted:    data/Consensus_Data/Ranomics_Pooled/ToDo/RP4_Low_D4_Duplex_routput_processedSep-23-2021.csv
+    Deleted:    data/Consensus_Data/Ranomics_Pooled/ToDo/RP4_Low_D4_SSCS_routput.csv
+    Deleted:    data/Consensus_Data/Ranomics_Pooled/ToDo/RP4_Low_D4_SSCS_routput_processedSep-23-2021.csv
+    Deleted:    data/Consensus_Data/Ranomics_Pooled/ToDo/RP4_Medium_D2_Duplex_routput.csv
+    Deleted:    data/Consensus_Data/Ranomics_Pooled/ToDo/RP4_Medium_D2_Duplex_routput_processedSep-23-2021.csv
+    Deleted:    data/Consensus_Data/Ranomics_Pooled/ToDo/RP4_Medium_D2_SSCS_routput.csv
+    Deleted:    data/Consensus_Data/Ranomics_Pooled/ToDo/RP4_Medium_D2_SSCS_routput_processedSep-23-2021.csv
+    Deleted:    data/Consensus_Data/Ranomics_Pooled/ToDo/RP4_Medium_D4_Duplex_routput.csv
+    Deleted:    data/Consensus_Data/Ranomics_Pooled/ToDo/RP4_Medium_D4_Duplex_routput_processedSep-23-2021.csv
+    Deleted:    data/Consensus_Data/Ranomics_Pooled/ToDo/RP4_Medium_D4_SSCS_routput.csv
+    Deleted:    data/Consensus_Data/Ranomics_Pooled/ToDo/RP4_Medium_D4_SSCS_routput_processedSep-23-2021.csv
+    Deleted:    data/Consensus_Data/archive/AlignmentsPractice/EnsEMBL__REST_practice.html
+    Deleted:    data/Consensus_Data/archive/AlignmentsPractice/RP5_102121.bai
+    Deleted:    data/Consensus_Data/archive/AlignmentsPractice/RP5_102121.bam
+    Deleted:    data/Consensus_Data/archive/AlignmentsPractice/abl1_sequence.txt
+    Deleted:    data/Consensus_Data/archive/AlignmentsPractice/calls_il3indep1_dcs_filtered.tsv
+    Deleted:    data/Consensus_Data/archive/AlignmentsPractice/chr9130835254-130887675.dnas
+    Deleted:    data/Consensus_Data/archive/AlignmentsPractice/chr9_smallregion.bam.gz
+    Deleted:    data/Consensus_Data/archive/AlignmentsPractice/chr9_smallregion.bam.gz.bai
+    Deleted:    data/Consensus_Data/archive/AlignmentsPractice/chr9_smallregion.sam.gz
+    Deleted:    data/Consensus_Data/archive/AlignmentsPractice/chr9_smallregion.sam.gz.bai
+    Deleted:    data/Consensus_Data/archive/AlignmentsPractice/il3indep1_dcs_alignment.bai
+    Deleted:    data/Consensus_Data/archive/AlignmentsPractice/il3indep1_dcs_alignment.bam
+    Deleted:    data/Consensus_Data/archive/AlignmentsPractice/il3indep1_dcs_all_filtered.tsv
+    Deleted:    data/Consensus_Data/archive/AlignmentsPractice/il3indep1_dcs_filtered.tsv
+    Deleted:    data/Consensus_Data/archive/AlignmentsPractice/il3indep1_dcs_filtered_calls.csv
+    Deleted:    data/Consensus_Data/archive/AlignmentsPractice/il3indep1_dcs_filtered_calls.tsv
+    Deleted:    data/Consensus_Data/archive/AlignmentsPractice/il3indep1_sscs_alignment.bai
+    Deleted:    data/Consensus_Data/archive/AlignmentsPractice/il3indep1_sscs_alignment.bam
+    Deleted:    data/Consensus_Data/archive/AlignmentsPractice/il3indep1_sscs_all_filtered.tsv
+    Deleted:    data/Consensus_Data/archive/AlignmentsPractice/il3indep1_sscs_filtered.tsv
+    Deleted:    data/Consensus_Data/archive/AlignmentsPractice/il3indep1_sscs_filtered_calls.csv
+    Deleted:    data/Consensus_Data/archive/AlignmentsPractice/mnv_caller_practice.Rmd
+    Deleted:    data/Consensus_Data/archive/AlignmentsPractice/ranomics_december_library.csv
+    Deleted:    data/Consensus_Data/archive/abl1_cds_kinasedomain.txt
+    Deleted:    data/Consensus_Data/archive/abl1_genomic_coordinates.csv
+    Deleted:    data/Consensus_Data/archive/abl1_genomic_coordinates.xlsx
+    Deleted:    data/Consensus_Data/archive/abl1_kinasedomain_coordinates.csv
+    Deleted:    data/Consensus_Data/archive/abl1_kinasedomain_coordinates.xlsx
+    Deleted:    data/Consensus_Data/archive/abl_exon_positions.csv
+    Deleted:    data/Consensus_Data/archive/lane11_translation.Rmd
+    Deleted:    data/Consensus_Data/archive/mnv_caller_cds_aligner.Rmd
+    Deleted:    data/Consensus_Data/archive/nm_005157.6_cds.txt
+    Modified:   data/Consensus_Data/novogene_lane15/.DS_Store
+    Modified:   data/Consensus_Data/novogene_lane15/sample_1/.DS_Store
+    Deleted:    data/Consensus_Data/novogene_lane15/sample_1/duplex/duplex_sorted_filtered.tsv.gz
+    Deleted:    data/Consensus_Data/novogene_lane15/sample_1/firstrun(lowsequencing)/duplex/duplex_sorted_filtered.tsv.gz
+    Deleted:    data/Consensus_Data/novogene_lane15/sample_1/firstrun(lowsequencing)/sscs/sscs_sorted_filtered.tsv.gz
+    Deleted:    data/Consensus_Data/novogene_lane15/sample_1/sscs/sscs_sorted_filtered.tsv.gz
+    Modified:   data/Consensus_Data/novogene_lane15/sample_2/.DS_Store
+    Modified:   data/Consensus_Data/novogene_lane15/sample_2/duplex/.DS_Store
+    Deleted:    data/Consensus_Data/novogene_lane15/sample_2/duplex/duplex_sorted_filtered.tsv.gz
+    Deleted:    data/Consensus_Data/novogene_lane15/sample_2/firstrun(lowsequencing)/sscs/sscs_sorted_filtered.tsv.gz
+    Deleted:    data/Consensus_Data/novogene_lane15/sample_2/sscs/sscs_sorted_filtered.tsv.gz
+    Modified:   data/Consensus_Data/novogene_lane15/sample_3/.DS_Store
+    Modified:   data/Consensus_Data/novogene_lane15/sample_3/duplex/.DS_Store
+    Deleted:    data/Consensus_Data/novogene_lane15/sample_3/duplex/duplex_sorted_filtered.tsv.gz
+    Modified:   data/Consensus_Data/novogene_lane15/sample_3/duplex/variant_caller_outputs/.DS_Store
+    Deleted:    data/Consensus_Data/novogene_lane15/sample_3/firstrun(lowsequencing)/duplex/duplex_sorted_filtered.tsv.gz
+    Modified:   data/Consensus_Data/novogene_lane15/sample_3/firstrun(lowsequencing)/sscs/.DS_Store
+    Deleted:    data/Consensus_Data/novogene_lane15/sample_3/firstrun(lowsequencing)/sscs/sscs_sorted_filtered.tsv.gz
+    Deleted:    data/Consensus_Data/novogene_lane15/sample_3/ngs/sample3a(firsthalf)/Sample3_sorted_filtered.tsv.gz
+    Deleted:    data/Consensus_Data/novogene_lane15/sample_3/ngs/variants_ann.csv.gz
+    Modified:   data/Consensus_Data/novogene_lane15/sample_3/sscs/.DS_Store
+    Deleted:    data/Consensus_Data/novogene_lane15/sample_3/sscs/sscs_sorted_filtered.tsv.gz
+    Deleted:    data/Consensus_Data/novogene_lane15/sample_4/duplex/duplex_sorted_filtered.tsv.gz
+    Deleted:    data/Consensus_Data/novogene_lane15/sample_4/firstrun(lowsequencing)/duplex/duplex_sorted_filtered.tsv.gz
+    Deleted:    data/Consensus_Data/novogene_lane15/sample_4/firstrun(lowsequencing)/sscs/sscs_sorted_filtered.tsv.gz
+    Modified:   data/Consensus_Data/novogene_lane15/sample_5/.DS_Store
+    Modified:   data/Consensus_Data/novogene_lane15/sample_5/duplex/.DS_Store
+    Deleted:    data/Consensus_Data/novogene_lane15/sample_5/duplex/duplex_sorted_filtered.tsv.gz
+    Deleted:    data/Consensus_Data/novogene_lane15/sample_5/firstrun(lowsequencing)/duplex/duplex_sorted_filtered.tsv.gz
+    Deleted:    data/Consensus_Data/novogene_lane15/sample_5/firstrun(lowsequencing)/sscs/sscs_sorted_filtered.tsv.gz
+    Modified:   data/Consensus_Data/novogene_lane15/sample_5/sscs/.DS_Store
+    Deleted:    data/Consensus_Data/novogene_lane15/sample_5/sscs/sscs_sorted_filtered.tsv.gz
+    Modified:   data/Consensus_Data/novogene_lane15/sample_6/.DS_Store
+    Modified:   data/Consensus_Data/novogene_lane15/sample_6/duplex/.DS_Store
+    Deleted:    data/Consensus_Data/novogene_lane15/sample_6/duplex/duplex_sorted_filtered.tsv.gz
+    Deleted:    data/Consensus_Data/novogene_lane15/sample_6/firstrun(lowsequencing)/duplex/duplex_sorted_filtered.tsv.gz
+    Deleted:    data/Consensus_Data/novogene_lane15/sample_6/firstrun(lowsequencing)/sscs/sscs_sorted_filtered.tsv.gz
+    Modified:   data/Consensus_Data/novogene_lane15/sample_6/sscs/.DS_Store
+    Deleted:    data/Consensus_Data/novogene_lane15/sample_6/sscs/sscs_sorted_filtered.tsv.gz
+    Modified:   data/Consensus_Data/novogene_lane15/sample_6/sscs/variant_caller_outputs/.DS_Store
+    Deleted:    data/Consensus_Data/novogene_lane15/sample_7/duplex/duplex_sorted_filtered.tsv.gz
+    Deleted:    data/Consensus_Data/novogene_lane15/sample_7/firstrun(lowsequencing)/duplex/duplex_sorted_filtered.tsv.gz
+    Deleted:    data/Consensus_Data/novogene_lane15/sample_7/firstrun(lowsequencing)/sscs/sscs_sorted_filtered.tsv.gz
+    Deleted:    data/Consensus_Data/novogene_lane15/sample_7/sscs/sscs_sorted_filtered.tsv.gz
+    Modified:   data/Consensus_Data/novogene_lane16a/.DS_Store
+    Deleted:    data/Consensus_Data/novogene_lane16a/Sample10/duplex/duplex_sorted_filtered.tsv.gz
+    Deleted:    data/Consensus_Data/novogene_lane16a/Sample11/duplex/duplex_sorted_filtered.tsv.gz
+    Deleted:    data/Consensus_Data/novogene_lane16a/Sample12/duplex/duplex_sorted_filtered.tsv.gz
+    Deleted:    data/Consensus_Data/novogene_lane16a/Sample13/duplex/duplex_sorted_filtered.tsv.gz
+    Deleted:    data/Consensus_Data/novogene_lane16a/Sample14/duplex/duplex_sorted_filtered.tsv.gz
+    Modified:   data/Consensus_Data/novogene_lane16a/Sample1_combined/.DS_Store
+    Modified:   data/Consensus_Data/novogene_lane16a/Sample1_combined/duplex/.DS_Store
+    Deleted:    data/Consensus_Data/novogene_lane16a/Sample1_combined/duplex/duplex_sorted_filtered.tsv.gz
+    Modified:   data/Consensus_Data/novogene_lane16a/Sample1_combined/sscs/.DS_Store
+    Modified:   data/Consensus_Data/novogene_lane16a/Sample2/.DS_Store
+    Modified:   data/Consensus_Data/novogene_lane16a/Sample2/duplex/.DS_Store
+    Deleted:    data/Consensus_Data/novogene_lane16a/Sample2/duplex/duplex_sorted_filtered.tsv.gz
+    Modified:   data/Consensus_Data/novogene_lane16a/Sample2/sscs/.DS_Store
+    Deleted:    data/Consensus_Data/novogene_lane16a/Sample3/duplex/duplex_sorted_filtered.tsv.gz
+    Deleted:    data/Consensus_Data/novogene_lane16a/Sample4/duplex/duplex_sorted_filtered.tsv.gz
+    Deleted:    data/Consensus_Data/novogene_lane16a/Sample5/duplex/duplex_sorted_filtered.tsv.gz
+    Modified:   data/Consensus_Data/novogene_lane16a/Sample6/.DS_Store
+    Modified:   data/Consensus_Data/novogene_lane16a/Sample6/duplex/.DS_Store
+    Deleted:    data/Consensus_Data/novogene_lane16a/Sample6/duplex/duplex_sorted_filtered.tsv.gz
+    Deleted:    data/Consensus_Data/novogene_lane16a/Sample7/duplex/duplex_sorted_filtered.tsv.gz
+    Deleted:    data/Consensus_Data/novogene_lane16a/Sample8/duplex/duplex_sorted_filtered.tsv.gz
+    Deleted:    data/Consensus_Data/novogene_lane16a/Sample9/duplex/duplex_sorted_filtered.tsv.gz
+    Modified:   data/Consensus_Data/novogene_lane16b/.DS_Store
+    Modified:   data/Consensus_Data/novogene_lane16b/Sample10/.DS_Store
+    Deleted:    data/Consensus_Data/novogene_lane16b/Sample10/duplex/duplex_sorted_filtered.tsv.gz
+    Deleted:    data/Consensus_Data/novogene_lane16b/Sample10/sscs/sscs_sorted_filtered.tsv.gz
+    Modified:   data/Consensus_Data/novogene_lane16b/Sample11/.DS_Store
+    Modified:   data/Consensus_Data/novogene_lane16b/Sample15/.DS_Store
+    Deleted:    data/Consensus_Data/novogene_lane16b/Sample15/duplex/duplex_sorted_filtered.tsv.gz
+    Modified:   data/Consensus_Data/novogene_lane16b/Sample15/sscs/.DS_Store
+    Deleted:    data/Consensus_Data/novogene_lane16b/Sample15/sscs/sscs_sorted_filtered.tsv.gz
+    Deleted:    data/Consensus_Data/novogene_lane16b/Sample1_combined/duplex/duplex_sorted_filtered.tsv.gz
+    Deleted:    data/Consensus_Data/novogene_lane16b/Sample1_combined/sscs/sscs_sorted_filtered.tsv.gz
+    Deleted:    data/Consensus_Data/novogene_lane16b/Sample2/duplex/duplex_sorted_filtered.tsv.gz
+    Deleted:    data/Consensus_Data/novogene_lane16b/Sample2/sscs/sscs_sorted_filtered.tsv.gz
+    Deleted:    data/Consensus_Data/novogene_lane16b/Sample3/duplex/duplex_sorted_filtered.tsv.gz
+    Deleted:    data/Consensus_Data/novogene_lane16b/Sample3/sscs/sscs_sorted_filtered.tsv.gz
+    Deleted:    data/Consensus_Data/novogene_lane16b/Sample4/duplex/duplex_sorted_filtered.tsv.gz
+    Deleted:    data/Consensus_Data/novogene_lane16b/Sample4/sscs/sscs_sorted_filtered.tsv.gz
+    Deleted:    data/Consensus_Data/novogene_lane16b/Sample5/duplex/duplex_sorted_filtered.tsv.gz
+    Deleted:    data/Consensus_Data/novogene_lane16b/Sample5/sscs/sscs_sorted_filtered.tsv.gz
+    Modified:   data/Consensus_Data/novogene_lane16b/Sample6/.DS_Store
+    Deleted:    data/Consensus_Data/novogene_lane16b/Sample6/duplex/duplex_sorted_filtered.tsv.gz
+    Modified:   data/Consensus_Data/novogene_lane16b/Sample6/sscs/.DS_Store
+    Deleted:    data/Consensus_Data/novogene_lane16b/Sample6/sscs/sscs_sorted_filtered.tsv.gz
+    Deleted:    data/Consensus_Data/novogene_lane16b/Sample7_combined/duplex/duplex_sorted_filtered.tsv.gz
+    Deleted:    data/Consensus_Data/novogene_lane16b/Sample7_combined/sscs/sscs_sorted_filtered.tsv.gz
+    Modified:   data/Consensus_Data/novogene_lane16b/Sample8_combined/.DS_Store
+    Modified:   data/Consensus_Data/novogene_lane16b/Sample8_combined/duplex/.DS_Store
+    Deleted:    data/Consensus_Data/novogene_lane16b/Sample8_combined/duplex/duplex_sorted_filtered.tsv.gz
+    New:        data/Consensus_Data/novogene_lane16b/Sample8_combined/duplex/variant_caller_outputs/variants_ann.csv
+    New:        data/Consensus_Data/novogene_lane16b/Sample8_combined/duplex/variant_caller_outputs/variants_unique_ann.csv
+    Modified:   data/Consensus_Data/novogene_lane16b/Sample8_combined/sscs/.DS_Store
+    Deleted:    data/Consensus_Data/novogene_lane16b/Sample8_combined/sscs/sscs_sorted_filtered.tsv.gz
+    Modified:   data/Consensus_Data/novogene_lane16b/Sample8_combined/sscs/variant_caller_outputs/variants_unique_ann.csv
+    New:        data/Consensus_Data/novogene_lane16b/Sample8_combined/sscs/variant_caller_outputs/variants_unique_ann2.csv
+    Modified:   data/Consensus_Data/novogene_lane16b/Sample9/.DS_Store
+    Modified:   data/Consensus_Data/novogene_lane16b/Sample9/duplex/.DS_Store
+    Deleted:    data/Consensus_Data/novogene_lane16b/Sample9/duplex/duplex_sorted_filtered.tsv.gz
+    Modified:   data/Consensus_Data/novogene_lane16b/Sample9/sscs/.DS_Store
+    Deleted:    data/Consensus_Data/novogene_lane16b/Sample9/sscs/sscs_sorted_filtered.tsv.gz
+    Modified:   data/Consensus_Data/novogene_lane17/.DS_Store
+    New:        data/Consensus_Data/novogene_lane17/duplex_2.fa
+    Deleted:    data/Consensus_Data/novogene_lane17/sample10/duplex/duplex_sorted_filtered.tsv.gz
+    Deleted:    data/Consensus_Data/novogene_lane17/sample10/sscs/sscs_sorted_filtered.tsv.gz
+    Deleted:    data/Consensus_Data/novogene_lane17/sample11/duplex/duplex_sorted_filtered.tsv.gz
+    Deleted:    data/Consensus_Data/novogene_lane17/sample11/sscs/sscs_sorted_filtered.tsv.gz
+    Modified:   data/Consensus_Data/novogene_lane17/sample1_combined/.DS_Store
+    Modified:   data/Consensus_Data/novogene_lane17/sample1_combined/duplex/.DS_Store
+    Deleted:    data/Consensus_Data/novogene_lane17/sample1_combined/duplex/duplex_sorted_filtered.tsv.gz
+    Modified:   data/Consensus_Data/novogene_lane17/sample1_combined/duplex/variant_caller_outputs/variants_ann.csv
+    Modified:   data/Consensus_Data/novogene_lane17/sample1_combined/duplex/variant_caller_outputs/variants_unique_ann.csv
+    New:        data/Consensus_Data/novogene_lane17/sample1_combined/low_depth/.DS_Store
+    New:        data/Consensus_Data/novogene_lane17/sample1_combined/low_depth/duplex/.DS_Store
+    New:        data/Consensus_Data/novogene_lane17/sample1_combined/low_depth/duplex/variant_caller_outputs/variants_ann.csv
+    New:        data/Consensus_Data/novogene_lane17/sample1_combined/low_depth/duplex/variant_caller_outputs/variants_unique_ann.csv
+    New:        data/Consensus_Data/novogene_lane17/sample1_combined/low_depth/sscs/.DS_Store
+    New:        data/Consensus_Data/novogene_lane17/sample1_combined/low_depth/sscs/variant_caller_outputs/variants_ann.csv
+    New:        data/Consensus_Data/novogene_lane17/sample1_combined/low_depth/sscs/variant_caller_outputs/variants_unique_ann.csv
+    Modified:   data/Consensus_Data/novogene_lane17/sample1_combined/sscs/.DS_Store
+    Deleted:    data/Consensus_Data/novogene_lane17/sample1_combined/sscs/sscs_sorted_filtered.tsv.gz
+    Modified:   data/Consensus_Data/novogene_lane17/sample1_combined/sscs/variant_caller_outputs/variants_ann.csv
+    Modified:   data/Consensus_Data/novogene_lane17/sample1_combined/sscs/variant_caller_outputs/variants_unique_ann.csv
+    Modified:   data/Consensus_Data/novogene_lane17/sample2/.DS_Store
+    Deleted:    data/Consensus_Data/novogene_lane17/sample2/duplex/duplex_sorted_filtered.tsv.gz
+    Modified:   data/Consensus_Data/novogene_lane17/sample2/sscs/.DS_Store
+    Deleted:    data/Consensus_Data/novogene_lane17/sample2/sscs/sscs_sorted_filtered.tsv.gz
+    Modified:   data/Consensus_Data/novogene_lane17/sample3/.DS_Store
+    Deleted:    data/Consensus_Data/novogene_lane17/sample3/duplex/duplex_sorted_filtered.tsv.gz
+    Modified:   data/Consensus_Data/novogene_lane17/sample3/sscs/.DS_Store
+    Deleted:    data/Consensus_Data/novogene_lane17/sample3/sscs/sscs_sorted_filtered.tsv.gz
+    Deleted:    data/Consensus_Data/novogene_lane17/sample4/duplex/duplex_sorted_filtered.tsv.gz
+    Deleted:    data/Consensus_Data/novogene_lane17/sample4/sscs/sscs_sorted_filtered.tsv.gz
+    Modified:   data/Consensus_Data/novogene_lane17/sample5/.DS_Store
+    Modified:   data/Consensus_Data/novogene_lane17/sample5/duplex/.DS_Store
+    Deleted:    data/Consensus_Data/novogene_lane17/sample5/duplex/duplex_sorted_filtered.tsv.gz
+    Modified:   data/Consensus_Data/novogene_lane17/sample5/duplex/variant_caller_outputs/variants_ann.csv
+    Modified:   data/Consensus_Data/novogene_lane17/sample5/duplex/variant_caller_outputs/variants_unique_ann.csv
+    New:        data/Consensus_Data/novogene_lane17/sample5/low_seq_depth/.DS_Store
+    New:        data/Consensus_Data/novogene_lane17/sample5/low_seq_depth/duplex/.DS_Store
+    New:        data/Consensus_Data/novogene_lane17/sample5/low_seq_depth/duplex/variant_caller_outputs/variants_ann.csv
+    New:        data/Consensus_Data/novogene_lane17/sample5/low_seq_depth/duplex/variant_caller_outputs/variants_unique_ann.csv
+    Modified1:  data/Consensus_Data/archive/.DS_Store
+    Modified2:  data/Consensus_Data/novogene_lane17/sample5/low_seq_depth/sscs/.DS_Store
+    New:        data/Consensus_Data/novogene_lane17/sample5/low_seq_depth/sscs/variant_caller_outputs/variants_ann.csv
+    New:        data/Consensus_Data/novogene_lane17/sample5/low_seq_depth/sscs/variant_caller_outputs/variants_unique_ann.csv
+    Modified:   data/Consensus_Data/novogene_lane17/sample5/sscs/.DS_Store
+    Deleted:    data/Consensus_Data/novogene_lane17/sample5/sscs/sscs_sorted_filtered.tsv.gz
+    Modified:   data/Consensus_Data/novogene_lane17/sample5/sscs/variant_caller_outputs/variants_ann.csv
+    Modified:   data/Consensus_Data/novogene_lane17/sample5/sscs/variant_caller_outputs/variants_unique_ann.csv
+    Modified:   data/Consensus_Data/novogene_lane17/sample6/.DS_Store
+    Modified:   data/Consensus_Data/novogene_lane17/sample6/duplex/.DS_Store
+    New:        data/Consensus_Data/novogene_lane17/sample6/duplex/duplex_sorted_filtered.tsv
+    Deleted:    data/Consensus_Data/novogene_lane17/sample6/duplex/duplex_sorted_filtered.tsv.gz
+    Modified:   data/Consensus_Data/novogene_lane17/sample6/duplex/variant_caller_outputs/variants_ann.csv
+    Modified:   data/Consensus_Data/novogene_lane17/sample6/duplex/variant_caller_outputs/variants_unique_ann.csv
+    New:        data/Consensus_Data/novogene_lane17/sample6/low_seq_depths/.DS_Store
+    New:        data/Consensus_Data/novogene_lane17/sample6/low_seq_depths/duplex/.DS_Store
+    New:        data/Consensus_Data/novogene_lane17/sample6/low_seq_depths/duplex/variant_caller_outputs/variants_ann.csv
+    New:        data/Consensus_Data/novogene_lane17/sample6/low_seq_depths/duplex/variant_caller_outputs/variants_unique_ann.csv
+    New:        data/Consensus_Data/novogene_lane17/sample6/low_seq_depths/sscs/.DS_Store
+    New:        data/Consensus_Data/novogene_lane17/sample6/low_seq_depths/sscs/variant_caller_outputs/variants_ann.csv
+    New:        data/Consensus_Data/novogene_lane17/sample6/low_seq_depths/sscs/variant_caller_outputs/variants_unique_ann.csv
+    Modified:   data/Consensus_Data/novogene_lane17/sample6/sscs/.DS_Store
+    Deleted:    data/Consensus_Data/novogene_lane17/sample6/sscs/sscs_sorted_filtered.tsv.gz
+    Modified:   data/Consensus_Data/novogene_lane17/sample6/sscs/variant_caller_outputs/variants_ann.csv
+    Modified:   data/Consensus_Data/novogene_lane17/sample6/sscs/variant_caller_outputs/variants_unique_ann.csv
+    Modified:   data/Consensus_Data/novogene_lane17/sample7/.DS_Store
+    Modified:   data/Consensus_Data/novogene_lane17/sample7/duplex/.DS_Store
+    Deleted:    data/Consensus_Data/novogene_lane17/sample7/duplex/duplex_sorted_filtered.tsv.gz
+    Modified:   data/Consensus_Data/novogene_lane17/sample7/duplex/variant_caller_outputs/variants_ann.csv
+    Modified:   data/Consensus_Data/novogene_lane17/sample7/duplex/variant_caller_outputs/variants_unique_ann.csv
+    New:        data/Consensus_Data/novogene_lane17/sample7/low_seq_depths/.DS_Store
+    New:        data/Consensus_Data/novogene_lane17/sample7/low_seq_depths/duplex/.DS_Store
+    New:        data/Consensus_Data/novogene_lane17/sample7/low_seq_depths/duplex/variant_caller_outputs/variants_ann.csv
+    New:        data/Consensus_Data/novogene_lane17/sample7/low_seq_depths/duplex/variant_caller_outputs/variants_unique_ann.csv
+    New:        data/Consensus_Data/novogene_lane17/sample7/low_seq_depths/sscs/.DS_Store
+    New:        data/Consensus_Data/novogene_lane17/sample7/low_seq_depths/sscs/variant_caller_outputs/variants_ann.csv
+    New:        data/Consensus_Data/novogene_lane17/sample7/low_seq_depths/sscs/variant_caller_outputs/variants_unique_ann.csv
+    Modified:   data/Consensus_Data/novogene_lane17/sample7/sscs/.DS_Store
+    Deleted:    data/Consensus_Data/novogene_lane17/sample7/sscs/sscs_sorted_filtered.tsv.gz
+    Modified:   data/Consensus_Data/novogene_lane17/sample7/sscs/variant_caller_outputs/variants_ann.csv
+    Modified:   data/Consensus_Data/novogene_lane17/sample7/sscs/variant_caller_outputs/variants_unique_ann.csv
+    Deleted:    data/Consensus_Data/novogene_lane17/sample8/duplex/duplex_sorted_filtered.tsv.gz
+    Deleted:    data/Consensus_Data/novogene_lane17/sample8/sscs/sscs_sorted_filtered.tsv.gz
+    Modified:   data/Consensus_Data/novogene_lane17/sample9/.DS_Store
+    Deleted:    data/Consensus_Data/novogene_lane17/sample9/duplex/duplex_sorted_filtered.tsv.gz
+    Modified:   data/Consensus_Data/novogene_lane17/sample9/sscs/.DS_Store
+    Deleted:    data/Consensus_Data/novogene_lane17/sample9/sscs/sscs_sorted_filtered.tsv.gz
+    Modified1:  data/Consensus_Data/Novogene_lane2/abl_ref/.DS_Store
+    Modified2:  data/Consensus_Data/novogene_lane17b/.DS_Store
+    Modified1:  data/Consensus_Data/Novogene_lane2/abl_ref/kraken2-master/.DS_Store
+    Modified2:  data/Consensus_Data/novogene_lane17b/Sample1 copy 2/.DS_Store
+    New:        data/Consensus_Data/novogene_lane17b/Sample1 copy 2/duplex/.DS_Store
+    New:        data/Consensus_Data/novogene_lane17b/Sample1 copy 2/sscs/.DS_Store
+    New:        data/Consensus_Data/novogene_lane17b/Sample1 copy 3/.DS_Store
+    New:        data/Consensus_Data/novogene_lane17b/Sample1 copy 3/duplex/.DS_Store
+    New:        data/Consensus_Data/novogene_lane17b/Sample1 copy 3/sscs/.DS_Store
+    New:        data/Consensus_Data/novogene_lane17b/Sample1/.DS_Store
+    New:        data/Consensus_Data/novogene_lane17b/Sample1/duplex/.DS_Store
+    New:        data/Consensus_Data/novogene_lane17b/Sample1/duplex/variant_caller_outputs/variants_ann.csv
+    New:        data/Consensus_Data/novogene_lane17b/Sample1/duplex/variant_caller_outputs/variants_unique_ann.csv
+    New:        data/Consensus_Data/novogene_lane17b/Sample1/sscs/.DS_Store
+    New:        data/Consensus_Data/novogene_lane17b/Sample1/sscs/variant_caller_outputs/variants_ann.csv
+    New:        data/Consensus_Data/novogene_lane17b/Sample1/sscs/variant_caller_outputs/variants_unique_ann.csv
+    Modified1:  data/Consensus_Data/sscs_dcs_comparisons/.DS_Store
+    Modified2:  data/Consensus_Data/novogene_lane17b/Sample2/.DS_Store
+    New:        data/Consensus_Data/novogene_lane17b/Sample2/duplex/.DS_Store
+    New:        data/Consensus_Data/novogene_lane17b/Sample2/duplex/variant_caller_outputs/variants_ann.csv
+    New:        data/Consensus_Data/novogene_lane17b/Sample2/duplex/variant_caller_outputs/variants_unique_ann.csv
+    New:        data/Consensus_Data/novogene_lane17b/Sample2/sscs/.DS_Store
+    New:        data/Consensus_Data/novogene_lane17b/Sample2/sscs/variant_caller_outputs/variants_ann.csv
+    New:        data/Consensus_Data/novogene_lane17b/Sample2/sscs/variant_caller_outputs/variants_unique_ann.csv
+    Modified:   data/Consensus_Data/prj00053/.DS_Store
+    Deleted:    data/Consensus_Data/sscs_dcs_comparisons/2lines.fa
+    Deleted:    data/Consensus_Data/sscs_dcs_comparisons/Sp2_D2_300.1.consensus.variant-calls.mut
+    Deleted:    data/Consensus_Data/sscs_dcs_comparisons/all_twinstrandlibpreps.mut
+    Deleted:    data/Consensus_Data/sscs_dcs_comparisons/analyzed/sp2d2300_dcs_calls.csv
+    Deleted:    data/Consensus_Data/sscs_dcs_comparisons/analyzed/sp2d2300_snps_annotated_dscs 2.csv
+    Deleted:    data/Consensus_Data/sscs_dcs_comparisons/analyzed/sp2d2300_snps_annotated_dscs.csv
+    Deleted:    data/Consensus_Data/sscs_dcs_comparisons/analyzed/sp2d2300_sscs_calls.csv
+    Deleted:    data/Consensus_Data/sscs_dcs_comparisons/coveragecomparison.pdf
+    Deleted:    data/Consensus_Data/sscs_dcs_comparisons/d2300_dcs_filtered.tsv
+    Deleted:    data/Consensus_Data/sscs_dcs_comparisons/d2300_sscs_filtered.tsv.gz
+    Deleted:    data/Consensus_Data/sscs_dcs_comparisons/dcs_errorrates.pdf
+    Deleted:    data/Consensus_Data/sscs_dcs_comparisons/sp2_d2_300_dcs_aligned.bam
+    Deleted:    data/Consensus_Data/sscs_dcs_comparisons/sp2_d2_300_dcs_barplot.pdf
+    Deleted:    data/Consensus_Data/sscs_dcs_comparisons/sp2_d2_300_sscs_aligned.bam
+    Deleted:    data/Consensus_Data/sscs_dcs_comparisons/sp2_d2_300_sscs_barplot.pdf
+    Deleted:    data/Consensus_Data/sscs_dcs_comparisons/sp2_d2_300_sscs_barplot_doublezoomed.pdf
+    Deleted:    data/Consensus_Data/sscs_dcs_comparisons/sp2_d2_300_sscs_barplot_zoomed.pdf
+    Deleted:    data/Consensus_Data/sscs_dcs_comparisons/sp2d2300_dcs_analysis.Rmd
+    Modified:   data/IC50s_refseqBCRABL/Asciminib_heatmap.csv
+    Modified:   data/IC50s_refseqBCRABL/Imatinib_heatmap.csv
+    Modified:   data/Refs/.DS_Store
+    Modified:   data/Refs/EGFR/.DS_Store
+    New:        data/TP53data/41588_2018_204_MOESM5_ESM.csv
+    New:        data/TP53data/41588_2018_204_MOESM5_ESM.xlsx
+    New:        data/TP53data/readme.txt
+    New:        data/TP53data/tp53_treated.pdf
+    New:        data/TP53data/tp53_untreated.pdf
+    Modified:   ltk_analyses.Rmd
+    Modified:   output/.DS_Store
+    Modified:   shinyapp/.DS_Store
+
+</code></pre>
+<p>
+Note that any generated files, e.g. HTML, png, CSS, etc., are not
+included in this status report because it is ok for generated content to
+have uncommitted changes.
+</p>
+</div>
+</div>
+</div>
+</div>
+<hr>
+</div>
+<div id="versions" class="tab-pane fade">
+<p>
+There are no past versions. Publish this analysis with
+<code>wflow_publish()</code> to start tracking its development.
+</p>
+<hr>
+</div>
+</div>
+</div>
+<p>Objective is to compare the unevenness of ABL library region 1. Lane
+11 has sorted ABL region 1 after a fresh sort Lane 17b has sorted ABL
+region 1 after a frozen sorted vial was thawed and pelletted after a few
+days</p>
+<pre class="r"><code>source(&quot;code/merge_samples.R&quot;)
+source(&quot;code/depth_finder.R&quot;)
+intended_codons=read.csv(&quot;data/codon_table.csv&quot;)
+intended_codons=intended_codons%&gt;%filter(Twist%in%T)
+
+##############Enzymatic Fragmentation########
+##############Baseline########
+lane12sortedsamples=merge_samples(&quot;Novogene_lane11/Sample1/duplex&quot;,&quot;Novogene_lane11/Sample2/duplex&quot;)
+# lane12sortedsamples=merge_samples(&quot;Novogene_lane11/Sample1/sscs&quot;,&quot;Novogene_lane11/Sample2/sscs&quot;)
+# lane12sortedsamples=merge_samples(lane12sortedsamples,&quot;Novogene_lane11/Sample3/sscs&quot;)
+# lane12sortedsamples=merge_samples(lane12sortedsamples,&quot;Novogene_lane11/Sample4/sscs&quot;)
+
+lane12sortedsamples=lane12sortedsamples%&gt;%
+  rowwise()%&gt;%
+  mutate(ref_aa=strsplit(amino_acids,&quot;/&quot;)[[1]][1],
+         alt_aa=strsplit(amino_acids,&quot;/&quot;)[[1]][2])
+lane12sortedsamples=lane12sortedsamples%&gt;%mutate(maf=ct/depth)
+lane12sortedsamples=lane12sortedsamples%&gt;%filter(alt_codon%in%intended_codons$Codon)
+# samplex_simple=samplex%&gt;%dplyr::select(alt_start_pos,protein_start,ref,alt,ref_aa,alt_aa,consequence_terms,ct,depth,maf)
+
+ggplot(lane12sortedsamples%&gt;%
+                filter(nchar(alt_aa)%in%1,
+                       consequence_terms%in%&quot;missense_variant&quot;,
+                       protein_start&gt;=242,
+                       protein_start&lt;=290),
+              aes(x=protein_start,y=alt_aa,fill=maf))+
+  geom_tile()+
+  theme_bw()</code></pre>
+<p><img src="figure/crispr-ds_analysis.Rmd/unnamed-chunk-1-1.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>plotly=ggplot(lane12sortedsamples,aes(x=ct))+geom_bar(alpha=0.7)+scale_x_continuous(limits=c(0,500))
+ggplotly(plotly)</code></pre>
+<pre><code>Warning: Removed 1 rows containing non-finite values (stat_count).</code></pre>
+<div id="htmlwidget-ca9da69111fdc3e9e442" style="width:672px;height:480px;" class="plotly html-widget"></div>
+<script type="application/json" data-for="htmlwidget-ca9da69111fdc3e9e442">{"x":{"data":[{"orientation":"v","width":[0.9,0.9,0.9,0.9,0.9,0.9,0.9,0.899999999999999,0.899999999999999,0.899999999999999,0.899999999999999,0.899999999999999,0.899999999999999,0.899999999999999,0.899999999999999,0.899999999999999,0.899999999999999,0.899999999999999,0.899999999999999,0.899999999999999,0.899999999999999,0.899999999999999,0.899999999999999,0.899999999999999,0.899999999999999,0.899999999999999,0.899999999999999,0.899999999999999,0.899999999999999,0.899999999999999,0.899999999999999,0.900000000000002,0.900000000000006,0.900000000000006,0.900000000000006,0.900000000000006,0.900000000000006,0.900000000000006,0.900000000000006,0.900000000000006,0.900000000000006,0.900000000000006,0.900000000000006,0.900000000000006,0.900000000000006,0.900000000000006,0.900000000000006,0.900000000000006,0.900000000000006,0.900000000000006,0.900000000000006,0.900000000000006,0.900000000000006,0.900000000000006,0.900000000000006,0.900000000000006,0.900000000000006,0.900000000000006,0.900000000000006,0.900000000000006,0.900000000000006,0.900000000000006],"base":[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],"x":[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,50,51,54,56,57,59,60,61,62,64,65,73,94,104],"y":[136,104,95,94,89,78,83,80,58,56,61,50,46,38,48,41,28,30,26,22,27,24,25,19,15,17,12,7,10,10,14,13,8,8,7,8,4,1,3,1,4,4,4,2,4,7,3,2,2,3,1,4,2,2,1,3,3,1,1,1,1,1],"text":["count: 136<br />ct:   1","count: 104<br />ct:   2","count:  95<br />ct:   3","count:  94<br />ct:   4","count:  89<br />ct:   5","count:  78<br />ct:   6","count:  83<br />ct:   7","count:  80<br />ct:   8","count:  58<br />ct:   9","count:  56<br />ct:  10","count:  61<br />ct:  11","count:  50<br />ct:  12","count:  46<br />ct:  13","count:  38<br />ct:  14","count:  48<br />ct:  15","count:  41<br />ct:  16","count:  28<br />ct:  17","count:  30<br />ct:  18","count:  26<br />ct:  19","count:  22<br />ct:  20","count:  27<br />ct:  21","count:  24<br />ct:  22","count:  25<br />ct:  23","count:  19<br />ct:  24","count:  15<br />ct:  25","count:  17<br />ct:  26","count:  12<br />ct:  27","count:   7<br />ct:  28","count:  10<br />ct:  29","count:  10<br />ct:  30","count:  14<br />ct:  31","count:  13<br />ct:  32","count:   8<br />ct:  33","count:   8<br />ct:  34","count:   7<br />ct:  35","count:   8<br />ct:  36","count:   4<br />ct:  37","count:   1<br />ct:  38","count:   3<br />ct:  39","count:   1<br />ct:  40","count:   4<br />ct:  41","count:   4<br />ct:  42","count:   4<br />ct:  43","count:   2<br />ct:  44","count:   4<br />ct:  45","count:   7<br />ct:  46","count:   3<br />ct:  47","count:   2<br />ct:  48","count:   2<br />ct:  50","count:   3<br />ct:  51","count:   1<br />ct:  54","count:   4<br />ct:  56","count:   2<br />ct:  57","count:   2<br />ct:  59","count:   1<br />ct:  60","count:   3<br />ct:  61","count:   3<br />ct:  62","count:   1<br />ct:  64","count:   1<br />ct:  65","count:   1<br />ct:  73","count:   1<br />ct:  94","count:   1<br />ct: 104"],"type":"bar","marker":{"autocolorscale":false,"color":"rgba(89,89,89,0.7)","line":{"width":1.88976377952756,"color":"transparent"}},"showlegend":false,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null}],"layout":{"margin":{"t":26.2283105022831,"r":7.30593607305936,"b":40.1826484018265,"l":43.1050228310502},"plot_bgcolor":"rgba(235,235,235,1)","paper_bgcolor":"rgba(255,255,255,1)","font":{"color":"rgba(0,0,0,1)","family":"","size":14.6118721461187},"xaxis":{"domain":[0,1],"automargin":true,"type":"linear","autorange":false,"range":[-25,525],"tickmode":"array","ticktext":["0","100","200","300","400","500"],"tickvals":[0,100,200,300,400,500],"categoryorder":"array","categoryarray":["0","100","200","300","400","500"],"nticks":null,"ticks":"outside","tickcolor":"rgba(51,51,51,1)","ticklen":3.65296803652968,"tickwidth":0.66417600664176,"showticklabels":true,"tickfont":{"color":"rgba(77,77,77,1)","family":"","size":11.689497716895},"tickangle":-0,"showline":false,"linecolor":null,"linewidth":0,"showgrid":true,"gridcolor":"rgba(255,255,255,1)","gridwidth":0.66417600664176,"zeroline":false,"anchor":"y","title":{"text":"ct","font":{"color":"rgba(0,0,0,1)","family":"","size":14.6118721461187}},"hoverformat":".2f"},"yaxis":{"domain":[0,1],"automargin":true,"type":"linear","autorange":false,"range":[-6.8,142.8],"tickmode":"array","ticktext":["0","50","100"],"tickvals":[8.88178419700125e-16,50,100],"categoryorder":"array","categoryarray":["0","50","100"],"nticks":null,"ticks":"outside","tickcolor":"rgba(51,51,51,1)","ticklen":3.65296803652968,"tickwidth":0.66417600664176,"showticklabels":true,"tickfont":{"color":"rgba(77,77,77,1)","family":"","size":11.689497716895},"tickangle":-0,"showline":false,"linecolor":null,"linewidth":0,"showgrid":true,"gridcolor":"rgba(255,255,255,1)","gridwidth":0.66417600664176,"zeroline":false,"anchor":"x","title":{"text":"count","font":{"color":"rgba(0,0,0,1)","family":"","size":14.6118721461187}},"hoverformat":".2f"},"shapes":[{"type":"rect","fillcolor":null,"line":{"color":null,"width":0,"linetype":[]},"yref":"paper","xref":"paper","x0":0,"x1":1,"y0":0,"y1":1}],"showlegend":false,"legend":{"bgcolor":"rgba(255,255,255,1)","bordercolor":"transparent","borderwidth":1.88976377952756,"font":{"color":"rgba(0,0,0,1)","family":"","size":11.689497716895}},"hovermode":"closest","barmode":"relative"},"config":{"doubleClick":"reset","showSendToCloud":false},"source":"A","attrs":{"14abc2c79b74d":{"x":{},"type":"bar"}},"cur_data":"14abc2c79b74d","visdat":{"14abc2c79b74d":["function (y) ","x"]},"highlight":{"on":"plotly_click","persistent":false,"dynamic":false,"selectize":false,"opacityDim":0.2,"selected":{"opacity":1},"debounce":0},"shinyEvents":["plotly_hover","plotly_click","plotly_selected","plotly_relayout","plotly_brushed","plotly_brushing","plotly_clickannotation","plotly_doubleclick","plotly_deselect","plotly_afterplot","plotly_sunburstclick"],"base_url":"https://plot.ly"},"evals":[],"jsHooks":[]}</script>
+<pre class="r"><code>##############CRISPR DS#########
+lane17b=merge_samples(&quot;novogene_lane17b/Sample1/duplex&quot;,
+                      &quot;novogene_lane17b/Sample2/duplex&quot;)
+# lane17b=read.csv(&quot;data/Consensus_Data/novogene_lane17b/Sample1/sscs/variant_caller_outputs/variants_unique_ann.csv&quot;,header = T,stringsAsFactors = F)
+lane17b=lane17b%&gt;%filter(alt_codon%in%intended_codons$Codon)
+
+ggplot(lane17b%&gt;%filter(protein_start&gt;=242,protein_start&lt;290),aes(x=protein_start,y=alt_aa,fill=ct))+geom_tile()</code></pre>
+<p><img src="figure/crispr-ds_analysis.Rmd/unnamed-chunk-1-3.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>plotly=ggplot(lane17b,aes(x=ct))+geom_bar(alpha=0.7)+scale_x_continuous(limits=c(0,500))
+ggplotly(plotly)</code></pre>
+<pre><code>Warning: Removed 83 rows containing non-finite values (stat_count).</code></pre>
+<div id="htmlwidget-e3d628f7474a9bbd5058" style="width:672px;height:480px;" class="plotly html-widget"></div>
+<script type="application/json" data-for="htmlwidget-e3d628f7474a9bbd5058">{"x":{"data":[{"orientation":"v","width":[0.9,0.9,0.9,0.9,0.9,0.9,0.9,0.899999999999999,0.899999999999999,0.899999999999999,0.899999999999999,0.899999999999999,0.899999999999999,0.899999999999999,0.899999999999999,0.899999999999999,0.899999999999999,0.899999999999999,0.899999999999999,0.899999999999999,0.899999999999999,0.899999999999999,0.899999999999999,0.899999999999999,0.899999999999999,0.899999999999999,0.899999999999999,0.899999999999999,0.899999999999999,0.899999999999999,0.899999999999999,0.900000000000002,0.900000000000006,0.900000000000006,0.900000000000006,0.900000000000006,0.900000000000006,0.900000000000006,0.900000000000006,0.900000000000006,0.900000000000006,0.900000000000006,0.900000000000006,0.900000000000006,0.900000000000006,0.900000000000006,0.900000000000006,0.900000000000006,0.900000000000006,0.900000000000006,0.900000000000006,0.900000000000006,0.900000000000006,0.900000000000006,0.900000000000006,0.900000000000006,0.900000000000006,0.900000000000006,0.900000000000006,0.900000000000006,0.900000000000006,0.900000000000006,0.900000000000006,0.900000000000006,0.900000000000006,0.900000000000006,0.900000000000006,0.900000000000006,0.900000000000006,0.900000000000006,0.900000000000006,0.900000000000006,0.900000000000006,0.900000000000006,0.900000000000006,0.900000000000006,0.900000000000006,0.900000000000006,0.900000000000006,0.900000000000006,0.900000000000006,0.900000000000006,0.900000000000006,0.900000000000006,0.900000000000006,0.900000000000006,0.900000000000006,0.900000000000006,0.900000000000006,0.900000000000006,0.900000000000006,0.900000000000006,0.900000000000006,0.900000000000006,0.900000000000006,0.900000000000006,0.900000000000006,0.900000000000006,0.900000000000006,0.900000000000006,0.900000000000006,0.900000000000006,0.900000000000006,0.900000000000006,0.900000000000006,0.900000000000006,0.900000000000006,0.900000000000006,0.900000000000006,0.900000000000006,0.900000000000006,0.900000000000006,0.900000000000006,0.900000000000006,0.900000000000006,0.900000000000006,0.899999999999991,0.899999999999977,0.899999999999977,0.899999999999977,0.899999999999977,0.899999999999977,0.899999999999977,0.899999999999977,0.899999999999977,0.899999999999977,0.899999999999977,0.899999999999977,0.899999999999977,0.899999999999977,0.899999999999977,0.899999999999977,0.899999999999977,0.899999999999977,0.899999999999977,0.899999999999977,0.899999999999977,0.899999999999977,0.899999999999977,0.899999999999977,0.899999999999977,0.899999999999977,0.899999999999977,0.899999999999977,0.899999999999977,0.899999999999977,0.899999999999977,0.899999999999977,0.899999999999977,0.899999999999977,0.899999999999977,0.899999999999977,0.899999999999977,0.899999999999977,0.899999999999977,0.899999999999977,0.899999999999977,0.899999999999977,0.899999999999977,0.899999999999977,0.899999999999977,0.899999999999977,0.899999999999977,0.899999999999977,0.899999999999977,0.899999999999977,0.899999999999977,0.899999999999977,0.899999999999977,0.899999999999977,0.899999999999977,0.899999999999977,0.899999999999977,0.899999999999977,0.899999999999977,0.899999999999977,0.899999999999977,0.899999999999977,0.899999999999977,0.899999999999977,0.899999999999977,0.899999999999977,0.899999999999977,0.899999999999977,0.899999999999977,0.899999999999977,0.899999999999977,0.899999999999977,0.899999999999977,0.899999999999977,0.899999999999977,0.899999999999977,0.899999999999977,0.899999999999977,0.899999999999977,0.899999999999977,0.899999999999977,0.899999999999977,0.899999999999977,0.899999999999977,0.899999999999977,0.899999999999977,0.899999999999977,0.899999999999977,0.899999999999977,0.899999999999977,0.899999999999977,0.899999999999977,0.899999999999977,0.899999999999977,0.899999999999977,0.899999999999977,0.899999999999977,0.899999999999977,0.899999999999977,0.899999999999977,0.899999999999977,0.899999999999977,0.899999999999977,0.899999999999977,0.899999999999977,0.899999999999977,0.899999999999977,0.899999999999977,0.899999999999977,0.899999999999977,0.899999999999977,0.899999999999977,0.899999999999977,0.899999999999977,0.899999999999977,0.899999999999977,0.899999999999977,0.899999999999977,0.899999999999977,0.899999999999977,0.899999999999977,0.899999999999977,0.899999999999977,0.899999999999977,0.899999999999977,0.899999999999977,0.899999999999977,0.899999999999977,0.899999999999977,0.899999999999977,0.899999999999977,0.899999999999977,0.899999999999977,0.899999999999977,0.899999999999977,0.899999999999977,0.899999999999977,0.899999999999977,0.899999999999977,0.899999999999977,0.899999999999977,0.899999999999977,0.899999999999977,0.899999999999977,0.899999999999977,0.899999999999977,0.899999999999977,0.899999999999977,0.899999999999977,0.899999999999977,0.899999999999977,0.899999999999977,0.899999999999977],"base":[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],"x":[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50,51,52,53,54,55,56,57,58,59,60,61,62,63,64,65,66,68,69,70,71,72,73,74,76,77,78,79,80,81,82,83,84,85,87,88,89,90,91,92,93,94,95,96,97,98,99,101,103,104,105,106,107,108,110,112,114,115,117,118,119,120,121,122,123,124,125,128,129,130,131,132,134,135,136,137,139,140,141,142,143,145,146,147,148,149,152,157,159,161,163,164,165,167,169,170,172,173,175,176,177,178,179,180,181,182,184,189,193,195,196,198,201,204,206,207,209,211,212,217,221,222,227,229,231,233,236,237,239,241,242,243,246,248,249,250,252,255,256,257,258,262,263,265,266,269,270,271,273,274,276,277,281,284,285,288,291,295,296,298,305,307,308,312,313,316,317,321,322,331,333,343,346,347,349,351,354,358,359,360,361,362,365,367,368,372,374,375,377,381,386,388,391,399,402,403,405,407,409,422,427,429,431,435,436,438,441,442,446,457,458,461,473,477,478,480,485,488,489,491],"y":[37,25,20,18,25,14,8,6,12,9,13,11,9,5,6,9,9,9,5,1,3,3,10,8,3,6,2,6,5,9,5,4,6,3,2,6,3,7,5,7,4,3,3,3,2,4,6,5,3,2,1,2,2,8,1,2,1,3,2,7,4,6,3,2,2,4,3,1,4,1,3,3,1,3,2,3,1,4,4,1,5,2,1,5,3,2,2,2,4,1,4,3,3,1,3,3,1,2,1,4,4,3,3,1,1,3,4,5,2,1,1,3,3,1,1,2,2,5,1,3,4,3,2,1,2,2,3,2,1,1,2,4,1,1,3,1,1,1,1,2,1,3,1,1,1,5,2,1,1,1,2,1,2,1,1,2,1,1,1,2,1,3,1,3,3,3,1,2,2,1,1,1,2,1,3,1,2,2,1,3,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,2,2,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,2,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,2,1,1,1,1,1,1,1,1,1,2,1,2,2,2,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],"text":["count: 37<br />ct:   1","count: 25<br />ct:   2","count: 20<br />ct:   3","count: 18<br />ct:   4","count: 25<br />ct:   5","count: 14<br />ct:   6","count:  8<br />ct:   7","count:  6<br />ct:   8","count: 12<br />ct:   9","count:  9<br />ct:  10","count: 13<br />ct:  11","count: 11<br />ct:  12","count:  9<br />ct:  13","count:  5<br />ct:  14","count:  6<br />ct:  15","count:  9<br />ct:  16","count:  9<br />ct:  17","count:  9<br />ct:  18","count:  5<br />ct:  19","count:  1<br />ct:  20","count:  3<br />ct:  21","count:  3<br />ct:  22","count: 10<br />ct:  23","count:  8<br />ct:  24","count:  3<br />ct:  25","count:  6<br />ct:  26","count:  2<br />ct:  27","count:  6<br />ct:  28","count:  5<br />ct:  29","count:  9<br />ct:  30","count:  5<br />ct:  31","count:  4<br />ct:  32","count:  6<br />ct:  33","count:  3<br />ct:  34","count:  2<br />ct:  35","count:  6<br />ct:  36","count:  3<br />ct:  37","count:  7<br />ct:  38","count:  5<br />ct:  39","count:  7<br />ct:  40","count:  4<br />ct:  41","count:  3<br />ct:  42","count:  3<br />ct:  43","count:  3<br />ct:  44","count:  2<br />ct:  45","count:  4<br />ct:  46","count:  6<br />ct:  47","count:  5<br />ct:  48","count:  3<br />ct:  49","count:  2<br />ct:  50","count:  1<br />ct:  51","count:  2<br />ct:  52","count:  2<br />ct:  53","count:  8<br />ct:  54","count:  1<br />ct:  55","count:  2<br />ct:  56","count:  1<br />ct:  57","count:  3<br />ct:  58","count:  2<br />ct:  59","count:  7<br />ct:  60","count:  4<br />ct:  61","count:  6<br />ct:  62","count:  3<br />ct:  63","count:  2<br />ct:  64","count:  2<br />ct:  65","count:  4<br />ct:  66","count:  3<br />ct:  68","count:  1<br />ct:  69","count:  4<br />ct:  70","count:  1<br />ct:  71","count:  3<br />ct:  72","count:  3<br />ct:  73","count:  1<br />ct:  74","count:  3<br />ct:  76","count:  2<br />ct:  77","count:  3<br />ct:  78","count:  1<br />ct:  79","count:  4<br />ct:  80","count:  4<br />ct:  81","count:  1<br />ct:  82","count:  5<br />ct:  83","count:  2<br />ct:  84","count:  1<br />ct:  85","count:  5<br />ct:  87","count:  3<br />ct:  88","count:  2<br />ct:  89","count:  2<br />ct:  90","count:  2<br />ct:  91","count:  4<br />ct:  92","count:  1<br />ct:  93","count:  4<br />ct:  94","count:  3<br />ct:  95","count:  3<br />ct:  96","count:  1<br />ct:  97","count:  3<br />ct:  98","count:  3<br />ct:  99","count:  1<br />ct: 101","count:  2<br />ct: 103","count:  1<br />ct: 104","count:  4<br />ct: 105","count:  4<br />ct: 106","count:  3<br />ct: 107","count:  3<br />ct: 108","count:  1<br />ct: 110","count:  1<br />ct: 112","count:  3<br />ct: 114","count:  4<br />ct: 115","count:  5<br />ct: 117","count:  2<br />ct: 118","count:  1<br />ct: 119","count:  1<br />ct: 120","count:  3<br />ct: 121","count:  3<br />ct: 122","count:  1<br />ct: 123","count:  1<br />ct: 124","count:  2<br />ct: 125","count:  2<br />ct: 128","count:  5<br />ct: 129","count:  1<br />ct: 130","count:  3<br />ct: 131","count:  4<br />ct: 132","count:  3<br />ct: 134","count:  2<br />ct: 135","count:  1<br />ct: 136","count:  2<br />ct: 137","count:  2<br />ct: 139","count:  3<br />ct: 140","count:  2<br />ct: 141","count:  1<br />ct: 142","count:  1<br />ct: 143","count:  2<br />ct: 145","count:  4<br />ct: 146","count:  1<br />ct: 147","count:  1<br />ct: 148","count:  3<br />ct: 149","count:  1<br />ct: 152","count:  1<br />ct: 157","count:  1<br />ct: 159","count:  1<br />ct: 161","count:  2<br />ct: 163","count:  1<br />ct: 164","count:  3<br />ct: 165","count:  1<br />ct: 167","count:  1<br />ct: 169","count:  1<br />ct: 170","count:  5<br />ct: 172","count:  2<br />ct: 173","count:  1<br />ct: 175","count:  1<br />ct: 176","count:  1<br />ct: 177","count:  2<br />ct: 178","count:  1<br />ct: 179","count:  2<br />ct: 180","count:  1<br />ct: 181","count:  1<br />ct: 182","count:  2<br />ct: 184","count:  1<br />ct: 189","count:  1<br />ct: 193","count:  1<br />ct: 195","count:  2<br />ct: 196","count:  1<br />ct: 198","count:  3<br />ct: 201","count:  1<br />ct: 204","count:  3<br />ct: 206","count:  3<br />ct: 207","count:  3<br />ct: 209","count:  1<br />ct: 211","count:  2<br />ct: 212","count:  2<br />ct: 217","count:  1<br />ct: 221","count:  1<br />ct: 222","count:  1<br />ct: 227","count:  2<br />ct: 229","count:  1<br />ct: 231","count:  3<br />ct: 233","count:  1<br />ct: 236","count:  2<br />ct: 237","count:  2<br />ct: 239","count:  1<br />ct: 241","count:  3<br />ct: 242","count:  1<br />ct: 243","count:  1<br />ct: 246","count:  1<br />ct: 248","count:  1<br />ct: 249","count:  1<br />ct: 250","count:  1<br />ct: 252","count:  1<br />ct: 255","count:  1<br />ct: 256","count:  1<br />ct: 257","count:  1<br />ct: 258","count:  1<br />ct: 262","count:  1<br />ct: 263","count:  1<br />ct: 265","count:  1<br />ct: 266","count:  1<br />ct: 269","count:  1<br />ct: 270","count:  1<br />ct: 271","count:  2<br />ct: 273","count:  2<br />ct: 274","count:  1<br />ct: 276","count:  1<br />ct: 277","count:  1<br />ct: 281","count:  1<br />ct: 284","count:  1<br />ct: 285","count:  1<br />ct: 288","count:  1<br />ct: 291","count:  1<br />ct: 295","count:  1<br />ct: 296","count:  1<br />ct: 298","count:  1<br />ct: 305","count:  1<br />ct: 307","count:  1<br />ct: 308","count:  1<br />ct: 312","count:  1<br />ct: 313","count:  1<br />ct: 316","count:  1<br />ct: 317","count:  1<br />ct: 321","count:  1<br />ct: 322","count:  1<br />ct: 331","count:  1<br />ct: 333","count:  1<br />ct: 343","count:  2<br />ct: 346","count:  1<br />ct: 347","count:  1<br />ct: 349","count:  1<br />ct: 351","count:  1<br />ct: 354","count:  1<br />ct: 358","count:  1<br />ct: 359","count:  1<br />ct: 360","count:  1<br />ct: 361","count:  1<br />ct: 362","count:  1<br />ct: 365","count:  1<br />ct: 367","count:  1<br />ct: 368","count:  1<br />ct: 372","count:  1<br />ct: 374","count:  1<br />ct: 375","count:  1<br />ct: 377","count:  1<br />ct: 381","count:  2<br />ct: 386","count:  1<br />ct: 388","count:  1<br />ct: 391","count:  1<br />ct: 399","count:  1<br />ct: 402","count:  1<br />ct: 403","count:  1<br />ct: 405","count:  1<br />ct: 407","count:  1<br />ct: 409","count:  1<br />ct: 422","count:  2<br />ct: 427","count:  1<br />ct: 429","count:  2<br />ct: 431","count:  2<br />ct: 435","count:  2<br />ct: 436","count:  1<br />ct: 438","count:  1<br />ct: 441","count:  1<br />ct: 442","count:  1<br />ct: 446","count:  1<br />ct: 457","count:  1<br />ct: 458","count:  1<br />ct: 461","count:  1<br />ct: 473","count:  1<br />ct: 477","count:  1<br />ct: 478","count:  1<br />ct: 480","count:  1<br />ct: 485","count:  1<br />ct: 488","count:  1<br />ct: 489","count:  1<br />ct: 491"],"type":"bar","marker":{"autocolorscale":false,"color":"rgba(89,89,89,0.7)","line":{"width":1.88976377952756,"color":"transparent"}},"showlegend":false,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null}],"layout":{"margin":{"t":26.2283105022831,"r":7.30593607305936,"b":40.1826484018265,"l":37.2602739726027},"plot_bgcolor":"rgba(235,235,235,1)","paper_bgcolor":"rgba(255,255,255,1)","font":{"color":"rgba(0,0,0,1)","family":"","size":14.6118721461187},"xaxis":{"domain":[0,1],"automargin":true,"type":"linear","autorange":false,"range":[-25,525],"tickmode":"array","ticktext":["0","100","200","300","400","500"],"tickvals":[0,100,200,300,400,500],"categoryorder":"array","categoryarray":["0","100","200","300","400","500"],"nticks":null,"ticks":"outside","tickcolor":"rgba(51,51,51,1)","ticklen":3.65296803652968,"tickwidth":0.66417600664176,"showticklabels":true,"tickfont":{"color":"rgba(77,77,77,1)","family":"","size":11.689497716895},"tickangle":-0,"showline":false,"linecolor":null,"linewidth":0,"showgrid":true,"gridcolor":"rgba(255,255,255,1)","gridwidth":0.66417600664176,"zeroline":false,"anchor":"y","title":{"text":"ct","font":{"color":"rgba(0,0,0,1)","family":"","size":14.6118721461187}},"hoverformat":".2f"},"yaxis":{"domain":[0,1],"automargin":true,"type":"linear","autorange":false,"range":[-1.85,38.85],"tickmode":"array","ticktext":["0","10","20","30"],"tickvals":[0,10,20,30],"categoryorder":"array","categoryarray":["0","10","20","30"],"nticks":null,"ticks":"outside","tickcolor":"rgba(51,51,51,1)","ticklen":3.65296803652968,"tickwidth":0.66417600664176,"showticklabels":true,"tickfont":{"color":"rgba(77,77,77,1)","family":"","size":11.689497716895},"tickangle":-0,"showline":false,"linecolor":null,"linewidth":0,"showgrid":true,"gridcolor":"rgba(255,255,255,1)","gridwidth":0.66417600664176,"zeroline":false,"anchor":"x","title":{"text":"count","font":{"color":"rgba(0,0,0,1)","family":"","size":14.6118721461187}},"hoverformat":".2f"},"shapes":[{"type":"rect","fillcolor":null,"line":{"color":null,"width":0,"linetype":[]},"yref":"paper","xref":"paper","x0":0,"x1":1,"y0":0,"y1":1}],"showlegend":false,"legend":{"bgcolor":"rgba(255,255,255,1)","bordercolor":"transparent","borderwidth":1.88976377952756,"font":{"color":"rgba(0,0,0,1)","family":"","size":11.689497716895}},"hovermode":"closest","barmode":"relative"},"config":{"doubleClick":"reset","showSendToCloud":false},"source":"A","attrs":{"14abc3fa37d2":{"x":{},"type":"bar"}},"cur_data":"14abc3fa37d2","visdat":{"14abc3fa37d2":["function (y) ","x"]},"highlight":{"on":"plotly_click","persistent":false,"dynamic":false,"selectize":false,"opacityDim":0.2,"selected":{"opacity":1},"debounce":0},"shinyEvents":["plotly_hover","plotly_click","plotly_selected","plotly_relayout","plotly_brushed","plotly_brushing","plotly_clickannotation","plotly_doubleclick","plotly_deselect","plotly_afterplot","plotly_sunburstclick"],"base_url":"https://plot.ly"},"evals":[],"jsHooks":[]}</script>
+<pre class="r"><code>lane17b$librarytype=&quot;CRISPR-DS&quot;
+lane12sortedsamples$librarytype=&quot;Enzymatically Sheared&quot;
+crisprds_combined=rbind(lane17b%&gt;%dplyr::select(protein_start,ct,depth,librarytype),lane12sortedsamples%&gt;%dplyr::select(protein_start,ct,depth,librarytype))
+ggplot(crisprds_combined%&gt;%filter(ct&lt;=500),aes(x=ct,fill=librarytype))+
+  geom_density(alpha=0.7)+
+  scale_x_continuous(name=&quot;Number of times each mutant was seen&quot;,trans=&quot;log10&quot;)+
+  scale_y_continuous(name=&quot;Density&quot;)+
+  labs(fill=&quot;Library Type&quot;)+
+  theme(legend.position=&quot;none&quot;)</code></pre>
+<p><img src="figure/crispr-ds_analysis.Rmd/unnamed-chunk-1-5.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code># ggsave(&quot;crisprds_readcount.pdf&quot;,width=6,height=6,units=&quot;in&quot;,useDingbats=F)
+
+crisprds_combined=crisprds_combined%&gt;%group_by(librarytype,protein_start)%&gt;%summarize(depth=mean(depth))</code></pre>
+<pre><code>`summarise()` has grouped output by &#39;librarytype&#39;. You can override using the `.groups` argument.</code></pre>
+<pre class="r"><code>crisprds_combined$librarytype=factor(crisprds_combined$librarytype,levels=c(&quot;Enzymatically Sheared&quot;,&quot;CRISPR-DS&quot;))
+ggplot(crisprds_combined%&gt;%filter(protein_start&gt;200,protein_start&lt;=302),aes(x=librarytype,y=depth,fill=librarytype))+
+  geom_boxplot(alpha=0.7)+
+  scale_y_continuous(trans=&quot;log10&quot;,name=&quot;Depth of Coverage&quot;)+
+  theme(axis.text.x=element_blank(),
+        axis.title.x=element_blank(),
+        axis.ticks.x=element_blank())+
+  scale_fill_manual(name = &quot;Library Type&quot;, labels = c(&quot; Enzymatically\n Sheared&quot;,&quot;CRISPR-DS&quot;),values=c(&quot;blue&quot;,&quot;red&quot;))</code></pre>
+<p><img src="figure/crispr-ds_analysis.Rmd/unnamed-chunk-1-6.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code># ggsave(&quot;crisprds_depth.pdf&quot;,width=8,height=6,units=&quot;in&quot;,useDingbats=F)
+
+
+####Adding Lane 15 Treated Samples to the distributions:
+
+lane15treatedsamples=read.csv(&quot;data/Consensus_Data/novogene_lane15/sample_7/duplex/variant_caller_outputs/variants_unique_ann.csv&quot;,header = T,stringsAsFactors = F)
+lane15treatedsamples=lane15treatedsamples%&gt;%mutate(maf=ct/depth)
+lane15treatedsamples=lane15treatedsamples%&gt;%filter(alt_codon%in%intended_codons$Codon)
+lane15treatedsamples$librarytype=&quot;Enzymatically fragmented treated&quot;
+
+crisprds_combined=rbind(lane17b%&gt;%dplyr::select(protein_start,ct,depth,librarytype),lane12sortedsamples%&gt;%dplyr::select(protein_start,ct,depth,librarytype),lane15treatedsamples%&gt;%dplyr::select(protein_start,ct,depth,librarytype))
+
+ggplot(crisprds_combined%&gt;%filter(protein_start&gt;200,protein_start&lt;=302),aes(x=librarytype,y=depth,fill=librarytype))+
+  geom_boxplot(alpha=0.7)+
+  scale_y_continuous(trans=&quot;log10&quot;,name=&quot;Depth of Coverage&quot;)+
+  # labs(fill=&quot;Library Type&quot;)+
+  # scale_fill_discrete(name = &quot;Library Type&quot;, labels = c(&quot;CRISPR-DS&quot;, &quot; Enzymatically\n Sheared&quot;))+
+  theme(axis.text.x=element_blank(),
+        axis.title.x=element_blank(),
+        axis.ticks.x=element_blank())</code></pre>
+<p><img src="figure/crispr-ds_analysis.Rmd/unnamed-chunk-1-7.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>ggplot(crisprds_combined%&gt;%filter(ct&lt;=500),aes(x=ct,fill=librarytype))+
+  geom_density(alpha=0.7)+
+  scale_x_continuous(name=&quot;Number of times each mutant was seen&quot;,trans=&quot;log10&quot;)+
+  scale_y_continuous(name=&quot;Density&quot;)+
+  labs(fill=&quot;Library Type&quot;)+
+  scale_fill_manual(values=c(&quot;red&quot;,&quot;green&quot;,&quot;blue&quot;))+
+  theme(legend.position=&quot;none&quot;)</code></pre>
+<p><img src="figure/crispr-ds_analysis.Rmd/unnamed-chunk-1-8.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>ggplot(crisprds_combined%&gt;%filter(ct&lt;=500,!librarytype%in%&quot;CRISPR-DS&quot;),aes(x=ct,fill=librarytype))+
+  geom_density(alpha=0.7)+
+  scale_x_continuous(name=&quot;Number of times each mutant was seen&quot;,trans=&quot;log10&quot;)+
+  scale_y_continuous(name=&quot;Density&quot;)+
+  labs(fill=&quot;Library Type&quot;)+
+  scale_fill_manual(values=c(&quot;green&quot;,&quot;blue&quot;))+
+  theme(legend.position=&quot;none&quot;)</code></pre>
+<p><img src="figure/crispr-ds_analysis.Rmd/unnamed-chunk-1-9.png" width="672" style="display: block; margin: auto;" /></p>
+<p>Plots to show the depths you need to go to to see variants in
+functional genomics libraries</p>
+<pre class="r"><code>x=c(&quot;E&quot;,&quot;D&quot;,&quot;C&quot;,&quot;B&quot;,&quot;A&quot;)
+y=c(.5,1/100,1/5000,1/20000,1/100000)
+df=data.frame(cbind(x,y))
+df$y=as.numeric(df$y)
+ggplot(df,aes(x=x,y=y))+
+  geom_col()+
+  scale_y_continuous(&quot;Mutant Alle Frequency&quot;,
+                     trans=&quot;log10&quot;,
+                     breaks = c(.5, .1, .01, .001, .0001, .00001), 
+                     labels = c(&quot;0.5&quot;, &quot;1 in 10&quot;, &quot;1 in 100&quot;, &quot;1 in 1k&quot;,&quot;1 in 10k&quot;,&quot;1 in 100k&quot;))+
+  geom_hline(yintercept = .005,linetype=&quot;dashed&quot;,color=&quot;red&quot;,size=1.5)+
+  theme(axis.ticks.y = element_blank(),
+        axis.text.y = element_blank(),
+        axis.title.y = element_blank(),
+        axis.text.x=element_text(angle=90,hjust=.5,vjust=.5))+
+  coord_flip()</code></pre>
+<p><img src="figure/crispr-ds_analysis.Rmd/unnamed-chunk-2-1.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code># ggsave(&quot;library_comlexity.pdf&quot;,width=4,height = 4,units=&quot;in&quot;,useDingbats=F)</code></pre>
+<br>
+<p>
+<button type="button" class="btn btn-default btn-workflowr btn-workflowr-sessioninfo" data-toggle="collapse" data-target="#workflowr-sessioninfo" style="display: block;">
+<span class="glyphicon glyphicon-wrench" aria-hidden="true"></span>
+Session information
+</button>
+</p>
+<div id="workflowr-sessioninfo" class="collapse">
+<pre class="r"><code>sessionInfo()</code></pre>
+<pre><code>R version 4.0.0 (2020-04-24)
+Platform: x86_64-apple-darwin17.0 (64-bit)
+Running under: macOS  10.16
+
+Matrix products: default
+BLAS:   /Library/Frameworks/R.framework/Versions/4.0/Resources/lib/libRblas.dylib
+LAPACK: /Library/Frameworks/R.framework/Versions/4.0/Resources/lib/libRlapack.dylib
+
+locale:
+[1] en_US.UTF-8/en_US.UTF-8/en_US.UTF-8/C/en_US.UTF-8/en_US.UTF-8
+
+attached base packages:
+[1] parallel  stats     graphics  grDevices utils     datasets  methods  
+[8] base     
+
+other attached packages:
+[1] RColorBrewer_1.1-2 doParallel_1.0.15  iterators_1.0.12   foreach_1.5.0     
+[5] tictoc_1.0         plotly_4.9.2.1     ggplot2_3.3.3      dplyr_1.0.6       
+[9] stringr_1.4.0     
+
+loaded via a namespace (and not attached):
+ [1] tidyselect_1.1.0  xfun_0.31         bslib_0.3.1       purrr_0.3.4      
+ [5] colorspace_1.4-1  vctrs_0.3.8       generics_0.0.2    htmltools_0.5.2  
+ [9] viridisLite_0.3.0 yaml_2.2.1        utf8_1.1.4        rlang_0.4.11     
+[13] jquerylib_0.1.4   later_1.0.0       pillar_1.6.1      glue_1.4.1       
+[17] withr_2.4.2       DBI_1.1.0         lifecycle_1.0.0   munsell_0.5.0    
+[21] gtable_0.3.0      workflowr_1.6.2   htmlwidgets_1.5.1 codetools_0.2-16 
+[25] evaluate_0.14     labeling_0.3      knitr_1.28        fastmap_1.1.0    
+[29] crosstalk_1.1.0.1 httpuv_1.5.2      fansi_0.4.1       Rcpp_1.0.4.6     
+[33] promises_1.1.0    backports_1.1.7   scales_1.1.1      jsonlite_1.7.2   
+[37] farver_2.0.3      fs_1.4.1          digest_0.6.25     stringi_1.7.5    
+[41] rprojroot_1.3-2   grid_4.0.0        tools_4.0.0       magrittr_2.0.1   
+[45] sass_0.4.1        lazyeval_0.2.2    tibble_3.1.2      crayon_1.4.1     
+[49] tidyr_1.1.3       pkgconfig_2.0.3   ellipsis_0.3.2    data.table_1.12.8
+[53] assertthat_0.2.1  rmarkdown_2.14    httr_1.4.2        R6_2.4.1         
+[57] git2r_0.27.1      compiler_4.0.0   </code></pre>
+</div>
+
+
+<!-- Adjust MathJax settings so that all math formulae are shown using
+TeX fonts only; see
+http://docs.mathjax.org/en/latest/configuration.html.  This will make
+the presentation more consistent at the cost of the webpage sometimes
+taking slightly longer to load. Note that this only works because the
+footer is added to webpages before the MathJax javascript. -->
+<script type="text/x-mathjax-config">
+  MathJax.Hub.Config({
+    "HTML-CSS": { availableFonts: ["TeX"] }
+  });
+</script>
+
+
+
+
+</div>
+</div>
+
+</div>
+
+<script>
+
+// add bootstrap table styles to pandoc tables
+function bootstrapStylePandocTables() {
+  $('tr.odd').parent('tbody').parent('table').addClass('table table-condensed');
+}
+$(document).ready(function () {
+  bootstrapStylePandocTables();
+});
+
+
+</script>
+
+<!-- tabsets -->
+
+<script>
+$(document).ready(function () {
+  window.buildTabsets("TOC");
+});
+
+$(document).ready(function () {
+  $('.tabset-dropdown > .nav-tabs > li').click(function () {
+    $(this).parent().toggleClass('nav-tabs-open');
+  });
+});
+</script>
+
+<!-- code folding -->
+
+<script>
+$(document).ready(function ()  {
+
+    // temporarily add toc-ignore selector to headers for the consistency with Pandoc
+    $('.unlisted.unnumbered').addClass('toc-ignore')
+
+    // move toc-ignore selectors from section div to header
+    $('div.section.toc-ignore')
+        .removeClass('toc-ignore')
+        .children('h1,h2,h3,h4,h5').addClass('toc-ignore');
+
+    // establish options
+    var options = {
+      selectors: "h1,h2,h3",
+      theme: "bootstrap3",
+      context: '.toc-content',
+      hashGenerator: function (text) {
+        return text.replace(/[.\\/?&!#<>]/g, '').replace(/\s/g, '_');
+      },
+      ignoreSelector: ".toc-ignore",
+      scrollTo: 0
+    };
+    options.showAndHide = true;
+    options.smoothScroll = true;
+
+    // tocify
+    var toc = $("#TOC").tocify(options).data("toc-tocify");
+});
+</script>
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>

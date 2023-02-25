@@ -21,4 +21,9 @@ data/Consensus_Data/novogene_lane15/**/sscs_sorted_filtered.tsv.gz
 data/Consensus_Data/novogene_lane15/**/sscs/sscs_sorted_filtered.tsv.gz
 data/Consensus_Data/Novogene_lane16a/**/sscs_sorted_filtered.tsv.gz
 data/Consensus_Data/novogene_lane15/sample_5/sscs/sscs_sorted_filtered.tsv.gz
-
+data/Consensus_Data/novogene_lane17/sample6/sscs/sscs_sorted_filtered.tsv.gz
+data/Consensus_Data/novogene_lane17/sample7/sscs/sscs_sorted_filtered.tsv.gz
+data/Consensus_Data/novogene_lane17b/Sample1/sscs/sscs_sorted_filtered.tsv.gz
+data/Consensus_Data/novogene_lane17b/Sample2/sscs/sscs_sorted_filtered.tsv.gz
+data/Consensus_Data/novogene_lane17/**/sscs/sscs_sorted_filtered.tsv.gz
+*.gz

@@ -21,6 +21,8 @@ cleanup=theme_bw() +
         # axis.text = element_text(color="black",size="11"),
         text=element_text(size=11))
 ```
+  
+### Imatinib IC50s. 
 
 ```{r}
 # imatinib_data=read.csv("../data/IC50s_refseqBCRABL/Imatinib_heatmap.csv",header = T,stringsAsFactors = F)
@@ -106,6 +108,9 @@ plotly=ggplot(imat_melt_sum%>%filter(Species%in%c("pUltra-G2A-old-V468F","pUltra
 ggplotly(plotly)
 
 ```
+
+  
+### Asciminib IC50s. 
 
 ```{r}
 # asc_data=read.csv("../data/IC50s_refseqBCRABL/Asciminib_heatmap.csv",header = T,stringsAsFactors = F)

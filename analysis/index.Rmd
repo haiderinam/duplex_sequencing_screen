@@ -12,10 +12,10 @@ editor_options:
 
 <img src="assets/ds_coverages.png" width="400" height="300"  alt="">  
 
-* ###Click [here](dose_response_curve_fitting.html) for the script that reads BCRABL dose response data, and fits it to a 4-parameter dose response curve.  
+* Click [here](dose_response_curve_fitting.html) for the script that reads BCRABL dose response data, and fits it to a 4-parameter dose response curve.  
 <img src="assets/4param_fit.png" width="400" height="300"  alt="">    
 
-* ###Click [here](twinstrand_spikeins_data_generation.html) for the script that reads mutation annotation data and generates dataframes with annotated variants and the correct cell counts  
+* Click [here](twinstrand_spikeins_data_generation.html) for the script that reads mutation annotation data and generates dataframes with annotated variants and the correct cell counts  
 
 * ###Click [here](growthrate_plots.html) for initial growth rate plots  
 <img src="assets/growthrates.png" width="400" height="300"  alt="">  

@@ -7,5 +7,114 @@ output: html_document
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
+# knitr::opts_knit$set(root.dir = normalizePath(".."))
+# knitr::opts_knit$set(root.dir = normalizePath("duplex_sequencing_screen/"))
+library(stringr)
+library(dplyr)
+library(ggplot2)
+library(plotly)
+library(tictoc)
+library(doParallel)
+library(foreach)
+library(RColorBrewer)
+
+
+#Cleanup code for plotting
+cleanup=theme_bw() +
+  theme(plot.title = element_text(hjust=.5),
+        panel.grid.major = element_blank(),
+        panel.grid.major.y = element_blank(),
+        panel.background = element_blank(),
+        axis.line = element_line(color = "black"),
+        axis.text = element_text(face="bold",color="black",size="11"),
+        text=element_text(size=11,face="bold"),
+        axis.title=element_text(face="bold",size="11"))
+
+source("code/merge_samples.R")
+
 ```
+
+```{r}
+ltk_d0=read.csv("duplex_sequencing_screen/data/Consensus_Data/novogene_lane16b/Sample7_combined/sscs/variant_caller_outputs/variants_unique_ann.csv",header = T)
+ltk_d0=ltk_d0%>%mutate(maf=ct/depth)
+ltk_d0_simple=ltk_d0%>%dplyr::select(alt_start_pos,protein_start,ref,alt,ref_aa,alt_aa,consequence_terms,ct,depth,maf)
+# ltk_d0_simple$consequence_terms
+ggplot(ltk_d0_simple%>%filter(consequence_terms%in%"missense_variant",protein_start>=518,protein_start<=670),aes(x=protein_start,y=alt_aa))+
+  geom_tile(aes(fill=maf))+
+  geom_tile(data=subset(il3D0.D4.merge.filtered,is.na(score)&wt%in%F),aes(color="white"),linetype = "solid",color="white", fill = "gray90", alpha = 0.8)+
+  geom_tile(data=subset(il3D0.D4.merge.filtered,is.na(score)&wt%in%T),aes(color="white"),linetype = "solid",color="white", fill = "yellow", alpha = 0.4)+
+  theme(panel.background=element_rect(fill="white", colour="black"))+scale_x_continuous(name="Residue on the ABL Kinase",limits=c(242,493),expand=c(0,0))+
+  ylab("Mutant Amino Acid")
+
+
+library("pals")
+ggplot(ltk_d0_simple%>%filter(nchar(alt_aa)%in%1,!alt_aa%in%NA,consequence_terms%in%"missense_variant",protein_start>=518,protein_start<=670),aes(x=protein_start,y=ct,fill=factor(alt_aa)))+
+  geom_bar(stat="identity",position="fill")+
+  scale_x_continuous(expand = c(0,0),name="Position Along LTK Kinase",breaks=c(242,300,350,400,450,490))+
+  scale_y_continuous(expand = c(0,0),name="Proportion of Variant AA")+theme(plot.title = element_text(hjust = 0.5))+
+  scale_fill_manual(values=as.vector(stepped(21)))+
+  cleanup+
+  theme(legend.title = element_blank(),
+  legend.position = "right")+
+  guides(fill=guide_legend(ncol=2))
+ggsave("Baf3_ltk_background.pdf",width=12,height=4,units="in",useDingbats=F)
+
+a=ltk_d0_simple%>%filter(consequence_terms%in%"missense_variant",protein_start>=518,protein_start<=670)
+```
+
+Plotting out the EGFR background as well
+```{r}
+egfr_d0=read.csv("data/Consensus_Data/Novogene_lane13/sample1/sscs/variant_caller_outputs/variants_unique_ann.csv")
+egfr_d0=egfr_d0%>%mutate(maf=ct/depth)
+egfr_d0_simple=egfr_d0%>%dplyr::select(alt_start_pos,protein_start,ref,alt,ref_aa,alt_aa,consequence_terms,ct,depth,maf)
+
+ggplot(egfr_d0_simple%>%filter(consequence_terms%in%"missense_variant",protein_start>=730,protein_start<=870),aes(x=protein_start,y=alt_aa))+
+  geom_tile(aes(fill=maf))
+
+library("pals")
+ggplot(egfr_d0_simple%>%filter(nchar(alt_aa)%in%1,!alt_aa%in%NA,consequence_terms%in%"missense_variant",protein_start>=730,protein_start<=870),aes(x=protein_start,y=ct,fill=factor(alt_aa)))+
+  geom_bar(stat="identity",position="fill")+
+  scale_x_continuous(expand = c(0,0),name="Position Along EGFR Kinase")+
+  scale_y_continuous(expand = c(0,0),name="Proportion of Variant AA")+theme(plot.title = element_text(hjust = 0.5))+
+  scale_fill_manual(values=as.vector(stepped(21)))+
+  cleanup+
+  theme(legend.title = element_blank(),
+  legend.position = "right")+
+  guides(fill=guide_legend(ncol=2))
+ggsave("Baf3_egfr_background.pdf",width=12,height=4,units="in",useDingbats=F)
+
+
+```
+
+
+
+
+```{r,eval=F}
+df_grid = expand.grid(protein_start = c(519:864),alt_aa = unique(il3D0.D4$alt_aa))
+
+
+il3D0.D4.merge=il3D0.D4.merge%>%filter(nchar(as.character(alt_aa))%in%1,protein_start>=242,protein_start<=494)
+###Trying to add in the score as WT for residues that are wt
+reference_seq=read.table("data/Refs/ABL/abl_cds_translation.txt")
+il3D0.D4.merge=il3D0.D4.merge%>%
+  rowwise()%>%
+  # group_by(protein_start)%>%
+  mutate(ref_aa=case_when(ref_aa%in%NA~substr(reference_seq,protein_start,protein_start),
+                          T~ref_aa))%>%
+  mutate(wt=case_when(ref_aa==alt_aa~T,
+                      T~F))
+
+##########Plotting gray and yellow heatmap
+il3D0.D4.merge$alt_aa=factor(il3D0.D4.merge$alt_aa,levels=c("P","G","Y","W","F","V","L","I","A","T","S","Q","N","M","C","E","D","R","K","H"))
+il3D0.D4.merge.filtered=il3D0.D4.merge%>%filter(!protein_start%in%c(290:305))
+# a=il3D0.D4.merge.filtered%>%filter(wt%in%T)
+ggplot(il3D0.D4.merge.filtered,aes(x=protein_start,y=alt_aa))+
+  geom_tile(data=subset(il3D0.D4.merge.filtered,!is.na(score)),aes(fill=netgr_obs))+
+  scale_fill_gradient2(low ="darkblue",midpoint=.04,mid="white", high ="red",name="Net growth rate")+
+  geom_tile(data=subset(il3D0.D4.merge.filtered,is.na(score)&wt%in%F),aes(color="white"),linetype = "solid",color="white", fill = "gray90", alpha = 0.8)+
+  geom_tile(data=subset(il3D0.D4.merge.filtered,is.na(score)&wt%in%T),aes(color="white"),linetype = "solid",color="white", fill = "yellow", alpha = 0.4)+
+  theme(panel.background=element_rect(fill="white", colour="black"))+scale_x_continuous(name="Residue on the ABL Kinase",limits=c(242,493),expand=c(0,0))+
+  ylab("Mutant Amino Acid")
+```
+
 

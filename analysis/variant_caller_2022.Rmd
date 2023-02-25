@@ -56,7 +56,7 @@ cdn_tbl=read.csv("data/codon_table.csv",header = T)
 
 ref_offset=0
 # ref_offset=723
-#############For EGFR#############
+############For EGFR#############
 # enst="ENST00000275493"
 # chr=7
 # ref_txt_name="data/Refs/EGFR/L858R_629_903/NM_005228.5_L858R_629_903.txt"
@@ -64,7 +64,7 @@ ref_offset=0
 
 
 
-#############For ABL#############
+# #############For ABL#############
 enst="ENST00000318560" #Ensembl transcript ID for the canonical transcript
 chr=9 #The chromosome number on hg38. This argument is passed into the ensembl variant effect predictor
 ref_txt_name="data/Refs/ABL/NM_005157.6_CDS.txt"
@@ -96,47 +96,11 @@ mode="local"
 
 
 ```{r}
-seqdata_tsv_name=c("data/Consensus_Data/novogene_lane17/sample1_combined/duplex/duplex_sorted_filtered.tsv.gz",
-                   "data/Consensus_Data/novogene_lane17/sample1_combined/sscs/sscs_sorted_filtered.tsv.gz",
-                   "data/Consensus_Data/novogene_lane17/sample2/duplex/duplex_sorted_filtered.tsv.gz",
-                   "data/Consensus_Data/novogene_lane17/sample2/sscs/sscs_sorted_filtered.tsv.gz",
-                   "data/Consensus_Data/novogene_lane17/sample3/duplex/duplex_sorted_filtered.tsv.gz",
-                   "data/Consensus_Data/novogene_lane17/sample3/sscs/sscs_sorted_filtered.tsv.gz",
-                   "data/Consensus_Data/novogene_lane17/sample4/duplex/duplex_sorted_filtered.tsv.gz",
-                   "data/Consensus_Data/novogene_lane17/sample4/sscs/sscs_sorted_filtered.tsv.gz",
-                   "data/Consensus_Data/novogene_lane17/sample5/duplex/duplex_sorted_filtered.tsv.gz",
-                   "data/Consensus_Data/novogene_lane17/sample5/sscs/sscs_sorted_filtered.tsv.gz",
-                   "data/Consensus_Data/novogene_lane17/sample6/duplex/duplex_sorted_filtered.tsv.gz",
-                   "data/Consensus_Data/novogene_lane17/sample6/sscs/sscs_sorted_filtered.tsv.gz",
-                   "data/Consensus_Data/novogene_lane17/sample7/duplex/duplex_sorted_filtered.tsv.gz",
-                   "data/Consensus_Data/novogene_lane17/sample7/sscs/sscs_sorted_filtered.tsv.gz",
-                   "data/Consensus_Data/novogene_lane17/sample8/duplex/duplex_sorted_filtered.tsv.gz",
-                   "data/Consensus_Data/novogene_lane17/sample8/sscs/sscs_sorted_filtered.tsv.gz",
-                   "data/Consensus_Data/novogene_lane17/sample9/duplex/duplex_sorted_filtered.tsv.gz",
-                   "data/Consensus_Data/novogene_lane17/sample9/sscs/sscs_sorted_filtered.tsv.gz",
-                   "data/Consensus_Data/novogene_lane17/sample10/duplex/duplex_sorted_filtered.tsv.gz",
-                   "data/Consensus_Data/novogene_lane17/sample10/sscs/sscs_sorted_filtered.tsv.gz")
+seqdata_tsv_name=c("data/Consensus_Data/novogene_lane15/sample_7/duplex/duplex_sorted_filtered.tsv.gz",
+                   "data/Consensus_Data/novogene_lane15/sample_7/sscs/sscs_sorted_filtered.tsv.gz")
 
-outdir=c("data/Consensus_Data/novogene_lane17/sample1_combined/duplex/variant_caller_outputs",
-                   "data/Consensus_Data/novogene_lane17/sample1_combined/sscs/variant_caller_outputs",
-                   "data/Consensus_Data/novogene_lane17/sample2/duplex/variant_caller_outputs",
-                   "data/Consensus_Data/novogene_lane17/sample2/sscs/variant_caller_outputs",
-                   "data/Consensus_Data/novogene_lane17/sample3/duplex/variant_caller_outputs",
-                   "data/Consensus_Data/novogene_lane17/sample3/sscs/variant_caller_outputs",
-                   "data/Consensus_Data/novogene_lane17/sample4/duplex/variant_caller_outputs",
-                   "data/Consensus_Data/novogene_lane17/sample4/sscs/variant_caller_outputs",
-                   "data/Consensus_Data/novogene_lane17/sample5/duplex/variant_caller_outputs",
-                   "data/Consensus_Data/novogene_lane17/sample5/sscs/variant_caller_outputs",
-                   "data/Consensus_Data/novogene_lane17/sample6/duplex/variant_caller_outputs",
-                   "data/Consensus_Data/novogene_lane17/sample6/sscs/variant_caller_outputs",
-                   "data/Consensus_Data/novogene_lane17/sample7/duplex/variant_caller_outputs",
-                   "data/Consensus_Data/novogene_lane17/sample7/sscs/variant_caller_outputs",
-                   "data/Consensus_Data/novogene_lane17/sample8/duplex/variant_caller_outputs",
-                   "data/Consensus_Data/novogene_lane17/sample8/sscs/variant_caller_outputs",
-                   "data/Consensus_Data/novogene_lane17/sample9/duplex/variant_caller_outputs",
-                   "data/Consensus_Data/novogene_lane17/sample9/sscs/variant_caller_outputs",
-                   "data/Consensus_Data/novogene_lane17/sample10/duplex/variant_caller_outputs",
-                   "data/Consensus_Data/novogene_lane17/sample10/sscs/variant_caller_outputs")
+outdir=c("data/Consensus_Data/novogene_lane15/sample_7/duplex/variant_caller_outputs",
+                   "data/Consensus_Data/novogene_lane15/sample_7/sscs/variant_caller_outputs")
 ```
 
 
@@ -282,7 +246,8 @@ alldata=merge(alldata,coverage_stats,by="pos")
 alldata=alldata%>%filter(seqlen>=90)
 #We are also going to filter for reads with a clipping distance of less than 25
 alldata=alldata%>%filter(clipdistance_total<=25)
-
+# a=alldata
+# alldata=a
 #We are also going to filter for reads with a total length of mapped read >80. Mapped length is sequence length - length of split read
 alldata=alldata%>%filter(mlen>=70)
 
@@ -303,6 +268,7 @@ alldata=alldata[!grepl("N",alldata$seq),]
 alt_positions=grepl("[a-zA-Z]",alldata$mdz)
 # a=alldata[!alt_positions,]
 alldata=alldata[alt_positions,]
+# b=alldata[!alt_positions,]
 
 #######Filtering all data so that it does not fall outside of the reference genomic coordinates########
 alldata=alldata%>%filter(pos>=min(ref_genomic_coordinates$start),pos<=max(ref_genomic_coordinates$start)-130)
@@ -370,7 +336,8 @@ mnvs=mnvs%>%
     n_nuc%in%3&&sum(as.numeric(head(strsplit(mdz,"A|G|C|T")[[1]][-1],-1)))%in%0~0,
     TRUE~NaN))
 # sum(as.numeric(head(strsplit("3A0C0T99","A|C|G|T")[[1]][-1],-1)))
-
+# a=mnvs%>%filter(n_nuc%in%3,neighbordistance%in%NaN)
+# a=mnvs%>%filter(n_nuc>=3,neighbordistance%in%NaN)
 # mnvs$minuslast="NA"
 # mnvs=mnvs%>%rowwise()%>%mutate(minuslast=head(strsplit(mdz,"A|G|C|T"),-1))
 #######Filtering MNVs for side-by-side MNVs######

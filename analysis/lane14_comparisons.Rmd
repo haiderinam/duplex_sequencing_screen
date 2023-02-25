@@ -140,7 +140,6 @@ a=asc_scores
 # a=samples_14.17%>%filter(ct.x>1)
 ```
 ```{r}
-
 sample14=read.csv(file = "data/Consensus_Data/Novogene_lane14/sample14_combined/sscs/variant_caller_outputs/variants_unique_ann.csv",header=T,stringsAsFactors = F)
 
 sample14=sample14%>%
@@ -235,6 +234,97 @@ cor(a$netgr_pred_mean,a$score)
 a=sample1517%>%filter(protein_start%in%255)
 
 
+```
+
+```{r}
+
+sample14=read.csv(file = "data/Consensus_Data/Novogene_lane14/sample14_combined/sscs/variant_caller_outputs/variants_unique_ann.csv",header=T,stringsAsFactors = F)
+
+sample14=sample14%>%
+  rowwise()%>%
+  mutate(ref_aa=strsplit(amino_acids,"/")[[1]][1],
+         alt_aa=strsplit(amino_acids,"/")[[1]][2])
+sample14=sample14%>%mutate(maf=ct/depth)
+sample14_simple=sample14%>%dplyr::select(alt_start_pos,protein_start,ref,alt,ref_aa,alt_aa,consequence_terms,ct,depth,maf)
+
+
+sample1517=merge_samples("Novogene_lane16a/Sample8/sscs","Novogene_lane17/sample8/sscs")
+sample1517=sample1517%>%
+  rowwise()%>%
+  mutate(ref_aa=strsplit(amino_acids,"/")[[1]][1],
+         alt_aa=strsplit(amino_acids,"/")[[1]][2])
+sample1517=sample1517%>%mutate(maf=ct/depth)
+sample1517_simple=sample1517%>%dplyr::select(alt_start_pos,protein_start,ref,alt,ref_aa,alt_aa,consequence_terms,ct,depth,maf)
+
+
+samples_14.1517=merge(sample14_simple%>%filter(consequence_terms%in%"missense_variant"),sample1517_simple%>%filter(consequence_terms%in%"missense_variant"),by=c("ref_aa","protein_start","alt_aa","ref","alt","alt_start_pos","consequence_terms"),all.x = T)
+samples_14.1517=samples_14.1517%>%mutate(score=log2(maf.y/maf.x),score2=log2(ct.y/ct.x))
+samples_14.1517_simple=samples_14.1517%>%dplyr::select(ref_aa,protein_start,alt_aa,consequence_terms,ct.x,score)
+
+
+samples_14.1517=samples_14.1517%>%mutate(resmuts=case_when(protein_start%in%253&alt_aa%in%"H"~T,
+                                                         protein_start%in%255&alt_aa%in%"V"~T,
+                                                         protein_start%in%486&alt_aa%in%"S"~T,
+                                                         protein_start%in%396&alt_aa%in%"P"~T,
+                                                         protein_start%in%255&alt_aa%in%"K"~T,
+                                                         protein_start%in%315&alt_aa%in%"I"~T,
+                                                         protein_start%in%252&alt_aa%in%"H"~T,
+                                                         protein_start%in%253&alt_aa%in%"F"~T,
+                                                         protein_start%in%250&alt_aa%in%"E"~T,
+                                                         protein_start%in%359&alt_aa%in%"C"~T,
+                                                         protein_start%in%351&alt_aa%in%"T"~T,
+                                                         protein_start%in%355&alt_aa%in%"G"~T,
+                                                         protein_start%in%317&alt_aa%in%"L"~T,
+                                                         protein_start%in%359&alt_aa%in%"I"~T,
+                                                         protein_start%in%355&alt_aa%in%"A"~T,
+                                                         protein_start%in%459&alt_aa%in%"K"~T,
+                                                         protein_start%in%276&alt_aa%in%"G"~T,
+                                                         protein_start%in%299&alt_aa%in%"L"~T,
+                                                         
+                                                         T~F))
+
+samples_14.1517=samples_14.1517%>%mutate(resresids=case_when(protein_start%in%253~T,
+                                                         protein_start%in%255~T,
+                                                         protein_start%in%486~T,
+                                                         protein_start%in%396~T,
+                                                         protein_start%in%255~T,
+                                                         protein_start%in%315~T,
+                                                         protein_start%in%252~T,
+                                                         protein_start%in%253~T,
+                                                         protein_start%in%250~T,
+                                                         protein_start%in%359~T,
+                                                         protein_start%in%351~T,
+                                                         protein_start%in%355~T,
+                                                         protein_start%in%317~T,
+                                                         protein_start%in%359~T,
+                                                         protein_start%in%355~T,
+                                                         protein_start%in%459~T,
+                                                         protein_start%in%276~T,
+                                                         protein_start%in%299~T,
+                                                         
+                                                         T~F))
+
+highscore=samples_14.1517%>%filter(!ct.x%in%1,protein_start>=242,protein_start<=494)
+highscore=highscore%>%mutate(subs_name=paste(ref_aa,protein_start,alt_aa,sep = ""))
+plotly=ggplot(highscore,aes(x=reorder(subs_name,-score),y=score,fill=resmuts))+geom_col()+theme(axis.text.x=element_text(angle=90, hjust=1))+scale_y_continuous(name="Enrithcment Score")+scale_x_discrete(name="Mutant")+guides(fill = guide_legend(title = "Clinically\n Observed \n Resmut"))
+ggplotly(plotly)
+
+ggplot(highscore%>%filter(resmuts%in%"TRUE"),aes(x=reorder(subs_name,-score),y=score))+geom_col()+theme_bw()
+
+ic50data_all_sum=read.csv("output/ic50data_all_confidence_intervals_raw_data.csv",row.names = 1)
+resmuts_merged=merge(highscore%>%filter(resmuts%in%"TRUE")%>%dplyr::select(subs_name,score),
+        ic50data_all_sum%>%dplyr::select(species,netgr_pred_model,netgr_pred_mean),by.x="subs_name",by.y="species")
+ggplot(resmuts_merged,aes(x=netgr_pred_mean,y=score,label=subs_name))+geom_text()+theme_bw()+xlab("IC50 Predicted Growth Rates")+ylab("Enrichment Score observed w 5k mutant library \n at 60k sscs at 2 days post 300nM Imatinib")+ggtitle("Imatinib Treatment on iL3 independent 384W library")
+# ggplot(a,aes(x=netgr_pred_mean,y=netgr_pred_model,label=subs_name))+geom_text()
+# aa=a%>%filter(!subs_name%in%"D276G")
+# # cor(aa$score,aa$netgr_pred_mean)
+# a=sample1517%>%filter(protein_start%in%"396")
+# b=sample14%>%filter(protein_start%in%"396")
+
+# ggplot(a%>%filter(!subs_name%in%"D276G"),aes(x=netgr_pred_mean,y=score,label=subs_name))+geom_point()+theme_bw()+xlab("IC50 Predicted Growth Rates")+ylab("Enrichment Score observed w 5k mutant library \n at 60k sscs")
+# write.csv(highscore,"BCRABL_EnrichmentScores_iL3Independent_Library.csv")
+
+ggplot(resmuts_merged%>%filter(!subs_name%in%"H396P"),aes(x=netgr_pred_mean,y=score,label=subs_name))+geom_text()+theme_bw()+xlab("IC50 Predicted Growth Rates")+ylab("Observed Enrichment Score")
 ```
 
 

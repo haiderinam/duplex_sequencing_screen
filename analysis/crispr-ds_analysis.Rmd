@@ -1,0 +1,183 @@
+---
+title: "crispr-ds_analysis"
+author: "Haider Inam"
+date: '2023-02-23'
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_knit$set(root.dir = normalizePath(".."))
+# rm(list=ls())
+
+library(stringr)
+library(dplyr)
+library(ggplot2)
+library(plotly)
+library(tictoc)
+library(doParallel)
+library(foreach)
+library(RColorBrewer)
+#Cleanup code for plotting
+# cleanup=theme_bw() +
+#   theme(plot.title = element_text(hjust=.5), 
+#         panel.grid.major = element_blank(),
+#         panel.grid.major.y = element_blank(),
+#         panel.background = element_blank(),
+#         axis.line = element_line(color = "black"),
+#         axis.text = element_text(face="bold",color="black",size="11"),
+#         text=element_text(size=11,face="bold"),
+#         axis.title=element_text(face="bold",size="11"))
+```
+
+Objective is to compare the unevenness of ABL library region 1.
+Lane 11 has sorted ABL region 1 after a fresh sort
+Lane 17b has sorted ABL region 1 after a frozen sorted vial was thawed and pelletted after a few days
+Lane 15 has Imatinib treated samples
+```{r}
+source("code/merge_samples.R")
+source("code/depth_finder.R")
+intended_codons=read.csv("data/codon_table.csv")
+intended_codons=intended_codons%>%filter(Twist%in%T)
+
+##############Enzymatic Fragmentation########
+##############Baseline########
+lane12sortedsamples=merge_samples("Novogene_lane11/Sample1/duplex","Novogene_lane11/Sample2/duplex")
+# lane12sortedsamples=merge_samples("Novogene_lane11/Sample1/sscs","Novogene_lane11/Sample2/sscs")
+# lane12sortedsamples=merge_samples(lane12sortedsamples,"Novogene_lane11/Sample3/sscs")
+# lane12sortedsamples=merge_samples(lane12sortedsamples,"Novogene_lane11/Sample4/sscs")
+
+lane12sortedsamples=lane12sortedsamples%>%
+  rowwise()%>%
+  mutate(ref_aa=strsplit(amino_acids,"/")[[1]][1],
+         alt_aa=strsplit(amino_acids,"/")[[1]][2])
+lane12sortedsamples=lane12sortedsamples%>%mutate(maf=ct/depth)
+lane12sortedsamples=lane12sortedsamples%>%filter(alt_codon%in%intended_codons$Codon)
+# samplex_simple=samplex%>%dplyr::select(alt_start_pos,protein_start,ref,alt,ref_aa,alt_aa,consequence_terms,ct,depth,maf)
+
+ggplot(lane12sortedsamples%>%
+                filter(nchar(alt_aa)%in%1,
+                       consequence_terms%in%"missense_variant",
+                       protein_start>=242,
+                       protein_start<=290),
+              aes(x=protein_start,y=alt_aa,fill=maf))+
+  geom_tile()+
+  theme_bw()
+plotly=ggplot(lane12sortedsamples,aes(x=ct))+geom_bar(alpha=0.7)+scale_x_continuous(limits=c(0,500))
+ggplotly(plotly)
+
+##############CRISPR DS#########
+lane17b=merge_samples("novogene_lane17b/Sample1/duplex",
+                      "novogene_lane17b/Sample2/duplex")
+# lane17b=read.csv("data/Consensus_Data/novogene_lane17b/Sample1/sscs/variant_caller_outputs/variants_unique_ann.csv",header = T,stringsAsFactors = F)
+lane17b=lane17b%>%filter(alt_codon%in%intended_codons$Codon)
+
+ggplot(lane17b%>%filter(protein_start>=242,protein_start<290),aes(x=protein_start,y=alt_aa,fill=ct))+geom_tile()
+plotly=ggplot(lane17b,aes(x=ct))+geom_bar(alpha=0.7)+scale_x_continuous(limits=c(0,500))
+ggplotly(plotly)
+
+lane17b$librarytype="CRISPR-DS"
+lane12sortedsamples$librarytype="Enzymatically Sheared"
+crisprds_combined=rbind(lane17b%>%dplyr::select(protein_start,ct,depth,librarytype),lane12sortedsamples%>%dplyr::select(protein_start,ct,depth,librarytype))
+ggplot(crisprds_combined%>%filter(ct<=500),aes(x=ct,fill=librarytype))+
+  geom_density(alpha=0.7)+
+  scale_x_continuous(name="Number of times each mutant was seen",trans="log10")+
+  scale_y_continuous(name="Density")+
+  labs(fill="Library Type")+
+  theme(legend.position="none")
+# ggsave("crisprds_readcount.pdf",width=6,height=6,units="in",useDingbats=F)
+
+crisprds_combined_sum=crisprds_combined%>%group_by(librarytype,protein_start)%>%summarize(depth=mean(depth))
+crisprds_combined_sum$librarytype=factor(crisprds_combined_sum$librarytype,levels=c("Enzymatically Sheared","CRISPR-DS"))
+ggplot(crisprds_combined_sum%>%filter(protein_start>200,protein_start<=302),aes(x=librarytype,y=depth,fill=librarytype))+
+  geom_boxplot(alpha=0.7)+
+  scale_y_continuous(trans="log10",name="Depth of Coverage")+
+  theme(axis.text.x=element_blank(),
+        axis.title.x=element_blank(),
+        axis.ticks.x=element_blank())+
+  scale_fill_manual(name = "Library Type", labels = c(" Enzymatically\n Sheared","CRISPR-DS"),values=c("blue","red"))
+# ggsave("crisprds_depth.pdf",width=8,height=6,units="in",useDingbats=F)
+
+####Plotting the allele frequencies of the lane 11 samples (before fresh thaw) and lane 17 samples (after fresh thaw)
+lane17b_simple=lane17b%>%dplyr::select(protein_start,ref_aa,alt_aa,amino_acids,consequence_terms,ct,depth)
+lane12_simple=lane12sortedsamples%>%dplyr::select(protein_start,ref_aa,alt_aa,amino_acids,consequence_terms,ct,depth)
+lanes_combined=merge(lane17b_simple,lane12_simple,by=c("protein_start","ref_aa","alt_aa","amino_acids","consequence_terms"),suffixes = c("_lane17","_lane12"))
+lanes_combined=lanes_combined%>%mutate(maf_lane17=ct_lane17/depth_lane17,maf_lane12=ct_lane12/depth_lane12)
+ggplot(lanes_combined%>%filter(consequence_terms%in%"missense_variant",protein_start>=242,protein_start<=494),aes(x=maf_lane17,y=maf_lane12))+geom_point()+scale_x_continuous(trans="log10")+scale_y_continuous(trans="log10")+geom_abline()
+ggplot(crisprds_combined%>%mutate(maf=ct/depth),aes(x=maf,color=librarytype))+stat_ecdf(geom="step")+scale_x_continuous(trans="log10")+scale_color_manual(labels=c("Freeze thawed","Freshly Sorted"),values=c("Red","Green"))
+
+####Adding Lane 15 Treated Samples to the distributions:
+
+lane15treatedsamples=read.csv("data/Consensus_Data/novogene_lane15/sample_7/duplex/variant_caller_outputs/variants_unique_ann.csv",header = T,stringsAsFactors = F)
+lane15treatedsamples=lane15treatedsamples%>%mutate(maf=ct/depth)
+lane15treatedsamples=lane15treatedsamples%>%filter(alt_codon%in%intended_codons$Codon)
+lane15treatedsamples$librarytype="Enzymatically fragmented treated"
+
+crisprds_combined=rbind(lane17b%>%dplyr::select(protein_start,ct,depth,librarytype),lane12sortedsamples%>%dplyr::select(protein_start,ct,depth,librarytype),lane15treatedsamples%>%dplyr::select(protein_start,ct,depth,librarytype))
+
+ggplot(crisprds_combined%>%filter(protein_start>200,protein_start<=302),aes(x=librarytype,y=depth,fill=librarytype))+
+  geom_boxplot(alpha=0.7)+
+  scale_y_continuous(trans="log10",name="Depth of Coverage")+
+  # labs(fill="Library Type")+
+  # scale_fill_discrete(name = "Library Type", labels = c("CRISPR-DS", " Enzymatically\n Sheared"))+
+  theme(axis.text.x=element_blank(),
+        axis.title.x=element_blank(),
+        axis.ticks.x=element_blank())
+
+
+ggplot(crisprds_combined%>%filter(ct<=500),aes(x=ct,fill=librarytype))+
+  geom_density(alpha=0.7)+
+  scale_x_continuous(name="Number of times each mutant was seen",trans="log10")+
+  scale_y_continuous(name="Density")+
+  labs(fill="Library Type")+
+  scale_fill_manual(values=c("red","green","blue"))+
+  theme(legend.position="none")
+
+ggplot(crisprds_combined%>%filter(ct<=500,!librarytype%in%"CRISPR-DS"),aes(x=ct,fill=librarytype))+
+  geom_density(alpha=0.7)+
+  scale_x_continuous(name="Number of times each mutant was seen",trans="log10")+
+  scale_y_continuous(name="Density")+
+  labs(fill="Library Type")+
+  scale_fill_manual(values=c("green","blue"))+
+  theme(legend.position="none")
+
+ggplot(crisprds_combined%>%mutate(maf=ct/depth),aes(x=maf,color=librarytype))+stat_ecdf(geom="step")+scale_x_continuous(trans="log10")+scale_color_manual(labels=c("Freeze Thawed","Freshly Sorted Treated","Freshly Sorted"),values=c("Red","Blue","Green"))
+# As you can see with the CDFs, a single freeze thaw followed by a few days of growth can really mess up the evenness of the library
+class(crisprds_combined$librarytype)
+twistdata=read.csv("data/QC_Data_Cloning/TwistQC-ABL252residues-Q-146958.csv",header = T,stringsAsFactors = F)
+twistdata$librarytype="PlasmidLibrary"
+twistdata=twistdata%>%dplyr::select(librarytype,maf=variant_maf)
+
+crisprds_combined_simple=crisprds_combined%>%mutate(maf=ct/depth)%>%dplyr::select(-c("protein_start","ct","depth"))
+crisprds_combined_simple=rbind(crisprds_combined_simple,twistdata)
+crisprds_combined_simple$librarytype=factor(crisprds_combined_simple$librarytype,levels=c("PlasmidLibrary","Enzymatically Sheared","Enzymatically fragmented treated","CRISPR-DS"))
+ggplot(crisprds_combined_simple,aes(x=maf,color=librarytype))+
+  stat_ecdf(geom="step")+
+  scale_x_continuous("Mutant Allele Frequency",trans="log10",limits=c(1e-5,1e-2))+
+  scale_color_manual(name="Library Type",labels=c("Plasmid Library","Freshly Sorted","Freshly Sorted Treated","Freeze Thawed"),values=c("Gray","Green","Blue","Red"))
+
+ggsave("thawed_library_cdf_2.22.23.pdf",width=8,height=4,units = "in",useDingbats=F)
+```
+
+
+Plots to show the depths you need to go to to see variants in functional genomics libraries
+```{r}
+x=c("E","D","C","B","A")
+y=c(.5,1/100,1/5000,1/20000,1/100000)
+df=data.frame(cbind(x,y))
+df$y=as.numeric(df$y)
+ggplot(df,aes(x=x,y=y))+
+  geom_col()+
+  scale_y_continuous("Mutant Alle Frequency",
+                     trans="log10",
+                     breaks = c(.5, .1, .01, .001, .0001, .00001), 
+                     labels = c("0.5", "1 in 10", "1 in 100", "1 in 1k","1 in 10k","1 in 100k"))+
+  geom_hline(yintercept = .005,linetype="dashed",color="red",size=1.5)+
+  theme(axis.ticks.y = element_blank(),
+        axis.text.y = element_blank(),
+        axis.title.y = element_blank(),
+        axis.text.x=element_text(angle=90,hjust=.5,vjust=.5))+
+  coord_flip()
+# ggsave("library_comlexity.pdf",width=4,height = 4,units="in",useDingbats=F)
+  
+```

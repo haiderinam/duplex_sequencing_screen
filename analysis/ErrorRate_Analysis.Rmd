@@ -30,10 +30,15 @@ cleanup=theme_bw() +
         text=element_text(size=11,face="bold"),
         axis.title=element_text(face="bold",size="11"))
 
-source("code/merge_samples.R")
+
 
 
 ```
+
+```{r}
+source("code/merge_samples.R")
+```
+
 
 12.8.22
 ```{r}
@@ -83,7 +88,9 @@ sscs$consensus="SSCS"
 
 duplex=read.csv(file = "data/Consensus_Data/Novogene_lane15/sample_3/duplex/variant_caller_outputs/variants_unique_ann.csv",header=T,stringsAsFactors = F)
 duplex$consensus="Duplex"
-
+ngs=ngs%>%dplyr::select(-c("impact","polyphen_prediction","codons"))
+sscs=sscs%>%dplyr::select(-c("ref_codon","alt_codon","frame_pos","ref_aa","alt_aa"))
+duplex=duplex%>%dplyr::select(-c("ref_codon","alt_codon","frame_pos","ref_aa","alt_aa"))
 sample10_duplex=rbind(ngs,sscs,duplex)
 
 # sample10_duplex=read.csv(file = "data/Consensus_Data/Novogene_lane14/sample10_combined/duplex/variant_caller_outputs/variants_unique_ann.csv",header=T,stringsAsFactors = F)
@@ -133,5 +140,55 @@ ggplot(sample10_duplex_simple%>%
   scale_y_continuous(limits=c(0,.01),name="MAF")+
   theme(legend.position = "none")
 # ggsave("errorrates.pdf",width=8,height=8,units="in",useDingbats=F)  
+```
+
+Analyzing the TP53 data for errors (aka unintended codons)
+```{r}
+tp53_data=read.csv("data/TP53data/41588_2018_204_MOESM5_ESM.csv",header = T,stringsAsFactors = F)
+# Some summary from Data:
+unintended_snvs=tp53_data%>%filter(Nucleotide_Changes_from_WT%in%1,Variant_group%in%"Unintended")
+intended_snvs=tp53_data%>%filter(Nucleotide_Changes_from_WT%in%1,Variant_group%in%"IntendedVtCodon")
+mean(unintended_snvs$TP53_MITE_Entry_Library)
+median(unintended_snvs$TP53_MITE_Entry_Library)
+mean(intended_snvs$TP53_MITE_Entry_Library)
+median(intended_snvs$TP53_MITE_Entry_Library)
+
+#   Mean and median of MITE Entry library SNV:
+
+#     Unintended: 27/24
+#     Intended: 52/44
+
+mean(unintended_snvs$A549_p53WT_Nutlin.3_Experiment_1)
+median(unintended_snvs$A549_p53WT_Nutlin.3_Experiment_1)
+mean(intended_snvs$A549_p53WT_Nutlin.3_Experiment_1)
+median(intended_snvs$A549_p53WT_Nutlin.3_Experiment_1)
+#   Mean and median of MITE Nutlin Treated library SNV:
+#     Unintended: 685/356
+#     Intended: 1217/695
+
+
+
+
+#########Untreated A549s experiment 1#########
+ggplot(tp53_data%>%
+                filter(Nucleotide_Changes_from_WT%in%1,!Variant_group%in%"IntendedWtCodon",TP53_MITE_Expression_Library<=200000),aes(x=TP53_MITE_Expression_Library,fill=Variant_group))+
+  geom_density(alpha=.7)+
+  scale_x_continuous(trans="log10",name="Number of Times a Variant was Seen")+
+  scale_y_continuous(name="Density")+
+  scale_fill_manual(values=c("blue","red"))+
+  cleanup+
+  theme(legend.position = "none")
+# ggsave("tp53_untreated.pdf",width=4,height=3,units="in",useDingbats=F)
+
+#########Nutlin-3 Treated A549s experiment 1#########
+ggplot(tp53_data%>%
+                filter(Nucleotide_Changes_from_WT%in%1,!Variant_group%in%"IntendedWtCodon",A549_p53WT_Nutlin.3_Experiment_1<=20000),aes(x=A549_p53WT_Nutlin.3_Experiment_1,fill=Variant_group))+
+  geom_density(alpha=.7)+
+  scale_x_continuous(trans="log10",name="Number of Times a Variant was Seen")+
+  scale_y_continuous(name="Density")+
+  scale_fill_manual(values=c("blue","red"))+
+  cleanup+
+  theme(legend.position = "none")
+# ggsave("tp53_treated.pdf",width=4,height=3,units="in",useDingbats=F)
 ```
 
