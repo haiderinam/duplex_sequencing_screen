@@ -9,9 +9,11 @@
 <meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
 
 
+<meta name="author" content="Haider Inam" />
 
+<meta name="date" content="2023-02-23" />
 
-<title>Home</title>
+<title>CDF-analysis-library-evenness</title>
 
 <script src="site_libs/header-attrs-2.14/header-attrs.js"></script>
 <script src="site_libs/jquery-3.6.0/jquery-3.6.0.min.js"></script>
@@ -29,9 +31,19 @@
        h6 {font-size: 12px;}
        code {color: inherit; background-color: rgba(0, 0, 0, 0.04);}
        pre:not([class]) { background-color: white }</style>
+<script src="site_libs/jqueryui-1.11.4/jquery-ui.min.js"></script>
+<link href="site_libs/tocify-1.9.1/jquery.tocify.css" rel="stylesheet" />
+<script src="site_libs/tocify-1.9.1/jquery.tocify.js"></script>
 <script src="site_libs/navigation-1.1/tabsets.js"></script>
 <link href="site_libs/highlightjs-9.12.0/textmate.css" rel="stylesheet" />
 <script src="site_libs/highlightjs-9.12.0/highlight.js"></script>
+<script src="site_libs/htmlwidgets-1.5.1/htmlwidgets.js"></script>
+<script src="site_libs/plotly-binding-4.9.2.1/plotly.js"></script>
+<script src="site_libs/typedarray-0.1/typedarray.min.js"></script>
+<link href="site_libs/crosstalk-1.1.0.1/css/crosstalk.css" rel="stylesheet" />
+<script src="site_libs/crosstalk-1.1.0.1/js/crosstalk.min.js"></script>
+<link href="site_libs/plotly-htmlwidgets-css-1.52.2/plotly-htmlwidgets.css" rel="stylesheet" />
+<script src="site_libs/plotly-main-1.52.2/plotly-latest.min.js"></script>
 <link href="site_libs/font-awesome-5.1.0/css/all.css" rel="stylesheet" />
 <link href="site_libs/font-awesome-5.1.0/css/v4-shims.css" rel="stylesheet" />
 
@@ -234,6 +246,69 @@ $(document).ready(function () {
 
 
 
+<style type="text/css">
+
+#TOC {
+  margin: 25px 0px 20px 0px;
+}
+@media (max-width: 768px) {
+#TOC {
+  position: relative;
+  width: 100%;
+}
+}
+
+@media print {
+.toc-content {
+  /* see https://github.com/w3c/csswg-drafts/issues/4434 */
+  float: right;
+}
+}
+
+.toc-content {
+  padding-left: 30px;
+  padding-right: 40px;
+}
+
+div.main-container {
+  max-width: 1200px;
+}
+
+div.tocify {
+  width: 20%;
+  max-width: 260px;
+  max-height: 85%;
+}
+
+@media (min-width: 768px) and (max-width: 991px) {
+  div.tocify {
+    width: 25%;
+  }
+}
+
+@media (max-width: 767px) {
+  div.tocify {
+    width: 100%;
+    max-width: none;
+  }
+}
+
+.tocify ul, .tocify li {
+  line-height: 20px;
+}
+
+.tocify-subheader .tocify-item {
+  font-size: 0.90em;
+}
+
+.tocify .list-group-item {
+  border-radius: 0px;
+}
+
+
+</style>
+
+
 
 </head>
 
@@ -241,6 +316,16 @@ $(document).ready(function () {
 
 
 <div class="container-fluid main-container">
+
+
+<!-- setup 3col/9col grid for toc_float and main content  -->
+<div class="row">
+<div class="col-xs-12 col-sm-4 col-md-3">
+<div id="TOC" class="tocify">
+</div>
+</div>
+
+<div class="toc-content col-xs-12 col-sm-8 col-md-9">
 
 
 
@@ -284,7 +369,9 @@ $(document).ready(function () {
 
 
 
-<h1 class="title toc-ignore">Home</h1>
+<h1 class="title toc-ignore">CDF-analysis-library-evenness</h1>
+<h4 class="author">Haider Inam</h4>
+<h4 class="date">2023-02-23</h4>
 
 </div>
 
@@ -317,7 +404,7 @@ aria-hidden="true"></span> </a>
 </p>
 <p>
 <strong>Checks:</strong> <span
-class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> 1
+class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> 6
 <span class="glyphicon glyphicon-exclamation-sign text-danger"
 aria-hidden="true"></span> 1
 </p>
@@ -351,12 +438,96 @@ changes </a>
 <div id="strongRMarkdownfilestronguncommittedchanges"
 class="panel-collapse collapse">
 <div class="panel-body">
-<p>The R Markdown file has unstaged changes. To know which version of
-the R Markdown file created these results, you’ll want to first commit
-it to the Git repo. If you’re still working on the analysis, you can
-ignore this warning. When you’re finished, you can run
+<p>The R Markdown is untracked by Git. To know which version of the R
+Markdown file created these results, you’ll want to first commit it to
+the Git repo. If you’re still working on the analysis, you can ignore
+this warning. When you’re finished, you can run
 <code>wflow_publish</code> to commit the R Markdown file and build the
 HTML.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongEnvironmentstrongempty">
+<span class="glyphicon glyphicon-ok text-success"
+aria-hidden="true"></span> <strong>Environment:</strong> empty </a>
+</p>
+</div>
+<div id="strongEnvironmentstrongempty" class="panel-collapse collapse">
+<div class="panel-body">
+<p>Great job! The global environment was empty. Objects defined in the
+global environment can affect the analysis in your R Markdown file in
+unknown ways. For reproduciblity it’s best to always run the code in an
+empty environment.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongSeedstrongcodesetseed20200402code">
+<span class="glyphicon glyphicon-ok text-success"
+aria-hidden="true"></span> <strong>Seed:</strong>
+<code>set.seed(20200402)</code> </a>
+</p>
+</div>
+<div id="strongSeedstrongcodesetseed20200402code"
+class="panel-collapse collapse">
+<div class="panel-body">
+<p>The command <code>set.seed(20200402)</code> was run prior to running
+the code in the R Markdown file. Setting a seed ensures that any results
+that rely on randomness, e.g. subsampling or permutations, are
+reproducible.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongSessioninformationstrongrecorded">
+<span class="glyphicon glyphicon-ok text-success"
+aria-hidden="true"></span> <strong>Session information:</strong>
+recorded </a>
+</p>
+</div>
+<div id="strongSessioninformationstrongrecorded"
+class="panel-collapse collapse">
+<div class="panel-body">
+<p>Great job! Recording the operating system, R version, and package
+versions is critical for reproducibility.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongCachestrongnone">
+<span class="glyphicon glyphicon-ok text-success"
+aria-hidden="true"></span> <strong>Cache:</strong> none </a>
+</p>
+</div>
+<div id="strongCachestrongnone" class="panel-collapse collapse">
+<div class="panel-body">
+<p>Nice! There were no cached chunks for this analysis, so you can be
+confident that you successfully produced the results during this
+run.</p>
+</div>
+</div>
+</div>
+<div class="panel panel-default">
+<div class="panel-heading">
+<p class="panel-title">
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongFilepathsstrongrelative">
+<span class="glyphicon glyphicon-ok text-success"
+aria-hidden="true"></span> <strong>File paths:</strong> relative </a>
+</p>
+</div>
+<div id="strongFilepathsstrongrelative" class="panel-collapse collapse">
+<div class="panel-body">
+<p>Great job! Using relative paths to the files within your workflowr
+project makes it easier to run your code on other machines.</p>
 </div>
 </div>
 </div>
@@ -777,7 +948,6 @@ Unstaged changes:
     Modified:   .DS_Store
     Modified:   analysis/.DS_Store
     Deleted:    analysis/crispr-ds_analysis.Rmd
-    Modified:   analysis/index.Rmd
     Modified:   code/variantcaller/add_l298l.R
     Modified:   data/Consensus_Data/novogene_lane18/sample11/.DS_Store
     Modified:   data/Consensus_Data/novogene_lane18/sample11/duplex/.DS_Store
@@ -799,989 +969,246 @@ have uncommitted changes.
 <hr>
 </div>
 <div id="versions" class="tab-pane fade">
-
 <p>
-These are the previous versions of the repository in which changes were
-made to the R Markdown (<code>analysis/index.Rmd</code>) and HTML
-(<code>docs/index.html</code>) files. If you’ve configured a remote Git
-repository (see <code>?wflow_git_remote</code>), click on the hyperlinks
-in the table below to view the files as they were in that past version.
+There are no past versions. Publish this analysis with
+<code>wflow_publish()</code> to start tracking its development.
 </p>
-<div class="table-responsive">
-<table class="table table-condensed table-hover">
-<thead>
-<tr>
-<th>
-File
-</th>
-<th>
-Version
-</th>
-<th>
-Author
-</th>
-<th>
-Date
-</th>
-<th>
-Message
-</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>
-Rmd
-</td>
-<td>
-<a href="https://github.com/haiderinam/duplex_sequencing_screen/blob/81a5af3d6a7e2ba8e8bba02982ec55f7152bc262/analysis/index.Rmd" target="_blank">81a5af3</a>
-</td>
-<td>
-haiderinam
-</td>
-<td>
-2023-02-25
-</td>
-<td>
-Added shortest codon finder function
-</td>
-</tr>
-<tr>
-<td>
-Rmd
-</td>
-<td>
-<a href="https://github.com/haiderinam/duplex_sequencing_screen/blob/fa7baf13e202a3080c3dd43fec35a32f9089a2bf/analysis/index.Rmd" target="_blank">fa7baf1</a>
-</td>
-<td>
-haiderinam
-</td>
-<td>
-2022-12-15
-</td>
-<td>
-Updates to the variant caller
-</td>
-</tr>
-<tr>
-<td>
-html
-</td>
-<td>
-<a href="https://rawcdn.githack.com/haiderinam/duplex_sequencing_screen/fabfb307023a05171c8ee4552629a5f10791e0a2/docs/index.html" target="_blank">fabfb30</a>
-</td>
-<td>
-haiderinam
-</td>
-<td>
-2022-12-09
-</td>
-<td>
-Build site.
-</td>
-</tr>
-<tr>
-<td>
-Rmd
-</td>
-<td>
-<a href="https://github.com/haiderinam/duplex_sequencing_screen/blob/077edd047b10b20815c8296aea8d0d5dec751f4d/analysis/index.Rmd" target="_blank">077edd0</a>
-</td>
-<td>
-haiderinam
-</td>
-<td>
-2022-12-09
-</td>
-<td>
-Added K562 Webpage
-</td>
-</tr>
-<tr>
-<td>
-html
-</td>
-<td>
-<a href="https://rawcdn.githack.com/haiderinam/duplex_sequencing_screen/077edd047b10b20815c8296aea8d0d5dec751f4d/docs/index.html" target="_blank">077edd0</a>
-</td>
-<td>
-haiderinam
-</td>
-<td>
-2022-12-09
-</td>
-<td>
-Added K562 Webpage
-</td>
-</tr>
-<tr>
-<td>
-Rmd
-</td>
-<td>
-<a href="https://github.com/haiderinam/duplex_sequencing_screen/blob/cec2e319a640183481323a4f3d5fcac6e531209a/analysis/index.Rmd" target="_blank">cec2e31</a>
-</td>
-<td>
-haiderinam
-</td>
-<td>
-2022-12-08
-</td>
-<td>
-Added error rate analyses
-</td>
-</tr>
-<tr>
-<td>
-html
-</td>
-<td>
-<a href="https://rawcdn.githack.com/haiderinam/duplex_sequencing_screen/cec2e319a640183481323a4f3d5fcac6e531209a/docs/index.html" target="_blank">cec2e31</a>
-</td>
-<td>
-haiderinam
-</td>
-<td>
-2022-12-08
-</td>
-<td>
-Added error rate analyses
-</td>
-</tr>
-<tr>
-<td>
-html
-</td>
-<td>
-<a href="https://rawcdn.githack.com/haiderinam/duplex_sequencing_screen/404fc72806027137f233a2797b54f3f349adac20/docs/index.html" target="_blank">404fc72</a>
-</td>
-<td>
-haiderinam
-</td>
-<td>
-2022-11-04
-</td>
-<td>
-Build site.
-</td>
-</tr>
-<tr>
-<td>
-Rmd
-</td>
-<td>
-<a href="https://github.com/haiderinam/duplex_sequencing_screen/blob/ff4b4e89f941ebb8d99d6468bd632cd4e1d894f4/analysis/index.Rmd" target="_blank">ff4b4e8</a>
-</td>
-<td>
-haiderinam
-</td>
-<td>
-2022-11-04
-</td>
-<td>
-wflow_publish("analysis/index.Rmd")
-</td>
-</tr>
-<tr>
-<td>
-Rmd
-</td>
-<td>
-<a href="https://github.com/haiderinam/duplex_sequencing_screen/blob/3a2f887b55c44048224b649aa222d5fc8f3c989e/analysis/index.Rmd" target="_blank">3a2f887</a>
-</td>
-<td>
-haiderinam
-</td>
-<td>
-2022-11-04
-</td>
-<td>
-Added analyses of IL3 independence
-</td>
-</tr>
-<tr>
-<td>
-Rmd
-</td>
-<td>
-<a href="https://github.com/haiderinam/duplex_sequencing_screen/blob/6f54acfcb8ca7c6d68180ee3a0269db58cfda640/analysis/index.Rmd" target="_blank">6f54acf</a>
-</td>
-<td>
-haiderinam
-</td>
-<td>
-2022-11-04
-</td>
-<td>
-Added analyses of SSCS vs DCS error rates
-</td>
-</tr>
-<tr>
-<td>
-html
-</td>
-<td>
-<a href="https://rawcdn.githack.com/haiderinam/duplex_sequencing_screen/28519e7f59f2caaf18477d5c92f8799beccb37eb/docs/index.html" target="_blank">28519e7</a>
-</td>
-<td>
-haiderinam
-</td>
-<td>
-2022-10-29
-</td>
-<td>
-Build site.
-</td>
-</tr>
-<tr>
-<td>
-Rmd
-</td>
-<td>
-<a href="https://github.com/haiderinam/duplex_sequencing_screen/blob/ba25cb708062de1d10ed0119e287c8c6159659a9/analysis/index.Rmd" target="_blank">ba25cb7</a>
-</td>
-<td>
-haiderinam
-</td>
-<td>
-2022-10-29
-</td>
-<td>
-wflow_publish("analysis/index.Rmd")
-</td>
-</tr>
-<tr>
-<td>
-Rmd
-</td>
-<td>
-<a href="https://github.com/haiderinam/duplex_sequencing_screen/blob/7ed0af87e715e9ea54a21e7b8236e01ebc9f5d9e/analysis/index.Rmd" target="_blank">7ed0af8</a>
-</td>
-<td>
-haiderinam
-</td>
-<td>
-2022-08-22
-</td>
-<td>
-August 2022 Updates
-</td>
-</tr>
-<tr>
-<td>
-html
-</td>
-<td>
-<a href="https://rawcdn.githack.com/haiderinam/duplex_sequencing_screen/86ce8ca79ec1cd6cc05fdf19c9caa74887f3b1e6/docs/index.html" target="_blank">86ce8ca</a>
-</td>
-<td>
-haiderinam
-</td>
-<td>
-2022-08-22
-</td>
-<td>
-August 2022 Update
-</td>
-</tr>
-<tr>
-<td>
-html
-</td>
-<td>
-<a href="https://rawcdn.githack.com/haiderinam/duplex_sequencing_screen/f36837112ba05a00bc046fbf25d1612fe6b171ef/docs/index.html" target="_blank">f368371</a>
-</td>
-<td>
-haiderinam
-</td>
-<td>
-2020-08-13
-</td>
-<td>
-Build site.
-</td>
-</tr>
-<tr>
-<td>
-html
-</td>
-<td>
-<a href="https://rawcdn.githack.com/haiderinam/duplex_sequencing_screen/7fe0f9b85304bb797dde69f2183e1330580cf8a3/docs/index.html" target="_blank">7fe0f9b</a>
-</td>
-<td>
-haiderinam
-</td>
-<td>
-2020-07-06
-</td>
-<td>
-Build site.
-</td>
-</tr>
-<tr>
-<td>
-Rmd
-</td>
-<td>
-<a href="https://github.com/haiderinam/duplex_sequencing_screen/blob/e4a901dfd86a50c98bd6c33f8fe3b7680717a441/analysis/index.Rmd" target="_blank">e4a901d</a>
-</td>
-<td>
-haiderinam
-</td>
-<td>
-2020-07-06
-</td>
-<td>
-wflow_publish("analysis/index.Rmd")
-</td>
-</tr>
-<tr>
-<td>
-html
-</td>
-<td>
-<a href="https://rawcdn.githack.com/haiderinam/duplex_sequencing_screen/231d21d5339b03b3396c16d9698e9d0d4cbeba92/docs/index.html" target="_blank">231d21d</a>
-</td>
-<td>
-haiderinam
-</td>
-<td>
-2020-06-07
-</td>
-<td>
-Build site.
-</td>
-</tr>
-<tr>
-<td>
-html
-</td>
-<td>
-<a href="https://rawcdn.githack.com/haiderinam/duplex_sequencing_screen/8f50f9978b9aa2f947e4442ec1d64b9c1fe8f0f8/docs/index.html" target="_blank">8f50f99</a>
-</td>
-<td>
-haiderinam
-</td>
-<td>
-2020-06-07
-</td>
-<td>
-Build site.
-</td>
-</tr>
-<tr>
-<td>
-Rmd
-</td>
-<td>
-<a href="https://github.com/haiderinam/duplex_sequencing_screen/blob/5da3af039c2fb18c551e6e7435b5a7815f3f0f6c/analysis/index.Rmd" target="_blank">5da3af0</a>
-</td>
-<td>
-haiderinam
-</td>
-<td>
-2020-06-07
-</td>
-<td>
-wflow_publish("analysis/index.Rmd")
-</td>
-</tr>
-<tr>
-<td>
-html
-</td>
-<td>
-<a href="https://rawcdn.githack.com/haiderinam/duplex_sequencing_screen/75ddcb1c935ec2719a2f628578198f5429435597/docs/index.html" target="_blank">75ddcb1</a>
-</td>
-<td>
-haiderinam
-</td>
-<td>
-2020-06-02
-</td>
-<td>
-Build site.
-</td>
-</tr>
-<tr>
-<td>
-Rmd
-</td>
-<td>
-<a href="https://github.com/haiderinam/duplex_sequencing_screen/blob/a17368310911a5e13feb7fce1c7311d94c1f87a1/analysis/index.Rmd" target="_blank">a173683</a>
-</td>
-<td>
-haiderinam
-</td>
-<td>
-2020-06-02
-</td>
-<td>
-wflow_publish("analysis/index.Rmd")
-</td>
-</tr>
-<tr>
-<td>
-html
-</td>
-<td>
-<a href="https://rawcdn.githack.com/haiderinam/duplex_sequencing_screen/bd2dec5c9e0d688ae61ad17ec44ca8b2362c7feb/docs/index.html" target="_blank">bd2dec5</a>
-</td>
-<td>
-haiderinam
-</td>
-<td>
-2020-06-02
-</td>
-<td>
-Build site.
-</td>
-</tr>
-<tr>
-<td>
-Rmd
-</td>
-<td>
-<a href="https://github.com/haiderinam/duplex_sequencing_screen/blob/1bb59405cc7893438c8e7fed072da289bd6f8890/analysis/index.Rmd" target="_blank">1bb5940</a>
-</td>
-<td>
-haiderinam
-</td>
-<td>
-2020-06-02
-</td>
-<td>
-wflow_publish("analysis/index.Rmd")
-</td>
-</tr>
-<tr>
-<td>
-html
-</td>
-<td>
-<a href="https://rawcdn.githack.com/haiderinam/duplex_sequencing_screen/c43acef02837e22dceb1d5f26525eb506585305e/docs/index.html" target="_blank">c43acef</a>
-</td>
-<td>
-haiderinam
-</td>
-<td>
-2020-06-02
-</td>
-<td>
-Build site.
-</td>
-</tr>
-<tr>
-<td>
-Rmd
-</td>
-<td>
-<a href="https://github.com/haiderinam/duplex_sequencing_screen/blob/d5c9f644b55f8903cf05001ad743d1ec4ce2347b/analysis/index.Rmd" target="_blank">d5c9f64</a>
-</td>
-<td>
-haiderinam
-</td>
-<td>
-2020-06-02
-</td>
-<td>
-wflow_publish("analysis/index.Rmd")
-</td>
-</tr>
-<tr>
-<td>
-html
-</td>
-<td>
-<a href="https://rawcdn.githack.com/haiderinam/duplex_sequencing_screen/eaca616beefd04da11c6fa0e68ce3fbba3f95dc7/docs/index.html" target="_blank">eaca616</a>
-</td>
-<td>
-haiderinam
-</td>
-<td>
-2020-04-20
-</td>
-<td>
-Build site.
-</td>
-</tr>
-<tr>
-<td>
-Rmd
-</td>
-<td>
-<a href="https://github.com/haiderinam/duplex_sequencing_screen/blob/2bba93e7b78d69b4f88ba251c721013357bc157d/analysis/index.Rmd" target="_blank">2bba93e</a>
-</td>
-<td>
-haiderinam
-</td>
-<td>
-2020-04-20
-</td>
-<td>
-wflow_publish("analysis/*.Rmd")
-</td>
-</tr>
-<tr>
-<td>
-html
-</td>
-<td>
-<a href="https://rawcdn.githack.com/haiderinam/duplex_sequencing_screen/05e3df6c8977af98a78efd2c9b43d4949f8f8b7e/docs/index.html" target="_blank">05e3df6</a>
-</td>
-<td>
-haiderinam
-</td>
-<td>
-2020-04-07
-</td>
-<td>
-Build site.
-</td>
-</tr>
-<tr>
-<td>
-html
-</td>
-<td>
-<a href="https://rawcdn.githack.com/haiderinam/duplex_sequencing_screen/1c86f6901c62b2224d9ce7e53814c51c24fb4784/docs/index.html" target="_blank">1c86f69</a>
-</td>
-<td>
-haiderinam
-</td>
-<td>
-2020-04-07
-</td>
-<td>
-Build site.
-</td>
-</tr>
-<tr>
-<td>
-Rmd
-</td>
-<td>
-<a href="https://github.com/haiderinam/duplex_sequencing_screen/blob/e7319092e76176398f1e4d7613a417d5f7235a4d/analysis/index.Rmd" target="_blank">e731909</a>
-</td>
-<td>
-haiderinam
-</td>
-<td>
-2020-04-07
-</td>
-<td>
-wflow_publish("analysis/index.Rmd")
-</td>
-</tr>
-<tr>
-<td>
-html
-</td>
-<td>
-<a href="https://rawcdn.githack.com/haiderinam/duplex_sequencing_screen/4516a7f7f33f88b93d79db2b3e814ea0a359910a/docs/index.html" target="_blank">4516a7f</a>
-</td>
-<td>
-haiderinam
-</td>
-<td>
-2020-04-06
-</td>
-<td>
-Build site.
-</td>
-</tr>
-<tr>
-<td>
-Rmd
-</td>
-<td>
-<a href="https://github.com/haiderinam/duplex_sequencing_screen/blob/3a57291d3b6b690f5538961c43757cf8fad9135b/analysis/index.Rmd" target="_blank">3a57291</a>
-</td>
-<td>
-haiderinam
-</td>
-<td>
-2020-04-06
-</td>
-<td>
-wflow_publish(files = "analysis/index.Rmd")
-</td>
-</tr>
-<tr>
-<td>
-html
-</td>
-<td>
-<a href="https://rawcdn.githack.com/haiderinam/duplex_sequencing_screen/c2930d542662d758f1f66562bdd95d21502868f5/docs/index.html" target="_blank">c2930d5</a>
-</td>
-<td>
-haiderinam
-</td>
-<td>
-2020-04-03
-</td>
-<td>
-Build site.
-</td>
-</tr>
-<tr>
-<td>
-Rmd
-</td>
-<td>
-<a href="https://github.com/haiderinam/duplex_sequencing_screen/blob/52f688491dab228a6e8343b7838132b266d795b8/analysis/index.Rmd" target="_blank">52f6884</a>
-</td>
-<td>
-haiderinam
-</td>
-<td>
-2020-04-03
-</td>
-<td>
-wflow_publish("analysis/*.Rmd")
-</td>
-</tr>
-<tr>
-<td>
-html
-</td>
-<td>
-<a href="https://rawcdn.githack.com/haiderinam/duplex_sequencing_screen/6af2cdcb35c47c946508eba79f1e07fd6c06137a/docs/index.html" target="_blank">6af2cdc</a>
-</td>
-<td>
-haiderinam
-</td>
-<td>
-2020-04-03
-</td>
-<td>
-Build site.
-</td>
-</tr>
-<tr>
-<td>
-Rmd
-</td>
-<td>
-<a href="https://github.com/haiderinam/duplex_sequencing_screen/blob/5cda9d34f94f99af13ca8ec50946b9d97bdf6a95/analysis/index.Rmd" target="_blank">5cda9d3</a>
-</td>
-<td>
-haiderinam
-</td>
-<td>
-2020-04-03
-</td>
-<td>
-wflow_publish("analysis/*.Rmd")
-</td>
-</tr>
-<tr>
-<td>
-html
-</td>
-<td>
-<a href="https://rawcdn.githack.com/haiderinam/duplex_sequencing_screen/0b9b87b45c1b016aa2eddf751c8b2808fa35c141/docs/index.html" target="_blank">0b9b87b</a>
-</td>
-<td>
-haiderinam
-</td>
-<td>
-2020-04-02
-</td>
-<td>
-Build site.
-</td>
-</tr>
-<tr>
-<td>
-Rmd
-</td>
-<td>
-<a href="https://github.com/haiderinam/duplex_sequencing_screen/blob/fc5b9c0eeb6ac2e20223ac680578f94866f00f3d/analysis/index.Rmd" target="_blank">fc5b9c0</a>
-</td>
-<td>
-haiderinam
-</td>
-<td>
-2020-04-02
-</td>
-<td>
-wflow_publish("analysis/*.Rmd")
-</td>
-</tr>
-<tr>
-<td>
-html
-</td>
-<td>
-<a href="https://rawcdn.githack.com/haiderinam/duplex_sequencing_screen/2bce927fcb15c952d01f4f64ae00f91ae3846ead/docs/index.html" target="_blank">2bce927</a>
-</td>
-<td>
-haiderinam
-</td>
-<td>
-2020-04-02
-</td>
-<td>
-Build site.
-</td>
-</tr>
-<tr>
-<td>
-html
-</td>
-<td>
-<a href="https://rawcdn.githack.com/haiderinam/duplex_sequencing_screen/4ed9b3560b530899bbab5f15f974623de4ef55b2/docs/index.html" target="_blank">4ed9b35</a>
-</td>
-<td>
-haiderinam
-</td>
-<td>
-2020-04-02
-</td>
-<td>
-Build site.
-</td>
-</tr>
-<tr>
-<td>
-Rmd
-</td>
-<td>
-<a href="https://github.com/haiderinam/duplex_sequencing_screen/blob/e31836a3fd65b6233f7110de7ed1714b4ff107b4/analysis/index.Rmd" target="_blank">e31836a</a>
-</td>
-<td>
-haiderinam
-</td>
-<td>
-2020-04-02
-</td>
-<td>
-wflow_publish("analysis/*.Rmd")
-</td>
-</tr>
-<tr>
-<td>
-html
-</td>
-<td>
-<a href="https://rawcdn.githack.com/haiderinam/duplex_sequencing_screen/99181d5229792022da28836551c5a2847ffc4334/docs/index.html" target="_blank">99181d5</a>
-</td>
-<td>
-haiderinam
-</td>
-<td>
-2020-04-02
-</td>
-<td>
-Build site.
-</td>
-</tr>
-<tr>
-<td>
-Rmd
-</td>
-<td>
-<a href="https://github.com/haiderinam/duplex_sequencing_screen/blob/17c01d498bf4262aeadd6dcd022ce33233aea4dd/analysis/index.Rmd" target="_blank">17c01d4</a>
-</td>
-<td>
-haiderinam
-</td>
-<td>
-2020-04-02
-</td>
-<td>
-wflow_publish("analysis/index.Rmd")
-</td>
-</tr>
-<tr>
-<td>
-html
-</td>
-<td>
-<a href="https://rawcdn.githack.com/haiderinam/duplex_sequencing_screen/1e2f4690868e3b2f4a611457556480f9670faa8f/docs/index.html" target="_blank">1e2f469</a>
-</td>
-<td>
-haiderinam
-</td>
-<td>
-2020-04-02
-</td>
-<td>
-Build site.
-</td>
-</tr>
-<tr>
-<td>
-html
-</td>
-<td>
-<a href="https://rawcdn.githack.com/haiderinam/duplex_sequencing_screen/e11eec555cc2ccfb95e4483f59848ddc05b2edf5/docs/index.html" target="_blank">e11eec5</a>
-</td>
-<td>
-haiderinam
-</td>
-<td>
-2020-04-02
-</td>
-<td>
-Build site.
-</td>
-</tr>
-<tr>
-<td>
-Rmd
-</td>
-<td>
-<a href="https://github.com/haiderinam/duplex_sequencing_screen/blob/0053f96d03db97bcb06dde06df6bb30707105d31/analysis/index.Rmd" target="_blank">0053f96</a>
-</td>
-<td>
-haiderinam
-</td>
-<td>
-2020-04-02
-</td>
-<td>
-wflow_publish("analysis/*.Rmd")
-</td>
-</tr>
-<tr>
-<td>
-html
-</td>
-<td>
-<a href="https://rawcdn.githack.com/haiderinam/duplex_sequencing_screen/b1cbbfa4ca253971653f3aa9197a30d4b6371df5/docs/index.html" target="_blank">b1cbbfa</a>
-</td>
-<td>
-haiderinam
-</td>
-<td>
-2020-04-02
-</td>
-<td>
-Build site.
-</td>
-</tr>
-<tr>
-<td>
-Rmd
-</td>
-<td>
-<a href="https://github.com/haiderinam/duplex_sequencing_screen/blob/703346a1506471886f08db335f28926a077563df/analysis/index.Rmd" target="_blank">703346a</a>
-</td>
-<td>
-haiderinam
-</td>
-<td>
-2020-04-02
-</td>
-<td>
-Start workflowr project.
-</td>
-</tr>
-</tbody>
-</table>
-</div>
 <hr>
 </div>
 </div>
 </div>
-<div id="duplex-sequencing-spike-ins" class="section level1">
-<h1><strong>Duplex Sequencing Spike-Ins</strong></h1>
-<p><img src="assets/ds_coverages.png" width="400" height="300"  alt=""></p>
-<ul>
-<li><p>Click <a href="dose_response_curve_fitting.html">here</a> for the
-script that reads BCRABL dose response data, and fits it to a
-4-parameter dose response curve.<br />
-<img src="assets/4param_fit.png" width="400" height="300"  alt=""></p></li>
-<li><p>Click <a href="twinstrand_spikeins_data_generation.html">here</a>
-for the script that reads mutation annotation data and generates
-dataframes with annotated variants and the correct cell counts</p></li>
-<li><p>###Click <a href="growthrate_plots.html">here</a> for initial
-growth rate plots<br />
-<img src="assets/growthrates.png" width="400" height="300"  alt=""></p></li>
-<li><p>###Click <a href="growthrate_plots_ENU.html">here</a> for growth
-rate plots for ENU mutants<br />
-<img src="assets/growthrates_ENU.png" width="400" height="300"  alt=""></p></li>
-<li><p>###Click <a href="spikeins_depthofcoverages.html">here</a> for
-analysis looking at whether we achieved our desired depth of coverages
-<img src="assets/coverages.png" width="400" height="300"  alt=""></p></li>
-<li><p>###Click <a href="clinical_abundance_predictions.html">here</a>
-for analysis looking at how well our data predicts BCRABL clinical
-abundance compared to conventional IC50s
-<img src="assets/clinical_abundance_predictions.png" width="600" height="400"  alt=""></p></li>
-<li><p>###Click <a href="misc.html">here</a> for method to obtain
-confidence intervals on growth rates from IC50 measurements. Plotted
-alongside observed growth rate data, these confidence intervals show how
-well our pooled data matches predictions based off of IC50s. (Needs
-updates in methodology)<br />
-<img src="assets/pooled_trajectories_confidence.png" width="400" height="300"  alt=""></p></li>
-<li><p>###Click <a href="4_7_20_update.html">here</a> for analyses of
-replicate to replicate agreement between the spike in replicates. Also
-includes this analysis for the mutagenesis replicates. Also includes the
-agreement in observed vs predicted depth of coverages for all sequencing
-pools. Note: this analysis does not include dosage corrections that
-improves replicate to replicate heterogeneity.<br />
-<img src="assets/mutagenesis_replicates_correlation.png" width="400" height="300"  alt=""></p></li>
-<li><p>###Click <a href="nonlinear_growth_analysis.html">here</a> to see
-analysis of predictions based on Enrich2 vs Shendure vs our
-method</p></li>
-<li><p>###Click <a href="dosing_normalization.html">here</a> for our
-dosing normalization strategy<br />
-<img src="assets/dosing_normalization.png" width="400" height="300"  alt=""></p></li>
-<li><p>###Click <a href="enrichment_simulations.html">here</a> for
-simulations showing enrichment and depletion events in a 3 mutant pool.
-<img src="assets/enrichment_simulations_3mutants.png" width="400" height="300"  alt=""></p></li>
-<li><p>###Click <a href="E255K_alphas_figure.html">here</a> showing the
-conformity between the growth rates in the presence of drug measured at
-a low MAF via FACs, sequencing, and via IC50 studies for a single
-mutant.<br />
-<img src="assets/e255k_alphas.png" width="400" height="300"  alt=""></p></li>
-<li><p>Click <a href="lane14_comparisons.html">here</a> to view
-preliminary BCRABL Imatinib and Asciminib heatmaps<br />
-<img src="assets/bcrabl_heatmap.png" width="400" height="300"  alt=""></p></li>
-<li><p>Click <a href="DupSeq_QC_Lane11.html">here</a> and to view iL3
-independence data and <a
-href="BCRABL_FunctionalKinaseAnalysis.html">here</a> to view iL3
-independence heatmap
-<img src="assets/il3heatmap.png" width="1200" height="300"  alt=""></p></li>
-<li><p>Click <a href="ErrorRate_Analysis.html">here</a> to view error
-rates without barcodes, with single strand consensi, and with duplex
-consensus sequencing.
-<img src="assets/Error_rates.png" width="450" height="400"  alt=""></p></li>
-<li><p>Click <a href="K562_BCRABL_Analysis.html">here</a> to view the
-results of the BCRABL Library transduced in K562 Cells
-<img src="assets/k562_plot.png" width="1200" height="350"  alt=""></p></li>
-<li><p>Click <a href="CDF-analysis-library-evenness.html">here</a> to
-view analyses of the CDFs of our saturating mutagenesis libraries. These
-show how even/uneven the libraries are at different stages of the
-screening process.</p></li>
-</ul>
-<p><img src="assets/unevenness_cdfs.png" width="500" height="350"  alt=""></p>
-<div
-id="click-here-to-be-redirected-to-the-github-page-that-contains-all-the-data-and-analysis-rmd-files."
-class="section level4">
-<h4>Click <a
-href="https://github.com/haiderinam/duplex_sequencing_screen">here</a>
-to be redirected to the github page that contains all the data and
-analysis rmd files.</h4>
-<p>What is in each directory:</p>
-<ul>
-<li><strong>Data</strong>: contains data downloaded prior to
-analyses.<br />
-</li>
-<li><strong>Output</strong>: contains data that the code makes<br />
-</li>
-<li><strong>Analysis</strong>: contains your Rmarkdown files with the
-code.<br />
-</li>
-<li><strong>Docs</strong>: contain the html output from the Rmd files in
-the analysis directory.<br />
-</li>
-<li><strong>Code</strong>: contains .R files that are functions that the
-Rmd files in the analysis folder use.</li>
-</ul>
-</div>
+<p>Objective is to compare the unevenness of ABL library region 1. Lane
+11 has sorted ABL region 1 after a fresh sort Lane 17b has sorted ABL
+region 1 after a frozen sorted vial was thawed and pelletted after a few
+days Lane 15 has Imatinib treated samples</p>
+<pre class="r"><code>source(&quot;code/merge_samples.R&quot;)
+source(&quot;code/depth_finder.R&quot;)
+intended_codons=read.csv(&quot;data/codon_table.csv&quot;)
+intended_codons=intended_codons%&gt;%filter(Twist%in%T)
+
+##############Enzymatic Fragmentation########
+##############Baseline########
+lane12sortedsamples=merge_samples(&quot;Novogene_lane11/Sample1/duplex&quot;,&quot;Novogene_lane11/Sample2/duplex&quot;)
+# lane12sortedsamples=merge_samples(&quot;Novogene_lane11/Sample1/sscs&quot;,&quot;Novogene_lane11/Sample2/sscs&quot;)
+# lane12sortedsamples=merge_samples(lane12sortedsamples,&quot;Novogene_lane11/Sample3/sscs&quot;)
+# lane12sortedsamples=merge_samples(lane12sortedsamples,&quot;Novogene_lane11/Sample4/sscs&quot;)
+
+lane12sortedsamples=lane12sortedsamples%&gt;%
+  rowwise()%&gt;%
+  mutate(ref_aa=strsplit(amino_acids,&quot;/&quot;)[[1]][1],
+         alt_aa=strsplit(amino_acids,&quot;/&quot;)[[1]][2])
+lane12sortedsamples=lane12sortedsamples%&gt;%mutate(maf=ct/depth)
+lane12sortedsamples=lane12sortedsamples%&gt;%filter(alt_codon%in%intended_codons$Codon)
+# samplex_simple=samplex%&gt;%dplyr::select(alt_start_pos,protein_start,ref,alt,ref_aa,alt_aa,consequence_terms,ct,depth,maf)
+
+ggplot(lane12sortedsamples%&gt;%
+                filter(nchar(alt_aa)%in%1,
+                       consequence_terms%in%&quot;missense_variant&quot;,
+                       protein_start&gt;=242,
+                       protein_start&lt;=290),
+              aes(x=protein_start,y=alt_aa,fill=maf))+
+  geom_tile()+
+  theme_bw()</code></pre>
+<p><img src="figure/CDF-analysis-library-evenness.Rmd/unnamed-chunk-1-1.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>plotly=ggplot(lane12sortedsamples,aes(x=ct))+geom_bar(alpha=0.7)+scale_x_continuous(limits=c(0,500))
+ggplotly(plotly)</code></pre>
+<pre><code>Warning: Removed 1 rows containing non-finite values (stat_count).</code></pre>
+<div id="htmlwidget-ca9da69111fdc3e9e442" style="width:672px;height:480px;" class="plotly html-widget"></div>
+<script type="application/json" data-for="htmlwidget-ca9da69111fdc3e9e442">{"x":{"data":[{"orientation":"v","width":[0.9,0.9,0.9,0.9,0.9,0.9,0.9,0.899999999999999,0.899999999999999,0.899999999999999,0.899999999999999,0.899999999999999,0.899999999999999,0.899999999999999,0.899999999999999,0.899999999999999,0.899999999999999,0.899999999999999,0.899999999999999,0.899999999999999,0.899999999999999,0.899999999999999,0.899999999999999,0.899999999999999,0.899999999999999,0.899999999999999,0.899999999999999,0.899999999999999,0.899999999999999,0.899999999999999,0.899999999999999,0.900000000000002,0.900000000000006,0.900000000000006,0.900000000000006,0.900000000000006,0.900000000000006,0.900000000000006,0.900000000000006,0.900000000000006,0.900000000000006,0.900000000000006,0.900000000000006,0.900000000000006,0.900000000000006,0.900000000000006,0.900000000000006,0.900000000000006,0.900000000000006,0.900000000000006,0.900000000000006,0.900000000000006,0.900000000000006,0.900000000000006,0.900000000000006,0.900000000000006,0.900000000000006,0.900000000000006,0.900000000000006,0.900000000000006,0.900000000000006,0.900000000000006],"base":[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],"x":[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,50,51,54,56,57,59,60,61,62,64,65,73,94,104],"y":[136,104,95,94,89,78,83,80,58,56,61,50,46,38,48,41,28,30,26,22,27,24,25,19,15,17,12,7,10,10,14,13,8,8,7,8,4,1,3,1,4,4,4,2,4,7,3,2,2,3,1,4,2,2,1,3,3,1,1,1,1,1],"text":["count: 136<br />ct:   1","count: 104<br />ct:   2","count:  95<br />ct:   3","count:  94<br />ct:   4","count:  89<br />ct:   5","count:  78<br />ct:   6","count:  83<br />ct:   7","count:  80<br />ct:   8","count:  58<br />ct:   9","count:  56<br />ct:  10","count:  61<br />ct:  11","count:  50<br />ct:  12","count:  46<br />ct:  13","count:  38<br />ct:  14","count:  48<br />ct:  15","count:  41<br />ct:  16","count:  28<br />ct:  17","count:  30<br />ct:  18","count:  26<br />ct:  19","count:  22<br />ct:  20","count:  27<br />ct:  21","count:  24<br />ct:  22","count:  25<br />ct:  23","count:  19<br />ct:  24","count:  15<br />ct:  25","count:  17<br />ct:  26","count:  12<br />ct:  27","count:   7<br />ct:  28","count:  10<br />ct:  29","count:  10<br />ct:  30","count:  14<br />ct:  31","count:  13<br />ct:  32","count:   8<br />ct:  33","count:   8<br />ct:  34","count:   7<br />ct:  35","count:   8<br />ct:  36","count:   4<br />ct:  37","count:   1<br />ct:  38","count:   3<br />ct:  39","count:   1<br />ct:  40","count:   4<br />ct:  41","count:   4<br />ct:  42","count:   4<br />ct:  43","count:   2<br />ct:  44","count:   4<br />ct:  45","count:   7<br />ct:  46","count:   3<br />ct:  47","count:   2<br />ct:  48","count:   2<br />ct:  50","count:   3<br />ct:  51","count:   1<br />ct:  54","count:   4<br />ct:  56","count:   2<br />ct:  57","count:   2<br />ct:  59","count:   1<br />ct:  60","count:   3<br />ct:  61","count:   3<br />ct:  62","count:   1<br />ct:  64","count:   1<br />ct:  65","count:   1<br />ct:  73","count:   1<br />ct:  94","count:   1<br />ct: 104"],"type":"bar","marker":{"autocolorscale":false,"color":"rgba(89,89,89,0.7)","line":{"width":1.88976377952756,"color":"transparent"}},"showlegend":false,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null}],"layout":{"margin":{"t":26.2283105022831,"r":7.30593607305936,"b":40.1826484018265,"l":43.1050228310502},"plot_bgcolor":"rgba(235,235,235,1)","paper_bgcolor":"rgba(255,255,255,1)","font":{"color":"rgba(0,0,0,1)","family":"","size":14.6118721461187},"xaxis":{"domain":[0,1],"automargin":true,"type":"linear","autorange":false,"range":[-25,525],"tickmode":"array","ticktext":["0","100","200","300","400","500"],"tickvals":[0,100,200,300,400,500],"categoryorder":"array","categoryarray":["0","100","200","300","400","500"],"nticks":null,"ticks":"outside","tickcolor":"rgba(51,51,51,1)","ticklen":3.65296803652968,"tickwidth":0.66417600664176,"showticklabels":true,"tickfont":{"color":"rgba(77,77,77,1)","family":"","size":11.689497716895},"tickangle":-0,"showline":false,"linecolor":null,"linewidth":0,"showgrid":true,"gridcolor":"rgba(255,255,255,1)","gridwidth":0.66417600664176,"zeroline":false,"anchor":"y","title":{"text":"ct","font":{"color":"rgba(0,0,0,1)","family":"","size":14.6118721461187}},"hoverformat":".2f"},"yaxis":{"domain":[0,1],"automargin":true,"type":"linear","autorange":false,"range":[-6.8,142.8],"tickmode":"array","ticktext":["0","50","100"],"tickvals":[8.88178419700125e-16,50,100],"categoryorder":"array","categoryarray":["0","50","100"],"nticks":null,"ticks":"outside","tickcolor":"rgba(51,51,51,1)","ticklen":3.65296803652968,"tickwidth":0.66417600664176,"showticklabels":true,"tickfont":{"color":"rgba(77,77,77,1)","family":"","size":11.689497716895},"tickangle":-0,"showline":false,"linecolor":null,"linewidth":0,"showgrid":true,"gridcolor":"rgba(255,255,255,1)","gridwidth":0.66417600664176,"zeroline":false,"anchor":"x","title":{"text":"count","font":{"color":"rgba(0,0,0,1)","family":"","size":14.6118721461187}},"hoverformat":".2f"},"shapes":[{"type":"rect","fillcolor":null,"line":{"color":null,"width":0,"linetype":[]},"yref":"paper","xref":"paper","x0":0,"x1":1,"y0":0,"y1":1}],"showlegend":false,"legend":{"bgcolor":"rgba(255,255,255,1)","bordercolor":"transparent","borderwidth":1.88976377952756,"font":{"color":"rgba(0,0,0,1)","family":"","size":11.689497716895}},"hovermode":"closest","barmode":"relative"},"config":{"doubleClick":"reset","showSendToCloud":false},"source":"A","attrs":{"5c167ee7683f":{"x":{},"type":"bar"}},"cur_data":"5c167ee7683f","visdat":{"5c167ee7683f":["function (y) ","x"]},"highlight":{"on":"plotly_click","persistent":false,"dynamic":false,"selectize":false,"opacityDim":0.2,"selected":{"opacity":1},"debounce":0},"shinyEvents":["plotly_hover","plotly_click","plotly_selected","plotly_relayout","plotly_brushed","plotly_brushing","plotly_clickannotation","plotly_doubleclick","plotly_deselect","plotly_afterplot","plotly_sunburstclick"],"base_url":"https://plot.ly"},"evals":[],"jsHooks":[]}</script>
+<pre class="r"><code>##############CRISPR DS#########
+lane17b=merge_samples(&quot;novogene_lane17b/Sample1/duplex&quot;,
+                      &quot;novogene_lane17b/Sample2/duplex&quot;)
+# lane17b=read.csv(&quot;data/Consensus_Data/novogene_lane17b/Sample1/sscs/variant_caller_outputs/variants_unique_ann.csv&quot;,header = T,stringsAsFactors = F)
+lane17b=lane17b%&gt;%filter(alt_codon%in%intended_codons$Codon)
+
+ggplot(lane17b%&gt;%filter(protein_start&gt;=242,protein_start&lt;290),aes(x=protein_start,y=alt_aa,fill=ct))+geom_tile()</code></pre>
+<p><img src="figure/CDF-analysis-library-evenness.Rmd/unnamed-chunk-1-3.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>plotly=ggplot(lane17b,aes(x=ct))+geom_bar(alpha=0.7)+scale_x_continuous(limits=c(0,500))
+ggplotly(plotly)</code></pre>
+<pre><code>Warning: Removed 83 rows containing non-finite values (stat_count).</code></pre>
+<div id="htmlwidget-e3d628f7474a9bbd5058" style="width:672px;height:480px;" class="plotly html-widget"></div>
+<script type="application/json" data-for="htmlwidget-e3d628f7474a9bbd5058">{"x":{"data":[{"orientation":"v","width":[0.9,0.9,0.9,0.9,0.9,0.9,0.9,0.899999999999999,0.899999999999999,0.899999999999999,0.899999999999999,0.899999999999999,0.899999999999999,0.899999999999999,0.899999999999999,0.899999999999999,0.899999999999999,0.899999999999999,0.899999999999999,0.899999999999999,0.899999999999999,0.899999999999999,0.899999999999999,0.899999999999999,0.899999999999999,0.899999999999999,0.899999999999999,0.899999999999999,0.899999999999999,0.899999999999999,0.899999999999999,0.900000000000002,0.900000000000006,0.900000000000006,0.900000000000006,0.900000000000006,0.900000000000006,0.900000000000006,0.900000000000006,0.900000000000006,0.900000000000006,0.900000000000006,0.900000000000006,0.900000000000006,0.900000000000006,0.900000000000006,0.900000000000006,0.900000000000006,0.900000000000006,0.900000000000006,0.900000000000006,0.900000000000006,0.900000000000006,0.900000000000006,0.900000000000006,0.900000000000006,0.900000000000006,0.900000000000006,0.900000000000006,0.900000000000006,0.900000000000006,0.900000000000006,0.900000000000006,0.900000000000006,0.900000000000006,0.900000000000006,0.900000000000006,0.900000000000006,0.900000000000006,0.900000000000006,0.900000000000006,0.900000000000006,0.900000000000006,0.900000000000006,0.900000000000006,0.900000000000006,0.900000000000006,0.900000000000006,0.900000000000006,0.900000000000006,0.900000000000006,0.900000000000006,0.900000000000006,0.900000000000006,0.900000000000006,0.900000000000006,0.900000000000006,0.900000000000006,0.900000000000006,0.900000000000006,0.900000000000006,0.900000000000006,0.900000000000006,0.900000000000006,0.900000000000006,0.900000000000006,0.900000000000006,0.900000000000006,0.900000000000006,0.900000000000006,0.900000000000006,0.900000000000006,0.900000000000006,0.900000000000006,0.900000000000006,0.900000000000006,0.900000000000006,0.900000000000006,0.900000000000006,0.900000000000006,0.900000000000006,0.900000000000006,0.900000000000006,0.900000000000006,0.900000000000006,0.900000000000006,0.899999999999991,0.899999999999977,0.899999999999977,0.899999999999977,0.899999999999977,0.899999999999977,0.899999999999977,0.899999999999977,0.899999999999977,0.899999999999977,0.899999999999977,0.899999999999977,0.899999999999977,0.899999999999977,0.899999999999977,0.899999999999977,0.899999999999977,0.899999999999977,0.899999999999977,0.899999999999977,0.899999999999977,0.899999999999977,0.899999999999977,0.899999999999977,0.899999999999977,0.899999999999977,0.899999999999977,0.899999999999977,0.899999999999977,0.899999999999977,0.899999999999977,0.899999999999977,0.899999999999977,0.899999999999977,0.899999999999977,0.899999999999977,0.899999999999977,0.899999999999977,0.899999999999977,0.899999999999977,0.899999999999977,0.899999999999977,0.899999999999977,0.899999999999977,0.899999999999977,0.899999999999977,0.899999999999977,0.899999999999977,0.899999999999977,0.899999999999977,0.899999999999977,0.899999999999977,0.899999999999977,0.899999999999977,0.899999999999977,0.899999999999977,0.899999999999977,0.899999999999977,0.899999999999977,0.899999999999977,0.899999999999977,0.899999999999977,0.899999999999977,0.899999999999977,0.899999999999977,0.899999999999977,0.899999999999977,0.899999999999977,0.899999999999977,0.899999999999977,0.899999999999977,0.899999999999977,0.899999999999977,0.899999999999977,0.899999999999977,0.899999999999977,0.899999999999977,0.899999999999977,0.899999999999977,0.899999999999977,0.899999999999977,0.899999999999977,0.899999999999977,0.899999999999977,0.899999999999977,0.899999999999977,0.899999999999977,0.899999999999977,0.899999999999977,0.899999999999977,0.899999999999977,0.899999999999977,0.899999999999977,0.899999999999977,0.899999999999977,0.899999999999977,0.899999999999977,0.899999999999977,0.899999999999977,0.899999999999977,0.899999999999977,0.899999999999977,0.899999999999977,0.899999999999977,0.899999999999977,0.899999999999977,0.899999999999977,0.899999999999977,0.899999999999977,0.899999999999977,0.899999999999977,0.899999999999977,0.899999999999977,0.899999999999977,0.899999999999977,0.899999999999977,0.899999999999977,0.899999999999977,0.899999999999977,0.899999999999977,0.899999999999977,0.899999999999977,0.899999999999977,0.899999999999977,0.899999999999977,0.899999999999977,0.899999999999977,0.899999999999977,0.899999999999977,0.899999999999977,0.899999999999977,0.899999999999977,0.899999999999977,0.899999999999977,0.899999999999977,0.899999999999977,0.899999999999977,0.899999999999977,0.899999999999977,0.899999999999977,0.899999999999977,0.899999999999977,0.899999999999977,0.899999999999977,0.899999999999977,0.899999999999977,0.899999999999977,0.899999999999977,0.899999999999977,0.899999999999977,0.899999999999977,0.899999999999977,0.899999999999977],"base":[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],"x":[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50,51,52,53,54,55,56,57,58,59,60,61,62,63,64,65,66,68,69,70,71,72,73,74,76,77,78,79,80,81,82,83,84,85,87,88,89,90,91,92,93,94,95,96,97,98,99,101,103,104,105,106,107,108,110,112,114,115,117,118,119,120,121,122,123,124,125,128,129,130,131,132,134,135,136,137,139,140,141,142,143,145,146,147,148,149,152,157,159,161,163,164,165,167,169,170,172,173,175,176,177,178,179,180,181,182,184,189,193,195,196,198,201,204,206,207,209,211,212,217,221,222,227,229,231,233,236,237,239,241,242,243,246,248,249,250,252,255,256,257,258,262,263,265,266,269,270,271,273,274,276,277,281,284,285,288,291,295,296,298,305,307,308,312,313,316,317,321,322,331,333,343,346,347,349,351,354,358,359,360,361,362,365,367,368,372,374,375,377,381,386,388,391,399,402,403,405,407,409,422,427,429,431,435,436,438,441,442,446,457,458,461,473,477,478,480,485,488,489,491],"y":[37,25,20,18,25,14,8,6,12,9,13,11,9,5,6,9,9,9,5,1,3,3,10,8,3,6,2,6,5,9,5,4,6,3,2,6,3,7,5,7,4,3,3,3,2,4,6,5,3,2,1,2,2,8,1,2,1,3,2,7,4,6,3,2,2,4,3,1,4,1,3,3,1,3,2,3,1,4,4,1,5,2,1,5,3,2,2,2,4,1,4,3,3,1,3,3,1,2,1,4,4,3,3,1,1,3,4,5,2,1,1,3,3,1,1,2,2,5,1,3,4,3,2,1,2,2,3,2,1,1,2,4,1,1,3,1,1,1,1,2,1,3,1,1,1,5,2,1,1,1,2,1,2,1,1,2,1,1,1,2,1,3,1,3,3,3,1,2,2,1,1,1,2,1,3,1,2,2,1,3,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,2,2,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,2,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,2,1,1,1,1,1,1,1,1,1,2,1,2,2,2,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],"text":["count: 37<br />ct:   1","count: 25<br />ct:   2","count: 20<br />ct:   3","count: 18<br />ct:   4","count: 25<br />ct:   5","count: 14<br />ct:   6","count:  8<br />ct:   7","count:  6<br />ct:   8","count: 12<br />ct:   9","count:  9<br />ct:  10","count: 13<br />ct:  11","count: 11<br />ct:  12","count:  9<br />ct:  13","count:  5<br />ct:  14","count:  6<br />ct:  15","count:  9<br />ct:  16","count:  9<br />ct:  17","count:  9<br />ct:  18","count:  5<br />ct:  19","count:  1<br />ct:  20","count:  3<br />ct:  21","count:  3<br />ct:  22","count: 10<br />ct:  23","count:  8<br />ct:  24","count:  3<br />ct:  25","count:  6<br />ct:  26","count:  2<br />ct:  27","count:  6<br />ct:  28","count:  5<br />ct:  29","count:  9<br />ct:  30","count:  5<br />ct:  31","count:  4<br />ct:  32","count:  6<br />ct:  33","count:  3<br />ct:  34","count:  2<br />ct:  35","count:  6<br />ct:  36","count:  3<br />ct:  37","count:  7<br />ct:  38","count:  5<br />ct:  39","count:  7<br />ct:  40","count:  4<br />ct:  41","count:  3<br />ct:  42","count:  3<br />ct:  43","count:  3<br />ct:  44","count:  2<br />ct:  45","count:  4<br />ct:  46","count:  6<br />ct:  47","count:  5<br />ct:  48","count:  3<br />ct:  49","count:  2<br />ct:  50","count:  1<br />ct:  51","count:  2<br />ct:  52","count:  2<br />ct:  53","count:  8<br />ct:  54","count:  1<br />ct:  55","count:  2<br />ct:  56","count:  1<br />ct:  57","count:  3<br />ct:  58","count:  2<br />ct:  59","count:  7<br />ct:  60","count:  4<br />ct:  61","count:  6<br />ct:  62","count:  3<br />ct:  63","count:  2<br />ct:  64","count:  2<br />ct:  65","count:  4<br />ct:  66","count:  3<br />ct:  68","count:  1<br />ct:  69","count:  4<br />ct:  70","count:  1<br />ct:  71","count:  3<br />ct:  72","count:  3<br />ct:  73","count:  1<br />ct:  74","count:  3<br />ct:  76","count:  2<br />ct:  77","count:  3<br />ct:  78","count:  1<br />ct:  79","count:  4<br />ct:  80","count:  4<br />ct:  81","count:  1<br />ct:  82","count:  5<br />ct:  83","count:  2<br />ct:  84","count:  1<br />ct:  85","count:  5<br />ct:  87","count:  3<br />ct:  88","count:  2<br />ct:  89","count:  2<br />ct:  90","count:  2<br />ct:  91","count:  4<br />ct:  92","count:  1<br />ct:  93","count:  4<br />ct:  94","count:  3<br />ct:  95","count:  3<br />ct:  96","count:  1<br />ct:  97","count:  3<br />ct:  98","count:  3<br />ct:  99","count:  1<br />ct: 101","count:  2<br />ct: 103","count:  1<br />ct: 104","count:  4<br />ct: 105","count:  4<br />ct: 106","count:  3<br />ct: 107","count:  3<br />ct: 108","count:  1<br />ct: 110","count:  1<br />ct: 112","count:  3<br />ct: 114","count:  4<br />ct: 115","count:  5<br />ct: 117","count:  2<br />ct: 118","count:  1<br />ct: 119","count:  1<br />ct: 120","count:  3<br />ct: 121","count:  3<br />ct: 122","count:  1<br />ct: 123","count:  1<br />ct: 124","count:  2<br />ct: 125","count:  2<br />ct: 128","count:  5<br />ct: 129","count:  1<br />ct: 130","count:  3<br />ct: 131","count:  4<br />ct: 132","count:  3<br />ct: 134","count:  2<br />ct: 135","count:  1<br />ct: 136","count:  2<br />ct: 137","count:  2<br />ct: 139","count:  3<br />ct: 140","count:  2<br />ct: 141","count:  1<br />ct: 142","count:  1<br />ct: 143","count:  2<br />ct: 145","count:  4<br />ct: 146","count:  1<br />ct: 147","count:  1<br />ct: 148","count:  3<br />ct: 149","count:  1<br />ct: 152","count:  1<br />ct: 157","count:  1<br />ct: 159","count:  1<br />ct: 161","count:  2<br />ct: 163","count:  1<br />ct: 164","count:  3<br />ct: 165","count:  1<br />ct: 167","count:  1<br />ct: 169","count:  1<br />ct: 170","count:  5<br />ct: 172","count:  2<br />ct: 173","count:  1<br />ct: 175","count:  1<br />ct: 176","count:  1<br />ct: 177","count:  2<br />ct: 178","count:  1<br />ct: 179","count:  2<br />ct: 180","count:  1<br />ct: 181","count:  1<br />ct: 182","count:  2<br />ct: 184","count:  1<br />ct: 189","count:  1<br />ct: 193","count:  1<br />ct: 195","count:  2<br />ct: 196","count:  1<br />ct: 198","count:  3<br />ct: 201","count:  1<br />ct: 204","count:  3<br />ct: 206","count:  3<br />ct: 207","count:  3<br />ct: 209","count:  1<br />ct: 211","count:  2<br />ct: 212","count:  2<br />ct: 217","count:  1<br />ct: 221","count:  1<br />ct: 222","count:  1<br />ct: 227","count:  2<br />ct: 229","count:  1<br />ct: 231","count:  3<br />ct: 233","count:  1<br />ct: 236","count:  2<br />ct: 237","count:  2<br />ct: 239","count:  1<br />ct: 241","count:  3<br />ct: 242","count:  1<br />ct: 243","count:  1<br />ct: 246","count:  1<br />ct: 248","count:  1<br />ct: 249","count:  1<br />ct: 250","count:  1<br />ct: 252","count:  1<br />ct: 255","count:  1<br />ct: 256","count:  1<br />ct: 257","count:  1<br />ct: 258","count:  1<br />ct: 262","count:  1<br />ct: 263","count:  1<br />ct: 265","count:  1<br />ct: 266","count:  1<br />ct: 269","count:  1<br />ct: 270","count:  1<br />ct: 271","count:  2<br />ct: 273","count:  2<br />ct: 274","count:  1<br />ct: 276","count:  1<br />ct: 277","count:  1<br />ct: 281","count:  1<br />ct: 284","count:  1<br />ct: 285","count:  1<br />ct: 288","count:  1<br />ct: 291","count:  1<br />ct: 295","count:  1<br />ct: 296","count:  1<br />ct: 298","count:  1<br />ct: 305","count:  1<br />ct: 307","count:  1<br />ct: 308","count:  1<br />ct: 312","count:  1<br />ct: 313","count:  1<br />ct: 316","count:  1<br />ct: 317","count:  1<br />ct: 321","count:  1<br />ct: 322","count:  1<br />ct: 331","count:  1<br />ct: 333","count:  1<br />ct: 343","count:  2<br />ct: 346","count:  1<br />ct: 347","count:  1<br />ct: 349","count:  1<br />ct: 351","count:  1<br />ct: 354","count:  1<br />ct: 358","count:  1<br />ct: 359","count:  1<br />ct: 360","count:  1<br />ct: 361","count:  1<br />ct: 362","count:  1<br />ct: 365","count:  1<br />ct: 367","count:  1<br />ct: 368","count:  1<br />ct: 372","count:  1<br />ct: 374","count:  1<br />ct: 375","count:  1<br />ct: 377","count:  1<br />ct: 381","count:  2<br />ct: 386","count:  1<br />ct: 388","count:  1<br />ct: 391","count:  1<br />ct: 399","count:  1<br />ct: 402","count:  1<br />ct: 403","count:  1<br />ct: 405","count:  1<br />ct: 407","count:  1<br />ct: 409","count:  1<br />ct: 422","count:  2<br />ct: 427","count:  1<br />ct: 429","count:  2<br />ct: 431","count:  2<br />ct: 435","count:  2<br />ct: 436","count:  1<br />ct: 438","count:  1<br />ct: 441","count:  1<br />ct: 442","count:  1<br />ct: 446","count:  1<br />ct: 457","count:  1<br />ct: 458","count:  1<br />ct: 461","count:  1<br />ct: 473","count:  1<br />ct: 477","count:  1<br />ct: 478","count:  1<br />ct: 480","count:  1<br />ct: 485","count:  1<br />ct: 488","count:  1<br />ct: 489","count:  1<br />ct: 491"],"type":"bar","marker":{"autocolorscale":false,"color":"rgba(89,89,89,0.7)","line":{"width":1.88976377952756,"color":"transparent"}},"showlegend":false,"xaxis":"x","yaxis":"y","hoverinfo":"text","frame":null}],"layout":{"margin":{"t":26.2283105022831,"r":7.30593607305936,"b":40.1826484018265,"l":37.2602739726027},"plot_bgcolor":"rgba(235,235,235,1)","paper_bgcolor":"rgba(255,255,255,1)","font":{"color":"rgba(0,0,0,1)","family":"","size":14.6118721461187},"xaxis":{"domain":[0,1],"automargin":true,"type":"linear","autorange":false,"range":[-25,525],"tickmode":"array","ticktext":["0","100","200","300","400","500"],"tickvals":[0,100,200,300,400,500],"categoryorder":"array","categoryarray":["0","100","200","300","400","500"],"nticks":null,"ticks":"outside","tickcolor":"rgba(51,51,51,1)","ticklen":3.65296803652968,"tickwidth":0.66417600664176,"showticklabels":true,"tickfont":{"color":"rgba(77,77,77,1)","family":"","size":11.689497716895},"tickangle":-0,"showline":false,"linecolor":null,"linewidth":0,"showgrid":true,"gridcolor":"rgba(255,255,255,1)","gridwidth":0.66417600664176,"zeroline":false,"anchor":"y","title":{"text":"ct","font":{"color":"rgba(0,0,0,1)","family":"","size":14.6118721461187}},"hoverformat":".2f"},"yaxis":{"domain":[0,1],"automargin":true,"type":"linear","autorange":false,"range":[-1.85,38.85],"tickmode":"array","ticktext":["0","10","20","30"],"tickvals":[0,10,20,30],"categoryorder":"array","categoryarray":["0","10","20","30"],"nticks":null,"ticks":"outside","tickcolor":"rgba(51,51,51,1)","ticklen":3.65296803652968,"tickwidth":0.66417600664176,"showticklabels":true,"tickfont":{"color":"rgba(77,77,77,1)","family":"","size":11.689497716895},"tickangle":-0,"showline":false,"linecolor":null,"linewidth":0,"showgrid":true,"gridcolor":"rgba(255,255,255,1)","gridwidth":0.66417600664176,"zeroline":false,"anchor":"x","title":{"text":"count","font":{"color":"rgba(0,0,0,1)","family":"","size":14.6118721461187}},"hoverformat":".2f"},"shapes":[{"type":"rect","fillcolor":null,"line":{"color":null,"width":0,"linetype":[]},"yref":"paper","xref":"paper","x0":0,"x1":1,"y0":0,"y1":1}],"showlegend":false,"legend":{"bgcolor":"rgba(255,255,255,1)","bordercolor":"transparent","borderwidth":1.88976377952756,"font":{"color":"rgba(0,0,0,1)","family":"","size":11.689497716895}},"hovermode":"closest","barmode":"relative"},"config":{"doubleClick":"reset","showSendToCloud":false},"source":"A","attrs":{"5c16111e59cc":{"x":{},"type":"bar"}},"cur_data":"5c16111e59cc","visdat":{"5c16111e59cc":["function (y) ","x"]},"highlight":{"on":"plotly_click","persistent":false,"dynamic":false,"selectize":false,"opacityDim":0.2,"selected":{"opacity":1},"debounce":0},"shinyEvents":["plotly_hover","plotly_click","plotly_selected","plotly_relayout","plotly_brushed","plotly_brushing","plotly_clickannotation","plotly_doubleclick","plotly_deselect","plotly_afterplot","plotly_sunburstclick"],"base_url":"https://plot.ly"},"evals":[],"jsHooks":[]}</script>
+<pre class="r"><code>lane17b$librarytype=&quot;CRISPR-DS&quot;
+lane12sortedsamples$librarytype=&quot;Enzymatically Sheared&quot;
+crisprds_combined=rbind(lane17b%&gt;%dplyr::select(protein_start,ct,depth,librarytype),lane12sortedsamples%&gt;%dplyr::select(protein_start,ct,depth,librarytype))
+ggplot(crisprds_combined%&gt;%filter(ct&lt;=500),aes(x=ct,fill=librarytype))+
+  geom_density(alpha=0.7)+
+  scale_x_continuous(name=&quot;Number of times each mutant was seen&quot;,trans=&quot;log10&quot;)+
+  scale_y_continuous(name=&quot;Density&quot;)+
+  labs(fill=&quot;Library Type&quot;)+
+  theme(legend.position=&quot;none&quot;)</code></pre>
+<p><img src="figure/CDF-analysis-library-evenness.Rmd/unnamed-chunk-1-5.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code># ggsave(&quot;crisprds_readcount.pdf&quot;,width=6,height=6,units=&quot;in&quot;,useDingbats=F)
+
+crisprds_combined_sum=crisprds_combined%&gt;%group_by(librarytype,protein_start)%&gt;%summarize(depth=mean(depth))</code></pre>
+<pre><code>`summarise()` has grouped output by &#39;librarytype&#39;. You can override using the `.groups` argument.</code></pre>
+<pre class="r"><code>crisprds_combined_sum$librarytype=factor(crisprds_combined_sum$librarytype,levels=c(&quot;Enzymatically Sheared&quot;,&quot;CRISPR-DS&quot;))
+ggplot(crisprds_combined_sum%&gt;%filter(protein_start&gt;200,protein_start&lt;=302),aes(x=librarytype,y=depth,fill=librarytype))+
+  geom_boxplot(alpha=0.7)+
+  scale_y_continuous(trans=&quot;log10&quot;,name=&quot;Depth of Coverage&quot;)+
+  theme(axis.text.x=element_blank(),
+        axis.title.x=element_blank(),
+        axis.ticks.x=element_blank())+
+  scale_fill_manual(name = &quot;Library Type&quot;, labels = c(&quot; Enzymatically\n Sheared&quot;,&quot;CRISPR-DS&quot;),values=c(&quot;blue&quot;,&quot;red&quot;))</code></pre>
+<p><img src="figure/CDF-analysis-library-evenness.Rmd/unnamed-chunk-1-6.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code># ggsave(&quot;crisprds_depth.pdf&quot;,width=8,height=6,units=&quot;in&quot;,useDingbats=F)
+
+####Plotting the allele frequencies of the lane 11 samples (before fresh thaw) and lane 17 samples (after fresh thaw)
+lane17b_simple=lane17b%&gt;%dplyr::select(protein_start,ref_aa,alt_aa,amino_acids,consequence_terms,ct,depth)
+lane12_simple=lane12sortedsamples%&gt;%dplyr::select(protein_start,ref_aa,alt_aa,amino_acids,consequence_terms,ct,depth)
+lanes_combined=merge(lane17b_simple,lane12_simple,by=c(&quot;protein_start&quot;,&quot;ref_aa&quot;,&quot;alt_aa&quot;,&quot;amino_acids&quot;,&quot;consequence_terms&quot;),suffixes = c(&quot;_lane17&quot;,&quot;_lane12&quot;))
+lanes_combined=lanes_combined%&gt;%mutate(maf_lane17=ct_lane17/depth_lane17,maf_lane12=ct_lane12/depth_lane12)
+ggplot(lanes_combined%&gt;%filter(consequence_terms%in%&quot;missense_variant&quot;,protein_start&gt;=242,protein_start&lt;=494),aes(x=maf_lane17,y=maf_lane12))+geom_point()+scale_x_continuous(trans=&quot;log10&quot;)+scale_y_continuous(trans=&quot;log10&quot;)+geom_abline()</code></pre>
+<p><img src="figure/CDF-analysis-library-evenness.Rmd/unnamed-chunk-1-7.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>ggplot(crisprds_combined%&gt;%mutate(maf=ct/depth),aes(x=maf,color=librarytype))+stat_ecdf(geom=&quot;step&quot;)+scale_x_continuous(trans=&quot;log10&quot;)+scale_color_manual(labels=c(&quot;Freeze thawed&quot;,&quot;Freshly Sorted&quot;),values=c(&quot;Red&quot;,&quot;Green&quot;))</code></pre>
+<p><img src="figure/CDF-analysis-library-evenness.Rmd/unnamed-chunk-1-8.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>####Adding Lane 15 Treated Samples to the distributions:
+
+lane15treatedsamples=read.csv(&quot;data/Consensus_Data/novogene_lane15/sample_7/duplex/variant_caller_outputs/variants_unique_ann.csv&quot;,header = T,stringsAsFactors = F)
+lane15treatedsamples=lane15treatedsamples%&gt;%mutate(maf=ct/depth)
+lane15treatedsamples=lane15treatedsamples%&gt;%filter(alt_codon%in%intended_codons$Codon)
+lane15treatedsamples$librarytype=&quot;Enzymatically fragmented treated&quot;
+
+crisprds_combined=rbind(lane17b%&gt;%dplyr::select(protein_start,ct,depth,librarytype),lane12sortedsamples%&gt;%dplyr::select(protein_start,ct,depth,librarytype),lane15treatedsamples%&gt;%dplyr::select(protein_start,ct,depth,librarytype))
+
+ggplot(crisprds_combined%&gt;%filter(protein_start&gt;200,protein_start&lt;=302),aes(x=librarytype,y=depth,fill=librarytype))+
+  geom_boxplot(alpha=0.7)+
+  scale_y_continuous(trans=&quot;log10&quot;,name=&quot;Depth of Coverage&quot;)+
+  # labs(fill=&quot;Library Type&quot;)+
+  # scale_fill_discrete(name = &quot;Library Type&quot;, labels = c(&quot;CRISPR-DS&quot;, &quot; Enzymatically\n Sheared&quot;))+
+  theme(axis.text.x=element_blank(),
+        axis.title.x=element_blank(),
+        axis.ticks.x=element_blank())</code></pre>
+<p><img src="figure/CDF-analysis-library-evenness.Rmd/unnamed-chunk-1-9.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>ggplot(crisprds_combined%&gt;%filter(ct&lt;=500),aes(x=ct,fill=librarytype))+
+  geom_density(alpha=0.7)+
+  scale_x_continuous(name=&quot;Number of times each mutant was seen&quot;,trans=&quot;log10&quot;)+
+  scale_y_continuous(name=&quot;Density&quot;)+
+  labs(fill=&quot;Library Type&quot;)+
+  scale_fill_manual(values=c(&quot;red&quot;,&quot;green&quot;,&quot;blue&quot;))+
+  theme(legend.position=&quot;none&quot;)</code></pre>
+<p><img src="figure/CDF-analysis-library-evenness.Rmd/unnamed-chunk-1-10.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>ggplot(crisprds_combined%&gt;%filter(ct&lt;=500,!librarytype%in%&quot;CRISPR-DS&quot;),aes(x=ct,fill=librarytype))+
+  geom_density(alpha=0.7)+
+  scale_x_continuous(name=&quot;Number of times each mutant was seen&quot;,trans=&quot;log10&quot;)+
+  scale_y_continuous(name=&quot;Density&quot;)+
+  labs(fill=&quot;Library Type&quot;)+
+  scale_fill_manual(values=c(&quot;green&quot;,&quot;blue&quot;))+
+  theme(legend.position=&quot;none&quot;)</code></pre>
+<p><img src="figure/CDF-analysis-library-evenness.Rmd/unnamed-chunk-1-11.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>ggplot(crisprds_combined%&gt;%mutate(maf=ct/depth),aes(x=maf,color=librarytype))+stat_ecdf(geom=&quot;step&quot;)+scale_x_continuous(trans=&quot;log10&quot;)+scale_color_manual(labels=c(&quot;Freeze Thawed&quot;,&quot;Freshly Sorted Treated&quot;,&quot;Freshly Sorted&quot;),values=c(&quot;Red&quot;,&quot;Blue&quot;,&quot;Green&quot;))</code></pre>
+<p><img src="figure/CDF-analysis-library-evenness.Rmd/unnamed-chunk-1-12.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code># As you can see with the CDFs, a single freeze thaw followed by a few days of growth can really mess up the evenness of the library
+class(crisprds_combined$librarytype)</code></pre>
+<pre><code>[1] &quot;character&quot;</code></pre>
+<pre class="r"><code>twistdata=read.csv(&quot;data/QC_Data_Cloning/TwistQC-ABL252residues-Q-146958.csv&quot;,header = T,stringsAsFactors = F)
+twistdata$librarytype=&quot;PlasmidLibrary&quot;
+twistdata=twistdata%&gt;%dplyr::select(librarytype,maf=variant_maf)
+
+crisprds_combined_simple=crisprds_combined%&gt;%mutate(maf=ct/depth)%&gt;%dplyr::select(-c(&quot;protein_start&quot;,&quot;ct&quot;,&quot;depth&quot;))
+crisprds_combined_simple=rbind(crisprds_combined_simple,twistdata)
+crisprds_combined_simple$librarytype=factor(crisprds_combined_simple$librarytype,levels=c(&quot;PlasmidLibrary&quot;,&quot;Enzymatically Sheared&quot;,&quot;Enzymatically fragmented treated&quot;,&quot;CRISPR-DS&quot;))
+ggplot(crisprds_combined_simple,aes(x=maf,color=librarytype))+
+  stat_ecdf(geom=&quot;step&quot;)+
+  scale_x_continuous(&quot;Mutant Allele Frequency&quot;,trans=&quot;log10&quot;,limits=c(1e-5,1e-2))+
+  scale_color_manual(name=&quot;Library Type&quot;,labels=c(&quot;Plasmid Library&quot;,&quot;Freshly Sorted&quot;,&quot;Freshly Sorted Treated&quot;,&quot;Freeze Thawed&quot;),values=c(&quot;Gray&quot;,&quot;Green&quot;,&quot;Blue&quot;,&quot;Red&quot;))</code></pre>
+<pre><code>Warning: Transformation introduced infinite values in continuous x-axis</code></pre>
+<pre><code>Warning: Removed 119 rows containing non-finite values (stat_ecdf).</code></pre>
+<p><img src="figure/CDF-analysis-library-evenness.Rmd/unnamed-chunk-1-13.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code># ggsave(&quot;thawed_library_cdf_2.22.23.pdf&quot;,width=8,height=4,units = &quot;in&quot;,useDingbats=F)</code></pre>
+<p>Plots to show the depths you need to go to to see variants in
+functional genomics libraries</p>
+<pre class="r"><code>x=c(&quot;E&quot;,&quot;D&quot;,&quot;C&quot;,&quot;B&quot;,&quot;A&quot;)
+y=c(.5,1/100,1/5000,1/20000,1/100000)
+df=data.frame(cbind(x,y))
+df$y=as.numeric(df$y)
+ggplot(df,aes(x=x,y=y))+
+  geom_col()+
+  scale_y_continuous(&quot;Mutant Alle Frequency&quot;,
+                     trans=&quot;log10&quot;,
+                     breaks = c(.5, .1, .01, .001, .0001, .00001), 
+                     labels = c(&quot;0.5&quot;, &quot;1 in 10&quot;, &quot;1 in 100&quot;, &quot;1 in 1k&quot;,&quot;1 in 10k&quot;,&quot;1 in 100k&quot;))+
+  geom_hline(yintercept = .005,linetype=&quot;dashed&quot;,color=&quot;red&quot;,size=1.5)+
+  theme(axis.ticks.y = element_blank(),
+        axis.text.y = element_blank(),
+        axis.title.y = element_blank(),
+        axis.text.x=element_text(angle=90,hjust=.5,vjust=.5))+
+  coord_flip()</code></pre>
+<p><img src="figure/CDF-analysis-library-evenness.Rmd/unnamed-chunk-2-1.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code># ggsave(&quot;library_comlexity.pdf&quot;,width=4,height = 4,units=&quot;in&quot;,useDingbats=F)</code></pre>
+<p>Looking at the lane 18 libraries</p>
+<pre class="r"><code>twist=read.csv(&quot;data/codon_table.csv&quot;,header = T)
+twist=twist%&gt;%filter(Twist%in%T)
+
+ft=read.csv(&quot;data/Consensus_Data/novogene_lane18/sample12/sscs/variant_caller_outputs/variants_unique_ann.csv&quot;)
+ft=ft%&gt;%filter(alt_codon%in%twist$Codon,protein_start%in%242:322)%&gt;%mutate(maf=ct/depth)
+ft$librarytype=&quot;ft&quot;
+ft=ft%&gt;%select(librarytype,maf)
+
+noft=read.csv(&quot;data/Consensus_Data/novogene_lane18/sample11/sscs/variant_caller_outputs/variants_unique_ann.csv&quot;)
+noft=noft%&gt;%filter(alt_codon%in%twist$Codon,protein_start%in%242:322)%&gt;%mutate(maf=ct/depth)
+noft$librarytype=&quot;noft&quot;
+noft=noft%&gt;%select(librarytype,maf)
+
+treated=read.csv(&quot;data/Consensus_Data/novogene_lane18/sample13/sscs/variant_caller_outputs/variants_unique_ann.csv&quot;)
+treated=treated%&gt;%filter(alt_codon%in%twist$Codon,protein_start%in%242:322)%&gt;%mutate(maf=ct/depth)
+treated$librarytype=&quot;treated&quot;
+treated=treated%&gt;%select(librarytype,maf)
+
+twistdata=read.csv(&quot;data/QC_Data_Cloning/TwistQC-ABL252residues-Q-146958.csv&quot;,header = T,stringsAsFactors = F)
+twistdata$librarytype=&quot;PlasmidLibrary&quot;
+twistdata=twistdata%&gt;%dplyr::select(librarytype,maf=variant_maf)
+
+ft_combined=rbind(ft,noft,treated,twistdata)
+ggplot(ft_combined,aes(x=maf,color=librarytype))+stat_ecdf()+scale_x_continuous(&quot;Mutant Allele Frequency&quot;,trans=&quot;log10&quot;,limits=c(1e-5,1e-3))+scale_color_manual(name=&quot;Library Type&quot;,labels=c(&quot;Freeze Thawed&quot;,&quot;Freshly Sorted&quot;,&quot;Plasmid Library&quot;,&quot;6 D Imatinib Treated&quot;),values=c(&quot;Green&quot;,&quot;Blue&quot;,&quot;Gray&quot;,&quot;Red&quot;))</code></pre>
+<pre><code>Warning: Transformation introduced infinite values in continuous x-axis</code></pre>
+<pre><code>Warning: Removed 139 rows containing non-finite values (stat_ecdf).</code></pre>
+<p><img src="figure/CDF-analysis-library-evenness.Rmd/unnamed-chunk-3-1.png" width="672" style="display: block; margin: auto;" /></p>
+<br>
+<p>
+<button type="button" class="btn btn-default btn-workflowr btn-workflowr-sessioninfo" data-toggle="collapse" data-target="#workflowr-sessioninfo" style="display: block;">
+<span class="glyphicon glyphicon-wrench" aria-hidden="true"></span>
+Session information
+</button>
+</p>
+<div id="workflowr-sessioninfo" class="collapse">
+<pre class="r"><code>sessionInfo()</code></pre>
+<pre><code>R version 4.0.0 (2020-04-24)
+Platform: x86_64-apple-darwin17.0 (64-bit)
+Running under: macOS  10.16
+
+Matrix products: default
+BLAS:   /Library/Frameworks/R.framework/Versions/4.0/Resources/lib/libRblas.dylib
+LAPACK: /Library/Frameworks/R.framework/Versions/4.0/Resources/lib/libRlapack.dylib
+
+locale:
+[1] en_US.UTF-8/en_US.UTF-8/en_US.UTF-8/C/en_US.UTF-8/en_US.UTF-8
+
+attached base packages:
+[1] parallel  stats     graphics  grDevices utils     datasets  methods  
+[8] base     
+
+other attached packages:
+[1] RColorBrewer_1.1-2 doParallel_1.0.15  iterators_1.0.12   foreach_1.5.0     
+[5] tictoc_1.0         plotly_4.9.2.1     ggplot2_3.3.3      dplyr_1.0.6       
+[9] stringr_1.4.0     
+
+loaded via a namespace (and not attached):
+ [1] tidyselect_1.1.0  xfun_0.31         bslib_0.3.1       purrr_0.3.4      
+ [5] colorspace_1.4-1  vctrs_0.3.8       generics_0.0.2    htmltools_0.5.2  
+ [9] viridisLite_0.3.0 yaml_2.2.1        utf8_1.1.4        rlang_0.4.11     
+[13] jquerylib_0.1.4   later_1.0.0       pillar_1.6.1      glue_1.4.1       
+[17] withr_2.4.2       DBI_1.1.0         lifecycle_1.0.0   munsell_0.5.0    
+[21] gtable_0.3.0      workflowr_1.6.2   htmlwidgets_1.5.1 codetools_0.2-16 
+[25] evaluate_0.14     labeling_0.3      knitr_1.28        fastmap_1.1.0    
+[29] crosstalk_1.1.0.1 httpuv_1.5.2      fansi_0.4.1       Rcpp_1.0.4.6     
+[33] promises_1.1.0    backports_1.1.7   scales_1.1.1      jsonlite_1.7.2   
+[37] farver_2.0.3      fs_1.4.1          digest_0.6.25     stringi_1.7.5    
+[41] rprojroot_1.3-2   grid_4.0.0        tools_4.0.0       magrittr_2.0.1   
+[45] sass_0.4.1        lazyeval_0.2.2    tibble_3.1.2      crayon_1.4.1     
+[49] tidyr_1.1.3       pkgconfig_2.0.3   ellipsis_0.3.2    data.table_1.12.8
+[53] assertthat_0.2.1  rmarkdown_2.14    httr_1.4.2        R6_2.4.1         
+[57] git2r_0.27.1      compiler_4.0.0   </code></pre>
 </div>
 
 
@@ -1800,6 +1227,8 @@ footer is added to webpages before the MathJax javascript. -->
 
 
 
+</div>
+</div>
 
 </div>
 
@@ -1832,6 +1261,35 @@ $(document).ready(function () {
 
 <!-- code folding -->
 
+<script>
+$(document).ready(function ()  {
+
+    // temporarily add toc-ignore selector to headers for the consistency with Pandoc
+    $('.unlisted.unnumbered').addClass('toc-ignore')
+
+    // move toc-ignore selectors from section div to header
+    $('div.section.toc-ignore')
+        .removeClass('toc-ignore')
+        .children('h1,h2,h3,h4,h5').addClass('toc-ignore');
+
+    // establish options
+    var options = {
+      selectors: "h1,h2,h3",
+      theme: "bootstrap3",
+      context: '.toc-content',
+      hashGenerator: function (text) {
+        return text.replace(/[.\\/?&!#<>]/g, '').replace(/\s/g, '_');
+      },
+      ignoreSelector: ".toc-ignore",
+      scrollTo: 0
+    };
+    options.showAndHide = true;
+    options.smoothScroll = true;
+
+    // tocify
+    var toc = $("#TOC").tocify(options).data("toc-tocify");
+});
+</script>
 
 <!-- dynamically load mathjax for compatibility with self-contained -->
 <script>
