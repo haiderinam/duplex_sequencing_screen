@@ -181,3 +181,32 @@ ggplot(df,aes(x=x,y=y))+
 # ggsave("library_comlexity.pdf",width=4,height = 4,units="in",useDingbats=F)
   
 ```
+
+
+Looking at the lane 18 libraries
+
+```{r}
+ft=read.csv("data/Consensus_Data/novogene_lane18/sample12/sscs/variant_caller_outputs/variants_unique_ann.csv")
+ft=ft%>%filter(alt_codon%in%twist$Codon,protein_start%in%242:322)%>%mutate(maf=ct/depth)
+ft$librarytype="ft"
+ft=ft%>%select(librarytype,maf)
+
+noft=read.csv("data/Consensus_Data/novogene_lane18/sample11/sscs/variant_caller_outputs/variants_unique_ann.csv")
+noft=noft%>%filter(alt_codon%in%twist$Codon,protein_start%in%242:322)%>%mutate(maf=ct/depth)
+noft$librarytype="noft"
+noft=noft%>%select(librarytype,maf)
+
+treated=read.csv("data/Consensus_Data/novogene_lane18/sample13/sscs/variant_caller_outputs/variants_unique_ann.csv")
+treated=treated%>%filter(alt_codon%in%twist$Codon,protein_start%in%242:322)%>%mutate(maf=ct/depth)
+treated$librarytype="treated"
+treated=treated%>%select(librarytype,maf)
+
+twistdata=read.csv("data/QC_Data_Cloning/TwistQC-ABL252residues-Q-146958.csv",header = T,stringsAsFactors = F)
+twistdata$librarytype="PlasmidLibrary"
+twistdata=twistdata%>%dplyr::select(librarytype,maf=variant_maf)
+
+ft_combined=rbind(ft,noft,treated,twistdata)
+ggplot(ft_combined,aes(x=maf,color=librarytype))+stat_ecdf()+scale_x_continuous("Mutant Allele Frequency",trans="log10",limits=c(1e-5,1e-3))+scale_color_manual(name="Library Type",labels=c("Freeze Thawed","Freshly Sorted","Plasmid Library","6 D Imatinib Treated"),values=c("Green","Blue","Gray","Red"))
+  
+```
+

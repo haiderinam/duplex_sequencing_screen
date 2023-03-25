@@ -216,14 +216,7 @@ ggplot(data%>%filter(!species%in%"T315I",protein_start>=242,protein_start<=494,n
 
 ```
 
-Are the score non hits the improbable mutations?
-```{r}
-#Among the SNPs in the dataset, what is their nucleotide substitution signature?
-#For substitutions with more than 1 possible way of getting a snp, choose the SNP that's more probable in terms of substitution bias
-data_snps=data%>%filter(n_nuc_min%in%1,resmut_cosmic%in%"neither")%>%dplyr::select(ref_codon,alt_aa,score_mean)
 
-a=data%>%filter(!resmut_cosmic%in%"neither")
-```
 
 #The following function finds the shortest and the likeliest codon given a ref codon and an ALT amino acid
 ```{r}
@@ -237,6 +230,8 @@ alt_aa="A"
 #shortest alt codn
 codon_table=read.csv("data/codon_table.csv",header = T,stringsAsFactors = F)
 mut_probs=read.csv("../data/MutationProbabilities/Input_Mutsubmat_broadExac.csv",header = T,stringsAsFactors = F)
+mut_probs=mut_probs%>%mutate(subs=paste(ref,">",var,sep = ""))
+mut_probs_simple=mut_probs%>%dplyr::select(subs,prop)
 shortest_codon_finder=function(ref_codon,alt_aa){
     # For a given reference codon and a given ALT residue, this function will find the shortest possible ALT codon. If multiple codons are available
   
@@ -246,55 +241,98 @@ shortest_codon_finder=function(ref_codon,alt_aa){
   
   #Calculating hamming distance
   #Below, I calculate hamming distance by looking for a mismatch between the REF codon and the alt codon at each one of the 3 positions of the codon and adding them up.
+  # alt_codons=codon_table%>%
+  #   filter(Letter%in%alt_aa)%>%
+  #   rowwise()%>%
+  #   mutate(distance=as.numeric(!substr(ref_codon,1,1)%in%substr(Codon,1,1))+
+  #            as.numeric(!substr(ref_codon,2,2)%in%substr(Codon,2,2))+
+  #            as.numeric(!substr(ref_codon,3,3)%in%substr(Codon,3,3)),
+  #          substitutions=)%>%
+  #   ungroup()
+  
+  
   alt_codons=codon_table%>%
     filter(Letter%in%alt_aa)%>%
     rowwise()%>%
     mutate(distance=as.numeric(!substr(ref_codon,1,1)%in%substr(Codon,1,1))+
              as.numeric(!substr(ref_codon,2,2)%in%substr(Codon,2,2))+
              as.numeric(!substr(ref_codon,3,3)%in%substr(Codon,3,3)),
-           substitutions=)%>%
+           subs_1=case_when(!substr(ref_codon,1,1)%in%substr(Codon,1,1)~paste(substr(ref_codon,1,1),">",substr(Codon,1,1),sep = ""),
+                            T~""),
+           subs_2=case_when(!substr(ref_codon,2,2)%in%substr(Codon,2,2)~paste(substr(ref_codon,2,2),">",substr(Codon,2,2),sep = ""),
+                            T~""),
+           subs_3=case_when(!substr(ref_codon,3,3)%in%substr(Codon,3,3)~paste(substr(ref_codon,3,3),">",substr(Codon,3,3),sep = ""),
+                            T~""))%>%
     ungroup()
-  substr(ref_codon,1,1)
-  substr("GCT",1,1)
-  paste(substr(ref_codon,1,1),">",substr("GCT",1,1),sep = "")
   
-  #Sorting through the shortest hamming distance
-  mindist=min(alt_codons$distance)
+  alt_codons=alt_codons%>%mutate(
+    prob_1=
+  )
+  # mut_probs_simple=mut_probs%>%dplyr::select(subs_1=subs,prop_1=prop)
+  
+  alt_codons=merge(alt_codons,a,by.x="subs_1",by.y="subs",all.x = T,)
+  alt_codons=merge(alt_codons,a,by.x="subs_2",by.y="subs",all.x = T)
+  alt_codons=merge(alt_codons,a,by.x="subs_3",by.y="subs",all.x = T)
+  alt_codons=alt_codons%>%mutate(prop_1=prop,prop_2=prop.x,prop_3=prop.y)%>%dplyr::select(-c("prop","prop.x","prop.y"))
+# if alt codon is a 3 nucleotide variant, then 
+  alt_codons[alt_codons$prop_1%in%NA,"prop_1"]=1
+  alt_codons[alt_codons$prop_2%in%NA,"prop_2"]=1
+  alt_codons[alt_codons$prop_3%in%NA,"prop_3"]=1
+  alt_codons=alt_codons%>%mutate(prob=prop_1*prop_2*prop_3)
+  
+  #################Choosing the shortest ALT codon ###############
+  #################Method 1: Choose based on shortest hamming distance###############
+            # #Sorting through the shortest hamming distance
+            # mindist=min(alt_codons$distance)
+            # alt_codons=alt_codons%>%filter(distance==mindist)
+            # #If there are multiple rows at the shortest distance, and one of the codons is the twist codon, choose the twist codon. Aka if no codon is shorter than twist, choose twist
+            # #Otherwise if there are multiple shortest codons and none of them are the twist codon, then return both of them
+            # if(sum(as.numeric(alt_codons$Twist%in%T))!=0){
+            #   #The above boolean is saying "if you find twist codon amongst the shortest codons"
+            #   shortest_alt_codon=as.character(alt_codons[alt_codons$Twist%in%T,"Codon"])
+            #   # shortest_alt_codon=alt_codons$Codon
+            #   # class(shortest_alt_codon)
+            # } else{
+            #   shortest_alt_codon=alt_codons$Codon[1]
+            #   # Note that when there are multiple options for non-twist shortest ALT codons that code for the same residue, I just pick one of them. This happens for the following:
+            #   # "AGG,CGG"
+            #   # "CTC,TTA,TTG"
+            #   # "CTA,TTA"
+            #   # "AGT,TCT"
+            #   # To view all shortest alt codons, use:
+            #   # shortest_alt_codon=paste(alt_codons$Codon,collapse = ",")
+          # }
+    #################Method 2: Choose based on mutation probabilities###############
+    #Choose the codon that yields the shortest hamming distance and the highest probability amongst the shortest codons.
+    mindist=min(alt_codons$distance)
   alt_codons=alt_codons%>%filter(distance==mindist)
+  alt_codons=alt_codons%>%filter(prob==max(prob))
+  shortest_alt_codon=alt_codons$Codon
+  maxprob=alt_codons$prob
+    #Optional method 3: nother way of choosing shortest codons is to choose the most likeliest codons. This method does chooses the most likeliest codons, even if they're a higher hamming distance away. This is the mutant with the shortest hamming distance in most cases. Sometimes there multiple rows at the shortest hamming distance, so going by probability is fair. For example, two C>T or G>A substitutions are more likely than a single A>T substitution. However, these mutation biases are based on a ABL broad exac dataset with 224 mutations, so I still like the idea of giving higher precedence to hamming distance.
+  #To execute the optional method 3, comment out the two mindist lines of code
+    ####################################################################
+    
   
-  #If there are multiple rows at the shortest distance, and one of the codons is the twist codon, choose the twist codon. Aka if no codon is shorter than twist, choose twist
-  #Otherwise if there are multiple shortest codons and none of them are the twist codon, then return both of them
-  if(sum(as.numeric(alt_codons$Twist%in%T))!=0){
-    #The above boolean is saying "if you find twist codon amongst the shortest codons"
-    shortest_alt_codon=as.character(alt_codons[alt_codons$Twist%in%T,"Codon"])
-    # shortest_alt_codon=alt_codons$Codon
-    # class(shortest_alt_codon)
-  } else{
-    shortest_alt_codon=alt_codons$Codon[1]
-    # Note that when there are multiple options for non-twist shortest ALT codons that code for the same residue, I just pick one of them. This happens for the following:
-    # "AGG,CGG"
-    # "CTC,TTA,TTG"
-    # "CTA,TTA"
-    # "AGT,TCT"
-    # To view all shortest alt codons, use:
-    # shortest_alt_codon=paste(alt_codons$Codon,collapse = ",")
-  }
   # return(list(shortest_alt_codon))
-  return(list(shortest_alt_codon,mindist))
+  return(list(shortest_alt_codon,mindist,maxprob))
 }
 
 shortest_codon_finder("AAT","A")[[1]][1]
 shortest_codon_finder("AAT","A")[[2]][1]
+shortest_codon_finder("AAT","A")[[3]][1]
 #The following codon combination is for T315I
 shortest_codon_finder("ACT","I")
 #For the following codon combination, there are two non twist shortest codon
 shortest_codon_finder("GGG","R")
 library(tictoc)
+
 # tic()
-# a=lane17b%>%
+# a=data%>%
 #   rowwise()%>%
 #   mutate(alt_codon_shortest=shortest_codon_finder(ref_codon,alt_aa)[[1]][1],
-#          n_nuc_min=shortest_codon_finder(ref_codon,alt_aa)[[2]][1])
+#          n_nuc_min=shortest_codon_finder(ref_codon,alt_aa)[[2]][1],
+#          prob_max=shortest_codon_finder(ref_codon,alt_aa)[[3]][1])
 # toc()
 
 # b=a%>%filter(grepl(",",alt_codon_shortest)%in%T)
@@ -304,3 +342,84 @@ library(tictoc)
 # T315I twist ACT to "ATC"
 # T315I natural ACT to "ATT"
 ```
+
+
+Are the score non hits the improbable mutations?
+```{r}
+#Among the SNPs in the dataset, what is their nucleotide substitution signature?
+#For substitutions with more than 1 possible way of getting a snp, choose the SNP that's more probable in terms of substitution bias
+tic()
+data=data%>%
+  rowwise()%>%
+  mutate(alt_codon_shortest=shortest_codon_finder(ref_codon,alt_aa)[[1]][1],
+         n_nuc_min=shortest_codon_finder(ref_codon,alt_aa)[[2]][1],
+         prob_max=shortest_codon_finder(ref_codon,alt_aa)[[3]][1])
+toc()
+
+data=data%>%mutate(prob_status=case_when(prob_max>=.05&&prob_max<.2~"medium",
+                                         prob_max>=.2~"high",
+                                         T~"low"))
+data$prob_status=factor(data$prob_status,levels=c("low","medium","high"))
+
+ggplot(data%>%filter(protein_start>=242,protein_start<=494,n_nuc_min%in%1,score_mean>=0),aes(x=reorder(species,-netgr_mean),y=netgr_mean,group=resmut_cosmic,fill=resmut_cosmic,alpha=prob_status))+geom_col()+
+  scale_y_continuous(name="Net Growth Rate")+
+  scale_x_discrete(name="Mutant")+
+  scale_fill_manual(name=c("Resistance Status"),labels=c("Never Seen","Sanger Mutant","Known Resistant Mutant"),values=c("gray","orange","red"))+
+  theme(axis.text.x=element_text(angle=90, hjust=1),
+        axis.text=element_text(size=6),
+        panel.grid.major = element_blank(),
+        panel.grid.major.y = element_blank(),
+        panel.background = element_blank())
+
+ggplot(data%>%filter(protein_start>=242,protein_start<=494,n_nuc_min%in%1),aes(x=resmut_cosmic,y=prob_max,fill=resmut_cosmic))+
+  geom_violin(color="black")+
+  geom_boxplot(color="black",width=.1)+
+  # geom_boxplot(color="black")+
+  scale_fill_manual(values=c("gray90","orange","red"))+theme(legend.position = "none")+scale_y_continuous("Enrichment Score")+scale_x_discrete("Resistance Status",labels=c("Never\n Seen","Sanger","Known\nResistant"))
+
+plotly=ggplot(data%>%filter(protein_start>=242,protein_start<=494,n_nuc_min%in%1),aes(x=prob_max,fill=resmut_cosmic))+
+  geom_density(aes(alpha=.7))
+ggplotly(plotly)
+
+a=data%>%filter(protein_start>=242,protein_start<=494,n_nuc_min%in%1,prob_max>=.2,resmut_cosmic%in%"neither")
+mean(a$netgr_mean)
+a=data%>%filter(protein_start>=242,protein_start<=494,n_nuc_min%in%1,prob_max>=.2,!resmut_cosmic%in%"neither")
+# a=data%>%filter(protein_start>=242,protein_start<=494,!resmut_cosmic%in%"neither")
+mean(a$netgr_mean)
+# data_snps=data%>%filter(n_nuc_min%in%1,resmut_cosmic%in%"neither")%>%dplyr::select(ref_codon,alt_aa,score_mean)
+# a=data%>%filter(!resmut_cosmic%in%"neither")
+```
+
+As it can be seen from the plots, there are a good number of unseen hits that are low probability. However, some resistant mutants are also low probability...
+
+
+We can imagine that some mutants are scoring higher because of an IL3 independence fitness advantage. Below, I remove the IL3 independence fitness advantage of a mutant. But there are number of mutants that are growing faster under imatinib than under IL3. These starting scoring high.
+
+```{r}
+# dataimat=data
+# data=dataimat
+datail3=read.csv("../output/ABLEnrichmentScreens/IL3_Enrichment_bgmerged_2.20.23.csv",header = T,stringsAsFactors = F)
+datail3=datail3%>%rowwise()%>%mutate(netgr_mean=mean(netgr_obs_screen1,netgr_obs_screen2))
+# class(data)
+# datail3=res_residues_adder(datail3)
+# datail3=cosmic_data_adder(datail3)
+# # datail3=datail3%>%rowwise()%>%mutate(netgr_mean=mean(netgr_obs.x,netgr_obs.y))
+# datail3=datail3%>%rowwise()%>%mutate(netgr_mean=mean(netgr_obs_screen1,netgr_obs_screen2))
+# datail3$resmut_cosmic="neither"
+# datail3[datail3$cosmic_present%in%TRUE,"resmut_cosmic"]="cosmic"
+# datail3[datail3$resmuts%in%TRUE,"resmut_cosmic"]="resmut"
+# datail3$resmut_cosmic=factor(datail3$resmut_cosmic,levels=c("neither","cosmic","resmut"))
+ggplot(datail3%>%filter(protein_start<=494,protein_start>=242,consequence_terms%in%"missense_variant"),aes(x=netgr_obs_screen1,y=netgr_obs_screen2))+geom_point()+geom_abline()
+datail3_simple=datail3%>%dplyr::select(ref_aa,protein_start,alt_aa,netgr_obs_screen1,netgr_obs_screen2,netgr_mean)
+
+
+data_merged=merge(data,datail3_simple,by=c("ref_aa","protein_start","alt_aa"),suffixes = c("_imat","_il3"))
+data_merged=data_merged%>%rowwise()%>%mutate(netgr_adj=.055-(netgr_mean_il3-netgr_mean_imat),
+                                             alpha=netgr_mean_il3-netgr_mean_imat)
+
+ggplot(data_merged%>%filter(protein_start>=242,protein_start<=494,n_nuc_min%in%1,netgr_mean_il3>=0),aes(x=reorder(species,-netgr_adj),y=netgr_adj,fill=resmut_cosmic))+geom_col()+theme(axis.text.x=element_text(angle=90, hjust=1))+scale_y_continuous(name="Enrichcment Score")+scale_x_discrete(name="Mutant")+scale_fill_manual(name="Resistance Status",labels=c("Never Seen","Sanger Mutant","Known Resistant Mutant"),values=c("gray","orange","red"))+cleanup+theme(legend.position = "none")
+a=data_merged%>%filter(protein_start>=242,protein_start<=494,n_nuc_min%in%1,netgr_mean_il3>=0)
+
+ggplot(data%>%filter(protein_start>=242,protein_start<=494,n_nuc_min%in%1),aes(x=reorder(species,-netgr_obs_screen2),y=netgr_obs_screen2,fill=resmut_cosmic))+geom_col()+theme(axis.text.x=element_text(angle=90, hjust=1))+scale_y_continuous(name="Enrichcment Score")+scale_x_discrete(name="Mutant")+scale_fill_manual(name="Resistance Status",labels=c("Never Seen","Sanger Mutant","Known Resistant Mutant"),values=c("gray","orange","red"))+cleanup+theme(legend.position = "none")
+```
+

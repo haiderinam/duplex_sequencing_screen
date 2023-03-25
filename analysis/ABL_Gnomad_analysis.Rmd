@@ -1,0 +1,335 @@
+---
+title: "ABL_Gnomad_analysis"
+author: "Haider Inam"
+date: '2023-03-03'
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_knit$set(root.dir = normalizePath(".."))
+# rm(list=ls())
+
+library(stringr)
+library(dplyr)
+library(ggplot2)
+library(plotly)
+library(tictoc)
+library(doParallel)
+library(foreach)
+library(RColorBrewer)
+#Cleanup code for plotting
+cleanup=theme_bw() +
+  theme(plot.title = element_text(hjust=.5),
+        panel.grid.major = element_blank(),
+        panel.grid.major.y = element_blank(),
+        panel.background = element_blank(),
+        # axis.line = element_line(color = "black"),
+        axis.text = element_text(face="bold",color="black",size="11"),
+        text=element_text(size=11,face="bold"),
+        axis.title=element_text(face="bold",size="11"))
+```
+
+FUNCTION 1
+```{r}
+# Now that I have the ALT Codon from each gnomad codon, I am going to figure out the subset of amino acids that are possible at an n_nuc of 1 from the alt codon and from the ref codon.
+codon_table=read.csv("data/codon_table.csv",header = T,stringsAsFactors = F)
+# Inputs: ref codon, alt_codon (which really is the new ref codon)
+# Outputs: list of amino acids possible at an n_nuc of 1 with the ref codon but not with the alt codon
+# refseq_codon="AAA"
+# gnomad_codon="ATA"
+# rm(ref_codon)
+gnomad_unique_AAs=function(refseq_codon,gnomad_codon){
+  refseq_codons=codon_table%>%
+    # filter(Letter%in%alt_aa)%>%
+    rowwise()%>%
+    mutate(distance=as.numeric(!substr(refseq_codon,1,1)%in%substr(Codon,1,1))+
+             as.numeric(!substr(refseq_codon,2,2)%in%substr(Codon,2,2))+
+             as.numeric(!substr(refseq_codon,3,3)%in%substr(Codon,3,3)),
+           subs_1=case_when(!substr(refseq_codon,1,1)%in%substr(Codon,1,1)~paste(substr(refseq_codon,1,1),">",substr(Codon,1,1),sep = ""),
+                            T~""),
+           subs_2=case_when(!substr(refseq_codon,2,2)%in%substr(Codon,2,2)~paste(substr(refseq_codon,2,2),">",substr(Codon,2,2),sep = ""),
+                            T~""),
+           subs_3=case_when(!substr(refseq_codon,3,3)%in%substr(Codon,3,3)~paste(substr(refseq_codon,3,3),">",substr(Codon,3,3),sep = ""),
+                            T~""))%>%
+    ungroup()
+
+  refseq_codons=refseq_codons%>%filter(distance%in%1)
+  sort(unique(refseq_codons$Letter))
+  
+  gnomad_codons=codon_table%>%
+      # filter(Letter%in%alt_aa)%>%
+      rowwise()%>%
+      mutate(distance=as.numeric(!substr(gnomad_codon,1,1)%in%substr(Codon,1,1))+
+               as.numeric(!substr(gnomad_codon,2,2)%in%substr(Codon,2,2))+
+               as.numeric(!substr(gnomad_codon,3,3)%in%substr(Codon,3,3)),
+             subs_1=case_when(!substr(gnomad_codon,1,1)%in%substr(Codon,1,1)~paste(substr(gnomad_codon,1,1),">",substr(Codon,1,1),sep = ""),
+                              T~""),
+             subs_2=case_when(!substr(gnomad_codon,2,2)%in%substr(Codon,2,2)~paste(substr(gnomad_codon,2,2),">",substr(Codon,2,2),sep = ""),
+                              T~""),
+             subs_3=case_when(!substr(gnomad_codon,3,3)%in%substr(Codon,3,3)~paste(substr(gnomad_codon,3,3),">",substr(Codon,3,3),sep = ""),
+                              T~""))%>%
+      ungroup()
+  
+  gnomad_codons=gnomad_codons%>%filter(distance%in%1)
+  gnomad_unique=sort(unique(gnomad_codons$Letter))
+  sort(unique(gnomad_codons$Letter))
+  # Figuring out which gnomad amino acids are unique (i.e. not possible by refseq codon)
+  gnomad_unique_norefseq=gnomad_unique[!sort(unique(gnomad_codons$Letter))%in%sort(unique(refseq_codons$Letter))]
+  return(gnomad_unique_norefseq)
+  
+}
+
+
+```
+
+
+FUNCTION 2
+####Reading and processing the reference txt and csv file
+```{r}
+# #############For ABL#############
+enst="ENST00000318560" #Ensembl transcript ID for the canonical transcript
+chr=9 #The chromosome number on hg38. This argument is passed into the ensembl variant effect predictor
+ref_txt_name="data/Refs/ABL/NM_005157.6_CDS.txt"
+ref_csv_name="data/Refs/ABL/abl1_NM_005157.6_full_coordinates.csv"
+mode="local"
+ref_offset=0
+
+
+#Reading the full sequence.
+reference_seq=read.table(ref_txt_name)
+reference_seq=as.character(reference_seq)
+
+# substr(reference_seq,1,2)
+#Ref_search is a function that returns the sequence of the cDNA, given start and stop coordinates
+ref_search=function(start,stop){
+  seachresult=substr(reference_seq,start,stop-1)
+  seachresult
+}
+
+ref_genomic_coordinates=read.csv(ref_csv_name,header = T,stringsAsFactors = F)
+# ref_genomic_coordinates=ref_genomic_coordinates%>%dplyr::select(-X)
+
+####Adding sequence to each codon###
+ref_genomic_coordinates=ref_genomic_coordinates%>%mutate(start=pos,end=start+3)%>%dplyr::select(!pos)
+ref_genomic_coordinates=ref_genomic_coordinates%>%filter(!resi%in%NA)
+ref_genomic_coordinates=ref_genomic_coordinates%>%
+  rowwise()%>%
+  mutate(codon=ref_search(start-ref_offset,end-ref_offset))
+ref_genomic_coordinates=ref_genomic_coordinates%>%filter(!codon%in%"")
+```
+
+
+
+MAIN GNOMAD ANALYSIS
+```{r}
+# gnomad=read.csv("data/Gnomad_ABL/gnomAD_v2.1.1_ENSG00000097007_2023_03_03_02_21_35.csv")
+gnomad=read.csv("data/Gnomad_ABL/gnomAD_v3.1.2_ENSG00000097007_2023_03_03_14_02_24.csv")
+# 1100 Gnomad SNPS total
+gnomad=gnomad%>%filter(Position>=130835447,Position<=130884388)
+# Half of the SNPS are within the ABL kinase
+gnomad=gnomad%>%filter(!VEP.Annotation%in%c("intron_variant","frameshift_variant"))
+# Half of the SNPS in the kinase are non-intron non-synonymous
+gnomad=gnomad%>%rowwise()%>%mutate(residue=substr(gsub("p\\.","",Protein.Consequence),4,6),
+                         residue=as.numeric(gsub("([0-9]+).*$", "\\1", residue)))
+
+gnomad=gnomad%>%filter(!residue%in%NA,residue<=516)
+
+# Therefore, there are 184 gnomad variants in the in the SH3 or SH2 or Kinase domain of ABL
+# 84 out of the 184 gnomad variants are in the kinase domain of ABL
+# Within the gnomad variants in the kinase, only 10 are allele frequency > 1 in 100,000
+a=gnomad%>%filter(!ClinVar.Clinical.Significance%in%"")
+a=gnomad%>%group_by(ClinVar.Clinical.Significance)%>%summarize(ct=n())
+# Of the 184 ABL SNPs, 152 have no clinvar annotation, 12 are benign, 14 are likely benign
+# 9 are uncertain significance
+a=gnomad%>%filter(residue>=242,residue<=516)
+a=a%>%arrange(desc(Allele.Count))
+a=a%>%select(Protein.Consequence,VEP.Annotation,ClinVar.Clinical.Significance,Allele.Frequency,Allele.Count,Allele.Number)
+# write.csv(a,"gnomad_abl_kinase_coding_mutants.csv")
+b=a%>%filter(!VEP.Annotation%in%"synonymous_variant",!ClinVar.Clinical.Significance%in%"")
+# There are 7 non-synonymous clinvar variants in the kinase domain in which there is a clinical annotation. Two of these are high frequency: R473Q/G (not provided clinvar significance), and K247R (benign). Both of these are neutral in our screen
+data=read.csv("output/ABLEnrichmentScreens/IL3_Enrichment_bgmerged_2.20.23.csv",header = T,stringsAsFactors = F)
+c=data%>%filter(protein_start%in%c(247,473))
+#Of the clinvar variants 
+
+# source("code/variantcaller/vep_fromquery.R")
+# b=vep_fromquery("130863033:130863036/TAC",9,"ENST00000318560")
+# sort(unique(gnomad$VEP.Annotation))
+# a=gnomad%>%filter(!Transcript%in%"ENST00000318560.5")
+# a=gnomad%>%filter(!Transcript%in%"ENST00000372348.2")
+# sort(unique(gnomad$Transcript))
+# sort(unique(gnomad$VEP.Annotation))
+
+# ABL kinase Spans from 130835447 to 130884388
+
+#Aim is to create a list of gnomad enabled mutants, i.e. mutants that would have required multi-nucleotide variants before, but are now a single codon away
+# First: Make a function that calculates all possible amino acid substitutions for a given ref codon at a hamming distance of 1.
+#A key pessimistic question to ask is: for any given residue, how many amino acid substitution types are only possible with two nucleotide substitutions? If basically every amino acid susbtitution is possible with a single nucleotide change, then it doesn't really matter if you make more possible with MNVs.
+gnomad_simple=gnomad%>%select(Position,Reference,Alternate,Protein.Consequence,residue,Transcript.Consequence,VEP.Annotation,Allele.Count)
+gnomad_simple=gnomad_simple%>%
+  rowwise()%>%
+  mutate(residue=substr(gsub("p\\.","",Protein.Consequence),4,6),
+         residue=as.numeric(gsub("([0-9]+).*$", "\\1", residue)),
+         position=as.numeric(gsub("([0-9]+).*$", "\\1",strsplit(Transcript.Consequence,"\\.")[[1]][2])))
+
+gnomad_simple=gnomad_simple%>%
+  # rowwise()%>%
+  mutate(ref=ref_search(position-ref_offset,position+1-ref_offset))
+
+#The following set of functions takes a position, ref, and and alt nucleotide, figures out which codon was mutated for each mutant, which index within the codon, and makes the alt_codon based on the new index 
+# Alt offset: If alt_offset is 1, the mutation happens at position 1 in the codon, and so on
+# Please note that a lot of this code relies on there being a single nucleotide substitution, i.e. it ignores mnvs and frameshifting indels. If frameshifts are included, then you have to think about variants that have long alt_offset lengths (not just 1 or 2 or 3).
+# If its position 1: paste ALT with Second two Nucleotides
+# If its position 2: paste first nucleotide, ALT nucleotide, and third nucleotide
+# If it's position 3: paste second two nucleotides with the ALT nucleotide
+gnomad_simple=gnomad_simple%>%
+  rowwise()%>%
+  mutate(ref_codon=(ref_genomic_coordinates[(position-ref_genomic_coordinates$start)%in%c(0,1,2),"codon"])[[1]],
+         position_codon_end=(ref_genomic_coordinates[(position-ref_genomic_coordinates$start)%in%c(0,1,2),"end"])[[1]],
+         alt_offset=position_codon_end-position,
+         alt_codon=case_when(alt_offset%in%1~paste(Alternate,substr(ref_codon,2,3),sep=""),
+                             alt_offset%in%3~paste(substr(ref_codon,1,2),Alternate,sep = ""),
+                             alt_offset%in%2~paste(substr(ref_codon,1,1),Alternate,substr(ref_codon,3,3),sep = "")))
+
+gnomad_simple=gnomad_simple%>%dplyr::rename("refseq_codon"="ref_codon",
+                                            "gnomad_codon"="alt_codon",)
+
+
+
+########## Next figure out all unique gnomad codons by ABL residue.
+# If a given residue has no gnomad SNPs, then there are no unique gnomad codons of course
+#   What if a given position has two gnomad codons: figure out all possible gnomad codons and which ones are unique
+# i=1
+# gnomad_simple$gnomad_enabled_AAs=NA
+for(i in seq(1:nrow(gnomad_simple))){
+  # gnomad_bypos=gnomad_simple%>%filter(residue%in%residue_i)
+  gnomad_byiter=gnomad_simple[i,]
+  resi_i=gnomad_byiter$residue
+  enabled_i=gnomad_unique_AAs(gnomad_byiter$refseq_codon,gnomad_byiter$gnomad_codon)
+  if(length(enabled_i)==0){
+    # i.e. if there are no unique gnomad AAs, then skip to the next iteration in the loop
+    next
+  }
+  # a=gnomad_simple%>%group_by(residue)%>%summarize(ct=n())
+  # gnomad_simple[i,"gnomad_enabled_AAs"]=as.list(gnomad_unique_AAs(gnomad_byiter$refseq_codon,gnomad_byiter$gnomad_codon))
+  gnomad_enabled_i=data.frame(enabled_i,resi_i)
+  if(i==1){
+    gnomad_enabled=gnomad_enabled_i
+  }
+  else if(!i==1){
+    gnomad_enabled=rbind(gnomad_enabled,gnomad_enabled_i)
+  }
+}
+
+gnomad_enabled=gnomad_enabled%>%distinct(enabled_i,resi_i)
+gnomad_enabled=gnomad_enabled%>%dplyr::select(protein_start=resi_i,alt_aa=enabled_i)
+gnomad_enabled$gnomad_enabled=T
+# a=gnomad_enabled%>%filter(protein_start%in%c(242:494))
+# There are a total of 166 gnomad enabled ABL mutants. We see 72 of these mutants in our imatinib screens
+# I have the gnomad enabled alternate amino acid by residue, but it might also be nice ot get a residue specific gnomad probability.
+gnomad_pos_probabilities=gnomad%>%
+  group_by(residue)%>%
+  summarize(Allele.Count.Total=sum(Allele.Count),
+                                         Allele.Number.Total=sum(Allele.Number))%>%
+  mutate(Allele.Frequency.Gnomad=Allele.Count.Total/Allele.Number.Total)%>%
+  # dplyr::select(-c("Allele.Count.Total","Allele.Number.Total"))%>%
+  rename(protein_start=residue)
+
+gnomad_enabled=merge(gnomad_enabled,gnomad_pos_probabilities,by=c("protein_start"),all.x = T)
+
+########## Then merge with Imatinib dataset by adding a "gnomad enabled" flag to the IL3 dataset###########
+imatdata=read.csv("output/ABLEnrichmentScreens/Imatinib_Enrichment_2.20.23_v2.csv",header = T,stringsAsFactors = F)
+imatdata=imatdata%>%rowwise()%>%mutate(netgr_obs_mean=mean(netgr_obs.x,netgr_obs.y))
+
+imatdata=merge(imatdata,gnomad_enabled,by=c("protein_start","alt_aa"),all.x=T)
+imatdata[imatdata$gnomad_enabled%in%NA,"gnomad_enabled"]=F
+
+########## Then plot the distribtuion of the gnomad scores and figure out which mutants fall at the fringes of that distribution.##########
+ggplot(imatdata%>%filter(protein_start%in%c(242:494)),aes(x=netgr_obs_mean,fill=gnomad_enabled))+geom_density()+facet_wrap(~gnomad_enabled)
+a=imatdata%>%filter(gnomad_enabled%in%T)
+a=imatdata%>%filter(protein_start%in%c(247,473))
+
+sd(imatdata$netgr_obs_mean)
+0.003016086+0.03076209+0.03076209
+quantile(imatdata$netgr_obs_mean,c(.5,.75,.85))
+a=gnomad%>%filter(residue%in%473)
+a=gnomad%>%filter(residue%in%247)
+# a=gnomad_simple%>%filter(residue%in%473)
+# Once I have all the alt amino acids possible, I will figure out how many of these alt amino acids are at a distance of 1
+gnomad_unique_AAs("CGA","CAA")
+gnomad_unique_AAs("CGA","CGG")
+
+
+imatdata_gnomad=imatdata%>%filter(gnomad_enabled%in%T)%>%dplyr::select(ref_aa,protein_start,alt_aa,netgr_obs_mean,gnomad_enabled,Allele.Frequency.Gnomad)
+a=clinvar%>%filter(residue%in%c("473","247"))
+# write.csv(imatdata_gnomad,"data/Gnomad_ABL/gnomad_enabled_mutants.csv")
+```
+
+
+```{r}
+# Looking at Clinvar mutants
+library(stringr)
+clinvar=read.csv("data/Clinvar_ABL/clinvar_result.csv",header = T)
+clinvar=clinvar%>%filter(!Protein.change%in%"")
+clinvar=clinvar%>%rowwise()%>%mutate(Protein.change=strsplit(Protein.change,",")[[1]][1],
+                                     ref_aa=substr(Protein.change,1,1),
+                                     residue=as.numeric(gsub("([0-9]+).*$", "\\1", sub('.', '', Protein.change))),
+                                     alt_aa=str_sub(Protein.change,-1,-1))
+
+
+# clinvar=clinvar%>%filter(residue>=242,residue<=510)
+# therefore, out of the 226 clinvar mutants, 63 are present inside the ABL kinase and 163 are outside the kinase
+clinvar=clinvar%>%filter(residue>=242,residue<=510)
+
+clinvar=clinvar%>%mutate(Clinical.significance..Last.reviewed.=
+                           strsplit(Clinical.significance..Last.reviewed.,"\\(")[[1]][1])
+a=clinvar%>%group_by(Clinical.significance..Last.reviewed.)%>%summarise(ct=n())
+
+b=clinvar%>%filter(Clinical.significance..Last.reviewed.%in%"Uncertain significance")
+# There are 15 clinvar variants of unknown significance
+# write.csv(b,"clinvar_vus_mutants.csv")
+```
+
+
+Looking at ALL BCRABL mutants detected at pre-treatment according to short et al
+```{r}
+
+shortdata=read.csv("data/Short_et_al_fig1/short_et_al_3.12.23.csv",header = T,stringsAsFactors = F)
+shortdata=shortdata%>%filter(!Classification%in%c("Silent","Nonsense"))
+shortdata=shortdata%>%mutate(ref_aa=str_sub(Species,1,1),
+                             protein_start=str_sub(Species,2,4),
+                             alt_aa=str_sub(Species,-1,-1),
+                             short_mutant=T)%>%
+  dplyr::select(-c("Index","Classification","ref_aa"))
+
+
+imatdata=read.csv("output/ABLEnrichmentScreens/Imatinib_Enrichment_2.20.23_v2.csv",header = T,stringsAsFactors = F)
+imatdata=read.csv("output/ABLEnrichmentScreens/IL3_Enrichment_bgmerged_2.20.23.csv",header = T,stringsAsFactors = F)
+# imatdata=imatdata%>%rowwise()%>%mutate(netgr_obs_mean=mean(netgr_obs.x,netgr_obs.y))
+imatdata=imatdata%>%rowwise()%>%mutate(netgr_obs_mean=mean(netgr_obs_screen1,netgr_obs_screen2))
+imatdata=cosmic_data_adder(imatdata)
+
+imatdata=merge(imatdata,shortdata,by=c("protein_start","alt_aa"),all=T)
+imatdata[imatdata$short_mutant%in%NA,"short_mutant"]=F
+
+
+plotly=ggplot(imatdata%>%filter(protein_start>=242,protein_start<=494,n_nuc_min%in%1),aes(x=reorder(species,-netgr_obs_mean),y=netgr_obs_mean,fill=short_mutant))+geom_col()+theme(axis.text.x=element_text(angle=90, hjust=1))+scale_y_continuous(name="Net Growth Rate")+scale_x_discrete(name="Mutant")+scale_fill_manual(name="Detection Status",labels=c("Not detected","Detected"),values=c("gray","orange"))+cleanup+theme(legend.position = "none")
+ggplotly(plotly)
+
+
+b=imatdata%>%filter(!netgr_obs_mean%in%NA)
+a=imatdata%>%filter(short_mutant%in%T,!netgr_obs_mean%in%NA,cosmic_present%in%F,resmuts%in%F)
+a=imatdata%>%filter(short_mutant%in%T,!netgr_obs_mean%in%NA)
+
+a=shortdata%>%filter(protein_start%in%c(242:494))
+median(a$netgr_obs_mean)
+ggplot(imatdata%>%filter(!species%in%"T315I",protein_start>=242,protein_start<=494,n_nuc_min%in%1,netgr_obs_mean>=-.02),aes(x=short_mutant,y=netgr_obs_mean,fill=short_mutant))+
+  geom_violin(color="black")+
+  geom_boxplot(color="black",width=.1)+
+  # geom_boxplot(color="black")+
+  scale_fill_manual(values=c("gray90","orange"))+theme(legend.position = "none")+scale_y_continuous("Net Growth Rate")+scale_x_discrete("Short et al Ph+ ALL Status",labels=c("Not Detected","Detected"))
+
+
+t.test(a$netgr_obs_mean,b$netgr_obs_mean)
+```
+

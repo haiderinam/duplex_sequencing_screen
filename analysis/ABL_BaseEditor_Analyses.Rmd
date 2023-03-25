@@ -1,0 +1,726 @@
+---
+title: "ABL_BaseEditor_Analyses"
+author: "Haider Inam"
+date: '2023-03-13'
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+knitr::opts_knit$set(root.dir = normalizePath(".."))
+# rm(list=ls())
+
+library(stringr)
+library(dplyr)
+library(ggplot2)
+library(plotly)
+library(tictoc)
+library(doParallel)
+library(foreach)
+library(RColorBrewer)
+#Cleanup code for plotting
+cleanup=theme_bw() +
+  theme(plot.title = element_text(hjust=.5),
+        panel.grid.major = element_blank(),
+        panel.grid.major.y = element_blank(),
+        panel.background = element_blank(),
+        # axis.line = element_line(color = "black"),
+        axis.text = element_text(face="bold",color="black",size="11"),
+        text=element_text(size=11,face="bold"),
+        axis.title=element_text(face="bold",size="11"))
+```
+
+
+```{r}
+# Contingency table maker function.
+# Input: dataframe of sgRNAs and mutants and whether the enrichment scores are significant
+# Output: a 2x2 contingency table
+# input_df=bedata_inner_simple_filtered%>%filter(Type%in%"ABE")
+# input_df=testdata
+contab_maker=function(input_df){
+  PP=input_df%>%filter(significance_status%in%"Both")
+  PP_unique=length(unique(PP$species))
+  
+  NN=input_df%>%filter(significance_status%in%"Neither")
+  NN_unique=length(unique(NN$species))
+  
+  NP=input_df%>%filter(significance_status%in%"BEOnly")
+  NP_unique=length(unique(NP$species))
+  
+  PN=input_df%>%filter(significance_status%in%"SMOnly")
+  PN_unique=length(unique(PN$species))
+  
+  table=rbind(cbind(PP_unique,PN_unique),cbind(NP_unique,NN_unique))
+  table
+}
+```
+
+
+Data Parsing 
+```{r}
+# rm(list=ls())
+bedata_inner=read.csv("data/BE_ABL_Merged/BE_SatMut_Screen_Inner20230315.csv",header=T,stringsAsFactors = F)
+bedata_outer=read.csv("data/BE_ABL_Merged/BE_SatMut_Screen_Outer20230315.csv",header=T,stringsAsFactors = F)
+# a=bedata_inner%>%select(ct_screen1_before,ct_screen2_before,pvalue)
+# 
+# a=unique(bedata_inner$Mutation)
+# # Data has 196 unique mutants
+# a=unique(bedata_inner$sgRNA.Seq)
+# # The 196 unique mutants are made by 277 unique guides
+# a=unique(bedata_inner[bedata_inner$Significant%in%"True","Mutation"])
+# # Amongst these 196 unique mutants, 45 have a statistically significant sat mut score
+
+# 
+# a=unique(bedata_outer$Mutation)
+# #5788 mutations overall
+# a=unique(bedata_outer$sgRNA.Seq)
+# # 2811 guides
+# bedata_outer_filtered=bedata_outer%>%filter(ABL1_AA>=242,ABL1_AA<=494)
+# a=unique(bedata_outer_filtered$Mutation)
+# # out of the 5788 mutants, 717 are in the kinase
+# a=unique(bedata_outer_filtered$sgRNA.Seq)
+# # these 717 mutants are made by 349 guides
+# a=unique(bedata_outer$species)
+# # 2201 sat mut mutants
+# a=unique(bedata_inner$species)
+# # out of the 717 BE mutants, 290 are seen in the SM screens
+
+# a=bedata_inner%>%filter(!Ref_AA%in%ref_aa)
+# a=bedata_inner%>%filter(!Alt_AA%in%alt_aa)
+# a=bedata_inner%>%filter(!Mutation%in%species)
+# a=bedata_inner%>%filter(!Ref_Codon%in%ref_codon)
+# a=bedata_inner%>%filter(!ABL1_AA%in%protein_start)
+# ^^Just making sure that there are no cases where the BE data and the sat mut data coordinates are different
+# a=bedata_inner%>%mutate(Alt_Codon=toupper(Alt_Codon))%>%filter(!Alt_Codon%in%alt_codon)
+# The clause above is basically saying that 606 out of 760 ALT codons are different in the BE data than in the sat mut data, which makes sense
+
+
+
+
+bedata_inner_simple=bedata_inner%>%
+  select(-c(X,Unnamed..0_x,Strand,consequence_terms,
+            ct_screen1_before,ct_screen1_after,ct_screen2_before,ct_screen2_after,
+            depth_screen1_before,depth_screen1_after,depth_screen2_before,depth_screen2_after,
+            maf_screen1_before,maf_screen1_after,maf_screen2_before,maf_screen2_after,
+            Ref_AA,ABL1_AA,Alt_AA,Ref_Codon,Mutation,alt_start_pos))
+
+bedata_inner_simple=bedata_inner_simple%>%
+  rename(BE.Alt_Codon=Alt_Codon,SM.Alt_Codon=alt_codon,BE.LFC=BE_LFC,BE.pval=BE_p.value,BE.FDR=BE_FDR,SM.pval=pvalue,SM.padj=padj,SM.Significant=Significant,SM.ref=ref,SM.alt=alt,SM.LFC=log2FoldChange)%>%
+  relocate(ref_aa,protein_start,alt_aa,species,ref_codon,BE.Alt_Codon,SM.Alt_Codon,alt_codon_shortest,n_nuc_min,AA_Number)
+
+# Now that I have simplified the dataset to include meaningful columns, I am going to add a column that has a flag for the number of Sat Mut nucleotides
+bedata_inner_simple=bedata_inner_simple%>%rowwise%>%mutate(BE.n_nuc=str_count(sgRNA_Nuc,",")+1,SM.n_nuc=nchar(SM.alt))%>%relocate(BE.n_nuc,.after=sgRNA_Nuc)%>%relocate(SM.n_nuc,.after=SM.alt)
+bedata_inner_simple$SM.Significant=toupper(bedata_inner_simple$SM.Significant)
+bedata_inner_simple$SM.Significant=as.factor(bedata_inner_simple$SM.Significant)
+# Adding the flag for a mutant captured by more than one sgRNA
+
+
+
+bedata_inner_simple=bedata_inner_simple%>%mutate(SM.netgr_obs_mean=mean(netgr_obs_screen1,netgr_obs_screen2))
+
+bedata_inner_simple=bedata_inner_simple%>%
+  mutate(BE.Significant=case_when(abs(BE.LFC)>0.5~T,
+                                  T~F),
+         SM.Significant=case_when(SM.padj<0.05~T,
+                                  T~F),
+         significance_status=case_when((BE.Significant%in%T)&&(SM.Significant%in%F)~"BEOnly",
+                                       (BE.Significant%in%F)&&(SM.Significant%in%T)~"SMOnly",
+                                       (BE.Significant%in%T)&&(SM.Significant%in%T)~"Both",
+                                       T~"Neither"))
+
+# bedata_inner_simple=bedata_inner_simple%>%
+#   mutate(BE.Significant=case_when(BE.LFC<=-1~T,
+#                                   BE.LFC>=1~T,
+#                                   T~F),
+#          significance_status=case_when((BE.Significant%in%T)&&(SM.Significant%in%F)~"BEOnly",
+#                                        (BE.Significant%in%F)&&(SM.Significant%in%T)~"SMOnly",
+#                                        (BE.Significant%in%T)&&(SM.Significant%in%T)~"Both",
+#                                        T~"Neither"))
+
+```
+
+There are a lot fewer mutants in the merged BE SM dataset than in the IL3 dataset
+Main question: How many unique mutants in the IL3 dataset are not pseudo-counted and have not equal background counts and depths across two replicates and are in the kinase and are present in the BE data?
+
+Figuring out how to predict which sgRNAs make what mutants
+```{r}
+# Algorithm:
+# For each unique sgRNA
+# Calculate how many mutants are possible that we see in our library
+# Figure out which mutants are MNVs
+# For sgRNAs that only have one mutant, that's the default choice
+# For sgRNAs with >1 possible mutant,
+# choose the mutant that is closest to the 5th position away from the PAM
+# If two mutants are the same distance away from the 5th position (i.e. at position 4 and 6), choose the higher distance mutant
+
+# Note that this algorithm is PAM agnostic
+# Note that this algorithm does not use MNVs
+
+# Rule: 
+
+# x=bedata_inner_simple%>%filter(sgRNA_possible_mutants==2)
+# x=bedata_inner_simple%>%filter(sgRNA_possible_mutants>=2)
+# x=bedata_inner_simple
+bedata_inner_simple=bedata_inner_simple%>%select(Type,sgRNA.Seq,species,sgRNA_Nuc,BE.n_nuc,ref_codon,BE.Alt_Codon,BE.LFC,BE.pval,BE.FDR,BE.Significant,SM.netgr_obs_mean,SM.padj,SM.Significant,significance_status)
+# Calculating distances
+# For SNPs, the distance is simple,
+# For MNVs, choose one of the distances (simplifying assumption, I know)
+bedata_inner_simple=bedata_inner_simple%>%mutate(sgRNA_Nuc=gsub("\\[|\\]","",sgRNA_Nuc))
+# Figuring out which mutants are at the minimum distance
+# What if two mutants are within the same distance? Choose the first mutant
+bedata_inner_simple=bedata_inner_simple%>%mutate(distance=case_when(BE.n_nuc%in%1~sgRNA_Nuc,
+                                BE.n_nuc>=2~strsplit(sgRNA_Nuc,",")[[1]][1]))
+bedata_inner_simple$distance=as.numeric(bedata_inner_simple$distance)
+bedata_inner_simple=bedata_inner_simple%>%mutate(distance_from_5=abs(5-distance))
+
+# For each sgRNA, figure out which mutant is at the minimum distance
+# If there are multiple mutants at the minimum distance, note down both of them.
+bedata_sum=bedata_inner_simple%>%
+  group_by(sgRNA.Seq)%>%
+  summarize(mutants_per_sgRNA=n(),
+            mindist=min(distance_from_5),
+            species.mindist=paste(species[which(distance_from_5==min(distance_from_5))],collapse=", "))
+# Sometimes a guide makes the same amino acid substitution two different ways (eg a snp and an mnv that make the same substitution). When this happens, the algorithm thinks that the guide is making two separate amino acid substitutions. this next conditional statement is going to remove those duplicates.
+bedata_sum=bedata_sum%>%
+  rowwise()%>%
+  mutate(species.mindist=case_when(
+    strsplit(species.mindist,", ")[[1]][1]==
+      strsplit(species.mindist,", ")[[1]][2]~strsplit(species.mindist,", ")[[1]][1],
+                                   T~species.mindist))
+
+
+
+bedata_inner_simple=merge(bedata_inner_simple,bedata_sum,by="sgRNA.Seq")
+
+bedata_inner_simple_filtered=bedata_inner_simple%>%rowwise()%>%filter(species%in%species.mindist)
+
+# bedata_mutant_sum=bedata_inner_simple_filtered%>%group_by(species,sgRNA.Seq)%>%summarize(num_ways=n())
+# note that num_ways is the number of different ways that mutant can be made by that sgRNA.
+# I use this 
+
+############# Are our sgRNA predictions working well?
+# Questions to ask:
+# What % of the sgRNAs get a single mutant 
+bedata_inner_simple_filtered=bedata_inner_simple_filtered%>%
+  # rowwise()%>%
+  mutate(multi_mutant_sgRNA=grepl(",",species.mindist))
+x=bedata_inner_simple_filtered%>%filter(multi_mutant_sgRNA%in%F)
+length(unique(bedata_inner_simple$sgRNA.Seq))
+length(unique(x$sgRNA.Seq))
+# Therefore 305 of 337 sgRNAs are predicted to make a single mutant if you choose a simple algorithm that helps pair sgRNAs with cognate by distance from the PAM
+
+length(unique(bedata_inner_simple$species))
+length(unique(bedata_inner_simple_filtered$species))
+# However doing this distance-based filtering also reduces the total mutants you see from 283 to 179 (if you discard all mutants that aren't the highest priority to be made by a given sgRNA), This is because some mutants are far away from a guide and won't be predicted to be made
+
+# Filter 1: discard 
+# What % of the mutants are predicted to be made by a single sgRNA?
+bedata_singlemutants=bedata_inner_simple_filtered%>%
+  filter(multi_mutant_sgRNA%in%F)
+# bedata_singlemutants=bedata_singlemutants%>%group_by(species)%>%summarize(ct=n())
+bedata_singlemutants_sum=bedata_singlemutants%>%group_by(species.mindist)%>%summarize(ct=n())
+
+# a=bedata_singlemutants_sum%>%filter(ct%in%c(1,2))
+# a=bedata_singlemutants_sum%>%filter(ct%in%c(2))
+# b=bedata_inner_simple_sum%>%filter(sgRNA.Seq=="GCCGTGAAGACCTTGAAGGA")
+
+
+# 68 of the 171 mutants are predicted to be made by a single guide.
+# 120 of the 171 mutants are predicted to be made by one or two guides
+# If a mutant is expected to be the primary mutant made by two guides, do I just take the mean of the mutants made by the two guides?
+length(unique(bedata_inner_simple$sgRNA.Seq))
+######Next question to ask: of the mutants made by a single (or two) guides, what is the correlation like? Also you could modify the predicter so that the mutants that are made by a single guide that are the same as an mnv as they are as snv are figured out
+
+# Of the sgRNAs that make multinucleotide variants. In how many cases is the SNV the same substitution as the mnv?
+
+
+ggplot(bedata_inner_simple_filtered,aes(x=mutants_per_sgRNA))+geom_histogram(binwidth = 1,color="black",fill="gray")+
+  scale_x_continuous("# Unique mutants possible per sgRNA before distance-based prediction",breaks=c(1,2,3,4,5,6,7))+
+  scale_y_continuous("sgRNAs")
+
+bedata_inner_simple_filtered_nodups=bedata_inner_simple_filtered%>%select(species,sgRNA.Seq)%>%group_by(sgRNA.Seq,species)%>%filter(row_number()==1)
+# The no dups filtering takes out sgRNAs making the same mutant a couple of different ways
+bedata_inner_simple_filtered_sum=bedata_inner_simple_filtered_nodups%>%group_by(sgRNA.Seq)%>%summarize(ct=n())
+ggplot(bedata_inner_simple_filtered_sum,aes(x=ct))+geom_histogram(binwidth = 1,color="black",fill="gray")+
+  scale_x_continuous("# Unique mutants possible per sgRNA after distance-based prediction")+
+  scale_y_continuous("sgRNAs")
+
+
+sgrnas_per_mutant=bedata_inner_simple%>%group_by(species)%>%summarize(sgRNAs_per_mutant=n())
+ggplot(sgrnas_per_mutant,aes(x=sgRNAs_per_mutant))+geom_histogram(binwidth = 1,color="black",fill="gray")+
+  scale_x_continuous("# Unique sgRNAs that are predicted to have highest priority to make the mutant")+
+  scale_y_continuous("Mutants")
+
+ggplot(bedata_singlemutants_sum,aes(x=ct))+geom_histogram(binwidth = 1,color="black",fill="gray")+
+  scale_x_continuous("# Unique sgRNAs that are predicted to have highest priority to make the mutant",breaks=c(1,2,3,4,5,6,7))+
+  scale_y_continuous("Mutants")
+```
+
+
+Plotting all the data
+
+Plotting
+```{r}
+ggplot(bedata_inner_simple,aes(x=BE.LFC))+geom_histogram()
+ggplot(bedata_inner_simple,aes(x=SM.netgr_obs_mean))+geom_histogram()
+
+
+#######################Plotting all data unfiltered#####################
+
+# Figure Legend
+ggplot(bedata_inner_simple%>%filter(Type%in%"ABE"),aes(x=BE.LFC,y=SM.netgr_obs_mean))+
+         geom_point(color="black",shape=21,size=2,aes(fill=significance_status))+
+         scale_y_continuous("SM Net Growth Rate")
+ggsave("output/BE_SM_FigLegend.pdf",width=10,height=4,units = "in",useDingbats=F)
+
+
+
+ggplot(bedata_inner_simple%>%filter(Type%in%"ABE"),aes(x=BE.LFC,y=SM.netgr_obs_mean,label=species,color=significance_status))+
+  geom_text()+
+  scale_y_continuous("SM Net Growth Rate")+
+  cleanup+
+  theme(legend.position="none")
+ggsave("output/BE_SM_Plots/be_sm_abe_all_labels.pdf",width=5,height=4,units = "in",useDingbats=F)
+
+ggplot(bedata_inner_simple%>%filter(Type%in%"ABE"),aes(x=BE.LFC,y=SM.netgr_obs_mean))+
+         geom_point(color="black",shape=21,size=2,aes(fill=significance_status))+
+         scale_y_continuous("SM Net Growth Rate")+
+         cleanup+
+         theme(legend.position="none")
+ggsave("output/BE_SM_Plots/be_sm_abe_all_ponts.pdf",width=5,height=4,units = "in",useDingbats=F)
+
+
+ggplot(bedata_inner_simple%>%filter(Type%in%"CBE"),aes(x=BE.LFC,y=SM.netgr_obs_mean,label=species,color=significance_status))+
+  geom_text()+
+  scale_y_continuous("SM Net Growth Rate")+
+  cleanup+
+  theme(legend.position="none")
+ggsave("output/BE_SM_Plots/be_sm_cbe_all_labels.pdf",width=5,height=4,units = "in",useDingbats=F)
+
+ggplot(bedata_inner_simple%>%filter(Type%in%"CBE"),aes(x=BE.LFC,y=SM.netgr_obs_mean))+
+         geom_point(color="black",shape=21,size=2,aes(fill=significance_status))+
+         scale_y_continuous("SM Net Growth Rate")+
+         cleanup+
+         theme(legend.position="none")
+ggsave("output/BE_SM_Plots/be_sm_cbe_all_ponts.pdf",width=5,height=4,units = "in",useDingbats=F)
+
+#######################Plotting data filtered for sgRNA Predictions#####################
+ggplot(bedata_inner_simple_filtered%>%filter(Type%in%"ABE"),aes(x=BE.LFC,y=SM.netgr_obs_mean,label=species,color=significance_status))+
+  geom_text()+
+  scale_y_continuous("SM Net Growth Rate")+
+  cleanup+
+  theme(legend.position="none")
+ggsave("output/BE_SM_Plots/be_sm_abe_filtered_labels.pdf",width=5,height=4,units = "in",useDingbats=F)
+
+ggplot(bedata_inner_simple_filtered%>%filter(Type%in%"ABE"),aes(x=BE.LFC,y=SM.netgr_obs_mean))+
+         geom_point(color="black",shape=21,size=2,aes(fill=significance_status))+
+         scale_y_continuous("SM Net Growth Rate")+
+         cleanup+
+         theme(legend.position="none")
+ggsave("output/BE_SM_Plots/be_sm_abe_filtered_ponts.pdf",width=5,height=4,units = "in",useDingbats=F)
+
+
+ggplot(bedata_inner_simple_filtered%>%filter(Type%in%"CBE"),aes(x=BE.LFC,y=SM.netgr_obs_mean,label=species,color=significance_status))+
+  geom_text()+
+  scale_y_continuous("SM Net Growth Rate")+
+  cleanup+
+  theme(legend.position="none")
+ggsave("output/BE_SM_Plots/be_sm_cbe_filtered_labels.pdf",width=5,height=4,units = "in",useDingbats=F)
+
+ggplot(bedata_inner_simple_filtered%>%filter(Type%in%"CBE"),aes(x=BE.LFC,y=SM.netgr_obs_mean))+
+         geom_point(color="black",shape=21,size=2,aes(fill=significance_status))+
+         scale_y_continuous("SM Net Growth Rate")+
+         cleanup+
+         theme(legend.position="none")
+ggsave("output/BE_SM_Plots/be_sm_cbe_filtered_ponts.pdf",width=5,height=4,units = "in",useDingbats=F)
+
+#############
+bedata_inner_grouped=bedata_inner_simple_filtered%>%group_by(Type,species)%>%summarize(BE.LFC=mean(BE.LFC),SM.netgr_obs_mean=mean(SM.netgr_obs_mean))
+
+bedata_inner_grouped=bedata_inner_grouped%>%rowwise()%>%
+  mutate(BE.Significant=case_when(BE.LFC<=-1~T,
+                                  BE.LFC>=1~T,
+                                  T~F),
+         SM.Significant=case_when(SM.netgr_obs_mean<.03~T,
+                                  SM.netgr_obs_mean>.07~T,
+                                  T~F),
+         significance_status=case_when((BE.Significant%in%T)&&(SM.Significant%in%F)~"BEOnly",
+                                       (BE.Significant%in%F)&&(SM.Significant%in%T)~"SMOnly",
+                                       (BE.Significant%in%T)&&(SM.Significant%in%T)~"Both",
+                                       T~"Neither"))
+
+ggplot(bedata_inner_grouped%>%filter(Type%in%"ABE"),aes(x=BE.LFC,y=SM.netgr_obs_mean,label=species,color=significance_status))+
+  geom_text()+
+  scale_y_continuous("SM Net Growth Rate")+
+  cleanup
+  # theme(legend.position="none")+
+ggsave("output/BE_SM_Plots/be_sm_abe_filtered_labels_mean.pdf",width=5,height=4,units = "in",useDingbats=F)
+
+
+
+#######################Figuring out correlation coefficients and FETs#####################
+# ABE all
+testdata=bedata_inner_simple%>%filter(Type%in%"ABE")
+cor(testdata$BE.LFC,testdata$SM.netgr_obs_mean)
+table=contab_maker(testdata)
+table
+fisher.test(table)
+# CBE all
+testdata=bedata_inner_simple%>%filter(Type%in%"CBE")
+cor(testdata$BE.LFC,testdata$SM.netgr_obs_mean)
+table=contab_maker(testdata)
+table
+fisher.test(table)
+# sum(as.numeric(testdata$BE.Significant))
+# length(testdata[testdata$significance_status%in%c("Both","BEOnly"),"BE.Significant"])
+# sum(as.numeric(testdata$SM.Significant))
+# length(testdata[testdata$significance_status%in%c("Both","SMOnly"),"BE.Significant"])
+
+# ABE Filtered
+testdata=bedata_inner_simple_filtered%>%filter(Type%in%"ABE")
+cor(testdata$BE.LFC,testdata$SM.netgr_obs_mean)
+table=contab_maker(testdata)
+table
+fisher.test(table)
+
+# CBE Filtered
+testdata=bedata_inner_simple_filtered%>%filter(Type%in%"CBE")
+cor(testdata$BE.LFC,testdata$SM.netgr_obs_mean)
+table=contab_maker(testdata)
+table
+fisher.test(table)
+
+
+# ABE Filtered Means
+testdata=bedata_inner_grouped%>%filter(Type%in%"ABE")
+cor(testdata$BE.LFC,testdata$SM.netgr_obs_mean)
+table=contab_maker(testdata)
+table
+fisher.test(table)
+
+##################################
+
+
+############# Of the sgRNAs that score, how often do any of the predicted variants score (when considered as single mutations.) How does this break down by PAM sequence?
+############## When a variant is "covered" by an sgRNA in the library, AND it scores by Saturation Mutagenesis, How often does the sgRNA score in the base editor screen? How does this break down by PAM?
+table=contab_maker(bedata_inner_simple%>%filter(Type%in%"ABE"))
+fisher.test(table)
+
+table=contab_maker(bedata_inner_simple%>%filter(Type%in%"CBE"))
+fisher.test(table)
+############## Do mult-nucleotide variants score more often than single nucleotide variants. in the base editor library,     Is this regardless of PAM sequence?
+
+############## Are multinucleotide variant hits flagging regions of the protein that have more phenotypes than average? Less than average? Or just average? How does this break down by PAM?
+
+############## If a region is negative by sgRNA how often is it negative by saturation mutagenesis? How is this affected by PAM others?
+```
+Plotting out the distribution of growht rates in the BE data and in the SM data
+
+```{r}
+ggplot(bedata_inner_simple_filtered,aes(x=BE.LFC))+geom_histogram()
+ggplot(bedata_inner_simple,aes(x=SM.netgr_obs_mean))+geom_histogram()
+
+ggplot(bedata_inner_simple_filtered,aes(x=SM.padj))+geom_histogram()
+ggplot(bedata_inner_simple_filtered,aes(x=BE.FDR))+geom_histogram()+scale_x_continuous(trans="log10")
+
+ggplot(bedata_inner,aes(y=BE_p.value,x=BE_LFC))+geom_point()+scale_x_continuous(limits=c(-1,.5))+geom_hline(color="red",yintercept = .05)
+x=bedata_inner%>%filter(BE_p.value<.05)
+ggplot(bedata_inner_simple,aes(x=SM.netgr_obs_mean,y=SM.padj))+geom_point()+geom_hline(color="red",yintercept = .05)
+```
+
+
+
+
+Setting Thresholds for Significant Hits
+
+```{r}
+
+input_df_all=bedata_inner_simple
+input_df_filtered=bedata_inner_simple_filtered
+# The LFC threshold for the BE data
+# be_threshold=seq(.5,1,.1)
+be_threshold=c(0.1,.25,.5,.75,1,1.25)
+# The P Value threshold for the SM data
+sm_threshold=c(.01,.025,.05,.1,.2,.3)
+# Initializing empty dataframe
+output_df=data.frame(matrix(ncol = 5, nrow = 4*length(be_threshold)*length(sm_threshold)))
+colnames(output_df)=c("BE.LFC","SM.Pval","FET.Pval","Type","sgRNA.Prediction.status")
+iter=1
+# be_threshold_i=.5
+# sm_threshold=.05
+for(be_threshold_i in be_threshold){
+  for(sm_threshold_i in sm_threshold){
+    input_df_all=input_df_all%>%
+  mutate(BE.Significant=case_when(abs(BE.LFC)>be_threshold_i~T,
+                                  T~F),
+         SM.Significant=case_when(SM.padj<sm_threshold_i~T,
+                                  T~F))%>%
+      rowwise%>%
+      mutate(significance_status=case_when((BE.Significant%in%T)&&(SM.Significant%in%F)~"BEOnly",
+                                       (BE.Significant%in%F)&&(SM.Significant%in%T)~"SMOnly",
+                                       (BE.Significant%in%T)&&(SM.Significant%in%T)~"Both",
+                                       T~"Neither"))
+    
+    input_df_filtered=input_df_filtered%>%
+  mutate(BE.Significant=case_when(abs(BE.LFC)>be_threshold_i~T,
+                                  T~F),
+         SM.Significant=case_when(SM.padj<sm_threshold_i~T,
+                                  T~F),
+         significance_status=case_when((BE.Significant%in%T)&&(SM.Significant%in%F)~"BEOnly",
+                                       (BE.Significant%in%F)&&(SM.Significant%in%T)~"SMOnly",
+                                       (BE.Significant%in%T)&&(SM.Significant%in%T)~"Both",
+                                       T~"Neither"))
+    
+    input_df=input_df_all
+    table=fisher.test(contab_maker(input_df%>%filter(Type%in%"ABE")))
+    pval_i=table$p.value
+    output_df[iter,1]=be_threshold_i
+    output_df[iter,2]=sm_threshold_i
+    output_df[iter,3]=pval_i
+    output_df[iter,4]="ABE"
+    output_df[iter,5]="AllPossible"
+    
+    table=fisher.test(contab_maker(input_df%>%filter(Type%in%"CBE")))
+    pval_i=table$p.value
+    output_df[(iter+1),1]=be_threshold_i
+    output_df[(iter+1),2]=sm_threshold_i
+    output_df[(iter+1),3]=pval_i
+    output_df[(iter+1),4]="CBE"
+    output_df[(iter+1),5]="AllPossible"
+    
+    input_df=input_df_filtered
+    table=fisher.test(contab_maker(input_df%>%filter(Type%in%"ABE")))
+    pval_i=table$p.value
+    output_df[(iter+2),1]=be_threshold_i
+    output_df[(iter+2),2]=sm_threshold_i
+    output_df[(iter+2),3]=pval_i
+    output_df[(iter+2),4]="ABE"
+    output_df[(iter+2),5]="Likeliest"
+    
+    table=fisher.test(contab_maker(input_df%>%filter(Type%in%"CBE")))
+    pval_i=table$p.value
+    output_df[(iter+3),1]=be_threshold_i
+    output_df[(iter+3),2]=sm_threshold_i
+    output_df[(iter+3),3]=pval_i
+    output_df[(iter+3),4]="CBE"
+    output_df[(iter+3),5]="Likeliest"
+    iter=iter+4
+  }
+}
+
+ggplot(output_df,aes(x=as.factor(BE.LFC),y=as.factor(SM.Pval),fill=-log(FET.Pval)))+
+  geom_tile()+
+  scale_fill_gradient2(low="blue",high = "red",midpoint=2.3)+
+  facet_grid(sgRNA.Prediction.status~Type)+
+  scale_x_discrete("BE Threshold for Significance (LFC)",expand=c(0,0))+
+  scale_y_discrete("SM Threshold for Significance (DESeq P Value)",expand=c(0,0))
+# 
+ggplot(output_df%>%filter(sgRNA.Prediction.status%in%"Likeliest",Type%in%"ABE"),aes(x=as.factor(BE.LFC),y=as.factor(SM.Pval),fill=-log(FET.Pval)))+
+  geom_tile()+
+  scale_fill_gradient2(low="blue",high = "red",midpoint=2.3)+
+  # facet_wrap(~Type,nrow=2)+
+  scale_x_discrete("BE Threshold for Significance (LFC)",expand=c(0,0))+
+  scale_y_discrete("SM Threshold for Significance (DESeq P Value)",expand=c(0,0))+
+  cleanup+
+  theme(legend.position = "none",aspect.ratio = 1)+
+ggsave("output/BE_SM_Plots/threshold_analysis_abe.pdf",width=4,height=4,units="in",useDingbats=F)
+# 
+ggplot(output_df%>%filter(sgRNA.Prediction.status%in%"Likeliest",Type%in%"CBE"),aes(x=as.factor(BE.LFC),y=as.factor(SM.Pval),fill=-log(FET.Pval)))+
+  geom_tile()+
+  scale_fill_gradient2(low="blue",high = "red",midpoint=2.3)+
+  # facet_wrap(~Type,nrow=2)+
+  scale_x_discrete("BE Threshold for Significance (LFC)",expand=c(0,0))+
+  scale_y_discrete("SM Threshold for Significance (DESeq P Value)",expand=c(0,0))+
+  cleanup+
+  theme(legend.position = "none",aspect.ratio = 1)+
+ggsave("output/BE_SM_Plots/threshold_analysis_cbe.pdf",width=4,height=4,units="in",useDingbats=F)
+
+# Plotting legend separately
+library(cowplot)
+library(ggpubr)
+forcowplot=ggplot(output_df%>%filter(sgRNA.Prediction.status%in%"Likeliest",Type%in%"ABE"),aes(x=as.factor(BE.LFC),y=as.factor(SM.Pval),fill=-log(FET.Pval)))+
+  geom_tile()+
+  scale_fill_gradient2(low="blue",high = "red",midpoint=2.3)+
+  # facet_wrap(~Type,nrow=2)+
+  scale_x_discrete("BE Threshold for Significance (LFC)",expand=c(0,0))+
+  scale_y_discrete("SM Threshold for Significance (DESeq P Value)",expand=c(0,0))+
+  cleanup+
+  theme(aspect.ratio = 1)
+my_legend=get_legend(forcowplot)
+as_ggplot(my_legend)
+ggsave("output/BE_SM_Plots/threshold_analysis_legend.pdf")
+```
+
+
+Looking at false positives in BE and SM data
+-How many of the false negatives in the BE data (purple false positives in SM) are guides that were strongly predicted to make other mutants.
+  If the guides were predicted to make other mutants, was it significantly more mutants than the guides in the green (both) region?
+-Of the guides in the green region, how many are scored so that they're made by multiple guides? Do the mutants in the green region, on average, made by more sgRNAs than the mutants in the other regions?
+
+
+
+Controls:
+CBE: Positive control for low guide cutting efficiency
+sgRNAs predicted to make a single mutant only: Positive control real effect... is the correlation for these sgRNAs higher with the SM data? Answer: sgRNAs that are only predicted to make a single mutant aren't really better in agreement with SM data
+
+What about distance? Do sgRNAs making mutants near 4,5,6 score better? Answer: depends on what you mean by better. Their p-value is better.
+```{r}
+bedata_singlemutants=bedata_inner_simple%>%filter(BE.n_nuc%in%1)
+
+# For each sgRNA, figure out which mutant is at the minimum distance
+# If there are multiple mutants at the minimum distance, note down both of them.
+bedata_sum=bedata_singlemutants%>%
+  group_by(sgRNA.Seq)%>%
+  summarize(mutants_per_sgRNA=n(),
+            mindist=min(distance_from_5),
+            species.mindist=paste(species[which(distance_from_5==min(distance_from_5))],collapse=", "))
+# Sometimes a guide makes the same amino acid substitution two different ways (eg a snp and an mnv that make the same substitution). When this happens, the algorithm thinks that the guide is making two separate amino acid substitutions. this next conditional statement is going to remove those duplicates.
+bedata_sum=bedata_sum%>%
+  rowwise()%>%
+  mutate(species.mindist=case_when(
+    strsplit(species.mindist,", ")[[1]][1]==
+      strsplit(species.mindist,", ")[[1]][2]~strsplit(species.mindist,", ")[[1]][1],
+                                   T~species.mindist))
+
+
+
+bedata_singlemutants=merge(bedata_singlemutants,bedata_sum,by="sgRNA.Seq")
+x=bedata_singlemutants%>%filter(sgRNA.Seq%in%"AAAGAAGCTGCAGTCATGAA")
+
+
+# sgRNAs making snvs, not MNVs
+ggplot(bedata_singlemutants%>%filter(Type%in%"ABE"),aes(x=BE.LFC,y=SM.netgr_obs_mean,label=species,color=significance_status))+
+  geom_text()+
+  scale_y_continuous("SM Net Growth Rate")+
+  cleanup+
+  theme(legend.position="none")
+x=bedata_singlemutants%>%filter(Type%in%"ABE")
+cor(x$SM.netgr_obs_mean,x$BE.LFC)
+table=contab_maker(x)
+fisher.test(table)
+
+# sgRNAs making snvs, not MNVs AND making a single mutant
+ggplot(bedata_singlemutants%>%filter(mutants_per_sgRNA.y%in%c(1,2),Type%in%"ABE"),aes(x=BE.LFC,y=SM.netgr_obs_mean,label=species,color=significance_status))+
+  geom_text()+
+  scale_y_continuous("SM Net Growth Rate")+
+  cleanup+
+  theme(legend.position="none")
+
+x=bedata_singlemutants%>%filter(mutants_per_sgRNA.y%in%c(1,2),Type%in%"ABE")
+cor(x$SM.netgr_obs_mean,x$BE.LFC)
+table=contab_maker(x)
+fisher.test(table)
+
+# bedata_singlemutants=bedata_inner_simple
+# sgRNAs making snvs, not MNVs AND having a low distance away from position 5.
+ggplot(bedata_singlemutants%>%filter(distance_from_5%in%c(0,1,2,3),Type%in%"ABE"),aes(x=BE.LFC,y=SM.netgr_obs_mean,label=species,color=significance_status))+
+  geom_text()+
+  scale_y_continuous("SM Net Growth Rate")+
+  cleanup+
+  theme(legend.position="none")
+
+x=bedata_singlemutants%>%filter(distance_from_5%in%c(0,1,2,3),Type%in%"ABE")
+# cor(bedata_inner_simple$SM.netgr_obs_mean,bedata_inner_simple$BE.LFC)
+cor(x$SM.netgr_obs_mean,x$BE.LFC)
+table=contab_maker(x)
+fisher.test(table)
+x_sum=x%>%group_by(species)%>%summarize(SM.netgr_obs_mean=mean(SM.netgr_obs_mean),
+                                        SM.padj=mean(SM.padj),
+                                        BE.LFC=mean(BE.LFC),
+                                        num_sgRNAs=n())
+
+x_sum=x_sum%>%
+  mutate(BE.Significant=case_when(abs(BE.LFC)>0.5~T,
+                                  T~F),
+         SM.Significant=case_when(SM.padj<0.05~T,
+                                  T~F))%>%
+  rowwise()%>%
+  mutate(significance_status=case_when((BE.Significant%in%T)&&(SM.Significant%in%F)~"BEOnly",
+                                       (BE.Significant%in%F)&&(SM.Significant%in%T)~"SMOnly",
+                                       (BE.Significant%in%T)&&(SM.Significant%in%T)~"Both",
+                                       T~"Neither"))
+
+cor(x_sum$SM.netgr_obs_mean,x_sum$BE.LFC)
+table=contab_maker(x_sum)
+fisher.test(table)
+
+ggplot(x_sum,aes(x=BE.LFC,y=SM.netgr_obs_mean,label=species,color=significance_status))+
+  geom_text()+
+  scale_y_continuous("SM Net Growth Rate")+
+  cleanup+
+  theme(legend.position="none",aspect.ratio = 1)+
+ggsave("output/BE_SM_Plots/be_sm_abe_distancefiltered_labels.pdf",width=5,height=4,units = "in",useDingbats=F)
+
+ggplot(x_sum,aes(x=BE.LFC,y=SM.netgr_obs_mean))+
+         geom_point(color="black",shape=21,size=2,aes(fill=significance_status))+
+         scale_y_continuous("SM Net Growth Rate")+
+         cleanup+
+         theme(legend.position="none",aspect.ratio = 1)+
+ggsave("output/BE_SM_Plots/be_sm_abe_distancefiltered_point.pdf",width=5,height=4,units = "in",useDingbats=F)
+
+
+
+# Amongst the ABE likely mutants, are there any defining features of the sgRNAs that agree with SM vs the sgRNAs that don't agree with SM?
+# Answer: no difference in how many unique mutants an sgRNA is predicted to score amongst red and green
+PAMs=bedata_inner%>%select(sgRNA.Seq,PAM,Strand)
+bedata_singlemutants=merge(bedata_singlemutants,PAMs,by = "sgRNA.Seq")
+# bedata_singlemutants=merge(x_sum,PAMs,by = "sgRNA.Seq")
+
+red_only=bedata_singlemutants%>%filter(distance_from_5%in%c(0,1,2,3),Type%in%"ABE",significance_status%in%"BEOnly")
+red_only=merge(red_only,x_sum%>%select(species,num_sgRNAs),by="species")
+mean(red_only$num_sgRNAs)
+
+mean(red_only$mutants_per_sgRNA)
+green_only=bedata_singlemutants%>%filter(distance_from_5%in%c(0,1,2,3),Type%in%"ABE",significance_status%in%"Both")
+green_only=merge(green_only,x_sum%>%select(species,num_sgRNAs),by="species")
+mean(green_only$mutants_per_sgRNA)
+mean(green_only$num_sgRNAs)
+
+blue_only=bedata_singlemutants%>%filter(distance_from_5%in%c(0,1,2,3),Type%in%"ABE",significance_status%in%"SMOnly")
+blue_only=merge(blue_only,x_sum%>%select(species,num_sgRNAs),by="species")
+mean(blue_only$mutants_per_sgRNA)
+mean(blue_only$num_sgRNAs)
+
+# What about the PAM? Are they made by different PAMs?
+red_only_byPAM=red_only%>%group_by(PAM)%>%summarize(count=n())
+green_only_byPAM=green_only%>%group_by(PAM)%>%summarize(count=n())
+blue_only_byPAM=blue_only%>%group_by(PAM)%>%summarize(count=n())
+# 
+```
+
+
+
+```{r}
+# bedata_filtered_forexport=bedata_inner_simple_filtered%>%select(-c(distance,))
+# write.csv(bedata_inner_simple_filtered%>%select(-c(multi_mutant_sgRNA)),"data/BE_ABL_Merged/BE_SatMut_Screen_Kinase_Filtered_031823.csv")
+
+# write.csv(bedata_inner_simple,"data/BE_ABL_Merged/BE_SatMut_Screen_Kinase_All_031823.csv")
+```
+
+Making sure that Ivan's base edited sample (that we deep sequenced) was not accidentally a twist sample
+```{r}
+be_ds_sample=read.csv("data/Consensus_Data/novogene_lane16b/Sample8_combined/sscs/variant_caller_outputs/variants_unique_ann.csv",header = T,stringsAsFactors = F)
+be_ds_sample=read.csv("data/Consensus_Data/novogene_lane16b/Sample8_combined/duplex/variant_caller_outputs/variants_unique_ann.csv",header = T,stringsAsFactors = F)
+twist_codons=read.csv("data/codon_table.csv",header = T)
+twist_codons=twist_codons%>%filter(Twist%in%F)
+
+# be_ds_sample=be_ds_sample%>%filter(type%in%"mnv")
+# be_ds_sample=be_ds_sample%>%filter(alt_codon%in%twist_codons$Codon)
+
+be_ds_nucleotides=be_ds_sample%>%filter(type%in%"snp")%>%mutate(subs=paste(ref,">",alt,sep = ""))%>%group_by(ref,alt,subs)%>%summarize(count=n(),sum=sum(ct))%>%
+  mutate(subs_type=case_when(subs%in%c("T>C","A>G")~"ABE",
+                             subs%in%c("G>A","C>T")~"CBE",
+                             T~"Unknown"))
+
+
+
+be_ds_sample=read.csv("data/Consensus_Data/novogene_lane16b/Sample8_combined/sscs/variant_caller_outputs/variants_unique_ann.csv",header = T,stringsAsFactors = F)
+be_ds_nucleotides_subtypes=be_ds_sample%>%filter(type%in%"snp")%>%mutate(subs=paste(ref,">",alt,sep = ""))%>%group_by(ref,alt,subs,consequence_terms)%>%summarize(count=n(),sum=sum(ct))%>%
+  mutate(subs_type=case_when(subs%in%c("T>C","A>G")~"ABE",
+                             subs%in%c("G>A","C>T")~"CBE",
+                             T~"Unknown"))
+
+# It's obvious that there are many different types of substitutions happening. While there is an enrichment for the ABE substitution types, we still see plenty of other types of substitutions.
+```
+

@@ -77,15 +77,9 @@ ref_csv_name="data/Refs/ABL/abl1_NM_005157.6_full_coordinates.csv"
 # ref_csv_name="data/Refs/LTK/ltk_NM_002344.6_full_coordinates.csv"
 
 
-seqdata_tsv_name=c("data/Consensus_data/novogene_lane16a/Sample11/sscs/sscs_sorted_filtered.tsv.gz",
-                   "data/Consensus_data/novogene_lane16a/Sample12/sscs/sscs_sorted_filtered.tsv.gz",
-                   "data/Consensus_data/novogene_lane16a/Sample13/sscs/sscs_sorted_filtered.tsv.gz",
-                   "data/Consensus_data/novogene_lane16a/Sample14/sscs/sscs_sorted_filtered.tsv.gz")
+# seqdata_tsv_name=c("data/Consensus_data/novogene_lane16b/Sample8_combined/duplex/duplex_sorted_filtered.tsv.gz")
 
-outdir=c("data/Consensus_data/novogene_lane16a/Sample11/sscs/variant_caller_outputs/",
-         "data/Consensus_data/novogene_lane16a/Sample12/sscs/variant_caller_outputs/",
-         "data/Consensus_data/novogene_lane16a/Sample13/sscs/variant_caller_outputs/",
-         "data/Consensus_data/novogene_lane16a/Sample14/sscs/variant_caller_outputs/")
+# outdir=c("data/Consensus_data/novogene_lane16b/Sample8_combined/duplex/variant_caller_outputs/")
 
 
 
@@ -96,11 +90,13 @@ mode="local"
 
 
 ```{r}
-seqdata_tsv_name=c("data/Consensus_Data/novogene_lane15/sample_7/duplex/duplex_sorted_filtered.tsv.gz",
-                   "data/Consensus_Data/novogene_lane15/sample_7/sscs/sscs_sorted_filtered.tsv.gz")
+# seqdata_tsv_name=c("data/Consensus_Data/novogene_lane18/sample15/nol298l/sscs/sscs_sorted_filtered.tsv.gz")
+# outdir=c("data/Consensus_Data/novogene_lane18/sample15/nol298l/sscs/variant_caller_outputs/")
 
-outdir=c("data/Consensus_Data/novogene_lane15/sample_7/duplex/variant_caller_outputs",
-                   "data/Consensus_Data/novogene_lane15/sample_7/sscs/variant_caller_outputs")
+seqdata_tsv_name=c("data/Consensus_Data/novogene_lane18/tlane18a_sample6/l298l/sscs/sscs_sorted_filtered.tsv.gz")
+
+outdir=c("data/Consensus_Data/novogene_lane18/tlane18a_sample6/l298l/sscs/variant_caller_outputs")
+
 ```
 
 
@@ -192,18 +188,43 @@ alldata$soft_clipped=grepl("S.*M|M.*S",alldata$cigar)
 ###Filtering out reads that were soft clipped twice (all of those were mouse reads). Also figuring out the clipping distance for those with regexp is tougher.
 alldata=alldata%>%filter(!grepl("(S.*){2}",cigar)%in%T)
 
+                # alldata2=alldata
+                # alldata=alldata2
+                alldata$clipdistance_left=sapply(strsplit(alldata$cigar,"S"),"[",1)
+                alldata[alldata$soft_clipped%in%F,"clipdistance_left"]="0"
+                
+                # alldata=alldata%>%
+                #   rowwise()%>%
+                #   mutate(clipdistance_left=case_when(soft_clipped%in%TRUE~strsplit(cigar,"S")[[1]][1],
+                #                                 TRUE~"0"))
 
-alldata=alldata%>%
-  rowwise()%>%
-  mutate(clipdistance_left=case_when(soft_clipped%in%TRUE~strsplit(cigar,"S")[[1]][1],
-                                TRUE~"0"))
 
 
-alldata=alldata%>%
-  mutate(right_clipped=case_when(grepl("M",clipdistance_left)%in%"TRUE"~T,
-                                 T~F),
-         clipdistance_right=case_when(right_clipped%in%T~as.numeric(strsplit(clipdistance_left,"M")[[1]][2]),
-                                      T~0))
+                alldata$right_clipped=F
+                alldata[grepl("M",alldata$clipdistance_left)%in%T,"right_clipped"]=T
+
+                alldata$clipdistance_right=as.numeric(strsplit(alldata$clipdistance_left,"M")[[1]][2])
+                alldata$clipdistance_right=sapply(strsplit(alldata$clipdistance_left,"M"),"[",2)
+                alldata$clipdistance_right=as.numeric(alldata$clipdistance_right)
+                alldata[which(alldata$clipdistance_right%in%NA),"clipdistance_right"]=0
+                
+                
+                # alldata=alldata%>%
+                #   mutate(right_clipped=case_when(grepl("M",clipdistance_left)%in%"TRUE"~T,
+                #                                  T~F),
+                #          clipdistance_right=case_when(right_clipped%in%T~as.numeric(strsplit(clipdistance_left,"M")[[1]][2]),
+                #                                       T~0))
+
+# sum(as.numeric(alldata$right_clipped%in%T))
+# sum(as.numeric(alldata$soft_clipped%in%T))
+# sum(as.numeric(alldata$clipdistance_left%in%0))
+# sum(as.numeric(alldata$clipdistance_right%in%0))
+# length(alldata$clipdistance_left[grepl("[A-Za-z]",alldata$clipdistance_left)])
+# alldata_slow=alldata
+# alldata_fast=alldata
+
+# alldata=alldata_slow
+# alldata=alldata_fast
 
 #Correcting the clip distance soft clips that are soft-clipped at the end of the read, and hence their clipped distance appears to be weird.
 alldata$clipdistance_left[grepl("[A-Za-z]",alldata$clipdistance_left)]=0
@@ -227,6 +248,7 @@ for(i in c(1:nrow(alldata))){
   end=alldata$pos[i]+alldata$mlen[i]
   coverage_stats$depth[c(start:end)]=coverage_stats$depth[c(start:end)]+1
 }
+# toc()
 # ggplot(coverage_stats,aes(x=pos,y=depth))+geom_col()
 
 #Adding coverage statistics to all data
@@ -303,6 +325,7 @@ snps=snps%>%filter(mut_extr%in%FALSE)
 snps=snps%>%rowwise()%>%mutate(alt=substr(seq,alt_start_pos-pos+1+clipdistance_left,alt_start_pos-pos+1+clipdistance_left))
 
 # snps=snps%>%filter(!alt_start_pos%in%NA)
+# the following 3 chunks of code take a lot of time
 snps=snps%>%rowwise()%>%mutate(ref_codon=(ref_genomic_coordinates[(alt_start_pos-ref_genomic_coordinates$start)%in%c(0,1,2),"codon"])[[1]],
                                        ref_resi=(ref_genomic_coordinates[(alt_start_pos-ref_genomic_coordinates$start)%in%c(0,1,2),"resi"])[[1]])
 
@@ -313,7 +336,7 @@ snps=snps%>%
 snps=snps%>%
   rowwise()%>%
   mutate(alt_codon=substr(seq,alt_start_pos-pos+1+clipdistance_left-in_frame_pos,alt_start_pos-pos+3+clipdistance_left-in_frame_pos))
-sum(as.numeric(snps$alt%in%snps$alt_codon))
+# sum(as.numeric(snps$alt%in%snps$alt_codon))
 
 
 # snps=snps%>%filter(!alt%in%"N")
