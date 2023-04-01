@@ -1,0 +1,243 @@
+---
+title: "ABL_BaseEditor_Analyses_v2"
+author: "Haider Inam"
+date: '2023-04-01'
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+# knitr::opts_knit$set(root.dir = normalizePath(".."))
+# 
+library(stringr)
+library(dplyr)
+library(ggplot2)
+library(plotly)
+library(tictoc)
+library(doParallel)
+library(foreach)
+library(RColorBrewer)
+```
+BE vs SM data
+When comparing BE vs SM data, you can use a FET of independence to look at which dataset is more independent
+You could also use an ROC curve that compares different prediction algorithms for BE screens and scores based on whether a mutant is also significant in the SM screens.
+Can the BE data predict solvent accessibility? As well as SM screens?
+solvent accessibility is a rigorous test for BE screens.
+An easier test might be to see if BE screens can see Motif effects because 
+those are not just focused on a single residue presumably
+```{r}
+# bedata_inner=read.csv("data/BE_ABL_Merged/BE_SatMut_Screen_Inner20230315.csv",header=T,stringsAsFactors = F)
+
+# bedata_inner_simple=bedata_inner%>%
+#   select(-c(X,Unnamed..0_x,Strand,consequence_terms,
+#             ct_screen1_before,ct_screen1_after,ct_screen2_before,ct_screen2_after,
+#             depth_screen1_before,depth_screen1_after,depth_screen2_before,depth_screen2_after,
+#             maf_screen1_before,maf_screen1_after,maf_screen2_before,maf_screen2_after,
+#             Ref_AA,ABL1_AA,Alt_AA,Ref_Codon,Mutation,alt_start_pos))
+
+# bedata_inner_simple=bedata_inner_simple%>%
+#   rename(BE.Alt_Codon=Alt_Codon,SM.Alt_Codon=alt_codon,BE.LFC=BE_LFC,BE.pval=BE_p.value,BE.FDR=BE_FDR,SM.pval=pvalue,SM.padj=padj,SM.Significant=Significant,SM.ref=ref,SM.alt=alt,SM.LFC=log2FoldChange)%>%
+#   relocate(ref_aa,protein_start,alt_aa,species,ref_codon,BE.Alt_Codon,SM.Alt_Codon,alt_codon_shortest,n_nuc_min,AA_Number)
+```
+
+```{r}
+# bedata_outer=read.csv("data/BE_ABL_Merged/BE_SatMut_Screen_Outer20230315.csv",header=T,stringsAsFactors = F)
+bedata_parser=function(input_df){
+  # Rearrange BE data, rename species to mutation
+  bedata_outer=bedata_outer%>%
+  rename(BE.Alt_Codon=Alt_Codon,SM.Alt_Codon=alt_codon,BE.LFC=BE_LFC,BE.pval=BE_p.value,BE.FDR=BE_FDR,SM.pval=pvalue,SM.padj=padj,SM.Significant=Significant,SM.ref=ref,SM.alt=alt,SM.LFC=log2FoldChange)%>%
+  relocate(ref_aa,protein_start,alt_aa,species,ref_codon,BE.Alt_Codon,SM.Alt_Codon,alt_codon_shortest,n_nuc_min,AA_Number)
+  bedata_outer=bedata_outer%>%select(sgRNA.Seq,PAM,Type,sgRNA_Nuc,Target_Nuc,Ref_Codon,BE.Alt_Codon,Ref_AA,Alt_AA,ABL1_AA,BE.LFC,BE.pval,BE.FDR,BE_Screen,species=Mutation)
+  
+  # Filter out mutants only seen in the SM screen, not in the BE screen
+  # bedata_outer=bedata_outer%>%filter(!BE_Screen%in%"",!species%in%"")
+  # Filter for mutants in the kinase
+  # bedata_outer=bedata_outer%>%filter(ABL1_AA%in%c(242:322))
+  
+  # length(unique(bedata_outer$species))
+  bedata_inner_simple=bedata_outer
+  #############Distances###########
+  # Calculate the distance from PAM
+  bedata_inner_simple=bedata_inner_simple%>%mutate(sgRNA_Nuc=gsub("\\[|\\]","",sgRNA_Nuc))
+  # Figuring out which mutants are at the minimum distance
+  
+  # N_nuc tells you whether its a SNP or an MNV
+  bedata_inner_simple=bedata_inner_simple%>%mutate(BE.n_nuc=str_count(sgRNA_Nuc,",")+1)
+  # How do you calculate the distance for an MNV? Find distance from just one of it's nucleotides
+  bedata_inner_simple=bedata_inner_simple%>%mutate(distance=case_when(BE.n_nuc%in%1~sgRNA_Nuc,
+                                  BE.n_nuc>=2~strsplit(sgRNA_Nuc,",")[[1]][1]))
+  
+  bedata_inner_simple$distance=as.numeric(bedata_inner_simple$distance)
+  bedata_inner_simple=bedata_inner_simple%>%mutate(distance_from_6=abs(6-distance))
+  
+  # For each sgRNA, figure out which one mutant is at the minimum distance
+  # If there are multiple mutants at the minimum distance, note down both of them.
+  bedata_sum=bedata_inner_simple%>%
+    group_by(Type,sgRNA.Seq)%>%
+    summarize(mutants_per_sgRNA=n(),
+              mindist=min(distance_from_6),
+              species.mindist=paste(species[which(distance_from_6==min(distance_from_6))],collapse=", "))
+  # Sometimes a guide makes the same amino acid substitution two different ways (eg a snp and an mnv that make the same substitution). When this happens, the algorithm thinks that the guide is making two separate amino acid substitutions. this next conditional statement is going to remove those duplicates.
+  bedata_sum=bedata_sum%>%
+    rowwise()%>%
+    mutate(species.mindist=case_when(
+      strsplit(species.mindist,", ")[[1]][1]==
+        strsplit(species.mindist,", ")[[1]][2]~strsplit(species.mindist,", ")[[1]][1],
+                                     T~species.mindist))
+  bedata_inner_simple=merge(bedata_inner_simple,bedata_sum,by=c("Type","sgRNA.Seq"))
+  bedata_inner_simple
+}
+```
+
+
+
+```{r}
+netgr_wt=.06
+sm_start=242
+sm_end=322
+# rm(list=ls())
+# Adding function to merge SM and BE data
+smdata=read.csv("output/ABLEnrichmentScreens/ABL_Region1_Lane18_Comparisons/cross-replicate/baf3_IL3_rep1vsrep2_ft/screen_comparison_baf3_IL3_low_rep1vsrep2_ft.csv",header = T)
+smdata=smdata%>%select(species,ref_aa,protein_start,alt_aa,netgr_obs_mean)
+# Read BE data
+bedata_outer=read.csv("data/BE_ABL_Merged/BE_SatMut_Screen_Outer20230315.csv",header=T,stringsAsFactors = F)
+# The following few lines of code helped me find if there are any sgRNA sequences on the + strand that are also the same sgRNA seq on the - strand? Answer is no
+# bedata_outer=bedata_outer%>%select(sgRNA.Seq,Strand)
+# pos=bedata_outer%>%filter(Strand%in%"pos")
+# pos=rbind(pos,c("ACTCGACGTTCACGTAGAAG","neg"))
+# neg=bedata_outer%>%filter(Strand%in%"neg")
+# posneg=merge(pos,neg,by="sgRNA.Seq")
+
+
+#############Parsing BE data###########
+bedata_simple=bedata_parser(bedata_outer)
+#############Merging BE data and SM data###########
+# Merge BE data and SM data by colname: species
+# Note that when you merge BE data and SM data, you lose the synonymous SNPs, which the SM data does not have. To keep the synonymous SNPs, use all.x=T
+bedata_simple=merge(bedata_simple,smdata,by="species",all.x = T)
+
+# Filter out mutants only seen in the SM screen, not in the BE screen
+  bedata_simple=bedata_simple%>%filter(!species%in%"")
+  # Filter for mutants in the kinase
+  bedata_simple=bedata_simple%>%filter(ABL1_AA%in%c(sm_start:sm_end))
+  # For synonymous substitutions, assume they take the WT net growth rate
+  bedata_simple=bedata_simple%>%mutate(netgr_obs_mean=case_when(netgr_obs_mean%in%NA~netgr_wt,
+                                                                T~netgr_obs_mean))
+#############Filtering for SNPs###########
+bedata_simple=bedata_simple%>%filter(BE.n_nuc%in%1)
+# bedata_inner_simple2=bedata_inner_simple
+# bedata_inner_simple=bedata_inner_simple%>%filter(mutants_per_sgRNA%in%1)
+
+#############Adding the tendency of each sgRNA, as predicted by SM###########
+bedata_simple=bedata_simple%>%filter(distance_from_6%in%c(0,1,2,3,4))%>%group_by(Type,sgRNA.Seq)%>%mutate(sgRNA.SM.Mean.Netgr=mean(netgr_obs_mean))
+
+#############Grouping by Mutants, not sgRNAs###########
+bedata_bymutant=bedata_simple%>%filter(Type%in%"ABE",distance_from_6%in%c(0,1,2,3,4))%>%group_by(species)%>%summarize(SM.netgr_obs_mean=mean(netgr_obs_mean),
+                                        BE.LFC=mean(BE.LFC),
+                                        sgRNA.SM.Mean.Netgr=mean(sgRNA.SM.Mean.Netgr),
+                                        sgRNAs_per_mutant=n())
+#############Calculating if mutants are significantly depleting###########
+bedata_bymutant=bedata_bymutant%>%rowwise()%>%
+mutate(BE.Significant=case_when(BE.LFC<=-1~T,
+                                BE.LFC>=1~T,
+                                T~F),
+       SM.Significant=case_when(SM.netgr_obs_mean<.045~T,
+                                SM.netgr_obs_mean>.09~T,
+                                T~F),
+       significance_status=case_when((BE.Significant%in%T)&&(SM.Significant%in%F)~"BEOnly",
+                                     (BE.Significant%in%F)&&(SM.Significant%in%T)~"SMOnly",
+                                     (BE.Significant%in%T)&&(SM.Significant%in%T)~"Both",
+                                     T~"Neither"))
+
+# length(unique(x_sum$species))
+# x_sum=bedata_inner_simple%>%filter(Type%in%"ABE",distance_from_6%in%c(0,1,2))%>%group_by(species)%>%summarize(SM.netgr_obs_mean=mean(netgr_obs_mean),
+#                                         BE.LFC=mean(BE_LFC),
+#                                         num_sgRNAs=n())
+```
+
+
+```{r}
+# Overall Correlation
+ggplot(bedata_bymutant,aes(y=SM.netgr_obs_mean,x=BE.LFC,color=significance_status))+geom_point()
+
+ggplot(bedata_bymutant,aes(y=SM.netgr_obs_mean,x=BE.LFC,label=species,color=significance_status))+geom_text()
+
+########### Do false positives tend to be made by less sgRNAs? No###########
+ggplot(bedata_bymutant,aes(x=significance_status,y=sgRNAs_per_mutant,fill=significance_status))+geom_boxplot()+
+  geom_jitter(color="black", size=1,width=.1, alpha=0.9)
+########### Does having more sgRNAs help at all? Not really#########
+#Many sgRNAs create a single mutation. That helps create trust in a mutant's observed score. 
+# In a way, a mutant is an admixture of admixtures, does having more sgRNAs help? Not really
+ggplot(bedata_bymutant,aes(y=SM.netgr_obs_mean,x=BE.LFC,color=sgRNAs_per_mutant))+geom_point()
+
+####### Is the depletion signal potentially masked by other mutants that an sgRNA makes? Yes#######
+# Is the sgRNA.SM.Mean.Netgr of false negatives higher than that of true positives? That would indicate that false negative mutations look like they have a high LFC because they are created by sgRNAs that make neutral mutants. Ans: yes
+ggplot(bedata_bymutant,aes(x=significance_status,y=sgRNA.SM.Mean.Netgr,fill=significance_status))+geom_boxplot()+
+  geom_jitter(color="black", size=1,width=.1, alpha=0.9) 
+
+# If we calculate the expected net growth rate of an sgRNA by simulating the admixture it creates,
+# we get a decent correlation coefficient
+ggplot(bedata_simple%>%filter(Type%in%"ABE"),aes(y=sgRNA.SM.Mean.Netgr,x=BE.LFC))+geom_point()
+
+
+# Overall correlation for predicted admixtures
+ggplot(bedata_bymutant,aes(y=sgRNA.SM.Mean.Netgr,x=BE.LFC,color=significance_status))+geom_point()
+
+```
+
+Looking at individual mutants in the red green and purple zones
+```{r, eval=F, include=F}
+ggplot(bedata_bymutant,aes(y=SM.netgr_obs_mean,x=BE.LFC,label=species))+geom_text()
+ggplot(bedata_bymutant,aes(y=sgRNA.SM.Mean.Netgr,x=BE.LFC,label=species))+geom_text()
+ggplot(bedata_bymutant,aes(y=sgRNA.SM.Mean.Netgr,x=BE.LFC,label=species))+geom_text()
+purple=bedata_bymutant%>%filter(BE.LFC>=-.75,SM.netgr_obs_mean<.04)
+mean(purple$num_sgRNAs)
+green=bedata_bymutant%>%filter(BE.LFC<=-.75,SM.netgr_obs_mean<.04)
+mean(green$num_sgRNAs)
+red=bedata_bymutant%>%filter(BE.LFC>=-.75,SM.netgr_obs_mean>.04)
+mean(green$num_sgRNAs)
+cor(bedata_bymutant$BE.LFC,bedata_bymutant$SM.netgr_obs_mean)
+cor(bedata_bymutant$BE.LFC,bedata_bymutant$sgRNA.SM.Mean.Netgr)
+y=bedata_bymutant%>%filter(!species%in%c("C305R","I313V","K247E","Y312C","E286G","E316G","I293T"))
+cor(y$BE.LFC,y$SM.netgr_obs_mean)
+purple_sgRNAs=bedata_outer%>%filter(Mutation%in%c("C305R","I313V","K247E","Y312C","E286G","E316G","I293T"))
+purple_sgRNAs=bedata_outer%>%filter(species%in%c("I313T"))
+
+# K247E=GCACAAGCTGGGCGGGGGCC
+# Y312C=CTATATCATCACTGAGTTCA
+# I313V=CTATATCATCACTGAGTTCA
+# C305R=GGGTGCAGACCCCAAGGAGC
+# E286G=AGAAGCTGCAGTCATGAAAG and AAAGAAGCTGCAGTCATGAA
+# E316G= CACTGAGTTCATGACCTACG and TCACTGAGTTCATGACCTAC and ATCACTGAGTTCATGACCTA
+# I293T= TTGATCTCTTTCATGACTGC and TGTTTGATCTCTTTCATGAC
+x=bedata_simple%>%filter(sgRNA.Seq%in%c("ATCACTGAGTTCATGACCTA"))
+x=bedata_outer%>%filter(sgRNA.Seq%in%c("TGTTTGATCTCTTTCATGAC"))
+
+
+green_sgRNAs=bedata_outer%>%filter(species%in%c("F283S","I313T","I314T","K271E","L248P","","Y257C"))
+green_sgRNAs=bedata_outer%>%filter(species%in%c("Y257C"))
+F283S= AAGAACTCTTCCACCTCCAT
+# I313T= TGATATAGAACGGGGGCTCC
+# I314T= TCAGTGATGATATAGAACGG and ACTCAGTGATGATATAGAAC
+# K271E= GCCGTGAAGACCTTGAAGGA and GGCCGTGAAGACCTTGAAGG
+# L248P= GCCCAGCTTGTGCTTCATGG
+# Y257C= GGTGTACGAGGGCGTGTGGA
+x=bedata_simple%>%filter(!Type%in%"CBE",sgRNA.Seq%in%c("ACTCAGTGATGATATAGAAC"))
+x=bedata_outer%>%filter(!Type%in%"CBE",sgRNA.Seq%in%c("ACTCAGTGATGATATAGAAC"))
+
+# bedata_inner_simple=merge(bedata_inner_simple,x_sum,by="species")
+# x_sum=x_sum%>%
+#   mutate(BE.Significant=case_when(abs(BE.LFC)>0.5~T,
+#                                   T~F),
+#          SM.Significant=case_when(SM.padj<0.05~T,
+#                                   T~F))%>%
+#   rowwise()%>%
+#   mutate(significance_status=case_when((BE.Significant%in%T)&&(SM.Significant%in%F)~"BEOnly",
+#                                        (BE.Significant%in%F)&&(SM.Significant%in%T)~"SMOnly",
+#                                        (BE.Significant%in%T)&&(SM.Significant%in%T)~"Both",
+#                                        T~"Neither"))
+
+# bedata_inner_simple_filtered=bedata_inner_simple%>%rowwise()%>%filter(species%in%species.mindist)
+
+```
+

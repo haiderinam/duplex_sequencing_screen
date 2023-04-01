@@ -431,7 +431,7 @@ ggplot(bedata_inner_simple,aes(x=SM.netgr_obs_mean,y=SM.padj))+geom_point()+geom
 
 
 
-
+Which thresholds work best to look at significant hits?
 Setting Thresholds for Significant Hits
 
 ```{r}
@@ -698,7 +698,7 @@ blue_only_byPAM=blue_only%>%group_by(PAM)%>%summarize(count=n())
 # write.csv(bedata_inner_simple,"data/BE_ABL_Merged/BE_SatMut_Screen_Kinase_All_031823.csv")
 ```
 
-Making sure that Ivan's base edited sample (that we deep sequenced) was not accidentally a twist sample
+Making sure that Ivan's base edited sample (that we deep sequenced) was not accidentally a twist sample (actually looks like there was an error in the variant caller and it was, in fact, a twist sample)
 ```{r}
 be_ds_sample=read.csv("data/Consensus_Data/novogene_lane16b/Sample8_combined/sscs/variant_caller_outputs/variants_unique_ann.csv",header = T,stringsAsFactors = F)
 be_ds_sample=read.csv("data/Consensus_Data/novogene_lane16b/Sample8_combined/duplex/variant_caller_outputs/variants_unique_ann.csv",header = T,stringsAsFactors = F)

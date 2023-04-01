@@ -1,0 +1,8 @@
+03.29.2023
+The DSSP command line tool was used to get solvent accessibility metrics for DFG in and DFG out ABL1 structures.
+DSSP is available to download via bioconda
+Here is the manual page for DSSP:
+https://swift.cmbi.umcn.nl/gv/dssp/DSSP_3.html
+
+Here is the single command that lets you get SA values for PDB structures:
+mkdssp -i 2gqg.pdb -o 2gqg-my-ss.dssp

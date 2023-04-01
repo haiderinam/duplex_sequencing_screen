@@ -93,9 +93,15 @@ mode="local"
 # seqdata_tsv_name=c("data/Consensus_Data/novogene_lane18/sample15/nol298l/sscs/sscs_sorted_filtered.tsv.gz")
 # outdir=c("data/Consensus_Data/novogene_lane18/sample15/nol298l/sscs/variant_caller_outputs/")
 
-seqdata_tsv_name=c("data/Consensus_Data/novogene_lane18/tlane18a_sample6/l298l/sscs/sscs_sorted_filtered.tsv.gz")
+seqdata_tsv_name=c("data/Consensus_Data/novogene_lane18/sample9/nol298l/sscs/sscs_sorted_filtered.tsv.gz",
+                   "data/Consensus_Data/novogene_lane18/sample9/nol298l/duplex/duplex_sorted_filtered.tsv.gz",
+                   "data/Consensus_Data/novogene_lane18/sample14/nol298l/sscs/sscs_sorted_filtered.tsv.gz",
+                   "data/Consensus_Data/novogene_lane18/sample14/nol298l/duplex/duplex_sorted_filtered.tsv.gz")
 
-outdir=c("data/Consensus_Data/novogene_lane18/tlane18a_sample6/l298l/sscs/variant_caller_outputs")
+outdir=c("data/Consensus_Data/novogene_lane18/sample9/nol298l/sscs/variant_caller_outputs",
+                   "data/Consensus_Data/novogene_lane18/sample9/nol298l/duplex/variant_caller_outputs",
+                   "data/Consensus_Data/novogene_lane18/sample14/nol298l/sscs/variant_caller_outputs",
+                   "data/Consensus_Data/novogene_lane18/sample14/nol298l/duplex/variant_caller_outputs")
 
 ```
 
