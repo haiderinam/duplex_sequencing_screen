@@ -39,33 +39,38 @@ editor_options:
 * Click [here](nonlinear_growth_analysis.html) to see analysis of predictions based on Enrich2 vs Shendure vs our method
 
 * Click [here](dosing_normalization.html) for our dosing normalization strategy  
-<img src="assets/dosing_normalization.png" width="400" height="300"  alt="">  
+<img src="assets/dosing_normalization.png" width="330" height="250"  alt="">  
 
 * Click [here](enrichment_simulations.html) for simulations showing enrichment and depletion events in a 3 mutant pool.
-<img src="assets/enrichment_simulations_3mutants.png" width="400" height="300"  alt="">  
+<img src="assets/enrichment_simulations_3mutants.png" width="330" height="250"  alt="">  
 
 * Click [here](E255K_alphas_figure.html) showing the conformity between the growth rates in the presence of drug measured at a low MAF via FACs, sequencing, and via IC50 studies for a single mutant.  
-<img src="assets/e255k_alphas.png" width="400" height="300"  alt="">  
+<img src="assets/e255k_alphas.png" width="330" height="250"  alt="">  
   
 * Click [here](lane14_comparisons.html) to view preliminary BCRABL Imatinib and Asciminib heatmaps  
-<img src="assets/bcrabl_heatmap.png" width="400" height="300"  alt="">  
+<img src="assets/bcrabl_heatmap.png" width="400" height="250"  alt="">  
   
 * Click [here](DupSeq_QC_Lane11.html) and to view iL3 independence data and [here](BCRABL_FunctionalKinaseAnalysis.html) to view iL3 independence heatmap
-<img src="assets/il3heatmap.png" width="1200" height="300"  alt="">  
+<img src="assets/il3heatmap.png" width="800" height="200"  alt="">  
   
 * Click [here](ErrorRate_Analysis.html) to view error rates without barcodes, with single strand consensi, and with duplex consensus sequencing.
-<img src="assets/Error_rates.png" width="450" height="400"  alt="">  
+<img src="assets/Error_rates.png" width="420" height="300"  alt="">  
 
 * Click [here](K562_BCRABL_Analysis.html) to view the results of the BCRABL Library transduced in K562 Cells
-<img src="assets/k562_plot.png" width="1200" height="350"  alt="">  
+<img src="assets/k562_plot.png" width="800" height="222"  alt="">  
   
 * Click [here](CDF-analysis-library-evenness.html) to view analyses of the CDFs of our saturating mutagenesis libraries. These show how even or uneven the libraries are at different stages of the screening process.      
 <img src="assets/unevenness_cdfs.png" width="387" height="300"  alt="">  
+  
+        
+* Click [here](ABL_BaseEditor_Analyses.html) to view analyses in which we compared base editing and saturating mutagenesis data on ABL. This is followed by analysis in which we decide on filter cutoffs for enrichment scores to detect signficantly depleting mutants that drop out for IL3 independence in BaF3s.     
+<img src="assets/abl_baseeditor-analysis.png" width="500" height="293"  alt="">  
   
     
 * Click [here](ABL_BaseEditor_Analyses_v2.html) to view analyses in which we predicted admixtures of mutants made by sgRNAs in Base Editing Screens. We then used the saturating mutagenesis data to predict the fitness of these sgRNAs.     
 <img src="assets/abl_baseeditor-analysis-v2.png" width="300" height="320"  alt="">  
   
+
 
 #### Click [here](https://github.com/haiderinam/duplex_sequencing_screen) to be redirected to the github page that contains all the data and analysis rmd files.  
 

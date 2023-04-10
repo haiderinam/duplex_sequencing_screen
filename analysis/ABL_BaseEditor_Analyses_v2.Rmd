@@ -7,7 +7,7 @@ output: html_document
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
-# knitr::opts_knit$set(root.dir = normalizePath(".."))
+knitr::opts_knit$set(root.dir = normalizePath(".."))
 # 
 library(stringr)
 library(dplyr)
@@ -572,7 +572,49 @@ par(pty="m")
 # plot(1-rocdata$specificities,rocdata$sensitivities)
 # ggplot(rocdata,aes(x=1-speci))
 ```
+Making lollipop plot with heatmap overlayed underneath it
+```{r}
+source("code/plotting/heatmap_plotting_function.R")
+ggplot(bedata_byresidue_bywindowwidth%>%filter(window.width%in%1),aes(x=protein_start,y=BE.LFC.mean))+
+  geom_point()+geom_segment( aes(x=protein_start, xend=protein_start, y=-.5, yend=BE.LFC.mean))+
+  scale_x_continuous(name="Residue on the ABL Kinase",limits=c(242,322),expand=c(0,0))+
+  scale_y_continuous(name="BE LFC")+
+  theme(panel.grid.major = element_blank(),
+        panel.grid.minor.x = element_blank())
+ggsave("output/BE_SM_Plots/lollipop.pdf",width=6,height = 2,units = "in",useDingbats=F)
 
+
+# ggplot(bedata_byresidue_bywindowwidth%>%filter(window.width%in%1),aes(x=protein_start,y=SM.netgr.mean))+
+#   geom_point()+geom_segment( aes(x=protein_start, xend=protein_start, y=.045, yend=SM.netgr.mean))
+
+
+smdata=read.csv("output/ABLEnrichmentScreens/ABL_Region1_Lane18_Comparisons/cross-replicate/baf3_IL3_rep1vsrep2_ft/screen_comparison_baf3_IL3_low_rep1vsrep2_ft.csv",header = T)
+smdata=smdata%>%rowwise%>%mutate(netgr_obs_mean=mean(netgr_obs_screen1,netgr_obs_screen2))
+# smdata=smdata%>%dplyr::select(species,ref_aa,protein_start,alt_aa,netgr_obs_mean)
+heatmap_plotting_function(smdata,242,321,fill_variable = "netgr_obs_mean",fill_name = "Net growth rate")+
+  scale_x_continuous(name="Residue on the ABL Kinase",limits=c(242,322),expand=c(0,0))+
+  scale_fill_gradient(low ="darkblue", high ="red",name="Net growth rate")+
+  theme(legend.position = "none")
+ggsave("output/BE_SM_Plots/heatmap_forlollipop.pdf",width=6,height = 4,units = "in",useDingbats=F)
+
+
+# heatmap_plotting_function(smdata,242,321,fill_variable = "netgr_obs_mean",fill_name = "Net growth rate")+scale_fill_gradient2(low ="darkblue",mid="white",midpoint = .045, high ="red")
+
+# To merge plots, you can use the code in the following URL: https://felixfan.github.io/stacking-plots-same-x/
+
+# Correlation Plots for the BE data and the SM data:
+ggplot(smdata,aes(x=netgr_obs_screen1,y=netgr_obs_screen2))+geom_point()
+
+ggplot(smdata,aes(x=netgr_obs_screen1,y=netgr_obs_screen2))+
+  geom_point()+
+  geom_abline()+
+  geom_hline(yintercept = .065,linetype="dashed")+
+  geom_vline(xintercept = .065,linetype="dashed")+
+  scale_x_continuous("Net growth rate R1")+
+  scale_y_continuous("Net growth rate R2")
+ggsave("output/BE_SM_Plots/correlation_sm.pdf",width=4,height = 4,units = "in",useDingbats=F)
+
+```
 
 Looking at net growth rates in the old IL3 data and in the new IL3 data to ask the question: When one looks at the same SM residues with the old data what is different? Ie how much does SM quality affect the conclusions.
 Answer:

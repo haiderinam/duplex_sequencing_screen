@@ -8,7 +8,7 @@ output: html_document
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 
-knitr::opts_knit$set(root.dir = normalizePath(".."))
+# knitr::opts_knit$set(root.dir = normalizePath(".."))
 # rm(list=ls())
 
 library(stringr)
@@ -33,6 +33,7 @@ cleanup=theme_bw() +
 
 
 ```{r}
+# rm(list=ls())
 # Contingency table maker function.
 # Input: dataframe of sgRNAs and mutants and whether the enrichment scores are significant
 # Output: a 2x2 contingency table
@@ -99,7 +100,7 @@ bedata_outer=read.csv("data/BE_ABL_Merged/BE_SatMut_Screen_Outer20230315.csv",he
 
 
 bedata_inner_simple=bedata_inner%>%
-  select(-c(X,Unnamed..0_x,Strand,consequence_terms,
+  dplyr::select(-c(X,Unnamed..0_x,Strand,consequence_terms,
             ct_screen1_before,ct_screen1_after,ct_screen2_before,ct_screen2_after,
             depth_screen1_before,depth_screen1_after,depth_screen2_before,depth_screen2_after,
             maf_screen1_before,maf_screen1_after,maf_screen2_before,maf_screen2_after,
@@ -162,7 +163,7 @@ Figuring out how to predict which sgRNAs make what mutants
 # x=bedata_inner_simple%>%filter(sgRNA_possible_mutants==2)
 # x=bedata_inner_simple%>%filter(sgRNA_possible_mutants>=2)
 # x=bedata_inner_simple
-bedata_inner_simple=bedata_inner_simple%>%select(Type,sgRNA.Seq,species,sgRNA_Nuc,BE.n_nuc,ref_codon,BE.Alt_Codon,BE.LFC,BE.pval,BE.FDR,BE.Significant,SM.netgr_obs_mean,SM.padj,SM.Significant,significance_status)
+bedata_inner_simple=bedata_inner_simple%>%dplyr::select(Type,sgRNA.Seq,species,sgRNA_Nuc,BE.n_nuc,ref_codon,BE.Alt_Codon,BE.LFC,BE.pval,BE.FDR,BE.Significant,SM.netgr_obs_mean,SM.padj,SM.Significant,significance_status)
 # Calculating distances
 # For SNPs, the distance is simple,
 # For MNVs, choose one of the distances (simplifying assumption, I know)
@@ -239,7 +240,7 @@ ggplot(bedata_inner_simple_filtered,aes(x=mutants_per_sgRNA))+geom_histogram(bin
   scale_x_continuous("# Unique mutants possible per sgRNA before distance-based prediction",breaks=c(1,2,3,4,5,6,7))+
   scale_y_continuous("sgRNAs")
 
-bedata_inner_simple_filtered_nodups=bedata_inner_simple_filtered%>%select(species,sgRNA.Seq)%>%group_by(sgRNA.Seq,species)%>%filter(row_number()==1)
+bedata_inner_simple_filtered_nodups=bedata_inner_simple_filtered%>%dplyr::select(species,sgRNA.Seq)%>%group_by(sgRNA.Seq,species)%>%filter(row_number()==1)
 # The no dups filtering takes out sgRNAs making the same mutant a couple of different ways
 bedata_inner_simple_filtered_sum=bedata_inner_simple_filtered_nodups%>%group_by(sgRNA.Seq)%>%summarize(ct=n())
 ggplot(bedata_inner_simple_filtered_sum,aes(x=ct))+geom_histogram(binwidth = 1,color="black",fill="gray")+
@@ -272,7 +273,7 @@ ggplot(bedata_inner_simple,aes(x=SM.netgr_obs_mean))+geom_histogram()
 ggplot(bedata_inner_simple%>%filter(Type%in%"ABE"),aes(x=BE.LFC,y=SM.netgr_obs_mean))+
          geom_point(color="black",shape=21,size=2,aes(fill=significance_status))+
          scale_y_continuous("SM Net Growth Rate")
-ggsave("output/BE_SM_FigLegend.pdf",width=10,height=4,units = "in",useDingbats=F)
+# ggsave("output/BE_SM_FigLegend.pdf",width=10,height=4,units = "in",useDingbats=F)
 
 
 
@@ -281,14 +282,14 @@ ggplot(bedata_inner_simple%>%filter(Type%in%"ABE"),aes(x=BE.LFC,y=SM.netgr_obs_m
   scale_y_continuous("SM Net Growth Rate")+
   cleanup+
   theme(legend.position="none")
-ggsave("output/BE_SM_Plots/be_sm_abe_all_labels.pdf",width=5,height=4,units = "in",useDingbats=F)
+# ggsave("output/BE_SM_Plots/be_sm_abe_all_labels.pdf",width=5,height=4,units = "in",useDingbats=F)
 
 ggplot(bedata_inner_simple%>%filter(Type%in%"ABE"),aes(x=BE.LFC,y=SM.netgr_obs_mean))+
          geom_point(color="black",shape=21,size=2,aes(fill=significance_status))+
          scale_y_continuous("SM Net Growth Rate")+
          cleanup+
          theme(legend.position="none")
-ggsave("output/BE_SM_Plots/be_sm_abe_all_ponts.pdf",width=5,height=4,units = "in",useDingbats=F)
+# ggsave("output/BE_SM_Plots/be_sm_abe_all_ponts.pdf",width=5,height=4,units = "in",useDingbats=F)
 
 
 ggplot(bedata_inner_simple%>%filter(Type%in%"CBE"),aes(x=BE.LFC,y=SM.netgr_obs_mean,label=species,color=significance_status))+
@@ -296,14 +297,14 @@ ggplot(bedata_inner_simple%>%filter(Type%in%"CBE"),aes(x=BE.LFC,y=SM.netgr_obs_m
   scale_y_continuous("SM Net Growth Rate")+
   cleanup+
   theme(legend.position="none")
-ggsave("output/BE_SM_Plots/be_sm_cbe_all_labels.pdf",width=5,height=4,units = "in",useDingbats=F)
+# ggsave("output/BE_SM_Plots/be_sm_cbe_all_labels.pdf",width=5,height=4,units = "in",useDingbats=F)
 
 ggplot(bedata_inner_simple%>%filter(Type%in%"CBE"),aes(x=BE.LFC,y=SM.netgr_obs_mean))+
          geom_point(color="black",shape=21,size=2,aes(fill=significance_status))+
          scale_y_continuous("SM Net Growth Rate")+
          cleanup+
          theme(legend.position="none")
-ggsave("output/BE_SM_Plots/be_sm_cbe_all_ponts.pdf",width=5,height=4,units = "in",useDingbats=F)
+# ggsave("output/BE_SM_Plots/be_sm_cbe_all_ponts.pdf",width=5,height=4,units = "in",useDingbats=F)
 
 #######################Plotting data filtered for sgRNA Predictions#####################
 ggplot(bedata_inner_simple_filtered%>%filter(Type%in%"ABE"),aes(x=BE.LFC,y=SM.netgr_obs_mean,label=species,color=significance_status))+
@@ -311,14 +312,14 @@ ggplot(bedata_inner_simple_filtered%>%filter(Type%in%"ABE"),aes(x=BE.LFC,y=SM.ne
   scale_y_continuous("SM Net Growth Rate")+
   cleanup+
   theme(legend.position="none")
-ggsave("output/BE_SM_Plots/be_sm_abe_filtered_labels.pdf",width=5,height=4,units = "in",useDingbats=F)
+# ggsave("output/BE_SM_Plots/be_sm_abe_filtered_labels.pdf",width=5,height=4,units = "in",useDingbats=F)
 
 ggplot(bedata_inner_simple_filtered%>%filter(Type%in%"ABE"),aes(x=BE.LFC,y=SM.netgr_obs_mean))+
          geom_point(color="black",shape=21,size=2,aes(fill=significance_status))+
          scale_y_continuous("SM Net Growth Rate")+
          cleanup+
          theme(legend.position="none")
-ggsave("output/BE_SM_Plots/be_sm_abe_filtered_ponts.pdf",width=5,height=4,units = "in",useDingbats=F)
+# ggsave("output/BE_SM_Plots/be_sm_abe_filtered_ponts.pdf",width=5,height=4,units = "in",useDingbats=F)
 
 
 ggplot(bedata_inner_simple_filtered%>%filter(Type%in%"CBE"),aes(x=BE.LFC,y=SM.netgr_obs_mean,label=species,color=significance_status))+
@@ -326,14 +327,14 @@ ggplot(bedata_inner_simple_filtered%>%filter(Type%in%"CBE"),aes(x=BE.LFC,y=SM.ne
   scale_y_continuous("SM Net Growth Rate")+
   cleanup+
   theme(legend.position="none")
-ggsave("output/BE_SM_Plots/be_sm_cbe_filtered_labels.pdf",width=5,height=4,units = "in",useDingbats=F)
+# ggsave("output/BE_SM_Plots/be_sm_cbe_filtered_labels.pdf",width=5,height=4,units = "in",useDingbats=F)
 
 ggplot(bedata_inner_simple_filtered%>%filter(Type%in%"CBE"),aes(x=BE.LFC,y=SM.netgr_obs_mean))+
          geom_point(color="black",shape=21,size=2,aes(fill=significance_status))+
          scale_y_continuous("SM Net Growth Rate")+
          cleanup+
          theme(legend.position="none")
-ggsave("output/BE_SM_Plots/be_sm_cbe_filtered_ponts.pdf",width=5,height=4,units = "in",useDingbats=F)
+# ggsave("output/BE_SM_Plots/be_sm_cbe_filtered_ponts.pdf",width=5,height=4,units = "in",useDingbats=F)
 
 #############
 bedata_inner_grouped=bedata_inner_simple_filtered%>%group_by(Type,species)%>%summarize(BE.LFC=mean(BE.LFC),SM.netgr_obs_mean=mean(SM.netgr_obs_mean))
@@ -355,7 +356,7 @@ ggplot(bedata_inner_grouped%>%filter(Type%in%"ABE"),aes(x=BE.LFC,y=SM.netgr_obs_
   scale_y_continuous("SM Net Growth Rate")+
   cleanup
   # theme(legend.position="none")+
-ggsave("output/BE_SM_Plots/be_sm_abe_filtered_labels_mean.pdf",width=5,height=4,units = "in",useDingbats=F)
+# ggsave("output/BE_SM_Plots/be_sm_abe_filtered_labels_mean.pdf",width=5,height=4,units = "in",useDingbats=F)
 
 
 
@@ -523,8 +524,8 @@ ggplot(output_df%>%filter(sgRNA.Prediction.status%in%"Likeliest",Type%in%"ABE"),
   scale_x_discrete("BE Threshold for Significance (LFC)",expand=c(0,0))+
   scale_y_discrete("SM Threshold for Significance (DESeq P Value)",expand=c(0,0))+
   cleanup+
-  theme(legend.position = "none",aspect.ratio = 1)+
-ggsave("output/BE_SM_Plots/threshold_analysis_abe.pdf",width=4,height=4,units="in",useDingbats=F)
+  theme(legend.position = "none",aspect.ratio = 1)
+# ggsave("output/BE_SM_Plots/threshold_analysis_abe.pdf",width=4,height=4,units="in",useDingbats=F)
 # 
 ggplot(output_df%>%filter(sgRNA.Prediction.status%in%"Likeliest",Type%in%"CBE"),aes(x=as.factor(BE.LFC),y=as.factor(SM.Pval),fill=-log(FET.Pval)))+
   geom_tile()+
@@ -533,8 +534,8 @@ ggplot(output_df%>%filter(sgRNA.Prediction.status%in%"Likeliest",Type%in%"CBE"),
   scale_x_discrete("BE Threshold for Significance (LFC)",expand=c(0,0))+
   scale_y_discrete("SM Threshold for Significance (DESeq P Value)",expand=c(0,0))+
   cleanup+
-  theme(legend.position = "none",aspect.ratio = 1)+
-ggsave("output/BE_SM_Plots/threshold_analysis_cbe.pdf",width=4,height=4,units="in",useDingbats=F)
+  theme(legend.position = "none",aspect.ratio = 1)
+# ggsave("output/BE_SM_Plots/threshold_analysis_cbe.pdf",width=4,height=4,units="in",useDingbats=F)
 
 # Plotting legend separately
 library(cowplot)
@@ -549,7 +550,7 @@ forcowplot=ggplot(output_df%>%filter(sgRNA.Prediction.status%in%"Likeliest",Type
   theme(aspect.ratio = 1)
 my_legend=get_legend(forcowplot)
 as_ggplot(my_legend)
-ggsave("output/BE_SM_Plots/threshold_analysis_legend.pdf")
+# ggsave("output/BE_SM_Plots/threshold_analysis_legend.pdf")
 ```
 
 
@@ -649,36 +650,36 @@ ggplot(x_sum,aes(x=BE.LFC,y=SM.netgr_obs_mean,label=species,color=significance_s
   geom_text()+
   scale_y_continuous("SM Net Growth Rate")+
   cleanup+
-  theme(legend.position="none",aspect.ratio = 1)+
-ggsave("output/BE_SM_Plots/be_sm_abe_distancefiltered_labels.pdf",width=5,height=4,units = "in",useDingbats=F)
+  theme(legend.position="none",aspect.ratio = 1)
+# ggsave("output/BE_SM_Plots/be_sm_abe_distancefiltered_labels.pdf",width=5,height=4,units = "in",useDingbats=F)
 
 ggplot(x_sum,aes(x=BE.LFC,y=SM.netgr_obs_mean))+
          geom_point(color="black",shape=21,size=2,aes(fill=significance_status))+
          scale_y_continuous("SM Net Growth Rate")+
          cleanup+
-         theme(legend.position="none",aspect.ratio = 1)+
-ggsave("output/BE_SM_Plots/be_sm_abe_distancefiltered_point.pdf",width=5,height=4,units = "in",useDingbats=F)
+         theme(legend.position="none",aspect.ratio = 1)
+# ggsave("output/BE_SM_Plots/be_sm_abe_distancefiltered_point.pdf",width=5,height=4,units = "in",useDingbats=F)
 
 
 
 # Amongst the ABE likely mutants, are there any defining features of the sgRNAs that agree with SM vs the sgRNAs that don't agree with SM?
 # Answer: no difference in how many unique mutants an sgRNA is predicted to score amongst red and green
-PAMs=bedata_inner%>%select(sgRNA.Seq,PAM,Strand)
+PAMs=bedata_inner%>%dplyr::select(sgRNA.Seq,PAM,Strand)
 bedata_singlemutants=merge(bedata_singlemutants,PAMs,by = "sgRNA.Seq")
 # bedata_singlemutants=merge(x_sum,PAMs,by = "sgRNA.Seq")
 
 red_only=bedata_singlemutants%>%filter(distance_from_5%in%c(0,1,2,3),Type%in%"ABE",significance_status%in%"BEOnly")
-red_only=merge(red_only,x_sum%>%select(species,num_sgRNAs),by="species")
+red_only=merge(red_only,x_sum%>%dplyr::select(species,num_sgRNAs),by="species")
 mean(red_only$num_sgRNAs)
 
 mean(red_only$mutants_per_sgRNA)
 green_only=bedata_singlemutants%>%filter(distance_from_5%in%c(0,1,2,3),Type%in%"ABE",significance_status%in%"Both")
-green_only=merge(green_only,x_sum%>%select(species,num_sgRNAs),by="species")
+green_only=merge(green_only,x_sum%>%dplyr::select(species,num_sgRNAs),by="species")
 mean(green_only$mutants_per_sgRNA)
 mean(green_only$num_sgRNAs)
 
 blue_only=bedata_singlemutants%>%filter(distance_from_5%in%c(0,1,2,3),Type%in%"ABE",significance_status%in%"SMOnly")
-blue_only=merge(blue_only,x_sum%>%select(species,num_sgRNAs),by="species")
+blue_only=merge(blue_only,x_sum%>%dplyr::select(species,num_sgRNAs),by="species")
 mean(blue_only$mutants_per_sgRNA)
 mean(blue_only$num_sgRNAs)
 
@@ -699,7 +700,7 @@ blue_only_byPAM=blue_only%>%group_by(PAM)%>%summarize(count=n())
 ```
 
 Making sure that Ivan's base edited sample (that we deep sequenced) was not accidentally a twist sample (actually looks like there was an error in the variant caller and it was, in fact, a twist sample)
-```{r}
+```{r,include=F,eval=F}
 be_ds_sample=read.csv("data/Consensus_Data/novogene_lane16b/Sample8_combined/sscs/variant_caller_outputs/variants_unique_ann.csv",header = T,stringsAsFactors = F)
 be_ds_sample=read.csv("data/Consensus_Data/novogene_lane16b/Sample8_combined/duplex/variant_caller_outputs/variants_unique_ann.csv",header = T,stringsAsFactors = F)
 twist_codons=read.csv("data/codon_table.csv",header = T)
