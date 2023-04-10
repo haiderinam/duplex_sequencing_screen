@@ -7,7 +7,7 @@ output: html_document
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
-# knitr::opts_knit$set(root.dir = normalizePath(".."))
+knitr::opts_knit$set(root.dir = normalizePath(".."))
 # rm(list=ls())
 
 library(stringr)
@@ -113,6 +113,9 @@ ggplot(data%>%filter(protein_start>=242,protein_start<=494,n_nuc_min%in%1),aes(x
 # a=data_cosmic%>%filter(protein_start>=242,protein_start<=494,n_nuc_min%in%1,score_mean>=0,cosmic_present%in%T)
 ```
 
+
+
+
 Netgr Plots for putting in presentation
 ```{r}
 ggplot(data%>%filter(protein_start>=242,protein_start<=494,n_nuc_min%in%1),aes(x=reorder(species,-netgr_mean),y=netgr_mean,fill=resmut_cosmic))+geom_col()+theme(axis.text.x=element_text(angle=90, hjust=1))+scale_y_continuous(name=bquote('Net Growth Rate '(Hours^-1)))+scale_x_discrete(name="Mutant")+scale_fill_manual(name="Resistance Status",labels=c("Never Seen","Sanger Mutant","Known Resistant Mutant"),values=c("gray","orange","red"))+cleanup+theme(legend.position = "none")
@@ -151,6 +154,7 @@ ggplot(data%>%filter(!species%in%"T315I",protein_start>=242,protein_start<=494,n
 
 ggplot(data%>%filter(protein_start>=242,protein_start<=494,n_nuc_min%in%1),aes(x=reorder(species,-netgr_mean),y=netgr_mean,fill=resmut_cosmic))+geom_col()+theme(axis.text.x=element_text(angle=90, hjust=1))+scale_y_continuous(name="Enrichcment Score")+scale_x_discrete(name="Mutant")+guides(fill = guide_legend(title = "Clinically\n Observed \n Resmut"))+scale_fill_manual(values=c("gray","orange","red"))
 
+# 
 ggplot(data%>%filter(!ct_screen1_after%in%.5,!ct_screen2_after%in%.5,protein_start>=242,protein_start<=494),aes(x=netgr_obs_screen1,y=netgr_obs_screen2))+
   geom_point(color="black",shape=21,aes(fill=resmut_cosmic))+
   geom_abline()+
@@ -160,15 +164,6 @@ ggplot(data%>%filter(!ct_screen1_after%in%.5,!ct_screen2_after%in%.5,protein_sta
   scale_fill_manual(values=c("gray90","orange","red"))+
   theme(legend.position = "none")
 
-
-ggplot(data%>%filter(!ct_screen1_after%in%.5,!ct_screen2_after%in%.5,protein_start>=242,protein_start<=494),aes(x=score_screen1,y=score_screen2))+
-  geom_point(color="black",shape=21,aes(fill=resmut_cosmic))+
-  geom_abline()+
-  scale_x_continuous(name="Net Growth Rate D0 D2")+
-  scale_y_continuous(name="Net Growth Rate D0 D4",sec.axis = sec_axis( trans=~., name="Doubling Time (Hours)"))+
-  labs(fill="Sanger\n Mutant")+
-  scale_fill_manual(values=c("gray90","orange","red"))+
-  theme(legend.position = "none")
 ```
 
 
