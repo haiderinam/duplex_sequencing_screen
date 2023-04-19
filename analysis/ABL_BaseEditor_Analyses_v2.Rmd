@@ -7,7 +7,8 @@ output: html_document
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
-knitr::opts_knit$set(root.dir = normalizePath(".."))
+# knitr::opts_knit$set(root.dir = normalizePath(".."))
+# rm(list=ls())
 # 
 library(stringr)
 library(dplyr)
@@ -17,6 +18,8 @@ library(tictoc)
 library(doParallel)
 library(foreach)
 library(RColorBrewer)
+library(pROC)
+library(ggpubr)
 ```
 
 ```{r}
@@ -42,6 +45,7 @@ contab_maker=function(input_df){
   table=rbind(cbind(PP_unique,PN_unique),cbind(NP_unique,NN_unique))
   table
 }
+source("code/plotting/heatmap_plotting_function.R")
 ```
 BE vs SM data
 When comparing BE vs SM data, you can use a FET of independence to look at which dataset is more independent
@@ -171,14 +175,17 @@ bedata_simple=bedata_simple%>%filter(BE.n_nuc%in%1)
   bedata_simple=bedata_simple%>%
     group_by(Type,sgRNA.Seq)%>%
     mutate(sgRNA.SM.Mean.Netgr=weighted.mean(netgr_obs_mean,weight),
+           sgRNA.SM.Mean.Netgr=mean(netgr_obs_mean),
            mutants_per_sgRNA=n())
+  # 4.11.23: the weighted mean actually seems to be making sgRNA.SM.Netgr.Mean worse at predicting BE data, so I'm taking it out
 #############Grouping by Mutants, not sgRNAs###########
-  # bedata_bymutant=bedata_simple%>%filter(Type%in%"ABE")%>%group_by(species)%>%summarize(SM.netgr_obs_mean=weighted.mean(netgr_obs_mean,weight),
+  # bedata_bymutant=bedata_simple%>%filter(Type%in%"ABE")%>%group_by(Type,species)%>%summarize(SM.netgr_obs_mean=weighted.mean(netgr_obs_mean,weight),
   #                                       BE.LFC=weighted.mean(BE.LFC,weight),
   #                                       sgRNA.SM.Mean.Netgr=weighted.mean(sgRNA.SM.Mean.Netgr,weight),
   #                                       sgRNAs_per_mutant=n())
   bedata_bymutant=bedata_simple%>%
-    # filter(Type%in%"ABE",distance_from_6%in%c(0,1,2,3,4))%>%
+    filter(Type%in%"ABE",distance_from_6%in%c(0,1,2,3,4))%>%
+    # filter(mutants_per_sgRNA%in%1)%>%
     group_by(Type,species)%>%
     summarize(SM.netgr_obs_mean=mean(netgr_obs_mean),
                                         BE.LFC=mean(BE.LFC),
@@ -193,14 +200,15 @@ bedata_simple=bedata_simple%>%filter(BE.n_nuc%in%1)
 
 ##############################################################################  
   
+  
   bedata_bymutant=bedata_bymutant%>%
     rowwise()%>%
     mutate(synonymous=case_when(SM.netgr_obs_mean==netgr_wt~T,
                                                                 T~F),
-           protein_start=as.numeric(gsub("[^0-9.]+", "", species)))
+           protein_start=as.numeric(gsub("^.(.*).$", "\\1", species)))
 #############Calculating if mutants are significantly depleting###########
 bedata_bymutant=bedata_bymutant%>%rowwise()%>%
-mutate(BE.Significant=case_when(BE.LFC<=-1~T,
+mutate(BE.Significant=case_when(BE.LFC<=-.75~T,
                                 BE.LFC>=1~T,
                                 T~F),
        SM.Significant=case_when(SM.netgr_obs_mean<.045~T,
@@ -216,7 +224,43 @@ mutate(BE.Significant=case_when(BE.LFC<=-1~T,
 #                                         BE.LFC=mean(BE_LFC),
 #                                         num_sgRNAs=n())
 ```
+Does BE LFC predict the putative mutant data better or the admixture data better?
+```{r}
+ggplot(bedata_bymutant%>%filter(protein_start%in%c(242:322),synonymous%in%F,Type%in%"ABE"),aes(y=SM.netgr_obs_mean,x=BE.LFC,color=significance_status))+geom_point()
+ggplot(bedata_bymutant%>%filter(protein_start%in%c(242:322),synonymous%in%F,Type%in%"ABE"),aes(y=sgRNA.SM.Mean.Netgr,x=BE.LFC,color=significance_status))+geom_point()
+# ggplot(bedata_bymutant%>%filter(protein_start%in%c(242:322),synonymous%in%F,Type%in%"ABE"),aes(y=sgRNA.SM.Mean.Netgr,x=sgRNA.BE.Mean.LFC,color=significance_status))+geom_point()
+bedata_roc=bedata_bymutant%>%filter(protein_start%in%c(242:322),Type%in%"ABE",synonymous%in%F)
 
+# glm.fit.putative=glm(as.numeric(bedata_roc$SM.Significant)~bedata_roc$BE.LFC,family=binomial)
+# bedata_roc$glm_fits=glm.fit.putative$fitted.values
+# # ggplot(be_lfc.be,aes(x=BE.LFC,y=as.numeric(DSSP.Buried)))+geom_point()+geom_line(aes(x=BE.LFC,y=glm_fits))
+# roc(as.numeric(bedata_roc$SM.Significant),bedata_roc$glm_fits,plot=T,legacy.axes=T,percent=T,xlab="False Positive Percentage",ylab="True Positive Percentage",print.auc=T)
+# 
+# bedata_roc=bedata_roc%>%mutate(SM.Significant.admixture=case_when(sgRNA.SM.Mean.Netgr<=.045~T,
+#                                                                   T~F))
+# glm.fit.putative=glm(as.numeric(bedata_roc$SM.Significant.admixture)~bedata_roc$BE.LFC,family=binomial)
+# bedata_roc$glm_fits=glm.fit.putative$fitted.values
+# # ggplot(be_lfc.be,aes(x=BE.LFC,y=as.numeric(DSSP.Buried)))+geom_point()+geom_line(aes(x=BE.LFC,y=glm_fits))
+# roc(as.numeric(bedata_roc$SM.Significant.admixture),bedata_roc$glm_fits,plot=T,legacy.axes=T,percent=T,xlab="False Positive Percentage",ylab="True Positive Percentage",print.auc=T)
+
+
+glm.fit.putative=glm(as.numeric(bedata_roc$BE.Significant)~bedata_roc$SM.netgr_obs_mean,family=binomial)
+bedata_roc$glm_fits.putative=glm.fit.putative$fitted.values
+# ggplot(be_lfc.be,aes(x=BE.LFC,y=as.numeric(DSSP.Buried)))+geom_point()+geom_line(aes(x=BE.LFC,y=glm_fits))
+roc1=roc(as.numeric(bedata_roc$BE.Significant),bedata_roc$glm_fits.putative,plot=T,legacy.axes=T,percent=T,xlab="False Positive Percentage",ylab="True Positive Percentage",print.auc=T)
+
+glm.fit.admixture=glm(as.numeric(bedata_roc$BE.Significant)~bedata_roc$sgRNA.SM.Mean.Netgr,family=binomial)
+bedata_roc$glm_fits.admixture=glm.fit.admixture$fitted.values
+# ggplot(be_lfc.be,aes(x=BE.LFC,y=as.numeric(DSSP.Buried)))+geom_point()+geom_line(aes(x=BE.LFC,y=glm_fits))
+roc2=roc(as.numeric(bedata_roc$BE.Significant),bedata_roc$glm_fits.admixture,plot=T,legacy.axes=T,percent=T,xlab="False Positive Percentage",ylab="True Positive Percentage",print.auc=T)
+roc.test(roc1,roc2,alternative="less")
+# Note that the pvalue of this one-sided DeLong's non-parametric test of comparing two ROCs is 0.0843
+
+par(pty="s")
+roc(as.numeric(bedata_roc$BE.Significant),bedata_roc$glm_fits.putative,plot=T,legacy.axes=T,percent=T,xlab="False Positive Percentage",ylab="True Positive Percentage",print.auc=T,col="#3937E3",lwd=4)
+plot.roc(as.numeric(bedata_roc$BE.Significant),bedata_roc$glm_fits.admixture,legacy.axes=T,percent=T,xlab="False Positive Percentage",ylab="True Positive Percentage",print.auc=T,col="#378BE3",add=T,lwd=4,print.auc.y=45)
+par(pty="m")
+```
 
 ```{r}
 # Overall Correlation
@@ -241,14 +285,21 @@ ggplot(bedata_bymutant,aes(y=SM.netgr_obs_mean,x=BE.LFC,color=sgRNAs_per_mutant)
 
 ####### Is the depletion signal potentially masked by other mutants that an sgRNA makes? Yes#######
 # Is the sgRNA.SM.Mean.Netgr of false negatives higher than that of true positives? That would indicate that false negative mutations look like they have a high LFC because they are created by sgRNAs that make neutral mutants. Ans: yes
-ggplot(bedata_bymutant,aes(x=significance_status,y=sgRNA.SM.Mean.Netgr,fill=significance_status))+geom_boxplot()+
-  geom_jitter(color="black", size=1,width=.1, alpha=0.9) 
+bedata_bymutant2=bedata_bymutant
+bedata_bymutant2$significance_status=factor(bedata_bymutant2$significance_status,levels=c("Neither","BEOnly","Both","SMOnly"))
+ggplot(bedata_bymutant2,aes(x=significance_status,y=sgRNA.SM.Mean.Netgr,fill=significance_status))+geom_boxplot()+
+  geom_jitter(color="black", size=1,width=.1, alpha=0.9)+scale_fill_manual(values=c("#00BFC4","#F8766D","#7CAE00","#C77CFF"))
 
 # If we calculate the expected net growth rate of an sgRNA by simulating the admixture it creates,
 # we get a decent correlation coefficient
-ggplot(bedata_simple%>%filter(protein_start%in%c(242:322),!Ref_AA==Alt_AA,Type%in%"ABE"),aes(y=sgRNA.SM.Mean.Netgr,x=BE.LFC))+geom_point()
-# x=bedata_simple%>%filter(!Ref_AA==Alt_AA,Type%in%"ABE")
-
+ggplot(bedata_simple%>%filter(protein_start%in%c(242:322),!Ref_AA==Alt_AA,Type%in%"ABE"),aes(y=sgRNA.SM.Mean.Netgr,x=BE.LFC))+geom_point()+stat_cor(method="pearson")+scale_x_continuous("sgRNA BE LFC")+scale_y_continuous("Net growth rate mixture model")+cleanup
+# ggsave("output/BE_SM_Plots/correlation_mixturemodel.pdf",width=3,height=3,units="in",useDingbats=F)
+ggplot(bedata_simple%>%filter(protein_start%in%c(242:322),!Ref_AA==Alt_AA,Type%in%"ABE"),aes(y=netgr_obs_mean,x=BE.LFC))+geom_point()+stat_cor(method="pearson")+scale_x_continuous("sgRNA BE LFC")+scale_y_continuous("Net growth rate non-mixture model")+cleanup
+# ggsave("output/BE_SM_Plots/correlation_nonmixturemodel.pdf",width=3,height=3,units="in",useDingbats=F)
+# To do later: are your sgRNA predicted growth rates better if you consider all mutants, not just the putative mutant? Answer: the predicted growth rate of the mixture model doesn't really predict much better. However, it is just as good as the putative mutant, so it is still useful when considering all possible mutants that an sgRNA can create. 
+# bedata_putative=bedata_simple%>%filter(protein_start%in%c(242:322),!Ref_AA==Alt_AA,Type%in%"ABE")%>%group_by(sgRNA.Seq)%>%summarize(netgr_obs_mean=netgr_obs_mean[min(distance_from_6)==T],BE.LFC=BE.LFC[min(distance_from_6)==T])
+# ggplot(bedata_putative,aes(y=netgr_obs_mean,x=BE.LFC))+geom_point()+stat_cor(method="pearson")+scale_x_continuous("sgRNA BE LFC")+scale_y_continuous("Net growth rate putative mutant")+cleanup
+# length(unique(x$sgRNA.Seq))
 
 # Overall correlation for predicted admixtures
 ggplot(bedata_bymutant,aes(y=sgRNA.SM.Mean.Netgr,x=BE.LFC,color=significance_status))+geom_point()
@@ -256,7 +307,8 @@ ggplot(bedata_bymutant,aes(y=sgRNA.SM.Mean.Netgr,x=BE.LFC,color=significance_sta
 # cor(bedata_bymutant$SM.netgr_obs_mean,bedata_bymutant$BE.LFC)
 # x=bedata_bymutant%>%filter(!SM.netgr_obs_mean%in%"0.060000000")
 
-
+# color codes: red: #F8766D, green: #7CAE00, blue: #00BFC4, purple: #C77CFF
+# x=bedata_dssp%>%filter(ACC>=50,protein_start%in%c(242:322))
 ```
 Calculating residue-level enrichment scores from the BE screen
 Sliding window variables:
@@ -404,8 +456,8 @@ ggplot(bedata_dssp,aes(x=protein_start,y=BE.LFC.mean,color=exposed))+
   facet_wrap(~window.width,nrow=5)+
   scale_y_continuous("Mean BE LFC at residue")+
   scale_x_continuous("Residue on the ABL Kinase")+
-  labs(color="Solvent \nAccessibility")+cleanup
-
+  labs(color="Solvent \nAccessibility")+cleanup+theme(legend.position = "none")
+# ggsave("output/BE_SM_Plots/be_slidingwindow_all.pdf",width=4,height=5,units="in",useDingbats=F)
 # ggplot(bedata_dssp,aes(x=protein_start,y=SM.netgr.mean,color=exposed))+
 #   geom_point()+
 #   # facet_wrap(~exposed,nrow=2)+
@@ -414,15 +466,30 @@ ggplot(bedata_dssp,aes(x=protein_start,y=BE.LFC.mean,color=exposed))+
 #   scale_y_continuous("Mean net growth rate at residue")+
 #   scale_x_continuous("Residue on the ABL Kinase")+
 #   labs(color="Solvent \nAccessibility")+cleanup
-
+alternatingregion=bedata_simple%>%filter(Type%in%"ABE",protein_start%in%293)
+alternatingregion_sgRNA=bedata_simple%>%filter(Type%in%"ABE",sgRNA.Seq%in%"GAGATCAAACACCCTAACCT")
 ggplot(bedata_dssp%>%filter(window.width==1),aes(x=protein_start,y=SM.netgr.mean,color=exposed))+
   geom_point()+
   facet_wrap(~exposed,nrow=2)+
   # facet_grid(exposed~window.width)+
   # facet_wrap(~window.width,nrow=5)+
-  scale_y_continuous("Mean net growth rate at residue")+
+  scale_y_continuous("Mean BE LFC at residue")+
   scale_x_continuous("Residue on the ABL Kinase")+
   labs(color="Solvent \nAccessibility")+cleanup
+
+
+# x=bedata_dssp%>%filter(window.width==1)
+ggplot(bedata_dssp%>%filter(window.width==1),aes(x=protein_start,y=BE.LFC.mean))+
+  geom_point()+
+  # facet_wrap(~exposed,nrow=2)+
+  # facet_grid(exposed~window.width)+
+  # facet_wrap(~window.width,nrow=5)+
+  scale_y_continuous("Mean BE LFC at residue")+
+  scale_x_continuous("Residue on the ABL Kinase")+
+  labs(color="Solvent \nAccessibility")+cleanup
+# ggsave("output/BE_SM_Plots/be_slidingwindow_1.pdf",width=3,height=2,units="in",useDingbats=F)
+
+
 
 bedata_byresidue_bywindowwidth=bedata_byresidue_bywindowwidth%>%
   mutate(BE.Significant=case_when(abs(BE.LFC.mean)>0.5~T,
@@ -459,6 +526,56 @@ bedata_dssp_sum$fet.pval.be.sm=x[,1]
 # Next thing: plot by nucleotide, and not just residue
 ```
 
+Plotting buried hydrophobic vs exposed regions
+```{r}
+bedata_dssp=bedata_dssp%>%mutate(netgr_score=(SM.netgr.mean-.03)/.03,
+                                 lfc_score=(BE.LFC.mean/1.5)+1,
+                                 acc_score=ACC/100)
+ggplot(bedata_dssp%>%filter(protein_start%in%c(290:297),window.width==1),aes(x=protein_start))+geom_line(color="red",aes(y=netgr_score))+geom_point(aes(y=netgr_score))+geom_line(color="green",aes(y=acc_score))+geom_point(aes(y=acc_score))+geom_line(color="blue",aes(y=lfc_score))+geom_point(aes(y=lfc_score))
+ggplot(bedata_dssp%>%filter(protein_start%in%c(264:274),window.width==1),aes(x=protein_start))+geom_line(color="red",aes(y=netgr_score))+geom_point(aes(y=netgr_score))+geom_line(color="green",aes(y=acc_score))+geom_point(aes(y=acc_score))+geom_line(color="blue",aes(y=lfc_score))+geom_point(aes(y=lfc_score))
+
+
+library(reshape2)
+
+bedata_dssp_melt=melt(bedata_dssp%>%filter(window.width%in%1),id.vars="protein_start" ,measure.vars = c("netgr_score","lfc_score","acc_score"),variable.name = "measurement_type",value.name = "score")
+
+bedata_dssp_melt$measurement_type=factor(bedata_dssp_melt$measurement_type,levels=c("netgr_score","lfc_score","acc_score"))
+
+
+ggplot(bedata_dssp_melt%>%filter(protein_start%in%c(290:297)),aes(x=protein_start,y=measurement_type,fill=score))+
+  geom_tile()+
+  # scale_fill_gradient2(low ="darkblue",midpoint=0.5, high ="red",name="Score")+
+  scale_fill_gradient(low ="darkblue", high ="red",name="Score")+
+  scale_y_discrete("",expand=c(0,0),labels=c("SM\ndata","BE\ndata","Solvent\nAccessibility"))+scale_x_continuous("",expand=c(0,0),breaks=c(290:297),labels=c("290","291","292","293","294","295","296","297"))+theme(legend.position = "none",axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1),axis.text.y=element_blank(),axis.ticks.y=element_blank())
+# ggsave("output/BE_SM_Plots/heatmap_forBEComparisons_290.pdf",width=2,height = 2,units = "in",useDingbats=F)
+# ggsave("output/BE_SM_Plots/heatmap_forBEComparisons_290.pdf",useDingbats=F)
+#######Making heatmap for IL3 data
+smdata=read.csv("output/ABLEnrichmentScreens/ABL_Region1_Lane18_Comparisons/cross-replicate/baf3_IL3_rep1vsrep2_ft/screen_comparison_baf3_IL3_low_rep1vsrep2_ft.csv",header = T)
+smdata=smdata%>%rowwise%>%mutate(netgr_obs_mean=mean(netgr_obs_screen1,netgr_obs_screen2))
+# smdata=smdata%>%dplyr::select(species,ref_aa,protein_start,alt_aa,netgr_obs_mean)
+heatmap_plotting_function(smdata,290,297,fill_variable = "netgr_obs_mean",fill_name = "Net growth rate")+
+  scale_x_continuous(name="",expand=c(0,0),breaks=c(290:297),labels=c("290","291","292","293","294","295","296","297"))+
+  scale_fill_gradient(low ="darkblue", high ="red",name="Net growth rate")+theme(legend.position = "none",axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
+# ggsave("output/BE_SM_Plots/heatmap_forlollipop_290.pdf",width=2,height = 4,units = "in",useDingbats=F)
+
+
+ggplot(bedata_dssp_melt%>%filter(protein_start%in%c(264:274)),aes(x=protein_start,y=measurement_type,fill=score))+
+  geom_tile()+
+  # scale_fill_gradient2(low ="darkblue",midpoint=0.5, high ="red",name="Score")+
+  scale_fill_gradient(low ="darkblue", high ="red",name="Score")+
+  scale_y_discrete("",expand=c(0,0),labels=c("SM\ndata","BE\ndata","Solvent\nAccessibility"))+scale_x_continuous("",expand=c(0,0),breaks=c(264:274),labels=c("264","265","266","267","268","269","270","271","272","273","274"))+theme(legend.position = "none",axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1),axis.text.y=element_blank(),axis.ticks.y=element_blank())
+# ggsave("output/BE_SM_Plots/heatmap_forBEComparisons_264.pdf",width=2,height = 2,units = "in",useDingbats=F)
+# ggsave("output/BE_SM_Plots/heatmap_forBEComparisons_290.pdf",useDingbats=F)
+#######Making heatmap for IL3 data
+smdata=read.csv("output/ABLEnrichmentScreens/ABL_Region1_Lane18_Comparisons/cross-replicate/baf3_IL3_rep1vsrep2_ft/screen_comparison_baf3_IL3_low_rep1vsrep2_ft.csv",header = T)
+smdata=smdata%>%rowwise%>%mutate(netgr_obs_mean=mean(netgr_obs_screen1,netgr_obs_screen2))
+# smdata=smdata%>%dplyr::select(species,ref_aa,protein_start,alt_aa,netgr_obs_mean)
+heatmap_plotting_function(smdata,263,274,fill_variable = "netgr_obs_mean",fill_name = "Net growth rate")+
+  scale_x_continuous(name="",expand=c(0,0),breaks=c(264:274),labels=c("264","265","266","267","268","269","270","271","272","273","274"))+
+  scale_fill_gradient(low ="darkblue", high ="red",name="Net growth rate")+theme(legend.position = "none",axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
+# ggsave("output/BE_SM_Plots/heatmap_forlollipop_264.pdf",width=2.4,height = 4,units = "in",useDingbats=F)
+```
+SLIDING WINDOW ANALYSES
 One way to look at the utility of BE data is looking at a residue-by-residue basis rather than a mutant by mutant basis
 Attempting to do an ROC curve for which sliding window model is the best at estimating SM true positives
 1. BE data doesn't work well on a residue-by-residue basis. Build an ROC curve that shows that SM data works much better at predicting exposed vs buried than BE data
@@ -490,7 +607,7 @@ par(pty="m")
 # bedata_byresidue_bywindowwidth=bedata_byresidue_bywindowwidth%>%dplyr::select(-BE.LFC.mean)%>%dplyr::rename(BE.LFC.mean=BE.LFC.weighted.mean)
 bedata_roc=bedata_byresidue_bywindowwidth%>%
   # filter(window.width%in%1,!BE.LFC.mean%in%NaN)%>%
-  # filter(!BE.LFC.mean%in%NaN)%>%
+  filter(!BE.LFC.mean%in%NaN)%>%
   mutate(BE.LFC=BE.LFC.mean,
          SM.netgr_obs_mean=SM.netgr.mean,
          BE.LFC=case_when(BE.LFC%in%NaN~0,
@@ -525,7 +642,7 @@ roc(as.numeric(be_lfc.1$SM.Significant),be_lfc.1$glm_fits,plot=T,legacy.axes=T,p
 plot.roc(as.numeric(be_lfc.2$SM.Significant),be_lfc.2$glm_fits,legacy.axes=T,percent=T,xlab="False Positive Percentage",ylab="True Positive Percentage",print.auc=T,col="#378BE3",add=T,lwd=4,print.auc.y=45)
 # plot.roc(as.numeric(be_lfc.3$SM.Significant),be_lfc.3$glm_fits,legacy.axes=T,percent=T,xlab="False Positive Percentage",ylab="True Positive Percentage",print.auc=T,col="#37E1E3",add=T,lwd=4,print.auc.y=40)
 # plot.roc(as.numeric(be_lfc.4$SM.Significant),be_lfc.4$glm_fits,legacy.axes=T,percent=T,xlab="False Positive Percentage",ylab="True Positive Percentage",print.auc=T,col="#37E38F",add=T,lwd=4,print.auc.y=35)
-plot.roc(as.numeric(be_lfc.5$SM.Significant),be_lfc.5$glm_fits,legacy.axes=T,percent=T,xlab="False Positive Percentage",ylab="True Positive Percentage",print.auc=T,col="#37E339",add=T,lwd=4,print.auc.y=30)
+plot.roc(as.numeric(be_lfc.5$SM.Significant),be_lfc.5$glm_fits,legacy.axes=T,percent=T,xlab="False Positive Percentage",ylab="True Positive Percentage",print.auc=T,col="#37E339",add=T,lwd=4,print.auc.y=40)
 par(pty="m")
 ```
 ```{r}
@@ -533,8 +650,8 @@ par(pty="m")
 # bedata_roc=bedata_dssp%>%filter(window.width%in%1)
 
 bedata_roc=bedata_dssp%>%
-  filter(window.width%in%1)%>%
   # filter(window.width%in%1)%>%
+  filter(window.width%in%1,!BE.LFC.mean%in%NaN)%>%
   mutate(BE.LFC=BE.LFC.mean,
          SM.netgr_obs_mean=SM.netgr.mean,
          BE.LFC=case_when(BE.LFC%in%NaN~0,
@@ -572,8 +689,13 @@ par(pty="m")
 # plot(1-rocdata$specificities,rocdata$sensitivities)
 # ggplot(rocdata,aes(x=1-speci))
 ```
+
+
+
 Making lollipop plot with heatmap overlayed underneath it
 ```{r}
+bedata_bymutant2=bedata_bymutant%>%filter(protein_start%in%c(242:322),Type%in%"ABE",synonymous%in%F)
+bedata_bymutant2$significance_status=factor(bedata_bymutant2$significance_status,levels=c("Neither","Both","SMOnly","BEOnly"))
 source("code/plotting/heatmap_plotting_function.R")
 ggplot(bedata_byresidue_bywindowwidth%>%filter(window.width%in%1),aes(x=protein_start,y=BE.LFC.mean))+
   geom_point()+geom_segment( aes(x=protein_start, xend=protein_start, y=-.5, yend=BE.LFC.mean))+
@@ -581,21 +703,31 @@ ggplot(bedata_byresidue_bywindowwidth%>%filter(window.width%in%1),aes(x=protein_
   scale_y_continuous(name="BE LFC")+
   theme(panel.grid.major = element_blank(),
         panel.grid.minor.x = element_blank())
-ggsave("output/BE_SM_Plots/lollipop.pdf",width=6,height = 2,units = "in",useDingbats=F)
+# ggsave("output/BE_SM_Plots/lollipop.pdf",width=6,height = 2,units = "in",useDingbats=F)
 
 
 # ggplot(bedata_byresidue_bywindowwidth%>%filter(window.width%in%1),aes(x=protein_start,y=SM.netgr.mean))+
 #   geom_point()+geom_segment( aes(x=protein_start, xend=protein_start, y=.045, yend=SM.netgr.mean))
 
-
+#######Making heatmap for IL3 data
 smdata=read.csv("output/ABLEnrichmentScreens/ABL_Region1_Lane18_Comparisons/cross-replicate/baf3_IL3_rep1vsrep2_ft/screen_comparison_baf3_IL3_low_rep1vsrep2_ft.csv",header = T)
 smdata=smdata%>%rowwise%>%mutate(netgr_obs_mean=mean(netgr_obs_screen1,netgr_obs_screen2))
 # smdata=smdata%>%dplyr::select(species,ref_aa,protein_start,alt_aa,netgr_obs_mean)
 heatmap_plotting_function(smdata,242,321,fill_variable = "netgr_obs_mean",fill_name = "Net growth rate")+
   scale_x_continuous(name="Residue on the ABL Kinase",limits=c(242,322),expand=c(0,0))+
-  scale_fill_gradient(low ="darkblue", high ="red",name="Net growth rate")+
+  scale_fill_gradient(low ="darkblue", high ="red",name="Net growth rate")
+# ggsave("output/BE_SM_Plots/heatmap_forlollipop.pdf",width=6,height = 4,units = "in",useDingbats=F)
+
+#######Making heatmap for Imatinib data
+smdata=read.csv("output/ABLEnrichmentScreens/ABL_Region1_Lane18_Comparisons/cross-replicate/k562_imat_high_rep1vsrep2/screen_comparison_k562_imat_high_rep1vsrep2.csv",header = T)
+smdata=smdata%>%rowwise%>%mutate(netgr_obs_mean=mean(netgr_obs_screen1,netgr_obs_screen2))
+# smdata=smdata%>%dplyr::select(species,ref_aa,protein_start,alt_aa,netgr_obs_mean)
+heatmap_plotting_function(smdata,242,321,fill_variable = "netgr_obs_mean",fill_name = "Net growth rate")+
+  scale_x_continuous(name="Residue on the ABL Kinase",limits=c(242,322),expand=c(0,0))+
+  # scale_fill_gradient(low ="darkblue", high ="red",name="Net growth rate")+
   theme(legend.position = "none")
-ggsave("output/BE_SM_Plots/heatmap_forlollipop.pdf",width=6,height = 4,units = "in",useDingbats=F)
+# ggsave("output/BE_SM_Plots/heatmap_forlollipop.pdf",width=6,height = 4,units = "in",useDingbats=F)
+#######
 
 
 # heatmap_plotting_function(smdata,242,321,fill_variable = "netgr_obs_mean",fill_name = "Net growth rate")+scale_fill_gradient2(low ="darkblue",mid="white",midpoint = .045, high ="red")
@@ -603,17 +735,140 @@ ggsave("output/BE_SM_Plots/heatmap_forlollipop.pdf",width=6,height = 4,units = "
 # To merge plots, you can use the code in the following URL: https://felixfan.github.io/stacking-plots-same-x/
 
 # Correlation Plots for the BE data and the SM data:
-ggplot(smdata,aes(x=netgr_obs_screen1,y=netgr_obs_screen2))+geom_point()
-
 ggplot(smdata,aes(x=netgr_obs_screen1,y=netgr_obs_screen2))+
   geom_point()+
   geom_abline()+
   geom_hline(yintercept = .065,linetype="dashed")+
   geom_vline(xintercept = .065,linetype="dashed")+
-  scale_x_continuous("Net growth rate R1")+
-  scale_y_continuous("Net growth rate R2")
-ggsave("output/BE_SM_Plots/correlation_sm.pdf",width=4,height = 4,units = "in",useDingbats=F)
+  scale_x_continuous("SM Net growth rate R1")+
+  scale_y_continuous("SM Net growth rate R2")+
+  stat_cor(method = "pearson")+cleanup
+# ggsave("output/BE_SM_Plots/correlation_sm.pdf",width=3,height = 3,units = "in",useDingbats=F)
 
+# ABL1_C6 and g11 are plasmid baseline
+# I63Baf3ABL14 are two replicates after IL3 removal
+# 
+# Correlation plot for BE vs SM
+ggplot(bedata_simple%>%filter(protein_start%in%c(sm_start:sm_end)),aes(x=netgr_obs_mean,y=BE.LFC))+geom_point()
+ggplot(bedata_bymutant%>%filter(!synonymous%in%T,protein_start%in%c(sm_start:sm_end)),aes(y=SM.netgr_obs_mean,x=BE.LFC,label=species))+
+  geom_text()+
+  facet_wrap(~Type)+
+  stat_cor(method = "pearson")+
+  scale_y_continuous("SM net growth rate")+
+  scale_x_continuous("BE LFC")+
+  geom_hline(yintercept = .065,linetype="dashed")
+# ggsave("output/BE_SM_Plots/correlation_smvsbe_abecbe.pdf",width=8,height = 4,units = "in",useDingbats=F)
+
+ggplot(bedata_bymutant2,aes(y=SM.netgr_obs_mean,x=BE.LFC))+
+  geom_point()+
+  # facet_wrap(~Type)+
+  stat_cor(method = "pearson")+
+  scale_y_continuous("SM net growth rate")+
+  scale_x_continuous("BE LFC")+
+  geom_hline(yintercept = .065,linetype="dashed")+cleanup
+# ggsave("output/BE_SM_Plots/correlation_smvsbe.pdf",width=3,height = 3,units = "in",useDingbats=F)
+
+ggplot(bedata_bymutant2,aes(y=SM.netgr_obs_mean,x=BE.LFC,label=species,color=significance_status))+
+  # stat_cor(method = "pearson")+
+  geom_text(size=3)+
+  # geom_hline(yintercept = .065,linetype="dashed")
+  # facet_wrap(~Type)+
+  scale_y_continuous("SM net growth rate")+
+  scale_x_continuous("BE LFC")+cleanup+theme(legend.position = "none")+
+  scale_color_manual(values=c("#00BFC4","#7CAE00","#C77CFF","#F8766D"))
+# ggsave("output/BE_SM_Plots/correlation_smvsbe_colored.pdf",width=3,height = 3,units = "in",useDingbats=F)
+# nrow(bedata_bymutant%>%filter(protein_start%in%c(242:322),Type%in%"ABE",significance_status%in%"SMOnly"))
+# xx=bedata_bymutant%>%filter(protein_start%in%c(242:322),Type%in%"ABE",significance_status%in%"BEOnly")
+  # source("code/plotting/cleanup.R")
+ggplot(bedata_bymutant2,aes(y=sgRNA.SM.Mean.Netgr,x=BE.LFC,label=species,color=significance_status))+
+  # stat_cor(method = "pearson")+
+  geom_text(size=3)+
+  # geom_hline(yintercept = .065,linetype="dashed")
+  # facet_wrap(~Type)+
+  scale_y_continuous("SM net growth rate")+
+  scale_x_continuous("BE LFC")+cleanup+theme(legend.position = "none")+
+  scale_color_manual(values=c("#00BFC4","#7CAE00","#C77CFF","#F8766D"))
+# ggsave("output/BE_SM_Plots/correlation_smvsbe_colored_corrected.pdf",width= 3,height = 3,units = "in",useDingbats=F)
+
+
+ggplot(bedata_bymutant2,aes(x=significance_status,y=sgRNAs_per_mutant,fill=significance_status))+geom_boxplot()+
+  geom_jitter(color="black", size=1,width=.1, alpha=0.9)+
+  scale_x_discrete("Depletion status",labels=c("Neither","Both","SM \nOnly","BE \nOnly"))+
+  scale_y_continuous("sgRNAs per mutant",breaks=c(1:7))+
+  cleanup+
+  theme(legend.position = "none")+
+  scale_fill_manual(values=c("#00BFC4","#7CAE00","#C77CFF","#F8766D"))
+# ggsave("output/BE_SM_Plots/sgRNAspermutant_boxplot.pdf",width=4,height = 3,units = "in",useDingbats=F)
+
+
+ggplot(bedata_bymutant2,aes(x=significance_status,y=sgRNA.SM.Mean.Netgr,fill=significance_status))+geom_boxplot()+
+  geom_jitter(color="black", size=1,width=.1, alpha=0.9)+
+  scale_x_discrete("Depletion status",labels=c("Neither","Both","SM \nOnly","BE \nOnly"))+
+  scale_y_continuous("Growth Rate of Mutant Admixture",breaks=c(1:7))+
+  cleanup+
+  theme(legend.position = "none")+
+  scale_fill_manual(values=c("#00BFC4","#7CAE00","#C77CFF","#F8766D"))
+# ggsave("output/BE_SM_Plots/admixture_boxplot.pdf",width=4,height = 3,units = "in",useDingbats=F)
+
+ggplot(bedata_bymutant2%>%filter(significance_status%in%c("Both","SMOnly")),aes(x=significance_status,y=sgRNA.SM.Mean.Netgr,fill=significance_status))+geom_boxplot()+
+  geom_jitter(color="black", size=1,width=.1, alpha=0.9)+
+  scale_x_discrete("Depletion status",labels=c("Both","SM \nOnly"))+
+  scale_y_continuous("Growth Rate of Mutant Admixture",breaks=c(1:7))+
+  cleanup+
+  theme(legend.position = "none")+
+  scale_fill_manual(values=c("#7CAE00","#C77CFF"))
+ggsave("output/BE_SM_Plots/admixture_boxplot_depleting.pdf",width=2,height = 3,units = "in",useDingbats=F)
+
+ggplot(bedata_bymutant2%>%filter(significance_status%in%c("Neither","BEOnly")),aes(x=significance_status,y=sgRNA.SM.Mean.Netgr,fill=significance_status))+geom_boxplot()+
+  geom_jitter(color="black", size=1,width=.1, alpha=0.9)+
+  scale_x_discrete("Depletion status",labels=c("Neither","BE \nOnly"))+
+  scale_y_continuous("Growth Rate of Mutant Admixture",breaks=c(1:7))+
+  cleanup+
+  theme(legend.position = "none")+
+  scale_fill_manual(values=c("#00BFC4","#F8766D"))
+# ggsave("output/BE_SM_Plots/admixture_boxplot_neutral.pdf",width=2,height = 3,units = "in",useDingbats=F)
+
+########Making Pie Charts that show that there are a lot of neutral mutants present in the purple region
+blank_theme <- theme_minimal()+
+  theme(
+    legend.position="none",
+  axis.title.x = element_blank(),
+  axis.title.y = element_blank(),
+  panel.border = element_blank(),
+  panel.grid=element_blank(),
+  axis.ticks = element_blank(),
+  plot.title=element_text(size=14, face="bold")
+  )
+
+
+# Note that I got the numbers below manually.. I.e. I looked at each mutant in the green and purple region of the plot and figured out how many also had mutants that wre potentially neutral
+df_forpiecharts=data.frame(c("Both","Both","SMOnly","SMOnly"),c("neutralpresent","noneutral","neutralpresent","noneutral"),cbind(c(4,14,9,1)))
+colnames(df_forpiecharts)=c("significance_status","neutral_status","n")
+
+ggplot(df_forpiecharts%>%filter(significance_status%in%"Both"),aes(y=n,x="",fill=neutral_status))+geom_bar(stat="identity")+ coord_polar("y", start=0)+scale_fill_manual(values=c("#AEF3AB", "#7CAE00"))+blank_theme+theme(axis.text.x=element_blank())
+# ggsave("output/BE_SM_Plots/both_piechart.pdf",width=1,height=1,units = "in",useDingbats=F)
+
+ggplot(df_forpiecharts%>%filter(significance_status%in%"SMOnly"),aes(y=n,x="",fill=neutral_status))+geom_bar(stat="identity")+ coord_polar("y", start=0)+scale_fill_manual(values=c("#DDB0FF", "#C77CFF"))+blank_theme+theme(axis.text.x=element_blank())
+# ggsave("output/BE_SM_Plots/smonly_piechart.pdf",width=1,height=1,units = "in",useDingbats=F)
+
+t.test(bedata_bymutant2[bedata_bymutant2$significance_status%in%"Both","sgRNA.SM.Mean.Netgr"],
+       bedata_bymutant2[bedata_bymutant2$significance_status%in%"SMOnly","sgRNA.SM.Mean.Netgr"])
+
+t.test(bedata_bymutant2[bedata_bymutant2$significance_status%in%"Neither","sgRNA.SM.Mean.Netgr"],
+       bedata_bymutant2[bedata_bymutant2$significance_status%in%"BEOnly","sgRNA.SM.Mean.Netgr"])
+
+# x=bedata_bymutant2[bedata_bymutant2$significance_status%in%"Both","sgRNA.SM.Mean.Netgr"]
+# x=bedata_bymutant2%>%filter(significance_status%in%"Both")
+```
+
+```{r}
+# Trying to plot out correlations for the BE data:
+bematrix=read.table("data/BE_ABL_Merged/BCRABL_ScreenMatrixE2_20220920BaF3.txt",sep="\t",header = T,stringsAsFactors = F)
+# D and E are ABE and F and G are CBE.
+bematrix=bematrix%>%dplyr::select(sgName,gene,rep1_before=ABL1_C6,rep2_before=ABL1_G11,rep1_after=I63DBaF3ABL14,rep2_after=I63EBaF3ABL14)
+bematrix=bematrix%>%mutate(BE.LFC.rep1=log2(rep1_after/rep1_before),BE.LFC.rep2=log2(rep2_after/rep2_before))
+ggplot(bematrix%>%filter(BE.LFC.rep1<=0,BE.LFC.rep2<=0),aes(x=BE.LFC.rep1,y=BE.LFC.rep2))+geom_point()+geom_abline()+stat_cor(method = "pearson")+scale_x_continuous("BE LFC Replicate 1")+scale_y_continuous("BE LFC Replicate 2")+cleanup
+# ggsave("output/BE_SM_Plots/correlation_be.pdf",width=3,height = 3,units = "in",useDingbats=F)
 ```
 
 Looking at net growth rates in the old IL3 data and in the new IL3 data to ask the question: When one looks at the same SM residues with the old data what is different? Ie how much does SM quality affect the conclusions.
@@ -732,13 +987,22 @@ c("C305R","E286G","E316G","I293T","I313V","I314T","K247E","M278V","M318T","Y312C
 # K271E= GCCGTGAAGACCTTGAAGGA and GGCCGTGAAGACCTTGAAGG
 # L248P= GCCCAGCTTGTGCTTCATGG
 # Y257C= GGTGTACGAGGGCGTGTGGA
-# x=bedata_simple%>%filter(species%in%"M318T")
-# x=bedata_simple%>%filter(Type%in%"ABE",sgRNA.Seq%in%"GCCCAGCTTGTGCTTCATGG")
+
+# E255G= CGGGGAGGTGTACGAGGGCG and GGGAGGTGTACGAGGGCGTG and TACGGGGAGGTGTACGAGGG
+# Y312H= GATATAGAACGGGGGCTCCC and TGATATAGAACGGGGGCTCC and ATATAGAACGGGGGCTCCCG and ATAGAACGGGGGCTCCCGGG
+# F311S=ATATAGAACGGGGGCTCCCG and ATAGAACGGGGGCTCCCGGG and GATATAGAACGGGGGCTCCC
+# T272A=GCCGTGAAGACCTTGAAGGA and GACCTTGAAGGAGGACACCA
+# Y253C= CCAGTACGGGGAGGTGTACG and CAGTACGGGGAGGTGTACGA and GGCCAGTACGGGGAGGTGTA and AGTACGGGGAGGTGTACGAG
+
+x=bedata_simple%>%filter(species%in%"Y312H")
+x=bedata_simple%>%filter(Type%in%"ABE",sgRNA.Seq%in%c("AGAAGCTGCAGTCATGAAAG",
+                                                      "AAAGAAGCTGCAGTCATGAA"))
 ```
 
 
 Looking at individual mutants in the red green and purple zones
 ```{r, eval=F, include=F}
+
 ggplot(bedata_bymutant,aes(y=SM.netgr_obs_mean,x=BE.LFC,label=species))+geom_text()
 ggplot(bedata_bymutant,aes(y=sgRNA.SM.Mean.Netgr,x=BE.LFC,label=species))+geom_text()
 ggplot(bedata_bymutant,aes(y=sgRNA.SM.Mean.Netgr,x=BE.LFC,label=species))+geom_text()
@@ -775,7 +1039,7 @@ F283S= AAGAACTCTTCCACCTCCAT
 # L248P= GCCCAGCTTGTGCTTCATGG
 # Y257C= GGTGTACGAGGGCGTGTGGA
 x=bedata_simple%>%filter(!Type%in%"CBE",sgRNA.Seq%in%c("ACTCAGTGATGATATAGAAC"))
-x=bedata_outer%>%filter(!Type%in%"CBE",sgRNA.Seq%in%c("ACTCAGTGATGATATAGAAC"))
+x=bedata_outer%>%filter(!Type%in%"CBE",sgRNA.Seq%in%c("GCCGTGAAGACCTTGAAGGA"))
 
 # bedata_inner_simple=merge(bedata_inner_simple,x_sum,by="species")
 # x_sum=x_sum%>%

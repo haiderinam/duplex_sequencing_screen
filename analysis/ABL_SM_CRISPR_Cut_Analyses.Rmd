@@ -143,7 +143,7 @@ il3=il3%>%group_by(protein_start)%>%summarize(netgr_obs_mean=mean(netgr_obs_mean
 il3_dssp=merge(il3,dssp,by="protein_start")
 il3_dssp=il3_dssp%>%mutate(exposed=case_when(ACC>=40~"Exposed",
                                             T~"Buried"))
-
+# il3_dssp=il3_dssp%>%filter(exposed%in%"Exposed")
 ggplot(il3_dssp,aes(x=ACC))+geom_histogram()
 
 
@@ -198,7 +198,7 @@ il3_dssp=il3_dssp%>%mutate(exposed=case_when(ACC>=40~"Exposed",
 # il3_dssp=il3_dssp%>%mutate(hydrophobic=case_when(alt_aa%in%c("A","V","I","M","L","F","Y","W")~"hydrophobic",
 #                                                  T~"other"))
 ggplot(il3_dssp,aes(x=alt_aa,y=netgr_obs_mean))+geom_boxplot()+facet_wrap(~exposed)
-ggplot(il3_dssp,aes(x=hydrophobic,y=netgr_obs_mean))+geom_boxplot()+facet_wrap(~exposed)
+ggplot(il3_dssp,aes(x=exposed,y=netgr_obs_mean))+geom_boxplot()+facet_wrap(~exposed)
 
 
 ggplot(il3_dssp,aes(x=factor(protein_start),y=netgr_obs_mean,fill=exposed))+
@@ -214,7 +214,7 @@ ggplot(il3_dssp,aes(x=factor(protein_start),y=netgr_obs_mean,fill=exposed))+
 
 
 Doing some quick analysis on buried hydrophobic vs exposed residues
-```{r}
+```{r,eval=F,include=F}
 dssp=read.csv("data/DSSP_SolventAccessibility_ABL/2gqg_dspp.csv",header = T)
 dssp=dssp%>%mutate(RESIDUE=as.numeric(RESIDUE),ACC=as.numeric(ACC),AA=gsub("<ca>","",AA))
 dssp=dssp%>%rename(protein_start=RESIDUE)
@@ -286,7 +286,7 @@ ggplot(ddgil3,aes(x=ddg,y=netgr_obs_mean,label=species))+geom_text()
 ```
 
 ```{r}
-source("code/resmuts_adder.R")
+source("code/resmuts_adder.R",include=F,eval=F)
 ic50data_all_sum=read.csv("output/ic50data_all_confidence_intervals_raw_data.csv",row.names = 1)
 imat=read.csv("output/ABLEnrichmentScreens/ABL_Region1_Lane18_Comparisons/cross-replicate/baf3_Imat_low_rep1vsrep2_ft/screen_comparison_baf3_Imat_low_rep1vsrep2_ft.csv")
 # imat=read.csv("output/ABLEnrichmentScreens/ABL_Region1_Lane18_Comparisons/cross-replicate/k562_Imat_medium_rep1vsrep2/screen_comparison_k562_imat_medium_rep1vsrep2.csv")
@@ -299,9 +299,12 @@ resmuts_merged=merge(imat%>%filter(resmuts%in%"TRUE"),ic50data_all_sum%>%dplyr::
 ggplot(resmuts_merged,aes(x=netgr_pred_mean,y=netgr_obs_mean,label=species))+geom_text()+theme_bw()+geom_abline()
 ```
 
-```{r}
+
 ```{r}
 data=read.csv("output/ABLEnrichmentScreens/ABL_Region1_Lane18_Comparisons/cross-replicate/baf3_Imat_high_rep1vsrep2_ft/screen_comparison_baf3_Imat_high_rep1vsrep2_ft.csv",header = T,stringsAsFactors = F)
+data=read.csv("output/ABLEnrichmentScreens/ABL_Region1_Lane18_Comparisons/cross-replicate/k562_imat_medium_rep1vsrep2/screen_comparison_k562_imat_medium_rep1vsrep2.csv",header = T,stringsAsFactors = F)
+source("code/res_residues_adder.R")
+source("code/cosmic_data_adder.R")
 # data=read.csv("output/ABLEnrichmentScreens/Imat_Enrichment_bgmerged_2.22.23.csv",header = T,stringsAsFactors = F)
 # class(data)
 data=res_residues_adder(data)
@@ -317,8 +320,8 @@ data$resmut_cosmic=factor(data$resmut_cosmic,levels=c("neither","cosmic","resmut
 ggplot(data%>%filter(protein_start>=242,protein_start<=494,n_nuc_min%in%1),aes(x=reorder(species,-netgr_obs_mean),y=netgr_obs_mean,fill=resmut_cosmic))+geom_col()+theme(axis.text.x=element_text(angle=90, hjust=1))+scale_y_continuous(name="Enrichcment Score")+scale_x_discrete(name="Mutant")+scale_fill_manual(name="Resistance Status",labels=c("Never Seen","Sanger Mutant","Known Resistant Mutant"),values=c("gray","orange","red"))+cleanup+theme(legend.position = "none")
 
 
-ggplot(data%>%filter(protein_start>=242,protein_start<=494,n_nuc_min%in%1),aes(x=reorder(species,-netgr_mean),y=netgr_mean,fill=resmut_cosmic))+geom_col()+theme(axis.text.x=element_text(angle=90, hjust=1))+scale_y_continuous(name=bquote('Net Growth Rate '(Hours^-1)))+scale_x_discrete(name="Mutant")+scale_fill_manual(name="Resistance Status",labels=c("Never Seen","Sanger Mutant","Known Resistant Mutant"),values=c("gray","orange","red"))+cleanup+theme(legend.position = "none")
-# ggsave("ImatinibEnrichment_Netgr_Distribution.pdf",width=8,height=4,units="in",useDingbats=F)
+ggplot(data%>%group_by(species)%>%mutate(n_species=n())%>%filter(protein_start>=242,protein_start<=494,n_species%in%1),aes(x=reorder(species,-netgr_mean),y=netgr_mean,fill=resmut_cosmic))+geom_col()+theme(axis.text.x=element_text(angle=90, hjust=1))+scale_y_continuous(name=bquote('Net Growth Rate '(Hours^-1)))+scale_x_discrete(name="Mutant")+scale_fill_manual(name="Resistance Status",labels=c("Never Seen","Sanger Mutant","Known Resistant Mutant"),values=c("gray","orange","red"))+cleanup+theme(legend.position = "none")
+ggsave("ImatinibEnrichment_Netgr_Distribution.pdf",width=8,height=4,units="in",useDingbats=F)
 
 ggplot(data%>%filter(protein_start>=242,protein_start<=494,n_nuc_min%in%1,score_mean>=0),aes(x=reorder(species,-netgr_mean),y=netgr_mean,fill=resmut_cosmic))+geom_col()+
   scale_y_continuous(name=bquote('Net Growth Rate '(Hours^-1)))+
@@ -330,7 +333,7 @@ ggplot(data%>%filter(protein_start>=242,protein_start<=494,n_nuc_min%in%1,score_
         panel.grid.major.y = element_blank(),
         panel.background = element_blank())+
   theme(legend.position = "none")
-# ggsave("ImatinibEnrichment_Netgr_Distribution_zoom.pdf",width=6,height=4,units="in",useDingbats=F)
+ggsave("ImatinibEnrichment_Netgr_Distribution_zoom.pdf",width=6,height=4,units="in",useDingbats=F)
 
 ggplot(data%>%filter(!ct_screen1_after%in%.5,!ct_screen2_after%in%.5,protein_start>=242,protein_start<=494),aes(x=netgr_obs_screen1,y=netgr_obs_screen2))+
   geom_point(color="black",shape=21,aes(fill=resmut_cosmic))+
@@ -340,16 +343,15 @@ ggplot(data%>%filter(!ct_screen1_after%in%.5,!ct_screen2_after%in%.5,protein_sta
   labs(fill="Sanger\n Mutant")+
   scale_fill_manual(values=c("gray90","orange","red"))+
   cleanup+theme(legend.position = "none")
-
-# ggsave("ImatinibEnrichment_Plot_netgr_2.21.23.pdf",width=4,height=4,units="in",useDingbats=F)
-
-
+ggsave("ImatinibEnrichment_Plot_netgr_4.13.23.pdf",width=4,height=4,units="in",useDingbats=F)
+x=data%>%filter(!ct_screen1_after%in%.5,!ct_screen2_after%in%.5,protein_start>=242,protein_start<=322)
+cor(x$netgr_obs_screen1,x$netgr_obs_screen2)
 
 
 ggplot(data%>%filter(protein_start>=242,protein_start<=494,n_nuc_min%in%1),aes(x=resmut_cosmic,y=netgr_mean,fill=resmut_cosmic))+
   geom_violin(color="black")+
-  geom_boxplot(color="black",width=.1)+
   # geom_boxplot(color="black")+
+  geom_jitter(color="black", size=1,width=.1, alpha=0.9)+
   scale_fill_manual(values=c("gray90","orange","red"))+scale_y_continuous(name=bquote('Net Growth Rate '(Hours^-1)))+scale_x_discrete("Resistance Status",labels=c("Never\n Seen","Sanger","Known\nResistant"))+cleanup+theme(legend.position = "none")
 # ggsave("ImatinibEnrichment_netgr_BoxPlot_2.21.23.pdf",width=4,height=4,units="in",useDingbats=F)
 
@@ -366,5 +368,37 @@ ggplot(data%>%filter(!ct_screen1_after%in%.5,!ct_screen2_after%in%.5,protein_sta
   theme(legend.position = "none")
 
 ```
+Plotting the short et al data for Twinstrand
+```{r}
+data_old=read.csv("output/ABLEnrichmentScreens/Imat_Enrichment_bgmerged_2.22.23.csv",header = T,stringsAsFactors = F)
+data_old=data_old%>%rowwise()%>%mutate(netgr_obs_mean=mean(netgr_obs_screen1,netgr_obs_screen2))
+data_old=data_old%>%filter(protein_start%in%c(323:494))
+data_new=read.csv("output/ABLEnrichmentScreens/ABL_Region1_Lane18_Comparisons/cross-replicate/baf3_Imat_low_rep1vsrep2_ft/screen_comparison_baf3_Imat_low_rep1vsrep2_ft.csv",header = T,stringsAsFactors = F)
+data_new=data_new%>%filter(protein_start%in%c(242:322))
+data_merged=rbind(data_new,data_old)
+short_mutants=read.csv("data/Short_et_al_fig1/short_et_al_3.12.23.csv",header = T)
+short_mutants$preexisting_all=T
+short_mutants=short_mutants%>%dplyr::select(-Index)%>%rename(species=Species)
+data_merged=merge(data_merged,short_mutants,by="species",all.x = T)
+data_merged[!data_merged$preexisting_all%in%T,"preexisting_all"]=F
+nrow(data_merged%>%filter(preexisting_all%in%T))
+source("code/resmuts_adder.R")
+data_merged=resmuts_adder(data_merged)
+data_merged$resmut_cosmic="neither"
+data_merged[data_merged$preexisting_all%in%TRUE,"resmut_cosmic"]="preexisting"
+data_merged[data_merged$resmuts%in%TRUE,"resmut_cosmic"]="resmut"
+data_merged$resmut_cosmic=factor(data_merged$resmut_cosmic,levels=c("neither","preexisting","resmut"))
+
+
+ggplot(data_merged%>%filter(protein_start>=242,protein_start<=322,n_nuc_min%in%1),aes(x=resmut_cosmic,y=netgr_obs_mean,fill=resmut_cosmic))+
+  geom_violin(color="black")+
+  # geom_boxplot(color="black")+
+  geom_jitter(color="black", size=1,width=.1, alpha=0.9)+
+  scale_fill_manual(values=c("gray90","#9F416D","#F39826"))+scale_y_continuous(name=bquote('Net Growth Rate '(Hours^-1)))+scale_x_discrete("Resistance Status",labels=c("Undetected","Pre-existing ALL","Known\nResistant"))+cleanup+theme(legend.position = "none")
+ggsave("data/Short_et_al_fig1/shortetal_netgr_BoxPlot_4.14.23.pdf",width=4,height=4,units="in",useDingbats=F)
+
+# x=data_merged%>%filter(protein_start>=242,protein_start<=322,n_nuc_min%in%1,preexisting_all%in%T)
 ```
+
+
 
