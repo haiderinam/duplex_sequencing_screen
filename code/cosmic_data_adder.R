@@ -8,8 +8,8 @@ cosmic_data_adder=function(inputdf){
   cosmic_data=cosmic_data[!grepl("ins|del",cosmic_data$CDS.Mutation),]
   cosmic_data=cosmic_data[grepl("Missense",cosmic_data$Type),]
   cosmic_data=cosmic_data%>%filter(!Type%in%"Substitution - coding silent")
-  cosmic_data=cosmic_data%>%filter(Position<=500,Position>=64,Count>=2)
-  # cosmic_data=cosmic_data%>%filter(Position<=500,Position>=64)
+  # cosmic_data=cosmic_data%>%filter(Position<=500,Position>=64,Count>=2)
+  cosmic_data=cosmic_data%>%filter(Position<=500,Position>=64)
   # write.csv(cosmic_data,"cosmic_abl.csv")
   cosmic_simple=cosmic_data%>%dplyr::select(subs_name=AA.Mutation,cosmic_count=Count)
   cosmic_simple=cosmic_simple%>%group_by(subs_name)%>%summarize(cosmic_count=sum(cosmic_count))

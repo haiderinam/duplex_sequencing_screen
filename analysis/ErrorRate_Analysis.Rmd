@@ -8,7 +8,7 @@ output: html_document
 ```{r setup, include=FALSE}
 # rm(list=ls())
 knitr::opts_chunk$set(echo = TRUE)
-# knitr::opts_knit$set(root.dir = normalizePath(".."))
+knitr::opts_knit$set(root.dir = normalizePath(".."))
 library(stringr)
 library(dplyr)
 library(ggplot2)
@@ -81,6 +81,7 @@ a=lane14sorted_simple%>%filter(nchar(as.character(alt_aa))%in%1,protein_start>=2
 Now I'm going to look at how much reduction in error rates we get with duplex sequencing
 ```{r}
 ngs=read.csv(file = "data/Consensus_Data/Novogene_lane15/sample_3/ngs/variants_unique_ann.csv",header=T,stringsAsFactors = F)
+# ngs=read.csv(file = "data/Consensus_Data/",header=T,stringsAsFactors = F)
 ngs$consensus="NGS"
 
 sscs=read.csv(file = "data/Consensus_Data/Novogene_lane15/sample_3/sscs/variant_caller_outputs/variants_unique_ann.csv",header=T,stringsAsFactors = F)
@@ -139,6 +140,7 @@ ggplot(sample10_duplex_simple%>%
   scale_x_continuous(name="Position on ABL")+
   scale_y_continuous(limits=c(0,.01),name="MAF")+
   theme(legend.position = "none")
+
 # ggsave("errorrates.pdf",width=8,height=8,units="in",useDingbats=F)  
 ```
 

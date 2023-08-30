@@ -1,0 +1,86 @@
+---
+title: "ABL_t315x_comparisons"
+author: "Haider Inam"
+date: '2023-04-19'
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_knit$set(root.dir = normalizePath("../.."))
+
+library(stringr)
+library(dplyr)
+library(ggplot2)
+library(plotly)
+library(tictoc)
+library(doParallel)
+library(foreach)
+library(RColorBrewer)
+library(ggpubr)
+
+
+# 
+
+```
+
+```{r}
+#Cleanup code for plotting
+source("code/plotting/cleanup.R")
+source("code/plotting/heatmap_plotting_function.R")
+```
+
+Data obtained from the T315X paper:
+https://www.pnas.org/doi/full/10.1073/pnas.1708268114
+```{r}
+# IL3 and Imatinib data imported from Figure 2 of the paper. Datapoints extracted using ImageJ
+alt_aa=c("W","Y","F","L","M","I","V","C","A","G","P","S","N","Q","H","R","K","D","E")
+growth_lfc=c(-1.49,-1.42,-1.11,0.95,1.22,1,0.5,0.03,-0.93,-1.66,-1.85,-1.31,-1.74,-0.29,-1.53,-1.65,-1.48,-1.77,0.76)
+imat_lfc=c(-0.28,-0.83,0.6,3.26,3.26,3.47,2.62,0.77,-0.42,-0.4,-0.72,-0.68,-0.6,1.83,-0.76,-0.53,-0.64,-0.66,3.04)
+t315x_df=cbind(alt_aa,growth_lfc,imat_lfc)
+# IL3
+smdata=read.csv("output/ABLEnrichmentScreens/ABL_Region1_Lane18_Comparisons/cross-replicate/baf3_IL3_rep1vsrep2_ft/screen_comparison_baf3_IL3_low_rep1vsrep2_ft.csv",header = T)
+smdata=smdata%>%rowwise%>%mutate(netgr_obs_mean=mean(netgr_obs_screen1,netgr_obs_screen2))
+smdata_il3=smdata%>%dplyr::select(species,ref_aa,protein_start,alt_aa,netgr_obs_il3=netgr_obs_mean)
+# Imat
+smdata=read.csv("output/ABLEnrichmentScreens/ABL_Region1_Lane18_Comparisons/cross-replicate/baf3_Imat_low_rep1vsrep2_ft/screen_comparison_baf3_Imat_low_rep1vsrep2_ft.csv",header = T)
+smdata=read.csv("output/ABLEnrichmentScreens/ABL_Region1_Lane18_Comparisons/cross-replicate/baf3_Imat_medium_rep1vsrep2_ft/screen_comparison_baf3_Imat_medium_rep1vsrep2_ft.csv",header = T)
+smdata=read.csv("output/ABLEnrichmentScreens/ABL_Region1_Lane18_Comparisons/cross-replicate/baf3_Imat_high_rep1vsrep2_ft/screen_comparison_baf3_Imat_high_rep1vsrep2_ft.csv",header = T)
+# smdata=read.csv("output/ABLEnrichmentScreens/ABL_Region1_Lane18_Comparisons/cross-replicate/k562_imat_medium_rep1vsrep2/screen_comparison_k562_imat_medium_rep1vsrep2.csv",header = T)
+
+smdata=smdata%>%rowwise%>%mutate(netgr_obs_mean=mean(netgr_obs_screen1,netgr_obs_screen2))
+smdata_imat=smdata%>%dplyr::select(species,ref_aa,protein_start,alt_aa,netgr_obs_imat=netgr_obs_mean)
+
+smdata_il3_imat=merge(smdata_il3%>%filter(protein_start%in%315),smdata_imat%>%filter(protein_start%in%315),by=c("ref_aa","protein_start","alt_aa","species"))
+
+t315_merge=merge(smdata_il3_imat,t315x_df,by="alt_aa")
+t315_merge=t315_merge%>%mutate(growth_lfc=as.numeric(growth_lfc),
+                               imat_lfc=as.numeric(imat_lfc))
+
+###### Plotting the T315X data#######
+
+ggplot(t315_merge,aes(x=alt_aa,y=imat_lfc))+geom_col()
+ggplot(t315_merge,aes(x=alt_aa,y=netgr_obs_imat))+geom_col()
+ggplot(t315_merge,aes(x=alt_aa))+geom_col(fill="red",aes(y=netgr_obs_imat))+geom_col(fill="blue",aes(y=imat_lfc))
+
+# ggplot(t315_merge,aes(x=growth_lfc,y=netgr_obs_il3,label=species))+geom_text()
+ggplot(t315_merge,aes(x=growth_lfc,y=netgr_obs_il3,label=species))+geom_text(size=2.5)+scale_x_continuous("T315X Dataset IL3 LFC")+scale_y_continuous(bquote('Net Growth Rate '(Hours^-1)))+stat_cor(method="pearson")+ggtitle("IL3-Independence Fitness")+cleanup
+# ggsave("output/SM_Imatinib_Plots/T315X_IL3.pdf",width=3,height=3,units="in",useDingbats=F)
+cor(t315_merge$growth_lfc,t315_merge$netgr_obs_il3)
+
+ggplot(t315_merge,aes(x=imat_lfc,y=netgr_obs_imat,label=species))+geom_text(size=2.5)+scale_x_continuous("T315X Dataset Imatinib LFC")+scale_y_continuous(bquote('Net Growth Rate '(Hours^-1)))+stat_cor(method="pearson")+ggtitle("Imatinib Fitness")+cleanup
+# ggsave("output/SM_Imatinib_Plots/T315X_Imatinib.pdf",width=3,height=3,units="in",useDingbats=F)
+cor(t315_merge$imat_lfc,t315_merge$netgr_obs_imat)
+
+```
+
+```{r}
+smdata=read.csv("output/ABLEnrichmentScreens/IL3_Enrichment_bgmerged_2.20.23.csv",header = T)
+smdata=smdata%>%rowwise%>%mutate(netgr_obs_mean=mean(netgr_obs_screen1,netgr_obs_screen2))
+smdata=smdata%>%dplyr::select(species,ref_aa,protein_start,alt_aa,netgr_obs_mean)
+x=smdata%>%filter(protein_start%in%328:332)
+```
+
+
+
+

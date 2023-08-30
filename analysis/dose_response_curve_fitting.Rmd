@@ -7,6 +7,7 @@ output: html_document
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_knit$set(root.dir = normalizePath(".."))
 # knitr::opts_knit$set(root.dir=rprojroot::find_rstudio_root_file())
 # rm(list=ls())
 ```
@@ -19,7 +20,7 @@ net_gr_wodrug=0.055
 #Reading required tables
 # ic50data=read.csv("data/heatmap_concat_data.csv",header = T,stringsAsFactors = F)
 
-ic50data=read.csv("/Users/haiderinam/Box/RProjects/duplex_sequencing_screen/data/heatmap_concat_data.csv",header = T,stringsAsFactors = F)
+ic50data=read.csv("data/heatmap_concat_data.csv",header = T,stringsAsFactors = F)
 # ic50data=read.csv("../data/heatmap_concat_data.csv",header = T,stringsAsFactors = F)
 ```
 
@@ -257,6 +258,9 @@ ic50heatmap_melt=melt(ic50heatmap,"mutant",variable.name = "conc",value.name = "
 ic50heatmap_melt$conc=as.character(ic50heatmap_melt$conc)
 ic50heatmap_melt=ic50heatmap_melt%>%filter(!conc%in%"Vehicle")
 ic50heatmap_melt=ic50heatmap_melt%>%rowwise()%>%mutate(conc=as.numeric(as.character(strsplit(conc,"X")[[1]][2])))
+
+
+
 ic50heatmap_sd=ic50heatmap_melt%>%
   group_by(mutant,conc)%>%
   summarize(y_mean=mean(y),y_sd=sd(y),y_n=n())%>%
@@ -294,6 +298,19 @@ ggplot(ic50heatmap_sd%>%filter(mutant%in%"Wt",conc>=.1),aes(x=conc,y=y_mean))+ge
 # ggsave("bcrablwt_dose_response.pdf",width=2,height=2,units="in",useDingbats=F)
 # write.csv(ic50heatmap_sd,"output/ic50heatmap_sd_ci.csv")
 ```
+```{r}
+ggplot(ic50heatmap_melt%>%filter(mutant%in%"Wt"),aes(x=conc,y=y))+geom_point(color="black",size=1.5,shape=21,fill="#5941A9")+scale_x_continuous("Dose (uM)",trans="log10")+scale_y_continuous("Response")+cleanup
+# +geom_vline(xintercept = 0.6,linetype="dashed")
+ggsave("bcrablwt_dose_response_points.pdf",width=2,height=2,units="in",useDingbats=F)
+
+
+ggplot(ic50heatmap_melt%>%filter(mutant%in%"Wt")%>%group_by(conc)%>%summarize(y=mean(y)),aes(x=conc,y=y))+geom_point(color="black",size=1.5,shape=21,fill="#5941A9")+scale_x_continuous("Dose (uM)",trans="log10")+scale_y_continuous("Response")+cleanup
+# +geom_vline(xintercept = 0.6,linetype="dashed")
+ggsave("bcrablwt_dose_response_mean.pdf",width=2,height=2,units="in",useDingbats=F)
+
+x=ic50heatmap_melt%>%filter(mutant%in%"Wt",conc%in%0.31250000)
+  ```
+
 
 ```{r}
 ################Looking at the typical error in dose-response#######
@@ -318,6 +335,12 @@ predict(ic50.ll4,data.frame(dose=1.62))
 predict(ic50.ll4,data.frame(dose=1.05))
 predict(ic50.ll4,data.frame(dose=1.25))
 #Therefore the typical error in dose-response for a dose of 1.25 goes from 1.05 to 1.62
+
+```
+
+Plotting out microvariatoins in dose response, as seen in our IC50 studies
+```{r}
+ic50data=read.csv("data/IC50HeatMap.csv",header = T,stringsAsFactors = F)
 
 ```
 

@@ -7,7 +7,7 @@ output: html_document
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
-# knitr::opts_knit$set(root.dir = normalizePath(".."))
+knitr::opts_knit$set(root.dir = normalizePath(".."))
 # rm(list=ls())
 
 library(stringr)
@@ -91,12 +91,14 @@ crisprds_combined_sum=crisprds_combined%>%group_by(librarytype,protein_start)%>%
 crisprds_combined_sum$librarytype=factor(crisprds_combined_sum$librarytype,levels=c("Enzymatically Sheared","CRISPR-DS"))
 ggplot(crisprds_combined_sum%>%filter(protein_start>200,protein_start<=302),aes(x=librarytype,y=depth,fill=librarytype))+
   geom_boxplot(alpha=0.7)+
-  scale_y_continuous(trans="log10",name="Depth of Coverage")+
+  scale_y_continuous(trans="log10",name="Sequencing Depth")+
+  cleanup+
   theme(axis.text.x=element_blank(),
         axis.title.x=element_blank(),
-        axis.ticks.x=element_blank())+
+        axis.ticks.x=element_blank(),
+        legend.position = "none")+
   scale_fill_manual(name = "Library Type", labels = c(" Enzymatically\n Sheared","CRISPR-DS"),values=c("blue","red"))
-# ggsave("crisprds_depth.pdf",width=8,height=6,units="in",useDingbats=F)
+ggsave("output/SM_Imatinib_Plots/crisprds_depth.pdf",width=3,height=3,units="in",useDingbats=F)
 
 ####Plotting the allele frequencies of the lane 11 samples (before fresh thaw) and lane 17 samples (after fresh thaw)
 lane17b_simple=lane17b%>%dplyr::select(protein_start,ref_aa,alt_aa,amino_acids,consequence_terms,ct,depth)
@@ -140,6 +142,18 @@ ggplot(crisprds_combined%>%filter(ct<=500,!librarytype%in%"CRISPR-DS"),aes(x=ct,
   labs(fill="Library Type")+
   scale_fill_manual(values=c("green","blue"))+
   theme(legend.position="none")
+
+ggplot(crisprds_combined%>%filter(ct<=500,!librarytype%in%"Enzymatically fragmented treated"),aes(x=ct,fill=librarytype))+
+  geom_density(alpha=0.7)+
+  scale_x_continuous(name="Number of times each mutant was seen",trans="log10")+
+  scale_y_continuous(name="Density")+
+  labs(fill="Library Type")+
+  scale_fill_manual(values=c("red","blue"))+
+  cleanup+
+  theme(legend.position="none")
+# ggsave("output/SM_Imatinib_Plots/crisprds_vs_ef.pdf",width=4,height=3,units="in",useDingbats=F)
+unique(crisprds_combined$librarytype)
+
 
 ggplot(crisprds_combined%>%mutate(maf=ct/depth),aes(x=maf,color=librarytype))+stat_ecdf(geom="step")+scale_x_continuous(trans="log10")+scale_color_manual(labels=c("Freeze Thawed","Freshly Sorted Treated","Freshly Sorted"),values=c("Red","Blue","Green"))
 # As you can see with the CDFs, a single freeze thaw followed by a few days of growth can really mess up the evenness of the library
@@ -209,7 +223,14 @@ twistdata$librarytype="PlasmidLibrary"
 twistdata=twistdata%>%dplyr::select(librarytype,maf=variant_maf)
 
 ft_combined=rbind(ft,noft,treated,twistdata)
-ggplot(ft_combined,aes(x=maf,color=librarytype))+stat_ecdf()+scale_x_continuous("Mutant Allele Frequency",trans="log10",limits=c(1e-5,1e-3))+scale_color_manual(name="Library Type",labels=c("Freeze Thawed","Freshly Sorted","Plasmid Library","6 D Imatinib Treated"),values=c("Green","Blue","Gray","Red"))
-  
+ggplot(ft_combined,aes(x=maf,color=librarytype))+stat_ecdf()+scale_x_continuous("Mutant Allele Frequency",trans="log10",limits=c(1e-5,1e-3))+scale_y_continuous("Probability")+scale_color_manual(name="Library Type",labels=c("Freeze Thawed","Freshly Sorted","Plasmid Library","6 D Imatinib Treated"),values=c("Green","Blue","Gray","Red"))+cleanup
+
+ggplot(ft_combined,aes(x=maf,color=librarytype))+stat_ecdf()+scale_x_continuous("Mutant Allele Frequency",trans="log10",limits=c(1e-5,1e-3))+scale_y_continuous("Probability")+scale_color_manual(name="Library Type",labels=c("Freeze Thawed","Freshly Sorted","Plasmid Library","6 D Imatinib Treated"),values=c("Green","Blue","Gray","Red"))+cleanup+theme(legend.position = "none")
+# ggsave("output/SM_Imatinib_Plots/ABL_region1_CDF.pdf",width = 3,height=3,units="in",useDingbats=F)
+  # sort(unique(ft_combined$librarytype))
+  # quantile(ft_combined[ft_combined$librarytype%in%"noft","maf"])
+  # # quantile(ft_combined[ft_combined$librarytype%in%"ft","maf"],probs = .1)
+  # # quantile(ft_combined[ft_combined$librarytype%in%"PlasmidLibrary","maf"],probs = .1)
+  # quantile(ft_combined[ft_combined$librarytype%in%"treated","maf"])
 ```
 

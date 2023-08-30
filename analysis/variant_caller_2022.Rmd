@@ -90,18 +90,40 @@ mode="local"
 
 
 ```{r}
-# seqdata_tsv_name=c("data/Consensus_Data/novogene_lane18/sample15/nol298l/sscs/sscs_sorted_filtered.tsv.gz")
-# outdir=c("data/Consensus_Data/novogene_lane18/sample15/nol298l/sscs/variant_caller_outputs/")
 
-seqdata_tsv_name=c("data/Consensus_Data/novogene_lane18/sample9/nol298l/sscs/sscs_sorted_filtered.tsv.gz",
-                   "data/Consensus_Data/novogene_lane18/sample9/nol298l/duplex/duplex_sorted_filtered.tsv.gz",
-                   "data/Consensus_Data/novogene_lane18/sample14/nol298l/sscs/sscs_sorted_filtered.tsv.gz",
-                   "data/Consensus_Data/novogene_lane18/sample14/nol298l/duplex/duplex_sorted_filtered.tsv.gz")
+seqdata_tsv_name=c("data/Consensus_Data/novogene_lane23/Lane23_Sample13/sscs/sscs_sorted_filtered.tsv.gz",
+                   "data/Consensus_Data/novogene_lane23/Lane23_Sample14/sscs/sscs_sorted_filtered.tsv.gz",
+                   "data/Consensus_Data/novogene_lane23/Lane23_Sample15/sscs/sscs_sorted_filtered.tsv.gz",
+                   "data/Consensus_Data/novogene_lane23/Lane23_Sample16/sscs/sscs_sorted_filtered.tsv.gz",
+                   "data/Consensus_Data/novogene_lane23/Lane23_Sample17/sscs/sscs_sorted_filtered.tsv.gz",
+                   "data/Consensus_Data/novogene_lane23/Lane23_Sample18/sscs/sscs_sorted_filtered.tsv.gz",
+                   "data/Consensus_Data/novogene_lane23/Lane23_Sample19/sscs/sscs_sorted_filtered.tsv.gz",
+                   "data/Consensus_Data/novogene_lane23/Lane23_Sample20/sscs/sscs_sorted_filtered.tsv.gz",
+                   "data/Consensus_Data/novogene_lane23/Lane23_Sample21/sscs/sscs_sorted_filtered.tsv.gz",
+                   "data/Consensus_Data/novogene_lane23/Lane23_Sample22/sscs/sscs_sorted_filtered.tsv.gz",
+                   "data/Consensus_Data/novogene_lane23/Lane23_Sample23/sscs/sscs_sorted_filtered.tsv.gz",
+                   "data/Consensus_Data/novogene_lane23/Lane23_Sample24/sscs/sscs_sorted_filtered.tsv.gz",
+                   "data/Consensus_Data/novogene_lane23/Lane23_Sample25/sscs/sscs_sorted_filtered.tsv.gz",
+                   "data/Consensus_Data/novogene_lane23/Lane23_Sample26/sscs/sscs_sorted_filtered.tsv.gz",
+                   "data/Consensus_Data/novogene_lane23/Lane23_Sample27/sscs/sscs_sorted_filtered.tsv.gz")
 
-outdir=c("data/Consensus_Data/novogene_lane18/sample9/nol298l/sscs/variant_caller_outputs",
-                   "data/Consensus_Data/novogene_lane18/sample9/nol298l/duplex/variant_caller_outputs",
-                   "data/Consensus_Data/novogene_lane18/sample14/nol298l/sscs/variant_caller_outputs",
-                   "data/Consensus_Data/novogene_lane18/sample14/nol298l/duplex/variant_caller_outputs")
+
+
+outdir=c("data/Consensus_Data/novogene_lane23/Lane23_Sample13/sscs/variant_caller_outputs",
+                   "data/Consensus_Data/novogene_lane23/Lane23_Sample14/sscs/variant_caller_outputs",
+                   "data/Consensus_Data/novogene_lane23/Lane23_Sample15/sscs/variant_caller_outputs",
+                   "data/Consensus_Data/novogene_lane23/Lane23_Sample16/sscs/variant_caller_outputs",
+                   "data/Consensus_Data/novogene_lane23/Lane23_Sample17/sscs/variant_caller_outputs",
+                   "data/Consensus_Data/novogene_lane23/Lane23_Sample18/sscs/variant_caller_outputs",
+                   "data/Consensus_Data/novogene_lane23/Lane23_Sample19/sscs/variant_caller_outputs",
+                   "data/Consensus_Data/novogene_lane23/Lane23_Sample20/sscs/variant_caller_outputs",
+                   "data/Consensus_Data/novogene_lane23/Lane23_Sample21/sscs/variant_caller_outputs",
+                   "data/Consensus_Data/novogene_lane23/Lane23_Sample22/sscs/variant_caller_outputs",
+                   "data/Consensus_Data/novogene_lane23/Lane23_Sample23/sscs/variant_caller_outputs",
+                   "data/Consensus_Data/novogene_lane23/Lane23_Sample24/sscs/variant_caller_outputs",
+                   "data/Consensus_Data/novogene_lane23/Lane23_Sample25/sscs/variant_caller_outputs",
+                   "data/Consensus_Data/novogene_lane23/Lane23_Sample26/sscs/variant_caller_outputs",
+                   "data/Consensus_Data/novogene_lane23/Lane23_Sample27/sscs/variant_caller_outputs")
 
 ```
 
