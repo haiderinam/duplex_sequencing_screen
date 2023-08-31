@@ -7,7 +7,7 @@ output: html_document
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
-knitr::opts_knit$set(root.dir = normalizePath(".."))
+# knitr::opts_knit$set(root.dir = normalizePath(".."))
 
 library(stringr)
 library(dplyr)
@@ -464,7 +464,7 @@ ggplot(imatD0.D4.merge.filtered,aes(x=protein_start,y=alt_aa))+
   geom_tile(data=subset(imatD0.D4.merge.filtered,is.na(score)&wt%in%T),aes(color="white"),linetype = "solid",color="white", fill = "yellow", alpha = 0.4)+
   theme(panel.background=element_rect(fill="white", colour="black"))+scale_x_continuous(name="Residue on the ABL Kinase",limits=c(242,493),expand=c(0,0))+
   ylab("Mutant Amino Acid")
-ggsave("BCRABL_imat_D4_gray_updated.pdf",height=6,width=24,units="in",useDingbats=F)
+# ggsave("BCRABL_imat_D4_gray_updated.pdf",height=6,width=24,units="in",useDingbats=F)
 
 
 ggplot(imatD0.D4.merge.filtered,aes(x=protein_start,y=alt_aa))+
@@ -722,127 +722,6 @@ il3D0=il3D0%>%mutate(region=case_when(protein_start<250&protein_start>=242~1,
 getPalette = colorRampPalette(brewer.pal(33, "Set2"))
 plotly=ggplot(il3D0%>%filter(protein_start>=242,protein_start<=494),aes(x=protein_start,y=ct))+geom_col(color="black",aes(fill=factor(region)))+cleanup+scale_fill_manual(values=getPalette(33))
 ggplotly(plotly)
-```
-
-
-#Next: plot iL3 D2 D4 scores
-#Correlate Il3 D2 D4 scores with il3 D0 D2 scores
-
-Are any of the enriched mutants in the cosmic somatic database?
-```{r}
-# rm(list=ls())
-cosmic_data=read.table("data/Cosmic_ABL/ABL_Cosmic_Gene_mutations.tsv",sep="\t",header = T,stringsAsFactors = )
-cosmic_data=cosmic_data%>%mutate(AA.Mutation=gsub("p.","",AA.Mutation))
-cosmic_data=cosmic_data[!grepl("ins|del",cosmic_data$CDS.Mutation),]
-cosmic_data=cosmic_data[grepl("Missense",cosmic_data$Type),]
-cosmic_data=cosmic_data%>%filter(!Type%in%"Substitution - coding silent")
-cosmic_data=cosmic_data%>%filter(Position<=500,Position>=64,Count>=2)
-# write.csv(cosmic_data,"cosmic_abl.csv")
-cosmic_simple=cosmic_data%>%dplyr::select(subs_name=AA.Mutation,cosmic_count=Count)
-cosmic_simple=cosmic_simple%>%group_by(subs_name)%>%summarize(cosmic_count=sum(cosmic_count))
-cosmic_simple$cosmic_present=T
-```
-
-
-```{r}
-source("code/merge_samples.R")
-sample10=read.csv(file = "data/Consensus_Data/Novogene_lane14/sample10_combined/sscs/variant_caller_outputs/variants_unique_ann.csv",header=T,stringsAsFactors = F)
-
-sample10=sample10%>%
-  rowwise()%>%
-  mutate(ref_aa=strsplit(amino_acids,"/")[[1]][1],
-         alt_aa=strsplit(amino_acids,"/")[[1]][2])
-sample10=sample10%>%mutate(maf=ct/depth)
-sample10_simple=sample10%>%dplyr::select(alt_start_pos,protein_start,ref,alt,ref_aa,alt_aa,consequence_terms,ct,depth,maf)
-sample10=il3D0
-sample12=read.csv(file = "data/Consensus_Data/Novogene_lane14/sample12/sscs/variant_caller_outputs/variants_unique_ann.csv",header=T,stringsAsFactors = F)
-
-sample12=sample12%>%
-  rowwise()%>%
-  mutate(ref_aa=strsplit(amino_acids,"/")[[1]][1],
-         alt_aa=strsplit(amino_acids,"/")[[1]][2])
-sample12=sample12%>%mutate(maf=ct/depth)
-sample12=imatD4
-sample12_simple=sample12%>%dplyr::select(alt_start_pos,protein_start,ref,alt,ref_aa,alt_aa,consequence_terms,ct,depth,maf)
-
-samples_10.12=merge(sample10_simple%>%filter(consequence_terms%in%"missense_variant"),sample12_simple%>%filter(consequence_terms%in%"missense_variant"),by=c("ref_aa","protein_start","alt_aa","ref","alt","alt_start_pos","consequence_terms"))
-
-samples_10.12=samples_10.12%>%mutate(score=log2(maf.y/maf.x),score2=log2(ct.y/ct.x))
-samples_10.12_simple=samples_10.12%>%dplyr::select(ref_aa,protein_start,alt_aa,consequence_terms,ct.x,score)
-
-ggplot(samples_10.12,aes(x=score))+geom_density()
-
-# ggplot(samples_14.16,aes(x=score))+geom_histogram(bins=100)
-
-samples_10.12=samples_10.12%>%mutate(resmuts=case_when(protein_start%in%253&alt_aa%in%"H"~T,
-                                                         protein_start%in%255&alt_aa%in%"V"~T,
-                                                         protein_start%in%486&alt_aa%in%"S"~T,
-                                                         protein_start%in%396&alt_aa%in%"P"~T,
-                                                         protein_start%in%255&alt_aa%in%"K"~T,
-                                                         protein_start%in%315&alt_aa%in%"I"~T,
-                                                         protein_start%in%252&alt_aa%in%"H"~T,
-                                                         protein_start%in%253&alt_aa%in%"F"~T,
-                                                         protein_start%in%250&alt_aa%in%"E"~T,
-                                                         protein_start%in%359&alt_aa%in%"C"~T,
-                                                         protein_start%in%351&alt_aa%in%"T"~T,
-                                                         protein_start%in%355&alt_aa%in%"G"~T,
-                                                         protein_start%in%317&alt_aa%in%"L"~T,
-                                                         protein_start%in%359&alt_aa%in%"I"~T,
-                                                         protein_start%in%355&alt_aa%in%"A"~T,
-                                                         protein_start%in%459&alt_aa%in%"K"~T,
-                                                         protein_start%in%276&alt_aa%in%"G"~T,
-                                                         protein_start%in%299&alt_aa%in%"L"~T,
-                                                         
-                                                         T~F))
-
-samples_10.12=samples_10.12%>%mutate(resresids=case_when(protein_start%in%253~T,
-                                                         protein_start%in%255~T,
-                                                         protein_start%in%486~T,
-                                                         protein_start%in%396~T,
-                                                         protein_start%in%255~T,
-                                                         protein_start%in%315~T,
-                                                         protein_start%in%252~T,
-                                                         protein_start%in%253~T,
-                                                         protein_start%in%250~T,
-                                                         protein_start%in%359~T,
-                                                         protein_start%in%351~T,
-                                                         protein_start%in%355~T,
-                                                         protein_start%in%317~T,
-                                                         protein_start%in%359~T,
-                                                         protein_start%in%355~T,
-                                                         protein_start%in%459~T,
-                                                         protein_start%in%276~T,
-                                                         protein_start%in%299~T,
-                                                         
-                                                         T~F))
-
-highscore=samples_10.12%>%filter(!ct.x%in%1,protein_start>=242,protein_start<=494)
-highscore=highscore%>%mutate(subs_name=paste(ref_aa,protein_start,alt_aa,sep = ""))
-ggplot(highscore,aes(x=reorder(subs_name,-score),y=score,fill=resmuts))+geom_col()+theme(axis.text.x=element_text(angle=90, hjust=1))+scale_y_continuous(name="Enrithcment Score")+scale_x_discrete(name="Mutant")+guides(fill = guide_legend(title = "Clinically\n Observed \n Resmut"))+scale_fill_manual(values=c("gray90","red"))
-highscore2=highscore%>%group_by(alt_aa,protein_start,subs_name,resmuts,resresids)%>%summarize(score=mean(score))
-
-ggplot(highscore2,aes(x=reorder(subs_name,-score),y=score,fill=resmuts))+geom_col()+theme(axis.text.x=element_blank(),axis.ticks.x=element_blank())+scale_y_continuous(name="Enrithcment Score")+scale_x_discrete(name="Mutant")+guides(fill = guide_legend(title = "Clinically\n Observed \n Resistant Mutant"))+scale_fill_manual(values=c("gray90","red"))
-# ggsave("BCRABL_Imatinib_Scores_Resmuts.pdf",height=4,width=8,units="in",useDingbats=F)
-
-ggplot(highscore2,aes(x=reorder(subs_name,-score),y=score,fill=resresids))+geom_col()+theme(axis.text.x=element_blank(),axis.ticks.x=element_blank())+scale_y_continuous(name="Enrithcment Score")+scale_x_discrete(name="Mutant")+guides(fill = guide_legend(title = "Clinically\n Observed \n Resistant Residue"))+scale_fill_manual(values=c("gray90","red"))
-# ggsave("BCRABL_Imatinib_Scores_Resresids.pdf",height=4,width=8,units="in",useDingbats=F)
-
-###Merging cosmic data and highscore
-# highscore$cosmic_present=F
-highscore_cosmic=merge(highscore,cosmic_simple,by="subs_name",all.x = T)
-highscore_cosmic[highscore_cosmic$cosmic_present%in%NA,"cosmic_present"]=F
-highscore_cosmic[highscore_cosmic$cosmic_count%in%NA,"cosmic_count"]=0
-
-plotly=ggplot(highscore_cosmic,aes(x=reorder(subs_name,-score),y=score,fill=cosmic_present))+geom_col()+theme(axis.text.x=element_text(angle=90, hjust=1))+scale_y_continuous(name="Enrichment Score")+scale_x_discrete(name="Mutant")+guides(fill = guide_legend(title = "Cosmic\n Observed"))
-ggplotly(plotly)
-a=cosmic_data%>%filter(AA.Mutation%in%"L248V")
-a=highscore%>%filter(subs_name%in%"M388L")
-
-
-plotly=ggplot(highscore_cosmic%>%filter(cosmic_present%in%T),aes(x=reorder(subs_name,-score),y=score,fill=cosmic_count))+geom_col()+theme_bw()
-ggplotly(plotly)
-# a=highscore_cosmic%>%filter(cosmic_present%in%T)
-# a=highscore2%>%filter(resmuts%in%T)
 ```
 
 

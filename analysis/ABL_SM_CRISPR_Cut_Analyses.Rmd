@@ -7,7 +7,7 @@ output: html_document
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
-knitr::opts_knit$set(root.dir = normalizePath(".."))
+# knitr::opts_knit$set(root.dir = normalizePath(".."))
 
 library(stringr)
 library(dplyr)
@@ -17,7 +17,8 @@ library(tictoc)
 library(doParallel)
 library(foreach)
 library(RColorBrewer)
-
+library(ggpubr)
+library(pROC)
 
 # 
 
@@ -26,6 +27,8 @@ library(RColorBrewer)
 ```{r}
 #Cleanup code for plotting
 source("code/plotting/cleanup.R")
+source("code/compare_screens.R")
+source("code/plotting/heatmap_plotting_function.R")
 ```
 
 ```{r,eval=F}
@@ -51,10 +54,7 @@ write.csv(output_df,"data/Consensus_Data/novogene_lane18/sample9/duplex/variant_
 ```
 
 ```{r, eval=F}
-source("code/compare_screens.R")
 
-source("code/plotting/cleanup.R")
-source("code/plotting/heatmap_plotting_function.R")
 # rm(list=ls())
 
 comparisons=read.csv("data/Consensus_Data/novogene_lane18/TwistRegion1Screen_Comparisons_Todo.csv")
@@ -290,7 +290,8 @@ ggplot(ddgil3,aes(x=ddg,y=netgr_obs_mean,label=species))+geom_text()
 
 Comparing Fitness Scores with IC50 predictions
 ```{r}
-source("code/resmuts_adder.R",include=F,eval=F)
+# ,include=F,eval=F
+source("code/resmuts_adder.R")
 ic50data_all_sum=read.csv("output/ic50data_all_confidence_intervals_raw_data.csv",row.names = 1)
 imat=read.csv("output/ABLEnrichmentScreens/ABL_Region1_Lane18_Comparisons/cross-replicate/baf3_Imat_low_rep1vsrep2_ft/screen_comparison_baf3_Imat_low_rep1vsrep2_ft.csv")
 # imat=read.csv("output/ABLEnrichmentScreens/ABL_Region1_Lane18_Comparisons/cross-replicate/k562_Imat_medium_rep1vsrep2/screen_comparison_k562_imat_medium_rep1vsrep2.csv")
@@ -370,7 +371,7 @@ ggplot(data%>%filter(!species%in%"V299L",protein_start>=242,protein_start<=322,n
   geom_boxplot(color="black")+
   geom_jitter(color="black", size=1,width=.1, alpha=0.9)+
   scale_fill_manual(values=c("gray90","orange","red"))+scale_y_continuous(name=bquote('Net Growth Rate '(Hours^-1)))+scale_x_discrete("Resistance Status",labels=c("Never\n Seen","Sanger","Known\nResistant"))+cleanup+theme(legend.position = "none")
-ggsave("output/SM_Imatinib_Plots/ImatinibEnrichment_netgr_boxplot_k562s_4.21.23.pdf",width=3,height=3,units="in",useDingbats=F)
+# ggsave("output/SM_Imatinib_Plots/ImatinibEnrichment_netgr_boxplot_k562s_4.21.23.pdf",width=3,height=3,units="in",useDingbats=F)
 ###########Baf3s###########
 
 # data=read.csv("output/ABLEnrichmentScreens/ABL_Region1_Lane18_Comparisons/cross-replicate/baf3_Imat_low_rep1vsrep2_ft/screen_comparison_baf3_Imat_low_rep1vsrep2_ft.csv",header = T,stringsAsFactors = F)
@@ -434,7 +435,7 @@ ggplot(data%>%filter(!species%in%"V299L",protein_start>=242,protein_start<=322,n
   geom_boxplot(color="black")+
   geom_jitter(color="black", size=1,width=.1, alpha=0.9)+
   scale_fill_manual(values=c("gray90","orange","red"))+scale_y_continuous(name=bquote('Net Growth Rate '(Hours^-1)))+scale_x_discrete("Resistance Status",labels=c("Never\n Seen","Sanger","Known\nResistant"))+cleanup+theme(legend.position = "none")
-ggsave("output/SM_Imatinib_Plots/ImatinibEnrichment_netgr_boxplot_baf3s_4.21.23.pdf",width=3,height=3,units="in",useDingbats=F)
+# ggsave("output/SM_Imatinib_Plots/ImatinibEnrichment_netgr_boxplot_baf3s_4.21.23.pdf",width=3,height=3,units="in",useDingbats=F)
 
 plotly=ggplot(data%>%filter(protein_start>=242,protein_start<=494,n_nuc_min%in%1),aes(x=reorder(species,-netgr_mean),y=netgr_mean,fill=resmut_cosmic))+geom_col()+theme(axis.text.x=element_text(angle=90, hjust=1))+scale_y_continuous(name="Enrichcment Score")+scale_x_discrete(name="Mutant")+guides(fill = guide_legend(title = "Clinically\n Observed \n Resmut"))+scale_fill_manual(values=c("gray","orange","red"))
 ggplotly(plotly)
@@ -468,7 +469,7 @@ ggplot(data%>%filter(!species%in%"V299L",protein_start>=242,protein_start<=322,n
   geom_boxplot(color="black")+
   geom_jitter(color="black", size=1,width=.1, alpha=0.9)+
   scale_fill_manual(values=c("gray90","orange","red"))+scale_y_continuous(name=bquote('Net Growth Rate '(Hours^-1)))+scale_x_discrete("Resistance Status",labels=c("Never\n Seen","Sanger","Known\nResistant"))+cleanup+theme(legend.position = "none")
-ggsave("output/SM_Imatinib_Plots/ImatinibEnrichment_netgr_boxplot_baf3s_4.21.23.pdf",width=3,height=3,units="in",useDingbats=F)
+# ggsave("output/SM_Imatinib_Plots/ImatinibEnrichment_netgr_boxplot_baf3s_4.21.23.pdf",width=3,height=3,units="in",useDingbats=F)
 
 ```
 ```{r}
@@ -631,7 +632,7 @@ ggplot(sanger%>%filter(resmuts%in%T),aes(fct_reorder(species, -sanger.count),y=s
   theme(legend.position = "none",
         axis.text.x=element_text(angle=90,hjust=.5,vjust=.5),
         axis.title.x=element_blank())
-ggsave("output/SM_Imatinib_Plots/clinical_abundance_zoom.pdf",width=5,height=3,units="in",useDingbats=F)
+# ggsave("output/SM_Imatinib_Plots/clinical_abundance_zoom.pdf",width=5,height=3,units="in",useDingbats=F)
 
 ggplot(sanger,aes(fct_reorder(species, -sanger.count),y=sanger.count,fill=resmuts))+
   geom_col(alpha=0.8)+
@@ -642,7 +643,7 @@ ggplot(sanger,aes(fct_reorder(species, -sanger.count),y=sanger.count,fill=resmut
   theme(legend.position = "none",
         axis.text.x=element_text(size=2,angle=90,hjust=.5,vjust=.5),
         axis.title.x=element_blank())
-ggsave("output/SM_Imatinib_Plots/clinical_abundance.pdf",width=14,height=3,units="in",useDingbats=F)
+# ggsave("output/SM_Imatinib_Plots/clinical_abundance.pdf",width=14,height=3,units="in",useDingbats=F)
 
 ggplot(sanger,aes(fct_reorder(species, -sanger.count),y=sanger.count,fill=resmuts))+
   geom_col()+
@@ -659,14 +660,15 @@ ggplot(sanger,aes(fct_reorder(species, -sanger.count),y=sanger.count,fill=resmut
 
 Heatmaps
 ```{r}
-heatmap_plotting_function(smdata,290,297,fill_variable = "netgr_obs_mean",fill_name = "Net growth rate")+
-  scale_x_continuous(name="",expand=c(0,0),breaks=c(290:297),labels=c("290","291","292","293","294","295","296","297"))+
-  scale_fill_gradient(low ="darkblue", high ="red",name="Net growth rate")+theme(legend.position = "none",axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
-
 smdata=read.csv("output/ABLEnrichmentScreens/ABL_Region123_MergedwithOlddata/IL3_Enrichment_bgmerged_4.19.23.csv")
 # Baf3s
 smdata=read.csv("output/ABLEnrichmentScreens/ABL_Region1_Lane18_Comparisons/cross-replicate/baf3_Imat_low_rep1vsrep2_ft/screen_comparison_baf3_Imat_low_rep1vsrep2_ft.csv")
 smdata=smdata%>%rowwise()%>%mutate(netgr_obs_mean=mean(netgr_obs_screen1,netgr_obs_screen2))
+
+
+heatmap_plotting_function(smdata,290,297,fill_variable = "netgr_obs_mean",fill_name = "Net growth rate")+
+  scale_x_continuous(name="",expand=c(0,0),breaks=c(290:297),labels=c("290","291","292","293","294","295","296","297"))+
+  scale_fill_gradient(low ="darkblue", high ="red",name="Net growth rate")+theme(legend.position = "none",axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
 
 heatmap_plotting_function(smdata%>%mutate(netgr_obs_mean=case_when(netgr_obs_mean>=.06~.06,
                                                     T~netgr_obs_mean)),242,321,fill_variable = "netgr_obs_mean",fill_name = "Net growth rate")+
@@ -675,7 +677,7 @@ heatmap_plotting_function(smdata%>%mutate(netgr_obs_mean=case_when(netgr_obs_mea
   # scale_fill_gradient(low ="lightblue", high ="red",name="Net growth rate")+
   scale_fill_gradient2(low="blue",mid ="#9999FF",midpoint=.035, high ="red",name="Net growth rate")+theme(legend.position = "none")
 
-ggsave("output/SM_Imatinib_Plots/heatmap_Imatinib_baf3.pdf",width=6,height = 4,units = "in",useDingbats=F)
+# ggsave("output/SM_Imatinib_Plots/heatmap_Imatinib_baf3.pdf",width=6,height = 4,units = "in",useDingbats=F)
 
 ####### K562 Low#######
 smdata=read.csv("output/ABLEnrichmentScreens/ABL_Region1_Lane18_Comparisons/cross-replicate/k562_imat_low_rep1vsrep2/screen_comparison_k562_imat_low_rep1vsrep2.csv")
@@ -688,7 +690,7 @@ heatmap_plotting_function(smdata%>%mutate(netgr_obs_mean=case_when(netgr_obs_mea
   # scale_fill_gradient(low ="lightblue", high ="red",name="Net growth rate")+
   scale_fill_gradient2(low="blue",mid ="#9999FF",midpoint=.02, high ="red",name="Net growth rate")+theme(legend.position = "none")
 
-ggsave("output/SM_Imatinib_Plots/heatmap_Imatinib_k562low.pdf",width=6,height = 4,units = "in",useDingbats=F)
+# ggsave("output/SM_Imatinib_Plots/heatmap_Imatinib_k562low.pdf",width=6,height = 4,units = "in",useDingbats=F)
 
 
 ####### K562 Medium#######
@@ -704,7 +706,7 @@ heatmap_plotting_function(smdata,242,321,fill_variable = "netgr_obs_mean",fill_n
   # scale_fill_gradient(low ="lightblue", high ="red",name="Net growth rate")+
   scale_fill_gradient2(low="blue",mid ="#9999FF",midpoint=0, high ="red",name="Net growth rate")+theme(legend.position = "none")
 
-ggsave("output/SM_Imatinib_Plots/heatmap_Imatinib_k562med.pdf",width=6,height = 4,units = "in",useDingbats=F)
+# ggsave("output/SM_Imatinib_Plots/heatmap_Imatinib_k562med.pdf",width=6,height = 4,units = "in",useDingbats=F)
 
 
 ####### K562 High#######
@@ -720,7 +722,7 @@ heatmap_plotting_function(smdata,242,321,fill_variable = "netgr_obs_mean",fill_n
   # scale_fill_gradient(low ="lightblue", high ="red",name="Net growth rate")+
   scale_fill_gradient2(low="blue",mid ="#9999FF",midpoint=-0.005, high ="red",name="Net growth rate")+theme(legend.position = "none")
 
-ggsave("output/SM_Imatinib_Plots/heatmap_Imatinib_k562high.pdf",width=6,height = 4,units = "in",useDingbats=F)
+# ggsave("output/SM_Imatinib_Plots/heatmap_Imatinib_k562high.pdf",width=6,height = 4,units = "in",useDingbats=F)
 ```
 
 ```{r}
@@ -729,7 +731,7 @@ smdata.k562=read.csv("output/ABLEnrichmentScreens/ABL_Region1_Lane18_Comparisons
 # smdata=read.csv("output/ABLEnrichmentScreens/ABL_Region1_Lane18_Comparisons/cross-replicate/k562_imat_medium_rep1vsrep2/screen_comparison_k562_imat_medium_rep1vsrep2.csv")
 smdata=read.csv("output/ABLEnrichmentScreens/ABL_Region1_Lane18_Comparisons/cross-replicate/baf3_imat_low_rep1vsrep2_ft/screen_comparison_baf3_imat_low_rep1vsrep2_ft.csv")
 # smdata=read.csv("output/ABLEnrichmentScreens/ABL_Region1_Lane18_Comparisons/cross-replicate/baf3_imat_medium_rep1vsrep2_ft/screen_comparison_baf3_imat_medium_rep1vsrep2_ft.csv")
-# smdata.baf3=read.csv("output/ABLEnrichmentScreens/ABL_Region1_Lane18_Comparisons/cross-replicate/baf3_imat_high_rep1vsrep2_ft/screen_comparison_baf3_imat_high_rep1vsrep2_ft.csv")
+smdata.baf3=read.csv("output/ABLEnrichmentScreens/ABL_Region1_Lane18_Comparisons/cross-replicate/baf3_imat_high_rep1vsrep2_ft/screen_comparison_baf3_imat_high_rep1vsrep2_ft.csv")
 smdata.baf3=cosmic_data_adder(smdata.baf3)
 smdata.k562=cosmic_data_adder(smdata.k562)
 
@@ -789,8 +791,11 @@ x=ngs_sscs%>%filter(species%in%"E255L")
 codon_table=read.csv("data/codon_table.csv",header = T,stringsAsFactors = F)
 
   twist_codons=codon_table%>%filter(Twist%in%T)
-  twist_alt_codon=twist_codons[twist_codons$Letter%in%alt_aa,"Codon"]
+  # twist_alt_codon=twist_codons[twist_codons$Letter%in%alt_aa,"Codon"]
+twist_alt_codon=twist_codons[,"Codon"]
+  
 ```
+
 ```{r}
 sample10=read.csv("data/Consensus_Data/novogene_lane18/sample10/ngs/variant_caller_outputs/variants_unique_ann.csv")
 # sample10=sample10%>%filter(protein_start%in%c(242:272))%>%mutate(maf=ct/depth)%>%dplyr::select(ref_aa,protein_start,alt_aa,alt_codon,maf.d0=maf)
@@ -876,7 +881,7 @@ ggplot(smdata,aes(x=ct_screen1_after,y=netgr_obs_mean))+geom_point()+scale_x_con
 
 
 Merging ABL Lane 18 dataset
-```{r,include=F,eval=F}
+```{r,include=F}
 ######## Merging the two ABL dataframes########
 ################IL3##############
 # data_old=read.csv("bcrabl_il3d0d4_scores.csv",header = T,stringsAsFactors = F)
@@ -900,7 +905,7 @@ data_merged=rbind(data_new,data_old)
 
 Plotting the short et al data for Twinstrand
 ```{r}
-mean(data_new$netgr_obs_mean)
+
 #################################
 short_mutants=read.csv("data/Short_et_al_fig1/short_et_al_3.12.23.csv",header = T)
 short_mutants$preexisting_all=T
@@ -995,7 +1000,7 @@ source("code/resmuts_adder.R")
 b_merged=cosmic_data_adder(b_merged)
 b_merged=resmuts_adder(b_merged)
 
-write.csv(b_merged,"output/ABLEnrichmentScreens/ABL_Region1_Lane18_Comparisons/baf3_smscreen_netgrowthrates_622023.csv")
+# write.csv(b_merged,"output/ABLEnrichmentScreens/ABL_Region1_Lane18_Comparisons/baf3_smscreen_netgrowthrates_622023.csv")
 # x=b_merged%>%filter(cosmic_present%in%T)
 # kl=kl%>%mutate(netgr_obs_mean=netgr_obs_screen1)
 

@@ -7,7 +7,7 @@ output: html_document
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
-knitr::opts_knit$set(root.dir = normalizePath(".."))
+# knitr::opts_knit$set(root.dir = normalizePath(".."))
 # rm(list=ls())
 
 library(stringr)
@@ -64,7 +64,9 @@ dat <- data.frame(
 
 This piece of code picks up some of the analysis done in ABL_unevenness_analysis.Rmd
 
-Seeing how well our imatinib resistance mutants work with cosmic mutants
+Seeing how well our imatinib resistance mutants work with cosmic (sanger institute) mutants
+
+Unseen mutants: This code also checks whether single nucleotide substitution mutants that are strong hits for imatinib resistance in our screens are not seen in the Sanger database because they are just low probability mutants. Short answer: we don't see a lot of evidence that resistant mutants are unseen in the sanger database because of their low probability
 ```{r}
 # source("code")
 source("code/res_residues_adder.R")
@@ -213,7 +215,7 @@ ggplot(data%>%filter(!species%in%"T315I",protein_start>=242,protein_start<=494,n
 
 
 
-#The following function finds the shortest and the likeliest codon given a ref codon and an ALT amino acid
+#The following function finds the shortest AND the likeliest codon given a ref codon and an ALT amino acid
 ```{r}
 # codon_table
 # inputs:
@@ -224,7 +226,7 @@ alt_aa="A"
 #shortest codon nucleotides
 #shortest alt codn
 codon_table=read.csv("data/codon_table.csv",header = T,stringsAsFactors = F)
-mut_probs=read.csv("../data/MutationProbabilities/Input_Mutsubmat_broadExac.csv",header = T,stringsAsFactors = F)
+mut_probs=read.csv("data/MutationProbabilities/Input_Mutsubmat_broadExac.csv",header = T,stringsAsFactors = F)
 mut_probs=mut_probs%>%mutate(subs=paste(ref,">",var,sep = ""))
 mut_probs_simple=mut_probs%>%dplyr::select(subs,prop)
 shortest_codon_finder=function(ref_codon,alt_aa){
@@ -260,10 +262,11 @@ shortest_codon_finder=function(ref_codon,alt_aa){
                             T~""))%>%
     ungroup()
   
-  alt_codons=alt_codons%>%mutate(
-    prob_1=
-  )
+  # alt_codons=alt_codons%>%mutate(
+  #   prob_1=
+  # )
   # mut_probs_simple=mut_probs%>%dplyr::select(subs_1=subs,prop_1=prop)
+  a=mut_probs_simple
   
   alt_codons=merge(alt_codons,a,by.x="subs_1",by.y="subs",all.x = T,)
   alt_codons=merge(alt_codons,a,by.x="subs_2",by.y="subs",all.x = T)
@@ -312,7 +315,7 @@ shortest_codon_finder=function(ref_codon,alt_aa){
   # return(list(shortest_alt_codon))
   return(list(shortest_alt_codon,mindist,maxprob))
 }
-
+# source("code/shortest_codon_finder.R")
 shortest_codon_finder("AAT","A")[[1]][1]
 shortest_codon_finder("AAT","A")[[2]][1]
 shortest_codon_finder("AAT","A")[[3]][1]
@@ -339,7 +342,7 @@ library(tictoc)
 ```
 
 
-Are the score non hits the improbable mutations?
+Are the score non-hits the improbable mutations?
 ```{r}
 #Among the SNPs in the dataset, what is their nucleotide substitution signature?
 #For substitutions with more than 1 possible way of getting a snp, choose the SNP that's more probable in terms of substitution bias
@@ -388,12 +391,12 @@ mean(a$netgr_mean)
 As it can be seen from the plots, there are a good number of unseen hits that are low probability. However, some resistant mutants are also low probability...
 
 
-We can imagine that some mutants are scoring higher because of an IL3 independence fitness advantage. Below, I remove the IL3 independence fitness advantage of a mutant. But there are number of mutants that are growing faster under imatinib than under IL3. These starting scoring high.
+We can imagine that some mutants are scoring higher because of an IL3 independence fitness advantage. Below, I remove the IL3 independence fitness advantage of a mutant. But there are number of mutants that are growing faster under imatinib than under IL3. These started scoring high.
 
 ```{r}
 # dataimat=data
 # data=dataimat
-datail3=read.csv("../output/ABLEnrichmentScreens/IL3_Enrichment_bgmerged_2.20.23.csv",header = T,stringsAsFactors = F)
+datail3=read.csv("output/ABLEnrichmentScreens/IL3_Enrichment_bgmerged_2.20.23.csv",header = T,stringsAsFactors = F)
 datail3=datail3%>%rowwise()%>%mutate(netgr_mean=mean(netgr_obs_screen1,netgr_obs_screen2))
 # class(data)
 # datail3=res_residues_adder(datail3)

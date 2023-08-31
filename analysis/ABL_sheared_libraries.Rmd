@@ -1,13 +1,13 @@
 ---
-title: "ABL_unevenness_analysis"
+title: "ABL_sheared_libraries"
 author: "Haider Inam"
 date: '2023-01-31'
 output: html_document
 ---
-
+This code has some of the analysis done for libraries made using the enzymatic fragrmentation library prep approach (mostly data from lane 11-16)
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
-knitr::opts_knit$set(root.dir = normalizePath(".."))
+# knitr::opts_knit$set(root.dir = normalizePath(".."))
 
 library(stringr)
 library(dplyr)
@@ -34,6 +34,11 @@ library(RColorBrewer)
 source("code/merge_samples.R")
 source("code/variants_parser.R")
 source("code/shortest_codon_finder.R")
+source("code/compare_samples.R")
+source("code/depth_finder.R")
+source("code/resmuts_adder.R")
+source("code/res_residues_adder.R")
+source("code/plotting/cleanup.R")
 
 ```
 
@@ -71,30 +76,6 @@ dat <- data.frame(
 ```
 
 Function to find the shortest possible ALT codon for a given amino acid substitution
-```{r}
-
-
-shortest_codon_finder("AAT","A")[[1]][1]
-shortest_codon_finder("AAT","A")[[2]][1]
-#The following codon combination is for T315I
-shortest_codon_finder("ACT","I")
-#For the following codon combination, there are two non twist shortest codon
-shortest_codon_finder("GGG","R")
-library(tictoc)
-# tic()
-# a=lane17b%>%
-#   rowwise()%>%
-#   mutate(alt_codon_shortest=shortest_codon_finder(ref_codon,alt_aa)[[1]][1],
-#          n_nuc_min=shortest_codon_finder(ref_codon,alt_aa)[[2]][1])
-# toc()
-
-# b=a%>%filter(grepl(",",alt_codon_shortest)%in%T)
-# unique(b$alt_codon_shortest)
-# b=a%>%filter(alt_codon%in%alt_codon_shortest)
-
-# T315I twist ACT to "ATC"
-# T315I natural ACT to "ATT"
-```
 
 
 ```{r}
@@ -277,40 +258,40 @@ screen_compare=screen_compare%>%mutate(species=paste(ref_aa,protein_start,alt_aa
 # before_after_screen1=a
 # before_after_screen2=b
 
-before_after_screen1=before_after_screen1%>%
-  mutate(ct_screen1_before=ct.x,
-         depth_screen1_before=depth.x,
-         maf_screen1_before=maf.x,
-         ct_screen1_after=ct.y,
-         depth_screen1_after=depth.y,
-         maf_screen1_after=maf.y)%>%
-  dplyr::select(-c("ct.x","depth.x","maf.x","totalcells.x","totalmutant.x","ct.y","depth.y","maf.y","totalcells.y","totalmutant.y"))
+# before_after_screen1=before_after_screen1%>%
+#   mutate(ct_screen1_before=ct.x,
+#          depth_screen1_before=depth.x,
+#          maf_screen1_before=maf.x,
+#          ct_screen1_after=ct.y,
+#          depth_screen1_after=depth.y,
+#          maf_screen1_after=maf.y)%>%
+#   dplyr::select(-c("ct.x","depth.x","maf.x","totalcells.x","totalmutant.x","ct.y","depth.y","maf.y","totalcells.y","totalmutant.y"))
+# 
+# before_after_screen2=before_after_screen2%>%
+#   mutate(ct_screen2_before=ct.x,
+#          depth_screen2_before=depth.x,
+#          maf_screen2_before=maf.x,
+#          ct_screen2_after=ct.y,
+#          depth_screen2_after=depth.y,
+#          maf_screen2_after=maf.y)%>%
+#   dplyr::select(-c("ct.x","depth.x","maf.x","totalcells.x","totalmutant.x","ct.y","depth.y","maf.y","totalcells.y","totalmutant.y"))
+# 
+# screen_compare=merge(before_after_screen1,
+#                      before_after_screen2,
+#                      by=c("ref_aa","protein_start","alt_aa","ref","alt","alt_start_pos","consequence_terms","ref_codon","alt_codon","alt_codon_shortest","n_nuc_min"),
+#                      all.x=T,
+#                      all.y=T,suffixes = c("_screen1","_screen2"))
+# 
+# screen_compare=resmuts_adder(screen_compare)
+# screen_compare=res_residues_adder(screen_compare)
+# screen_compare=screen_compare%>%mutate(species=paste(ref_aa,protein_start,alt_aa,sep = ""))
+# 
+# screen_compare_means=screen_compare%>%
+#   filter(!score_screen1%in%NA,!score_screen2%in%NA,!score_screen1%in%NaN,!score_screen2%in%NaN)%>%
+#   rowwise()%>%
+#   mutate(score_mean=mean(c(score_screen1,score_screen2)))
 
-before_after_screen2=before_after_screen2%>%
-  mutate(ct_screen2_before=ct.x,
-         depth_screen2_before=depth.x,
-         maf_screen2_before=maf.x,
-         ct_screen2_after=ct.y,
-         depth_screen2_after=depth.y,
-         maf_screen2_after=maf.y)%>%
-  dplyr::select(-c("ct.x","depth.x","maf.x","totalcells.x","totalmutant.x","ct.y","depth.y","maf.y","totalcells.y","totalmutant.y"))
-
-screen_compare=merge(before_after_screen1,
-                     before_after_screen2,
-                     by=c("ref_aa","protein_start","alt_aa","ref","alt","alt_start_pos","consequence_terms","ref_codon","alt_codon","alt_codon_shortest","n_nuc_min"),
-                     all.x=T,
-                     all.y=T,suffixes = c("_screen1","_screen2"))
-
-screen_compare=resmuts_adder(screen_compare)
-screen_compare=res_residues_adder(screen_compare)
-screen_compare=screen_compare%>%mutate(species=paste(ref_aa,protein_start,alt_aa,sep = ""))
-
-screen_compare_means=screen_compare%>%
-  filter(!score_screen1%in%NA,!score_screen2%in%NA,!score_screen1%in%NaN,!score_screen2%in%NaN)%>%
-  rowwise()%>%
-  mutate(score_mean=mean(c(score_screen1,score_screen2)))
-
-write.csv(screen_compare_means,"IL3_Enrichment_bgmerged_2.20.23.csv")
+# write.csv(screen_compare_means,"IL3_Enrichment_bgmerged_2.20.23.csv")
 
 ##############
 plotly=ggplot(screen_compare,aes(x=score.x,y=score.y,label=species,color=resmuts))+geom_text()+geom_abline()
@@ -375,7 +356,7 @@ data=data%>%filter(ct_screen1>=3,ct_screen2>=3)
 screen_compare[screen_compare$score.x%in%NA,"score.x"]=-6
 
 #####Graying out unseen residues#####
-df_grid  = expand.grid(protein_start = c(242:493),alt_aa = unique(imatD0.D4$alt_aa))
+df_grid  = expand.grid(protein_start = c(242:493),alt_aa = unique(screen_compare$alt_aa))
 
 ###Trying to add in the score as WT for residues that are wt
 reference_seq=read.table("data/Refs/ABL/abl_cds_translation.txt")
@@ -496,7 +477,7 @@ cor(a$score.x,a$score.y)
 screen_compare[screen_compare$score.x%in%NA,"score.x"]=-6
 
 #####Graying out unseen residues#####
-df_grid  = expand.grid(protein_start = c(242:493),alt_aa = unique(imatD0.D4$alt_aa))
+df_grid  = expand.grid(protein_start = c(242:493),alt_aa = unique(screen_compare$alt_aa))
 
 ###Trying to add in the score as WT for residues that are wt
 reference_seq=read.table("data/Refs/ABL/abl_cds_translation.txt")
@@ -591,40 +572,40 @@ before_after_screen2=before_after
 # before_after_screen1=a
 # before_after_screen2=b
 
-before_after_screen1=before_after_screen1%>%
-  mutate(ct_screen1_before=ct.x,
-         depth_screen1_before=depth.x,
-         maf_screen1_before=maf.x,
-         ct_screen1_after=ct.y,
-         depth_screen1_after=depth.y,
-         maf_screen1_after=maf.y)%>%
-  dplyr::select(-c("ct.x","depth.x","maf.x","totalcells.x","totalmutant.x","ct.y","depth.y","maf.y","totalcells.y","totalmutant.y"))
+# before_after_screen1=before_after_screen1%>%
+#   mutate(ct_screen1_before=ct.x,
+#          depth_screen1_before=depth.x,
+#          maf_screen1_before=maf.x,
+#          ct_screen1_after=ct.y,
+#          depth_screen1_after=depth.y,
+#          maf_screen1_after=maf.y)%>%
+#   dplyr::select(-c("ct.x","depth.x","maf.x","totalcells.x","totalmutant.x","ct.y","depth.y","maf.y","totalcells.y","totalmutant.y"))
+# 
+# before_after_screen2=before_after_screen2%>%
+#   mutate(ct_screen2_before=ct.x,
+#          depth_screen2_before=depth.x,
+#          maf_screen2_before=maf.x,
+#          ct_screen2_after=ct.y,
+#          depth_screen2_after=depth.y,
+#          maf_screen2_after=maf.y)%>%
+#   dplyr::select(-c("ct.x","depth.x","maf.x","totalcells.x","totalmutant.x","ct.y","depth.y","maf.y","totalcells.y","totalmutant.y"))
+# 
+# screen_compare=merge(before_after_screen1,
+#                      before_after_screen2,
+#                      by=c("ref_aa","protein_start","alt_aa","ref","alt","alt_start_pos","consequence_terms","ref_codon","alt_codon","alt_codon_shortest","n_nuc_min"),
+#                      all.x=T,
+#                      all.y=T,suffixes = c("_screen1","_screen2"))
+# 
+# screen_compare=resmuts_adder(screen_compare)
+# screen_compare=res_residues_adder(screen_compare)
+# screen_compare=screen_compare%>%mutate(species=paste(ref_aa,protein_start,alt_aa,sep = ""))
+# 
+# screen_compare_means=screen_compare%>%
+#   filter(!score_screen1%in%NA,!score_screen2%in%NA,!score_screen1%in%NaN,!score_screen2%in%NaN)%>%
+#   rowwise()%>%
+#   mutate(score_mean=mean(c(score_screen1,score_screen2)))
 
-before_after_screen2=before_after_screen2%>%
-  mutate(ct_screen2_before=ct.x,
-         depth_screen2_before=depth.x,
-         maf_screen2_before=maf.x,
-         ct_screen2_after=ct.y,
-         depth_screen2_after=depth.y,
-         maf_screen2_after=maf.y)%>%
-  dplyr::select(-c("ct.x","depth.x","maf.x","totalcells.x","totalmutant.x","ct.y","depth.y","maf.y","totalcells.y","totalmutant.y"))
-
-screen_compare=merge(before_after_screen1,
-                     before_after_screen2,
-                     by=c("ref_aa","protein_start","alt_aa","ref","alt","alt_start_pos","consequence_terms","ref_codon","alt_codon","alt_codon_shortest","n_nuc_min"),
-                     all.x=T,
-                     all.y=T,suffixes = c("_screen1","_screen2"))
-
-screen_compare=resmuts_adder(screen_compare)
-screen_compare=res_residues_adder(screen_compare)
-screen_compare=screen_compare%>%mutate(species=paste(ref_aa,protein_start,alt_aa,sep = ""))
-
-screen_compare_means=screen_compare%>%
-  filter(!score_screen1%in%NA,!score_screen2%in%NA,!score_screen1%in%NaN,!score_screen2%in%NaN)%>%
-  rowwise()%>%
-  mutate(score_mean=mean(c(score_screen1,score_screen2)))
-
-write.csv(screen_compare_means,"Imat_Enrichment_bgmerged_2.22.23.csv")
+# write.csv(screen_compare_means,"Imat_Enrichment_bgmerged_2.22.23.csv")
 ##############
 
 before_after_screen1=before_after_screen1%>%
@@ -660,7 +641,7 @@ screen_compare_means=screen_compare%>%
   mutate(score_mean=mean(c(score.x,score.y)),
          score_weighteed_mean=weighted.mean(c(score.x,score.y),c(ct_screen1,ct_screen2)))
 
-write.csv(screen_compare_means,"Imatinib_Enrichment_2.20.23_v2.csv")
+# write.csv(screen_compare_means,"Imatinib_Enrichment_2.20.23_v2.csv")
 
 ggplot(screen_compare%>%filter(protein_start>=242,protein_start<=494),aes(x=protein_start,y=alt_aa,fill=score.x))+geom_tile()
 screen_compare=res_residues_adder(screen_compare)
@@ -742,11 +723,11 @@ after_timepoint=variants_parser(after_timepoint,cells_after)
 
 before_after=compare_samples(before_timepoint,after_timepoint,netgr,delta_t)
 
-a=before_after%>%filter(protein_start%in%271)
+# a=before_after%>%filter(protein_start%in%271)
 ```
 
 ```{r}
-a=before_after%>%filter(protein_start%in%271)
+# a=before_after%>%filter(protein_start%in%271)
 ggplot(before_after%>%filter(protein_start>=240,protein_start<=494),aes(x=protein_start,y=alt_aa,fill=score))+geom_tile()
 
 
@@ -816,7 +797,7 @@ before_after=compare_samples(before_timepoint,after_timepoint,netgr,delta_t)
 ```
 
 ```{r}
-a=before_after%>%filter(resmuts%in%T)
+# a=before_after%>%filter(resmuts%in%T)
 before_after=resmuts_adder(before_after)
 before_after=res_residues_adder(before_after)
 
@@ -869,7 +850,7 @@ ggplot(before_after%>%filter(protein_start>=240,protein_start<=494),aes(x=protei
 a=before_after%>%filter(protein_start>=240,protein_start<=494,!ct.x%in%.5,!ct.y%in%.5)
 median(a$netgr_obs)
 ggplot(before_after%>%filter(protein_start>=240,protein_start<=494),aes(x=netgr_obs))+geom_histogram()
-ggsave("BCRABL_imat_D2_netgr.pdf",height=6,width=24,units="in",useDingbats=F)
+# ggsave("BCRABL_imat_D2_netgr.pdf",height=6,width=24,units="in",useDingbats=F)
 ```
 
 

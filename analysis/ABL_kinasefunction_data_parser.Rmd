@@ -7,7 +7,7 @@ output: html_document
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
-knitr::opts_knit$set(root.dir = normalizePath(".."))
+# knitr::opts_knit$set(root.dir = normalizePath(".."))
 
 library(stringr)
 library(dplyr)
@@ -17,7 +17,7 @@ library(tictoc)
 library(doParallel)
 library(foreach)
 library(RColorBrewer)
-
+library(ggpubr)
 
 # 
 
@@ -28,29 +28,14 @@ library(RColorBrewer)
 source("code/plotting/cleanup.R")
 ```
 
-```{r,eval=F}
-source("code/variantcaller/add_l298l.R")
-for(i in c(1:18)){
-  sample=paste("sample",i,sep = "")
-  # sample="sample1"
-  
-  input_df_nol298l=read.csv(paste("data/Consensus_Data/novogene_lane18/",sample,"/nol298l/duplex/variant_caller_outputs/variants_unique_ann.csv",sep=""))
-  input_df_l298l=read.csv(paste("data/Consensus_Data/novogene_lane18/",sample,"/l298l/duplex/variant_caller_outputs/variants_unique_ann.csv",sep=""))
-  
-  output_df=add_l298l(input_df_nol298l,input_df_l298l)
-  write.csv(output_df,
-            paste("data/Consensus_Data/novogene_lane18/",sample,"/duplex/variant_caller_outputs/variants_unique_ann.csv",sep = ""))  
-}
+#8.30.23
+#The following code was taken from ABL_SM_CRISPR_Cut_Analyses.Rmd
+#Essentially all this code does is that it takes two BaF3 ABL Region 1 D0 samples and two D6 samples, and creates a dataframe with enrichment scores.
+#Ivan wanted counts from separate D0 backgrounds, and he wanted every mutant, regardless of whether it was seen in both baseline samples (when I do analyses, I take out any mutant that is not seen in both baseline samples). Let's call these "unseen mutants"
+#This code does not include unseen mutants by default. To make sure that unseen mutants are seen, uncomment out the Ivan section in compare_screens.R. Once you uncomment it, then run the code below
+#One more note: this is Region 1 (Amino acids 242-322) data from Lane 18 only. In the future you can include samples from other lanes.
 
-input_df_nol298l=read.csv("data/Consensus_Data/novogene_lane18/sample9/nol298l/duplex/variant_caller_outputs/variants_unique_ann.csv")
-input_df_l298l=read.csv("data/Consensus_Data/novogene_lane18/sample9/l298l/duplex/variant_caller_outputs/variants_unique_ann.csv")
-  
-output_df=add_l298l(input_df_nol298l,input_df_l298l)
-write.csv(output_df,"data/Consensus_Data/novogene_lane18/sample9/duplex/variant_caller_outputs/variants_unique_ann.csv")  
-
-```
-
-```{r, eval=F}
+```{r}
 source("code/compare_screens.R")
 
 source("code/plotting/cleanup.R")
@@ -58,10 +43,10 @@ source("code/plotting/heatmap_plotting_function.R")
 # rm(list=ls())
 
 comparisons=read.csv("data/Consensus_Data/novogene_lane18/TwistRegion1Screen_Comparisons_Todo.csv")
-comparisons=comparisons%>%filter(Completed%in%"FALSE")
+# comparisons=comparisons%>%filter(Completed%in%"FALSE")
 
-for(i in 1:nrow(comparisons)){
-  # i=10
+# for(i in 1:nrow(comparisons)){
+  i=10
   dirname=comparisons$dirname[i]
   pathname=paste("output/ABLEnrichmentScreens/ABL_Region1_Lane18_Comparisons/",dirname,sep = "")
   # Create directory if it doesn't already exist
@@ -71,6 +56,7 @@ for(i in 1:nrow(comparisons)){
 before_screen1_identifier=unlist(strsplit(comparisons$before_screen1_identifier[i],","))
 after_screen1_identifier=unlist(strsplit(comparisons$after_screen1_identifier[i],","))
 before_screen2_identifier=unlist(strsplit(comparisons$before_screen2_identifier[i],","))
+before_screen2_identifier="BTRID0_FT"
 after_screen2_identifier=unlist(strsplit(comparisons$after_screen2_identifier[i],","))
   # length(after_screen1_identifier)
 # screen_compare_means=compare_screens(comparisons$before_screen1_identifier[i],
@@ -83,7 +69,8 @@ screen_compare_means=compare_screens(before_screen1_identifier,
                                      after_screen2_identifier)
 
 screen_compare_means_forexport=apply(screen_compare_means,2,as.character)
-# write.csv(screen_compare_means_forexport,file = paste("output/ABLEnrichmentScreens/ABL_Region1_Lane18_Comparisons/",dirname,"/screen_comparison_",dirname,".csv",sep=""))
+# dirname
+# write.csv(screen_compare_means_forexport,file="output/ABLEnrichmentScreens/ABL_Region1_Lane18_Comparisons/cross-replicate/baf3_IL3_rep1vsrep2_ft/screen_comparison_baf3_IL3_low_rep1vsrep2ft.csv")
 
 # Plot 1. What does the heatmap look like from the average of the net growth rate?
 heatmap_plotting_function(screen_compare_means,242,321,fill_variable = "netgr_obs_mean",fill_name = "Net growth rate")
@@ -91,6 +78,7 @@ heatmap_plotting_function(screen_compare_means,242,321,fill_variable = "netgr_ob
 # screen_compare_means2=screen_compare_means%>%filter(alt_codon%in%twist$Codon)
 
 # Plot 2a: What do the correlations look like for net growth rate (show mutants in text)?
+
 ggplot(screen_compare_means,aes(x=netgr_obs_screen1,y=netgr_obs_screen2,color=resmuts,label=species))+geom_text(size=2.5)+geom_abline()+cleanup+stat_cor(method = "pearson")+labs(color="Known\nResistant\nMutant")+scale_x_continuous("Net growth rate screen 1")+scale_y_continuous("Net growth rate screen 2")
 # ggsave(paste("output/ABLEnrichmentScreens/ABL_Region1_Lane18_Comparisons/",dirname,"/plot2a_Netgrowthrate_correlations_text.pdf",sep=""),width=6,height=4,units="in",useDingbats=F)
 
@@ -117,7 +105,7 @@ ggplot(screen_compare_melt,aes(x=netgr_obs,fill=Condition))+
   scale_fill_discrete(labels=c("Screen 1","Screen 2"))
 # ggsave(paste("output/ABLEnrichmentScreens/ABL_Region1_Lane18_Comparisons/",dirname,"/plot3b_Netgrowthrate_distributions.pdf",sep=""),width=6,height=4,units="in",useDingbats=F)
 
-}
+# }
 
 # dirname="K562_Medium_rep1vs2"
 

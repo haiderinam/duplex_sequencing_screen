@@ -47,10 +47,14 @@ editor_options:
 * Click [here](E255K_alphas_figure.html) showing the conformity between the growth rates in the presence of drug measured at a low MAF via FACs, sequencing, and via IC50 studies for a single mutant.  
 <img src="assets/e255k_alphas.png" width="330" height="250"  alt="">  
   
-* Click [here](lane14_comparisons.html) to view preliminary BCRABL Imatinib and Asciminib heatmaps  
+
+* Click [here](lane14_comparisons.html) to view BCRABL Imatinib heatmaps  generated using CRISPR-cut libraries
+<img src="assets/ABL_SM_Crispr_heatmap.png" width="400" height="283"  alt="">  
+
+* Click [here](lane14_comparisons.html) to view preliminary BCRABL Imatinib and Asciminib heatmaps  made with enzymatically sheared libraries
 <img src="assets/bcrabl_heatmap.png" width="400" height="250"  alt="">  
   
-* Click [here](DupSeq_QC_Lane11.html) and to view iL3 independence data and [here](BCRABL_FunctionalKinaseAnalysis.html) to view iL3 independence heatmap
+* Click [here](DupSeq_QC_Lane11.html) and to view iL3 independence data and [here](BCRABL_FunctionalKinaseAnalysis.html) to view iL3 independence heatmap and  [here](ABL_sheared_libraries.html) to view imatinib heatmaps on enzymatically sheared data
 <img src="assets/il3heatmap.png" width="800" height="200"  alt="">  
   
 * Click [here](ErrorRate_Analysis.html) to view error rates without barcodes, with single strand consensi, and with duplex consensus sequencing.
@@ -70,6 +74,16 @@ editor_options:
 * Click [here](ABL_BaseEditor_Analyses_v2.html) to view analyses in which we predicted admixtures of mutants made by sgRNAs in Base Editing Screens. We then used the saturating mutagenesis data to predict the fitness of these sgRNAs.     
 <img src="assets/abl_baseeditor-analysis-v2.png" width="300" height="320"  alt="">  
   
+* Click [here](ABL_kinasefunction_data_parser.html) to view initial kinase function analyses.  
+<img src="assets/kinase_function_dist.png" width="300" height="213"  alt="">  
+
+
+* Click [here](ABL_cosmic_analysis.html) to view our analyses of whether mutants in the cosmic/sanger database are resistant according to our screens.  
+<img src="assets/abl_cosmic_analysis.png" width="300" height="216"  alt="">.  
+
+
+
+
 
 
 #### Click [here](https://github.com/haiderinam/duplex_sequencing_screen) to be redirected to the github page that contains all the data and analysis rmd files.  

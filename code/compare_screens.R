@@ -27,7 +27,7 @@ compare_screens=function(before_screen1_identifier,
   source("code/variants_parser.R")
   source("code/compare_samples.R")
   source("code/depth_finder.R")
-  after_screen1_counts=cell_counts_table%>%filter(Identifier%in%after_screen1_identifier)
+  # after_screen1_counts=cell_counts_table%>%filter(Identifier%in%after_screen1_identifier)
 
   # The cell counts and the exact deltat is derived from a spreadsheet in the novogene lane 18 folder
   cell_counts_table=read.csv("data/Consensus_Data/novogene_lane18/TwistRegion1Screen_CellCounts_Matrix.csv")
@@ -149,6 +149,13 @@ compare_screens=function(before_screen1_identifier,
     rowwise()%>%
     mutate(score_mean=mean(c(score_screen1,score_screen2)),
            netgr_obs_mean=mean(c(netgr_obs_screen1,netgr_obs_screen2)))
+
+  # ###8/30/23 Change for Ivan (this update avoids remove NA counts on D0):
+  # screen_compare_means=screen_compare%>%
+  #   # filter(!score_screen1%in%NA,!score_screen2%in%NA,!score_screen1%in%NaN,!score_screen2%in%NaN)%>%
+  #   rowwise()%>%
+  #   mutate(score_mean=mean(c(score_screen1,score_screen2)),
+  #          netgr_obs_mean=mean(c(netgr_obs_screen1,netgr_obs_screen2)))
 
   # write.csv(screen_compare_means,"Imat_Enrichment_bgmerged_2.22.23.csv")
   ##############
