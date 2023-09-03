@@ -1,0 +1,13 @@
+Num,dirname,before_screen1_identifier,after_screen1_identifier,before_screen2_identifier,after_screen2_identifier,Completed
+1,baf3_r2_IL3_low_rep1vsrep2,BTR2ID0,BTR2I_D6_A,BTR2ID0,BTR2I_D6_B,FALSE
+2,baf3_r2_Imat_low_rep1vsrep2,BTR2ID0,BTR2L_D6_A,BTR2ID0,BTR2L_D6_B,FALSE
+3,baf3_r2_Imat_medium_rep1vsrep2,BTR2ID0,BTR2M_D6_A,BTR2ID0,BTR2M_D6_B,FALSE
+4,baf3_r2_Imat_high_rep1vsrep2,BTR2ID0,BTR2H_D6_A,BTR2ID0,BTR2H_D6_B,FALSE
+5,baf3_r3_IL3_low_rep1vsrep2,BTR3ID0,BTR3I_D6_A,BTR3ID0,BTR3I_D6_B,FALSE
+6,baf3_r3_Imat_low_rep1vsrep2,BTR3ID0,BTR3L_D6_A,BTR3ID0,BTR3L_D6_B,FALSE
+7,baf3_r3_Imat_medium_rep1vsrep2,BTR3ID0,BTR3M_D6_A,BTR3ID0,BTR3M_D6_B,FALSE
+8,baf3_r3_Imat_high_rep1vsrep2,BTR3ID0,BTR3H_D6_A,BTR3ID0,BTR3H_D6_B,FALSE
+9,baf3_r4_IL3_low_rep1vsrep2,BTR4ID0,BTR4I_D6_A,BTR4ID0,BTR4I_D6_B,FALSE
+10,baf3_r4_Imat_low_rep1vsrep2,BTR4ID0,BTR4L_D6_A,BTR4ID0,BTR4L_D6_B,FALSE
+11,baf3_r4_Imat_medium_rep1vsrep2,BTR4ID0,BTR4M_D6_A,BTR4ID0,BTR4M_D6_B,FALSE
+12,baf3_r4_Imat_high_rep1vsrep2,BTR4ID0,BTR4H_D6_A,BTR4ID0,BTR4H_D6_B,FALSE

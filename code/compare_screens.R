@@ -1,8 +1,10 @@
 compare_screens=function(before_screen1_identifier,
                          after_screen1_identifier,
                          before_screen2_identifier,
-                         after_screen2_identifier){
+                         after_screen2_identifier,
+                         cellcounts_matrix_location){
   # Inputs: 1) Condition 1 baseline, 2) Condition 1 treated, 3) Condition 2 Baseline, 4) Condition 2 treated
+  # 5)The location of the cell counts table
   # These inputs can have a single sample in the name or specify two samples to merge
   # This function takes in two screens and makes comparisons across them.
   # This function uses the compare samples function, that compares the before treatment and the treated timepoints of a screen
@@ -30,7 +32,8 @@ compare_screens=function(before_screen1_identifier,
   # after_screen1_counts=cell_counts_table%>%filter(Identifier%in%after_screen1_identifier)
 
   # The cell counts and the exact deltat is derived from a spreadsheet in the novogene lane 18 folder
-  cell_counts_table=read.csv("data/Consensus_Data/novogene_lane18/TwistRegion1Screen_CellCounts_Matrix.csv")
+  # cellcounts_matrix_location=cellcounts_matrix_dir
+  cell_counts_table=read.csv(cellcounts_matrix_location)
   before_screen1_counts=cell_counts_table%>%filter(Identifier%in%before_screen1_identifier)
   after_screen1_counts=cell_counts_table%>%filter(Identifier%in%after_screen1_identifier)
   before_screen2_counts=cell_counts_table%>%filter(Identifier%in%before_screen2_identifier)
@@ -43,9 +46,9 @@ compare_screens=function(before_screen1_identifier,
   netgr=mean(after_screen1_counts$Netgr_wodrug)
 
 
-
+  # length(before_screen1_counts[,1])
   # This if statements sees if there are two samples specified at a timepoint, and if so, merges those samples
-  if(length(before_screen1_identifier)==2){
+  if(length(before_screen1_counts[,1])>=2){
     before_timepoint=merge_samples(paste("Novogene_lane",before_screen1_counts$SequencingLane_Num[1],"/sample",before_screen1_counts$SequencingLane_Sample[1],"/sscs",sep=""),paste("Novogene_lane",before_screen1_counts$SequencingLane_Num[2],"/sample",before_screen1_counts$SequencingLane_Sample[2],"/sscs",sep=""))
   } else {
     before_timepoint=read.csv(paste("data/Consensus_Data/Novogene_lane",before_screen1_counts$SequencingLane_Num[1],"/sample",before_screen1_counts$SequencingLane_Sample[1],"/sscs/variant_caller_outputs/variants_unique_ann.csv",sep = ""))
@@ -55,7 +58,7 @@ compare_screens=function(before_screen1_identifier,
 
 
   # This if statements sees if there are two samples specified at a timepoint, and if so, merges those samples
-  if(length(after_screen1_identifier)==2){
+  if(length(after_screen1_counts[,1])>=2){
     after_timepoint=merge_samples(paste("Novogene_lane",after_screen1_counts$SequencingLane_Num[1],"/sample",after_screen1_counts$SequencingLane_Sample[1],"/sscs",sep=""),paste("Novogene_lane",after_screen1_counts$SequencingLane_Num[2],"/sample",after_screen1_counts$SequencingLane_Sample[2],"/sscs",sep=""))
   } else {
     after_timepoint=read.csv(paste("data/Consensus_Data/Novogene_lane",after_screen1_counts$SequencingLane_Num[1],"/sample",after_screen1_counts$SequencingLane_Sample[1],"/sscs/variant_caller_outputs/variants_unique_ann.csv",sep = ""))
@@ -84,7 +87,7 @@ compare_screens=function(before_screen1_identifier,
 
 
   # This if statements sees if there are two samples specified at a timepoint, and if so, merges those samples
-  if(length(before_screen2_identifier)==2){
+  if(length(before_screen2_counts[,1])>=2){
     before_timepoint=merge_samples(paste("Novogene_lane",before_screen2_counts$SequencingLane_Num[1],"/sample",before_screen2_counts$SequencingLane_Sample[1],"/sscs",sep=""),paste("Novogene_lane",before_screen2_counts$SequencingLane_Num[2],"/sample",before_screen2_counts$SequencingLane_Sample[2],"/sscs",sep=""))
   } else {
     before_timepoint=read.csv(paste("data/Consensus_Data/Novogene_lane",before_screen2_counts$SequencingLane_Num[1],"/sample",before_screen2_counts$SequencingLane_Sample[1],"/sscs/variant_caller_outputs/variants_unique_ann.csv",sep = ""))
@@ -95,7 +98,7 @@ compare_screens=function(before_screen1_identifier,
 
 
   # This if statements sees if there are two samples specified at a timepoint, and if so, merges those samples
-  if(length(after_screen2_identifier)==2){
+  if(length(after_screen2_counts[,1])>=2){
     after_timepoint=merge_samples(paste("Novogene_lane",after_screen2_counts$SequencingLane_Num[1],"/sample",after_screen2_counts$SequencingLane_Sample[1],"/sscs",sep=""),paste("Novogene_lane",after_screen2_counts$SequencingLane_Num[2],"/sample",after_screen2_counts$SequencingLane_Sample[2],"/sscs",sep=""))
   } else {
     after_timepoint=read.csv(paste("data/Consensus_Data/Novogene_lane",after_screen2_counts$SequencingLane_Num[1],"/sample",after_screen2_counts$SequencingLane_Sample[1],"/sscs/variant_caller_outputs/variants_unique_ann.csv",sep = ""))

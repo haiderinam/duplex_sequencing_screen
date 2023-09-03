@@ -56,7 +56,7 @@ write.csv(output_df,"data/Consensus_Data/novogene_lane18/sample9/duplex/variant_
 ```{r, eval=F}
 
 # rm(list=ls())
-
+cellcounts_matrix_dir="data/Consensus_Data/novogene_lane18/TwistRegion1Screen_CellCounts_Matrix.csv"
 comparisons=read.csv("data/Consensus_Data/novogene_lane18/TwistRegion1Screen_Comparisons_Todo.csv")
 comparisons=comparisons%>%filter(Completed%in%"FALSE")
 
@@ -80,7 +80,8 @@ after_screen2_identifier=unlist(strsplit(comparisons$after_screen2_identifier[i]
 screen_compare_means=compare_screens(before_screen1_identifier,
                                      after_screen1_identifier,
                                      before_screen2_identifier,
-                                     after_screen2_identifier)
+                                     after_screen2_identifier,
+                                     compare_screens)
 
 screen_compare_means_forexport=apply(screen_compare_means,2,as.character)
 # write.csv(screen_compare_means_forexport,file = paste("output/ABLEnrichmentScreens/ABL_Region1_Lane18_Comparisons/",dirname,"/screen_comparison_",dirname,".csv",sep=""))

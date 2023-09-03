@@ -48,7 +48,7 @@ editor_options:
 <img src="assets/e255k_alphas.png" width="330" height="250"  alt="">  
   
 
-* Click [here](lane14_comparisons.html) to view BCRABL Imatinib heatmaps  generated using CRISPR-cut libraries
+* Click [here](ABL_SM_CRISPR_Cut_Analyses.html) to view BCRABL Imatinib heatmaps  generated using CRISPR-cut libraries
 <img src="assets/ABL_SM_Crispr_heatmap.png" width="400" height="283"  alt="">  
 
 * Click [here](lane14_comparisons.html) to view preliminary BCRABL Imatinib and Asciminib heatmaps  made with enzymatically sheared libraries
