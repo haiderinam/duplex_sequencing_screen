@@ -34,6 +34,8 @@ compare_screens=function(before_screen1_identifier,
   # The cell counts and the exact deltat is derived from a spreadsheet in the novogene lane 18 folder
   # cellcounts_matrix_location=cellcounts_matrix_dir
   cell_counts_table=read.csv(cellcounts_matrix_location)
+  cell_counts_table=cell_counts_table%>%filter(!skip_flag%in%"TRUE")
+
   before_screen1_counts=cell_counts_table%>%filter(Identifier%in%before_screen1_identifier)
   after_screen1_counts=cell_counts_table%>%filter(Identifier%in%after_screen1_identifier)
   before_screen2_counts=cell_counts_table%>%filter(Identifier%in%before_screen2_identifier)
@@ -48,10 +50,11 @@ compare_screens=function(before_screen1_identifier,
 
   # length(before_screen1_counts[,1])
   # This if statements sees if there are two samples specified at a timepoint, and if so, merges those samples
+  # Note that the code below can only do at max two separate sequencing samples. It can be modified in the future to allow multiple samples
   if(length(before_screen1_counts[,1])>=2){
-    before_timepoint=merge_samples(paste("Novogene_lane",before_screen1_counts$SequencingLane_Num[1],"/sample",before_screen1_counts$SequencingLane_Sample[1],"/sscs",sep=""),paste("Novogene_lane",before_screen1_counts$SequencingLane_Num[2],"/sample",before_screen1_counts$SequencingLane_Sample[2],"/sscs",sep=""))
+    before_timepoint=merge_samples(paste(before_screen1_counts$dirname_input[1],"/sscs",sep=""),paste(before_screen1_counts$dirname_input[2],"/sscs",sep=""))
   } else {
-    before_timepoint=read.csv(paste("data/Consensus_Data/Novogene_lane",before_screen1_counts$SequencingLane_Num[1],"/sample",before_screen1_counts$SequencingLane_Sample[1],"/sscs/variant_caller_outputs/variants_unique_ann.csv",sep = ""))
+    before_timepoint=read.csv(paste("data/Consensus_Data/",before_screen1_counts$dirname_input[1],"/sscs/variant_caller_outputs/variants_unique_ann.csv",sep=""))
   }
 
   before_timepoint=variants_parser(before_timepoint,cells_before)
@@ -59,9 +62,9 @@ compare_screens=function(before_screen1_identifier,
 
   # This if statements sees if there are two samples specified at a timepoint, and if so, merges those samples
   if(length(after_screen1_counts[,1])>=2){
-    after_timepoint=merge_samples(paste("Novogene_lane",after_screen1_counts$SequencingLane_Num[1],"/sample",after_screen1_counts$SequencingLane_Sample[1],"/sscs",sep=""),paste("Novogene_lane",after_screen1_counts$SequencingLane_Num[2],"/sample",after_screen1_counts$SequencingLane_Sample[2],"/sscs",sep=""))
+    after_timepoint=merge_samples(paste(after_screen1_counts$dirname_input[1],"/sscs",sep=""),paste(after_screen1_counts$dirname_input[2],"/sscs",sep=""))
   } else {
-    after_timepoint=read.csv(paste("data/Consensus_Data/Novogene_lane",after_screen1_counts$SequencingLane_Num[1],"/sample",after_screen1_counts$SequencingLane_Sample[1],"/sscs/variant_caller_outputs/variants_unique_ann.csv",sep = ""))
+    after_timepoint=read.csv(paste("data/Consensus_Data/",after_screen1_counts$dirname_input[1],"/sscs/variant_caller_outputs/variants_unique_ann.csv",sep=""))
   }
 
 
@@ -87,21 +90,20 @@ compare_screens=function(before_screen1_identifier,
 
 
   # This if statements sees if there are two samples specified at a timepoint, and if so, merges those samples
-  if(length(before_screen2_counts[,1])>=2){
-    before_timepoint=merge_samples(paste("Novogene_lane",before_screen2_counts$SequencingLane_Num[1],"/sample",before_screen2_counts$SequencingLane_Sample[1],"/sscs",sep=""),paste("Novogene_lane",before_screen2_counts$SequencingLane_Num[2],"/sample",before_screen2_counts$SequencingLane_Sample[2],"/sscs",sep=""))
+  if(length(before_screen1_counts[,1])>=2){
+    before_timepoint=merge_samples(paste(before_screen2_counts$dirname_input[1],"/sscs",sep=""),paste(before_screen2_counts$dirname_input[2],"/sscs",sep=""))
   } else {
-    before_timepoint=read.csv(paste("data/Consensus_Data/Novogene_lane",before_screen2_counts$SequencingLane_Num[1],"/sample",before_screen2_counts$SequencingLane_Sample[1],"/sscs/variant_caller_outputs/variants_unique_ann.csv",sep = ""))
+    before_timepoint=read.csv(paste("data/Consensus_Data/",before_screen2_counts$dirname_input[1],"/sscs/variant_caller_outputs/variants_unique_ann.csv",sep=""))
   }
 
   before_timepoint=variants_parser(before_timepoint,cells_before)
 
 
-
   # This if statements sees if there are two samples specified at a timepoint, and if so, merges those samples
-  if(length(after_screen2_counts[,1])>=2){
-    after_timepoint=merge_samples(paste("Novogene_lane",after_screen2_counts$SequencingLane_Num[1],"/sample",after_screen2_counts$SequencingLane_Sample[1],"/sscs",sep=""),paste("Novogene_lane",after_screen2_counts$SequencingLane_Num[2],"/sample",after_screen2_counts$SequencingLane_Sample[2],"/sscs",sep=""))
+  if(length(after_screen1_counts[,1])>=2){
+    after_timepoint=merge_samples(paste(after_screen2_counts$dirname_input[1],"/sscs",sep=""),paste(after_screen2_counts$dirname_input[2],"/sscs",sep=""))
   } else {
-    after_timepoint=read.csv(paste("data/Consensus_Data/Novogene_lane",after_screen2_counts$SequencingLane_Num[1],"/sample",after_screen2_counts$SequencingLane_Sample[1],"/sscs/variant_caller_outputs/variants_unique_ann.csv",sep = ""))
+    after_timepoint=read.csv(paste("data/Consensus_Data/",after_screen2_counts$dirname_input[1],"/sscs/variant_caller_outputs/variants_unique_ann.csv",sep=""))
   }
 
   after_timepoint=variants_parser(after_timepoint,cells_after)
@@ -154,11 +156,11 @@ compare_screens=function(before_screen1_identifier,
            netgr_obs_mean=mean(c(netgr_obs_screen1,netgr_obs_screen2)))
 
   # ###8/30/23 Change for Ivan (this update avoids remove NA counts on D0):
-  # screen_compare_means=screen_compare%>%
-  #   # filter(!score_screen1%in%NA,!score_screen2%in%NA,!score_screen1%in%NaN,!score_screen2%in%NaN)%>%
-  #   rowwise()%>%
-  #   mutate(score_mean=mean(c(score_screen1,score_screen2)),
-  #          netgr_obs_mean=mean(c(netgr_obs_screen1,netgr_obs_screen2)))
+  screen_compare_means=screen_compare%>%
+    # filter(!score_screen1%in%NA,!score_screen2%in%NA,!score_screen1%in%NaN,!score_screen2%in%NaN)%>%
+    rowwise()%>%
+    mutate(score_mean=mean(c(score_screen1,score_screen2)),
+           netgr_obs_mean=mean(c(netgr_obs_screen1,netgr_obs_screen2)))
 
   # write.csv(screen_compare_means,"Imat_Enrichment_bgmerged_2.22.23.csv")
   ##############

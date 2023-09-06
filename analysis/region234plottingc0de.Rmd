@@ -18,6 +18,8 @@ library(tictoc)
 library(doParallel)
 library(foreach)
 library(RColorBrewer)
+library(ggpubr)
+library(pROC)
 ```
 
 ```{r}
@@ -38,18 +40,18 @@ source("code/res_residues_adder.R")
 
 # Region 2:
 a=merge_samples("Novogene_lane19_20/Ln19a_Sample2/sscs","Novogene_lane19_20/Ln19a_Sample3/sscs")
-ggplot(a%>%filter(!alt_aa%in%"O",protein_start>320,protein_start<390),aes(x=protein_start,y=alt_aa,fill=ct))+geom_tile()
+ggplot(a%>%filter(!alt_aa%in%"O",protein_start>320,protein_start<394),aes(x=protein_start,y=alt_aa,fill=ct))+geom_tile()
 
 
 # Region 3:
 # b=merge_samples("novogene_lane23/Lane23_Sample19/sscs","Novogene_lane19_20/Ln19b_Sample9/sscs")
 b=read.csv("data/Consensus_Data/novogene_lane19_20/Ln19a_Sample11/sscs/variant_caller_outputs/variants_unique_ann.csv")
-ggplot(b%>%filter(!alt_aa%in%"O",protein_start>390,protein_start<450),aes(x=protein_start,y=alt_aa,fill=ct))+geom_tile()
+ggplot(b%>%filter(!alt_aa%in%"O",protein_start>393,protein_start<465),aes(x=protein_start,y=alt_aa,fill=ct))+geom_tile()
 
 
 # Region 4:
-b=merge_samples("novogene_lane23/Lane23_Sample19/sscs","Novogene_lane19_20/Ln19b_Sample9/sscs")
-ggplot(b%>%filter(!alt_aa%in%"O",protein_start>450,protein_start<520),aes(x=protein_start,y=alt_aa,fill=ct))+geom_tile()
+b=merge_samples("novogene_lane23/Sample19/sscs","Novogene_lane19_20/Ln19b_Sample9/sscs")
+ggplot(b%>%filter(!alt_aa%in%"O",protein_start>464,protein_start<520),aes(x=protein_start,y=alt_aa,fill=ct))+geom_tile()
 ```
 
 ```{r}
@@ -58,8 +60,9 @@ cellcounts_matrix_dir="data/Consensus_Data/novogene_lane23/TwistAllRegions_CellC
 comparisons=read.csv("data/Consensus_Data/novogene_lane23/TwistAllRegions_Comparisons_Todo.csv")
 comparisons=comparisons%>%filter(Completed%in%"FALSE")
 
-for(i in 1:nrow(comparisons)){
-  i=10
+# for(i in 1:nrow(comparisons)){
+for(i in 6:8){
+  # i=10
   dirname=comparisons$dirname[i]
   pathname=paste("output/ABLEnrichmentScreens/ABL_Region234_Comparisons/",dirname,sep = "")
   # Create directory if it doesn't already exist
@@ -82,27 +85,32 @@ screen_compare_means=compare_screens(before_screen1_identifier,
                                      cellcounts_matrix_dir)
 
 screen_compare_means_forexport=apply(screen_compare_means,2,as.character)
-# write.csv(screen_compare_means_forexport,file = paste("output/ABLEnrichmentScreens/ABL_Region1_Lane18_Comparisons/",dirname,"/screen_comparison_",dirname,".csv",sep=""))
+write.csv(screen_compare_means_forexport,file = paste("output/ABLEnrichmentScreens/ABL_Region234_Comparisons/",dirname,"/screen_comparison_",dirname,".csv",sep=""))
+
+
 
 # Plot 1. What does the heatmap look like from the average of the net growth rate?
-heatmap_plotting_function(screen_compare_means,470,520,fill_variable = "netgr_obs_mean",fill_name = "Net growth rate")
-# ggsave(paste("output/ABLEnrichmentScreens/ABL_Region1_Lane18_Comparisons/",dirname,"/plot1_heatmap.pdf",sep=""),width=10,height=6,units="in",useDingbats=F)
+start_site=comparisons$ABL_Start[i]
+end_site=comparisons$ABL_End[i]
+
+heatmap_plotting_function(screen_compare_means,start_site,end_site,fill_variable = "netgr_obs_mean",fill_name = "Net growth rate")
+ggsave(paste("output/ABLEnrichmentScreens/ABL_Region234_Comparisons/",dirname,"/plot1_heatmap.pdf",sep=""),width=10,height=6,units="in",useDingbats=F)
 # screen_compare_means2=screen_compare_means%>%filter(alt_codon%in%twist$Codon)
 
 # Plot 2a: What do the correlations look like for net growth rate (show mutants in text)?
 ggplot(screen_compare_means,aes(x=netgr_obs_screen1,y=netgr_obs_screen2,color=resmuts,label=species))+geom_text(size=2.5)+geom_abline()+cleanup+stat_cor(method = "pearson")+labs(color="Known\nResistant\nMutant")+scale_x_continuous("Net growth rate screen 1")+scale_y_continuous("Net growth rate screen 2")
-# ggsave(paste("output/ABLEnrichmentScreens/ABL_Region1_Lane18_Comparisons/",dirname,"/plot2a_Netgrowthrate_correlations_text.pdf",sep=""),width=6,height=4,units="in",useDingbats=F)
+ggsave(paste("output/ABLEnrichmentScreens/ABL_Region234_Comparisons/",dirname,"/plot2a_Netgrowthrate_correlations_text.pdf",sep=""),width=6,height=4,units="in",useDingbats=F)
 
 # Plot 2b: What do the correlations look like for enrichment scores (show mutants in points)?
 ggplot(screen_compare_means,aes(x=netgr_obs_screen1,y=netgr_obs_screen2,label=species))+geom_point(color="black",shape=21,size=2,aes(fill=resmuts))+geom_abline()+cleanup+stat_cor(method = "pearson")+labs(fill="Known\nResistant\nMutant")+scale_x_continuous("Net growth rate screen 1")+scale_y_continuous("Net growth rate screen 2")
-# ggsave(paste("output/ABLEnrichmentScreens/ABL_Region1_Lane18_Comparisons/",dirname,"/plot2b_Netgrowthrate_correlations_points.pdf",sep=""),width=6,height=4,units="in",useDingbats=F)
+ggsave(paste("output/ABLEnrichmentScreens/ABL_Region234_Comparisons/",dirname,"/plot2b_Netgrowthrate_correlations_points.pdf",sep=""),width=6,height=4,units="in",useDingbats=F)
 # Plot 2c: What do the correlations look like for enrichment scores (show mutants in text)?
 ggplot(screen_compare_means,aes(x=score_screen1,y=score_screen2,color=resmuts,label=species))+geom_text(size=2.5)+geom_abline()+cleanup+ stat_cor(method = "pearson")+labs(color="Known\nResistant\nMutant")+scale_x_continuous("Enrichment score screen 1")+scale_y_continuous("Enrichment score screen 2")
-# ggsave(paste("output/ABLEnrichmentScreens/ABL_Region1_Lane18_Comparisons/",dirname,"/plot2c_Enrichmentscores_correlations_text.pdf",sep=""),width=6,height=4,units="in",useDingbats=F)
+ggsave(paste("output/ABLEnrichmentScreens/ABL_Region234_Comparisons/",dirname,"/plot2c_Enrichmentscores_correlations_text.pdf",sep=""),width=6,height=4,units="in",useDingbats=F)
 
 # Plot 3a: Plots: what are the overall net growth rate distributions?
 ggplot(screen_compare_means,aes(x=netgr_obs_mean,fill=resmuts))+geom_density(alpha=0.7)+cleanup+labs(fill="Known\nResistant\nMutant")+scale_x_continuous("Mean net growth rate of screens")
-# ggsave(paste("output/ABLEnrichmentScreens/ABL_Region1_Lane18_Comparisons/",dirname,"/plot3a_Netgrowthrate_distributions_resmuts.pdf",sep=""),width=6,height=4,units="in",useDingbats=F)
+ggsave(paste("output/ABLEnrichmentScreens/ABL_Region234_Comparisons/",dirname,"/plot3a_Netgrowthrate_distributions_resmuts.pdf",sep=""),width=6,height=4,units="in",useDingbats=F)
 # Plot 3b: Plots: what are the net growth rate distributions?
 
 library(reshape2)
@@ -114,10 +122,11 @@ ggplot(screen_compare_melt,aes(x=netgr_obs,fill=Condition))+
   cleanup+
   scale_x_continuous("Net growth rate observed")+
   scale_fill_discrete(labels=c("Screen 1","Screen 2"))
-# ggsave(paste("output/ABLEnrichmentScreens/ABL_Region1_Lane18_Comparisons/",dirname,"/plot3b_Netgrowthrate_distributions.pdf",sep=""),width=6,height=4,units="in",useDingbats=F)
+ggsave(paste("output/ABLEnrichmentScreens/ABL_Region234_Comparisons/",dirname,"/plot3b_Netgrowthrate_distributions.pdf",sep=""),width=6,height=4,units="in",useDingbats=F)
 
 }
 
 # dirname="K562_Medium_rep1vs2"
 
 ```
+

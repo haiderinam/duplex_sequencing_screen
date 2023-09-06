@@ -1,0 +1,115 @@
+---
+title: "dose_escalation_verification"
+author: "Haider Inam"
+date: '2023-09-04'
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_knit$set(root.dir = normalizePath(".."))
+# rm(list=ls())
+
+library(stringr)
+library(dplyr)
+library(ggplot2)
+library(plotly)
+library(tictoc)
+library(doParallel)
+library(foreach)
+library(RColorBrewer)
+library(ggpubr)
+library(pROC)
+
+```
+
+```{r}
+candidates=c("F311L",
+             "F311I",
+              "F317L",
+              "F317C",
+              "L273M",
+              "E279A",
+              "E275K",
+              "E279K",
+              "E258A",
+              "D276N",
+              "T277A",
+              "V289F",
+              "L248R",
+              "T319I",
+              "E292V",
+              "E275Q",
+              "Y253N",
+              "K247R")
+```
+
+Looking at mutant candidates for dose escalation
+```{r}
+
+
+
+# low
+a=read.csv("output/ABLEnrichmentScreens/ABL_Region1_Lane18_Comparisons/cross-replicate/baf3_Imat_low_rep1vsrep2_ft/screen_comparison_baf3_Imat_low_rep1vsrep2_ft.csv",header = T,stringsAsFactors = F)
+
+a=a%>%filter(species%in%candidates)
+a=a%>%dplyr::select(species,netgr_obs_mean)
+a$dose=300
+# medium
+b=read.csv("output/ABLEnrichmentScreens/ABL_Region1_Lane18_Comparisons/cross-replicate/baf3_Imat_medium_rep1vsrep2_ft/screen_comparison_baf3_Imat_medium_rep1vsrep2_ft.csv",header = T,stringsAsFactors = F)
+
+b=b%>%filter(species%in%candidates)
+b=b%>%dplyr::select(species,netgr_obs_mean)
+b$dose=600
+# High
+c=read.csv("output/ABLEnrichmentScreens/ABL_Region1_Lane18_Comparisons/cross-replicate/baf3_Imat_high_rep1vsrep2_ft/screen_comparison_baf3_Imat_high_rep1vsrep2_ft.csv",header = T,stringsAsFactors = F)
+
+c=c%>%filter(species%in%candidates)
+c=c%>%dplyr::select(species,netgr_obs_mean)
+c$dose=1200
+
+
+# No drug
+d=read.csv("output/ABLEnrichmentScreens/ABL_Region1_Lane18_Comparisons/cross-replicate/baf3_IL3_rep1vsrep2_ft/screen_comparison_baf3_IL3_low_rep1vsrep2_ft.csv",header = T,stringsAsFactors = F)
+
+d=d%>%filter(species%in%candidates)
+d=d%>%dplyr::select(species,netgr_obs_mean)
+d$dose=0
+
+# No drug
+e=read.csv("output/ABLEnrichmentScreens/ABL_Region1_Lane18_Comparisons/cross-replicate/baf3_IL3_rep1vsrep2_ft/screen_comparison_baf3_IL3_low_rep1vsrep2_ft.csv",header = T,stringsAsFactors = F)
+
+e=e%>%filter(species%in%candidates)
+e=e%>%dplyr::select(species,netgr_wodrug=netgr_obs_mean)
+
+allmuts=rbind(a,b,c,d)
+allmuts$y=exp(-(0.068-allmuts$netgr_obs_mean)*72)
+
+allmuts=merge(allmuts,e,by="species")
+allmuts=allmuts%>%mutate(y_new=exp((netgr_wodrug-netgr_obs_mean)*-72))
+
+ggplot(allmuts,aes(x=dose,y=netgr_obs_mean))+geom_point()+facet_wrap(~species)
+ggplot(allmuts%>%filter(!dose%in%0),aes(x=dose,y=y))+geom_point()+facet_wrap(~species)
+plotly=ggplot(allmuts%>%filter(!dose%in%0),aes(x=dose,y=y_new))+geom_point()+facet_wrap(~species)
+ggplotly(plotly)
+
+plotly=ggplot(allmuts,aes(x=dose,y=y_new))+
+  geom_point()+
+  facet_wrap(~species)+
+  scale_x_continuous(trans="log10")
+ggplotly(plotly)
+
+plotly=ggplot(allmuts%>%filter(!dose%in%0),aes(x=dose,y=y))+
+  geom_point()+
+  facet_wrap(~species)+
+  scale_x_continuous(trans="log10")
+ggplotly(plotly)
+
+# Basciallly there are two ways of plotting y (proportion alive) from our screens. One is to assume the same fitness without drug for all mutants, another is to assume fitness without drug that are different for all mutants. 
+```
+
+Plotting IC50 fitnesses
+```{r}
+
+```
+
