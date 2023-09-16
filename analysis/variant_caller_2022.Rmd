@@ -91,7 +91,7 @@ mode="local"
 
 ```{r}
 
-seqdata_tsv_name=c("data/Consensus_Data/novogene_lane23/Lane23_Sample13/sscs/sscs_sorted_filtered.tsv.gz",
+seqdata_tsv_name=c("data/Consensus_Data/novogene_lane25a/Lane_25a_5/sscs/sscs_sorted_filtered.tsv.gz",
                    "data/Consensus_Data/novogene_lane23/Lane23_Sample14/sscs/sscs_sorted_filtered.tsv.gz",
                    "data/Consensus_Data/novogene_lane23/Lane23_Sample15/sscs/sscs_sorted_filtered.tsv.gz",
                    "data/Consensus_Data/novogene_lane23/Lane23_Sample16/sscs/sscs_sorted_filtered.tsv.gz",
@@ -124,6 +124,14 @@ outdir=c("data/Consensus_Data/novogene_lane23/Lane23_Sample13/sscs/variant_calle
                    "data/Consensus_Data/novogene_lane23/Lane23_Sample25/sscs/variant_caller_outputs",
                    "data/Consensus_Data/novogene_lane23/Lane23_Sample26/sscs/variant_caller_outputs",
                    "data/Consensus_Data/novogene_lane23/Lane23_Sample27/sscs/variant_caller_outputs")
+
+
+
+seqdata_tsv_name=c("data/Consensus_Data/novogene_lane23/Sample15/sscs/sscs_sorted_filtered.tsv.gz")
+
+
+
+outdir=c("data/Consensus_Data/novogene_lane23/Sample15/sscs/variant_caller_outputs")
 
 ```
 
@@ -185,6 +193,7 @@ ref_genomic_coordinates=ref_genomic_coordinates%>%filter(!codon%in%"")
 ####This is the main chunk of code for reading, sorting the tsv file, variant calling, variant annotation using ensembl
 ```{r}
 for(j in 1:length(seqdata_tsv_name)){
+  # j=1
   seqdata_tsv_name_current=seqdata_tsv_name[j]
   outdir_curr=outdir[j]
   
