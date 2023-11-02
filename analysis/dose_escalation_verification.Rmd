@@ -46,9 +46,7 @@ candidates=c("F311L",
 
 Looking at mutant candidates for dose escalation
 ```{r}
-
-
-
+  
 # low
 a=read.csv("output/ABLEnrichmentScreens/ABL_Region1_Lane18_Comparisons/cross-replicate/baf3_Imat_low_rep1vsrep2_ft/screen_comparison_baf3_Imat_low_rep1vsrep2_ft.csv",header = T,stringsAsFactors = F)
 
@@ -105,7 +103,8 @@ plotly=ggplot(allmuts%>%filter(!dose%in%0),aes(x=dose,y=y))+
   scale_x_continuous(trans="log10")
 ggplotly(plotly)
 
-# Basciallly there are two ways of plotting y (proportion alive) from our screens. One is to assume the same fitness without drug for all mutants, another is to assume fitness without drug that are different for all mutants. 
+# Basciallly there are two ways of plotting y (proportion alive) from our screens. One is to assume the same fitness without drug for all mutants, another is to assume fitness without drug that are different for all mutants.
+newdf=cosmic_data_adder(df)
 ```
 
 Plotting IC50 fitnesses

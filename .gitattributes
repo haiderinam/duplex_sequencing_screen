@@ -5,3 +5,7 @@ data/Consensus_Data/novogene_lane17/sample6/sscs/sscs_sorted_filtered.tsv.gz fil
 data/Consensus_Data/novogene_lane15/sample_6/sscs/sscs_sorted_filtered.tsv.gz filter=lfs diff=lfs merge=lfs -text
 data/Consensus_Data/novogene_lane15/sample_7/sscs/sscs_sorted_filtered.tsv.gz filter=lfs diff=lfs merge=lfs -text
 data/Consensus_Data/novogene_lane15/sample_5/sscs/sscs_sorted_filtered.tsv.gz filter=lfs diff=lfs merge=lfs -text
+data/Consensus_Data/novogene_lane25a/Lane_25a_15/sscs/sscs_sorted_filtered.tsv.gz filter=lfs diff=lfs merge=lfs -text
+data/Consensus_Data/novogene_lane19/Ln19*/sscs/*.gz filter=lfs diff=lfs merge=lfs -text
+data/Consensus_Data/novogene_lane19_20/Ln19*/sscs/*.gz filter=lfs diff=lfs merge=lfs -text
+data/Consensus_Data/novogene_lane23/Sample26/sscs/sscs_sorted_filtered.tsv.gz filter=lfs diff=lfs merge=lfs -text

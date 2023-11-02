@@ -26,3 +26,6 @@ data/Consensus_Data/novogene_lane17/sample7/sscs/sscs_sorted_filtered.tsv.gz
 data/Consensus_Data/novogene_lane17b/Sample1/sscs/sscs_sorted_filtered.tsv.gz
 data/Consensus_Data/novogene_lane17b/Sample2/sscs/sscs_sorted_filtered.tsv.gz
 data/Consensus_Data/novogene_lane17/**/sscs/sscs_sorted_filtered.tsv.gz
+data/Consensus_Data/novogene_lane27b/**/sscs/sscs_sorted_filtered.tsv.gz
+data/Consensus_Data/novogene_lane28/**/sscs/sscs_sorted_filtered.tsv.gz
+

@@ -130,3 +130,149 @@ ggsave(paste("output/ABLEnrichmentScreens/ABL_Region234_Comparisons/",dirname,"/
 
 ```
 
+I have new sequencing data from Lane 27b and Lane 28.
+For BTR4D0: I'll look at the correlation between lane 28 sample 17 and lane 27b sample 9
+```{r}
+# source("code/merge_samples.R")
+# source("code/compare_samples.R")
+# source("code/compare_samples_archive.R")
+
+btr4d0a=read.csv("data/Consensus_Data/novogene_lane28/sample17/sscs/variant_caller_outputs/variants_unique_ann.csv")
+btr4d0a=btr4d0a%>%filter(consequence_terms%in%"missense_variant",!ct%in%c(1,2,3))%>%mutate(maf=ct/depth)
+btr4d0a=btr4d0a%>%dplyr::select(ref_aa,protein_start,alt_aa,type,maf,alt_codon)
+
+btr4d0b=read.csv("data/Consensus_Data/novogene_lane27b/BR4D0_Sample9_10/sscs/variant_caller_outputs/variants_unique_ann.csv")
+btr4d0b=btr4d0b%>%filter(consequence_terms%in%"missense_variant",!ct%in%c(1,2,3))%>%mutate(maf=ct/depth)
+btr4d0b=btr4d0b%>%dplyr::select(ref_aa,protein_start,alt_aa,type,maf,alt_codon)
+
+btr4d0=merge(btr4d0a,btr4d0b,by = c("ref_aa","protein_start","alt_aa","type","alt_codon"))
+btr4d0=btr4d0%>%filter(alt_codon%in%twist_alt_codon)
+btr4d0=btr4d0%>%mutate(species=paste(ref_aa,protein_start,alt_aa,sep=""))
+ggplot(btr4d0,
+       aes(x=maf.x,y=maf.y,color=type))+geom_point()+
+  scale_x_continuous(trans="log10")+
+  scale_y_continuous(trans="log10")+
+  stat_cor(method = "pearson")
+
+
+ggplot(btr4d0,
+       aes(x=maf.x,y=maf.y,color=type,label=species))+
+  geom_text()+
+  scale_x_continuous(trans="log10")+
+  scale_y_continuous(trans="log10")+
+  stat_cor(method = "pearson")
+# btr4d0=btr4d0%>%filter(species%in%"Q491V")
+btr4d0a=btr4d0a%>%filter(ref_aa%in%"Q",protein_start%in%491)
+btr4d0b=btr4d0b%>%filter(ref_aa%in%"Q",protein_start%in%491)
+```
+For BTR4DMD6A vs B: I'll look at the correlation between lane 28 sample 22 and lane 27b sample 11_12
+```{r}
+# source("code/merge_samples.R")
+# source("code/compare_samples.R")
+# source("code/compare_samples_archive.R")
+
+btr4d0a=read.csv("data/Consensus_Data/novogene_lane28/sample22/sscs/variant_caller_outputs/variants_unique_ann.csv")
+btr4d0a=btr4d0a%>%filter(consequence_terms%in%"missense_variant",!ct%in%c(1,2,3))%>%mutate(maf=ct/depth)
+btr4d0a=btr4d0a%>%dplyr::select(ref_aa,protein_start,alt_aa,type,maf,alt_codon)
+
+btr4d0b=read.csv("data/Consensus_Data/novogene_lane27b/BR4D6_Sample11_12/sscs/variant_caller_outputs/variants_unique_ann.csv")
+btr4d0b=btr4d0b%>%filter(consequence_terms%in%"missense_variant",!ct%in%c(1,2,3))%>%mutate(maf=ct/depth)
+btr4d0b=btr4d0b%>%dplyr::select(ref_aa,protein_start,alt_aa,type,maf,alt_codon)
+
+btr4d0=merge(btr4d0a,btr4d0b,by = c("ref_aa","protein_start","alt_aa","type","alt_codon"))
+btr4d0b=btr4d0b%>%dplyr::select(ref_aa,protein_start,alt_aa,type,maf,alt_codon)
+
+btr4d0=merge(btr4d0a,btr4d0b,by = c("ref_aa","protein_start","alt_aa","type","alt_codon"))
+btr4d0=btr4d0%>%filter(alt_codon%in%twist_alt_codon)
+btr4d0=btr4d0%>%mutate(species=paste(ref_aa,protein_start,alt_aa,sep=""))
+
+ggplot(btr4d0,
+       aes(x=maf.x,y=maf.y,color=type))+geom_point()+
+  scale_x_continuous(trans="log10")+
+  scale_y_continuous(trans="log10")+
+  stat_cor(method = "pearson")
+
+ggplot(btr4d0,
+       aes(x=maf.x,y=maf.y,color=type,label=species))+
+  geom_text()+
+  scale_x_continuous(trans="log10")+
+  scale_y_continuous(trans="log10")+
+  stat_cor(method = "pearson")
+
+```
+
+For BTR4DHD6A vs B: I'll look at the correlation between
+ lane 28 sample 23 and 24
+```{r}
+# source("code/merge_samples.R")
+# source("code/compare_samples.R")
+# source("code/compare_samples_archive.R")
+
+btr4d0a=read.csv("data/Consensus_Data/novogene_lane28/sample23/sscs/variant_caller_outputs/variants_unique_ann.csv")
+btr4d0a=btr4d0a%>%filter(consequence_terms%in%"missense_variant",!ct%in%c(1,2,3))%>%mutate(maf=ct/depth)
+btr4d0a=btr4d0a%>%dplyr::select(ref_aa,protein_start,alt_aa,type,maf,alt_codon)
+
+btr4d0b=read.csv("data/Consensus_Data/novogene_lane28/sample24/sscs/variant_caller_outputs/variants_unique_ann.csv")
+btr4d0b=btr4d0b%>%filter(consequence_terms%in%"missense_variant",!ct%in%c(1,2,3))%>%mutate(maf=ct/depth)
+btr4d0b=btr4d0b%>%dplyr::select(ref_aa,protein_start,alt_aa,type,maf,alt_codon)
+
+btr4d0=merge(btr4d0a,btr4d0b,by = c("ref_aa","protein_start","alt_aa","type","alt_codon"))
+btr4d0=btr4d0%>%filter(alt_codon%in%twist_alt_codon)
+btr4d0=btr4d0%>%mutate(species=paste(ref_aa,protein_start,alt_aa,sep=""))
+
+ggplot(btr4d0,
+       aes(x=maf.x,y=maf.y,color=type))+geom_point()+
+  scale_x_continuous(trans="log10")+
+  scale_y_continuous(trans="log10")+
+  stat_cor(method = "pearson")
+
+ggplot(btr4d0,
+       aes(x=maf.x,y=maf.y,color=type,label=species))+
+  geom_text()+
+  scale_x_continuous(trans="log10")+
+  scale_y_continuous(trans="log10")+
+  stat_cor(method = "pearson")
+
+```
+```{r}
+codon_table=read.csv("data/codon_table.csv",header = T,stringsAsFactors = F)
+twist_codons=codon_table%>%filter(Twist%in%T)
+  # twist_alt_codon=twist_codons[twist_codons$Letter%in%alt_aa,"Codon"]
+twist_alt_codon=twist_codons[,"Codon"]
+```
+
+For BTR4DID6A vs B: I'll look at the correlation between
+ lane 28 sample 18 and 19
+```{r}
+# source("code/merge_samples.R")
+# source("code/compare_samples.R")
+# source("code/compare_samples_archive.R")
+
+btr4d0a=read.csv("data/Consensus_Data/novogene_lane28/sample18/sscs/variant_caller_outputs/variants_unique_ann.csv")
+btr4d0a=btr4d0a%>%filter(consequence_terms%in%"missense_variant",!ct%in%c(1,2,3,4,5,6))%>%mutate(maf=ct/depth)
+btr4d0a=btr4d0a%>%dplyr::select(ref_aa,protein_start,alt_aa,type,maf,alt_codon)
+
+btr4d0b=read.csv("data/Consensus_Data/novogene_lane28/sample19/sscs/variant_caller_outputs/variants_unique_ann.csv")
+btr4d0b=btr4d0b%>%filter(consequence_terms%in%"missense_variant",!ct%in%c(1,2,3,4,5,6))%>%mutate(maf=ct/depth)
+btr4d0b=btr4d0b%>%dplyr::select(ref_aa,protein_start,alt_aa,type,maf,alt_codon)
+
+btr4d0=merge(btr4d0a,btr4d0b,by = c("ref_aa","protein_start","alt_aa","type","alt_codon"))
+# btr4d0=btr4d0%>%filter(!alt_codon%in%twist_alt_codon)
+btr4d0=btr4d0%>%filter(alt_codon%in%twist_alt_codon)
+btr4d0=btr4d0%>%mutate(species=paste(ref_aa,protein_start,alt_aa,sep=""))
+
+ggplot(btr4d0,
+       aes(x=maf.x,y=maf.y,color=type))+geom_point()+
+  scale_x_continuous(trans="log10")+
+  scale_y_continuous(trans="log10")+
+  stat_cor(method = "pearson")
+
+
+ggplot(btr4d0,
+       aes(x=maf.x,y=maf.y,color=type,label=species))+
+  geom_text()+
+  scale_x_continuous(trans="log10")+
+  scale_y_continuous(trans="log10")+
+  stat_cor(method = "pearson")
+
+```
