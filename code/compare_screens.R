@@ -3,6 +3,14 @@ compare_screens=function(before_screen1_identifier,
                          before_screen2_identifier,
                          after_screen2_identifier,
                          cellcounts_matrix_location){
+
+  # before_screen1_identifier=before_screen1_identifier
+  # after_screen1_identifier=after_screen1_identifier
+  # before_screen2_identifier=before_screen2_identifier
+  # after_screen2_identifier=after_screen2_identifier
+  # cellcounts_matrix_location=cellcounts_matrix_dir
+
+
   # Inputs: 1) Condition 1 baseline, 2) Condition 1 treated, 3) Condition 2 Baseline, 4) Condition 2 treated
   # 5)The location of the cell counts table
   # These inputs can have a single sample in the name or specify two samples to merge
@@ -90,7 +98,7 @@ compare_screens=function(before_screen1_identifier,
 
 
   # This if statements sees if there are two samples specified at a timepoint, and if so, merges those samples
-  if(length(before_screen1_counts[,1])>=2){
+  if(length(before_screen2_counts[,1])>=2){
     before_timepoint=merge_samples(paste(before_screen2_counts$dirname_input[1],"/sscs",sep=""),paste(before_screen2_counts$dirname_input[2],"/sscs",sep=""))
   } else {
     before_timepoint=read.csv(paste("data/Consensus_Data/",before_screen2_counts$dirname_input[1],"/sscs/variant_caller_outputs/variants_unique_ann.csv",sep=""))
@@ -100,7 +108,7 @@ compare_screens=function(before_screen1_identifier,
 
 
   # This if statements sees if there are two samples specified at a timepoint, and if so, merges those samples
-  if(length(after_screen1_counts[,1])>=2){
+  if(length(after_screen2_counts[,1])>=2){
     after_timepoint=merge_samples(paste(after_screen2_counts$dirname_input[1],"/sscs",sep=""),paste(after_screen2_counts$dirname_input[2],"/sscs",sep=""))
   } else {
     after_timepoint=read.csv(paste("data/Consensus_Data/",after_screen2_counts$dirname_input[1],"/sscs/variant_caller_outputs/variants_unique_ann.csv",sep=""))

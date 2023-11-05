@@ -91,45 +91,15 @@ mode="local"
 
 ```{r}
 
-seqdata_tsv_name=c("data/Consensus_Data/novogene_lane29a/sample1_KR1_D0/sscs/sscs_sorted_filtered.tsv.gz",
-                   "data/Consensus_Data/novogene_lane29a/sample2_KR1_P_High/sscs/sscs_sorted_filtered.tsv.gz",
-                   "data/Consensus_Data/novogene_lane29a/sample3_KR1_PL_1/sscs/sscs_sorted_filtered.tsv.gz",
-                   "data/Consensus_Data/novogene_lane29a/sample4_KR1_PL_5/sscs/sscs_sorted_filtered.tsv.gz",
-                   "data/Consensus_Data/novogene_lane29a/sample5_KR1_A30/sscs/sscs_sorted_filtered.tsv.gz",
-                   "data/Consensus_Data/novogene_lane29a/sample6_KR2_D0/sscs/sscs_sorted_filtered.tsv.gz",
-                   "data/Consensus_Data/novogene_lane29a/sample7_KR2_P_High/sscs/sscs_sorted_filtered.tsv.gz",
-                   "data/Consensus_Data/novogene_lane29a/sample8_KR2_PL_1/sscs/sscs_sorted_filtered.tsv.gz",
-                   "data/Consensus_Data/novogene_lane29a/sample9_KR2_PL_5/sscs/sscs_sorted_filtered.tsv.gz",
-                   "data/Consensus_Data/novogene_lane29a/sample10_KR2_A30/sscs/sscs_sorted_filtered.tsv.gz",
-                   "data/Consensus_Data/novogene_lane29a/sample12/sscs/sscs_sorted_filtered.tsv.gz",
-                   "data/Consensus_Data/novogene_lane29a/sample13/sscs/sscs_sorted_filtered.tsv.gz",
-                   "data/Consensus_Data/novogene_lane29a/sample16/sscs/sscs_sorted_filtered.tsv.gz",
-                   "data/Consensus_Data/novogene_lane29a/sample17/sscs/sscs_sorted_filtered.tsv.gz",
-                   "data/Consensus_Data/novogene_lane29a/sample18/sscs/sscs_sorted_filtered.tsv.gz",
-                   "data/Consensus_Data/novogene_lane29a/sample19/sscs/sscs_sorted_filtered.tsv.gz",
-                   "data/Consensus_Data/novogene_lane29a/sample20/sscs/sscs_sorted_filtered.tsv.gz",
-                   "data/Consensus_Data/novogene_lane29a/sample21/sscs/sscs_sorted_filtered.tsv.gz")
+seqdata_tsv_name=c("data/Consensus_Data/novogene_lane28/sample10/duplex/duplex_sorted_filtered.tsv.gz",
+                   "data/Consensus_Data/novogene_lane28/sample10/sscs/sscs_sorted_filtered.tsv.gz",
+                   "data/Consensus_Data/novogene_lane29a/sample15/duplex/duplex_sorted_filtered.tsv.gz","data/Consensus_Data/novogene_lane29a/sample15/sscs/sscs_sorted_filtered.tsv.gz")
 
 
 
-outdir=c("data/Consensus_Data/novogene_lane29a/sample1_KR1_D0/sscs/variant_caller_outputs",
-                   "data/Consensus_Data/novogene_lane29a/sample2_KR1_P_High/sscs/variant_caller_outputs",
-                   "data/Consensus_Data/novogene_lane29a/sample3_KR1_PL_1/sscs/variant_caller_outputs",
-                   "data/Consensus_Data/novogene_lane29a/sample4_KR1_PL_5/sscs/variant_caller_outputs",
-                   "data/Consensus_Data/novogene_lane29a/sample5_KR1_A30/sscs/variant_caller_outputs",
-                   "data/Consensus_Data/novogene_lane29a/sample6_KR2_D0/sscs/variant_caller_outputs",
-                   "data/Consensus_Data/novogene_lane29a/sample7_KR2_P_High/sscs/variant_caller_outputs",
-                   "data/Consensus_Data/novogene_lane29a/sample8_KR2_PL_1/sscs/variant_caller_outputs",
-                   "data/Consensus_Data/novogene_lane29a/sample9_KR2_PL_5/sscs/variant_caller_outputs",
-                   "data/Consensus_Data/novogene_lane29a/sample10_KR2_A30/sscs/variant_caller_outputs",
-                   "data/Consensus_Data/novogene_lane29a/sample12/sscs/variant_caller_outputs",
-                   "data/Consensus_Data/novogene_lane29a/sample13/sscs/variant_caller_outputs",
-                   "data/Consensus_Data/novogene_lane29a/sample16/sscs/variant_caller_outputs",
-                   "data/Consensus_Data/novogene_lane29a/sample17/sscs/variant_caller_outputs",
-                   "data/Consensus_Data/novogene_lane29a/sample18/sscs/variant_caller_outputs",
-                   "data/Consensus_Data/novogene_lane29a/sample19/sscs/variant_caller_outputs",
-                   "data/Consensus_Data/novogene_lane29a/sample20/sscs/variant_caller_outputs",
-                   "data/Consensus_Data/novogene_lane29a/sample21/sscs/variant_caller_outputs")
+outdir=c("data/Consensus_Data/novogene_lane28/sample10/duplex/variant_caller_outputs",
+                   "data/Consensus_Data/novogene_lane28/sample10/sscs/variant_caller_outputs",
+                   "data/Consensus_Data/novogene_lane29a/sample15/duplex/variant_caller_outputs","data/Consensus_Data/novogene_lane29a/sample15/sscs/variant_caller_outputs")
 
 
 
@@ -199,6 +169,7 @@ ref_genomic_coordinates=ref_genomic_coordinates%>%filter(!codon%in%"")
 ####This is the main chunk of code for reading, sorting the tsv file, variant calling, variant annotation using ensembl
 ```{r}
 for(j in 1:length(seqdata_tsv_name)){
+# for(j in 15:length(seqdata_tsv_name)){
   # j=1
   seqdata_tsv_name_current=seqdata_tsv_name[j]
   outdir_curr=outdir[j]
