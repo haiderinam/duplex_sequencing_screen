@@ -90,25 +90,21 @@ mode="local"
 
 
 ```{r}
+seqdata_tsv_name=c("data/Consensus_Data/novogene_lane28/for_export/sample1/duplex/duplex_sorted_filtered.tsv.gz",
+                   "data/Consensus_Data/novogene_lane28/for_export/sample2/duplex/duplex_sorted_filtered.tsv.gz",
+                   "data/Consensus_Data/novogene_lane28/for_export/sample3/duplex/duplex_sorted_filtered.tsv.gz",
+                   "data/Consensus_Data/novogene_lane28/for_export/sample5/duplex/duplex_sorted_filtered.tsv.gz",
+                   "data/Consensus_Data/novogene_lane28/for_export/sample7/duplex/duplex_sorted_filtered.tsv.gz",
+                   "data/Consensus_Data/novogene_lane28/for_export/sample8/duplex/duplex_sorted_filtered.tsv.gz",
+                   "data/Consensus_Data/novogene_lane28/for_export/sample9/duplex/duplex_sorted_filtered.tsv.gz")
 
-seqdata_tsv_name=c("data/Consensus_Data/novogene_lane28/sample10/duplex/duplex_sorted_filtered.tsv.gz",
-                   "data/Consensus_Data/novogene_lane28/sample10/sscs/sscs_sorted_filtered.tsv.gz",
-                   "data/Consensus_Data/novogene_lane29a/sample15/duplex/duplex_sorted_filtered.tsv.gz","data/Consensus_Data/novogene_lane29a/sample15/sscs/sscs_sorted_filtered.tsv.gz")
-
-
-
-outdir=c("data/Consensus_Data/novogene_lane28/sample10/duplex/variant_caller_outputs",
-                   "data/Consensus_Data/novogene_lane28/sample10/sscs/variant_caller_outputs",
-                   "data/Consensus_Data/novogene_lane29a/sample15/duplex/variant_caller_outputs","data/Consensus_Data/novogene_lane29a/sample15/sscs/variant_caller_outputs")
-
-
-
-# seqdata_tsv_name=c("data/Consensus_Data/novogene_lane23/Sample15/sscs/sscs_sorted_filtered.tsv.gz")
-
-
-
-# outdir=c("data/Consensus_Data/novogene_lane23/Sample15/sscs/variant_caller_outputs")
-
+outdir=c("data/Consensus_Data/novogene_lane28/for_export/sample1/duplex/variant_caller_outputs",
+                   "data/Consensus_Data/novogene_lane28/for_export/sample2/duplex/variant_caller_outputs",
+                   "data/Consensus_Data/novogene_lane28/for_export/sample3/duplex/variant_caller_outputs",
+                   "data/Consensus_Data/novogene_lane28/for_export/sample5/duplex/variant_caller_outputs",
+                   "data/Consensus_Data/novogene_lane28/for_export/sample7/duplex/variant_caller_outputs",
+                   "data/Consensus_Data/novogene_lane28/for_export/sample8/duplex/variant_caller_outputs",
+                   "data/Consensus_Data/novogene_lane28/for_export/sample9/duplex/variant_caller_outputs")
 ```
 
 
@@ -169,7 +165,7 @@ ref_genomic_coordinates=ref_genomic_coordinates%>%filter(!codon%in%"")
 ####This is the main chunk of code for reading, sorting the tsv file, variant calling, variant annotation using ensembl
 ```{r}
 for(j in 1:length(seqdata_tsv_name)){
-# for(j in 15:length(seqdata_tsv_name)){
+# for(j in 3:length(seqdata_tsv_name)){
   # j=1
   seqdata_tsv_name_current=seqdata_tsv_name[j]
   outdir_curr=outdir[j]
@@ -774,5 +770,22 @@ ggplot(calls_missense,aes(x=protein_start,y=alt_aa))+
 # (ref_codon_finder(130835456))
 # ref_codon_finder(130854218)
 # ref_codon_finder(130873014)
+```
+
+```{r}
+source("code/variantcaller/add_l298l.R")
+for(i in c(1:5)){
+  sample=paste("sample",i,sep = "")
+  # sample="sample1"
+  
+  input_df_nol298l=read.csv(paste("data/Consensus_Data/novogene_lane29a/",sample,"/nol298l/sscs/variant_caller_outputs/variants_unique_ann.csv",sep=""))
+  input_df_l298l=read.csv(paste("data/Consensus_Data/novogene_lane29a/",sample,"/l298l/sscs/variant_caller_outputs/variants_unique_ann.csv",sep=""))
+  
+  output_df=add_l298l(input_df_nol298l,input_df_l298l)
+  output_df=output_df[, !names(output_df) == "X", drop = FALSE]
+
+  write.csv(output_df,
+            paste("data/Consensus_Data/novogene_lane29a/",sample,"/sscs/variant_caller_outputs/variants_unique_ann.csv",sep = ""),row.names = F)  
+}
 ```
 

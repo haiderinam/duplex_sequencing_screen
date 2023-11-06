@@ -1,0 +1,4 @@
+"type","alt_start_pos","alt_end_pos","ref","ref_codon","alt","alt_codon","frame_pos","ct","depth","protein_start","protein_end","ref_aa","alt_aa","amino_acids","consequence_terms"
+"snp",971,972,"T","CTG","A","CAG",1,1,10,324,324,"L","Q","L/Q","missense_variant"
+"snp",1479,1480,"T","TTT","C","TTC",2,2,5,493,493,"F","F","F/F","synonymous_variant"
+"mnv",1030,1033,"GCC","GCC","CTG","CTG",0,4,10,344,344,"A","L","A/L","missense_variant"

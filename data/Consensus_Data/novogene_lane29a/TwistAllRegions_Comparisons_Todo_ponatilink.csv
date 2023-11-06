@@ -16,3 +16,4 @@ Num,dirname,before_screen1_identifier,after_screen1_identifier,before_screen2_id
 15,k562_r2_Ponatinib0.4vsAsc30,KR2_D0,KR2_P_0.4,KR2_D0,KR2_A30,Region2,322,394,FALSE,FALSE
 16,k562_r3_Ponatinib0.4vsAsc30,KR3_D0,KR3_P_0.4,KR3_D0,KR3_A30,Region3,394,465,FALSE,TRUE
 17,k562_r4_Ponatinib0.4vsAsc30,KR4_D0,KR4_P_0.4,KR4_D0,KR4_A30,Region4,465,518,FALSE,TRUE
+18,k562_r4_Ponatilink5vsPonatinib0.1,KR4_D0,KR4_PL_5,KR4_D0,KR4_P_0.1,Region4,465,518,FALSE,FALSE
