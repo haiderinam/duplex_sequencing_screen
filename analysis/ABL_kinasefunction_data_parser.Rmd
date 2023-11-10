@@ -214,10 +214,10 @@ kr2d0=read.csv("data/Consensus_Data/novogene_lane29a/sample6/sscs/variant_caller
 kr2d0=kr2d0%>%filter(protein_start%in%c(322:394),consequence_terms%in%"missense_variant",ct>=1)
 heatmap_plotting_function(kr2d0,322,394,fill_name = "Net growth rate")
 
-kr3d6=read.csv("data/Consensus_Data/novogene_lane29a/sample12/sscs/variant_caller_outputs/variants_unique_ann.csv")
+kr3d6=read.csv("data/Consensus_Data/novogene_lane29a/sample11/sscs/variant_caller_outputs/variants_unique_ann.csv")
 # kr3d6=read.csv("data/Consensus_Data/novogene_lane29a/for_export/sample11/sscs/variant_caller_outputs/variants_unique_ann.csv")
 kr3d6=kr3d6%>%filter(protein_start%in%c(394:465),consequence_terms%in%"missense_variant",ct>=1)
-heatmap_plotting_function(kr3d6,394,465,fill_name = "Net growth rate")
+heatmap_plotting_function(kr3d6,394,465,fill_name = "Count")
 
 
 kr4d0=read.csv("data/Consensus_Data/novogene_lane29a/sample16/sscs/variant_caller_outputs/variants_unique_ann.csv")
@@ -228,7 +228,7 @@ heatmap_plotting_function(kr4d0,465,512,fill_variable = "depth",fill_name = "Net
 krall=rbind(kr1d0,kr2d0,kr3d6,kr4d0)
 krall=krall%>%mutate(maf=ct/depth,species=paste(ref_aa,protein_start,alt_aa,sep=""))
 heatmap_plotting_function(krall,242,502,fill_variable = "maf",fill_name = "Allele \nFrequency")
-ggsave("output/ABLEnrichmentScreens/ABL_Ponatilink_Screens/Ponatilink_heatmap.pdf",width=18,height=6,units = "in",useDingbats=F)
+# ggsave("output/ABLEnrichmentScreens/ABL_Ponatilink_Screens/Ponatilink_heatmap.pdf",width=18,height=6,units = "in",useDingbats=F)
 length(unique(krall$species))
 ```
 
@@ -281,12 +281,33 @@ ggplot(pl_pon_r4%>%filter(protein_start%in%c(465:518)),
 ggsave("output/ABLEnrichmentScreens/ABL_Ponatilink_Screens/R4_Resmuts_Pon.pdf",width=8,height=3,units="in",useDingbats=F)
 
 
+
+
+
 pl_asc_r4_resmuts=pl_asc_r4%>%filter(protein_start%in%c(468,502))
 pl_asc_r4_resmuts=pl_asc_r4_resmuts%>%
   dplyr::select(ref_aa,protein_start,alt_aa,n_nuc_min,netgr_obs_screen1,netgr_obs_screen2)
 pl_asc_r4_resmuts=melt(pl_asc_r4_resmuts,id.vars = c("ref_aa","protein_start","alt_aa","n_nuc_min"),measure.vars = c("netgr_obs_screen1","netgr_obs_screen1"),variable.name = "screen",value.name = "netgr_obs")
 
 pl_asc_r4_resmuts=ggplot()
+
+
+# Making density plots:
+head(pl_asc_r4$species)
+# pl_asc_r4=pl_asc_r4%>%mutate(resmuts=case_when(species%in%c("V468F","I502L","P465S")~T,
+                                               # T~F))
+# pl_pon_r4=pl_pon_r4%>%mutate(resmuts=case_when(protein_start%in%c(468,502)~T,
+                                               # T~F))
+a=pl_asc_r4%>%dplyr::select(species,resmuts,ct_screen1_before,netgr_obs_screen1,netgr_obs_screen2)
+ggplot(pl_asc_r4%>%filter(protein_start%in%c(465:518)),
+                              aes(x=netgr_obs_screen2,fill=resmuts))+
+  geom_density(alpha=0.7)+
+  # geom_hline(yintercept = .025,color="red")+
+  cleanup+
+  # scale_x_discrete(name="Residue on the ABL Kinase")+
+  # scale_y_continuous(name="Net Growth Rate (Hrs^-1)",limits = c(-.025,.05))+
+  theme(axis.text.x=element_text(angle=90, hjust=1))+
+  labs(fill="Asciminib \nResresid")
 
 ```
 

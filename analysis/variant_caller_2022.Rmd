@@ -90,21 +90,22 @@ mode="local"
 
 
 ```{r}
-seqdata_tsv_name=c("data/Consensus_Data/novogene_lane28/for_export/sample1/duplex/duplex_sorted_filtered.tsv.gz",
-                   "data/Consensus_Data/novogene_lane28/for_export/sample2/duplex/duplex_sorted_filtered.tsv.gz",
-                   "data/Consensus_Data/novogene_lane28/for_export/sample3/duplex/duplex_sorted_filtered.tsv.gz",
-                   "data/Consensus_Data/novogene_lane28/for_export/sample5/duplex/duplex_sorted_filtered.tsv.gz",
-                   "data/Consensus_Data/novogene_lane28/for_export/sample7/duplex/duplex_sorted_filtered.tsv.gz",
-                   "data/Consensus_Data/novogene_lane28/for_export/sample8/duplex/duplex_sorted_filtered.tsv.gz",
-                   "data/Consensus_Data/novogene_lane28/for_export/sample9/duplex/duplex_sorted_filtered.tsv.gz")
+seqdata_tsv_name=c("data/Consensus_Data/novogene_lane29b/for_export/sample3/duplex/duplex_sorted_filtered.tsv.gz",
+                   "data/Consensus_Data/novogene_lane29b/for_export/sample6/duplex/duplex_sorted_filtered.tsv.gz",
+                   "data/Consensus_Data/novogene_lane29b/for_export/sample7/duplex/duplex_sorted_filtered.tsv.gz",
+                   "data/Consensus_Data/novogene_lane29b/for_export/sample8/duplex/duplex_sorted_filtered.tsv.gz",
+                   "data/Consensus_Data/novogene_lane29b/for_export/sample9/duplex/duplex_sorted_filtered.tsv.gz",
+                   "data/Consensus_Data/novogene_lane29b/for_export/sample3/l298l/duplex/duplex_sorted_filtered.tsv.gz")
 
-outdir=c("data/Consensus_Data/novogene_lane28/for_export/sample1/duplex/variant_caller_outputs",
-                   "data/Consensus_Data/novogene_lane28/for_export/sample2/duplex/variant_caller_outputs",
-                   "data/Consensus_Data/novogene_lane28/for_export/sample3/duplex/variant_caller_outputs",
-                   "data/Consensus_Data/novogene_lane28/for_export/sample5/duplex/variant_caller_outputs",
-                   "data/Consensus_Data/novogene_lane28/for_export/sample7/duplex/variant_caller_outputs",
-                   "data/Consensus_Data/novogene_lane28/for_export/sample8/duplex/variant_caller_outputs",
-                   "data/Consensus_Data/novogene_lane28/for_export/sample9/duplex/variant_caller_outputs")
+outdir=c("data/Consensus_Data/novogene_lane29b/for_export/sample3/duplex/variant_caller_outputs",
+                   "data/Consensus_Data/novogene_lane29b/for_export/sample6/duplex/variant_caller_outputs",
+                   "data/Consensus_Data/novogene_lane29b/for_export/sample7/duplex/variant_caller_outputs",
+                   "data/Consensus_Data/novogene_lane29b/for_export/sample8/duplex/variant_caller_outputs",
+                   "data/Consensus_Data/novogene_lane29b/for_export/sample9/duplex/variant_caller_outputs",
+                   "data/Consensus_Data/novogene_lane29b/for_export/sample3/l298l/duplex/variant_caller_outputs")
+
+seqdata_tsv_name=c("data/Consensus_Data/novogene_lane29a/sample2/nol298l/sscs/sscs_sorted_filtered.tsv.gz")
+outdir=c("data/Consensus_Data/novogene_lane29a/sample2/nol298l/sscs/variant_caller_outputs")
 ```
 
 
@@ -138,6 +139,7 @@ toc()
 
 ####Reading and processing the reference txt and csv file
 ```{r}
+# rm(list=ls())
 #Reading the full sequence.
 reference_seq=read.table(ref_txt_name)
 reference_seq=as.character(reference_seq)
@@ -285,7 +287,7 @@ alldata=alldata%>%filter(mlen>=70)
 
 #######Filtering out deletions########
 alldata=alldata[!grepl("\\^",alldata$mdz),]
-
+# x=alldata
 #####Filtering out any reads with an alignment score of 0####
 #Optionally you can also filter out cigar strings of '*' i think
 alldata=alldata[!grepl("AS:i:0",alldata$mdz),]
@@ -298,6 +300,7 @@ alldata=alldata[!grepl("N",alldata$seq),]
 #######Filtering for Non-Reference########
 # alt_positions=grepl("[0-9]{3}$",alldata$mdz)
 alt_positions=grepl("[a-zA-Z]",alldata$mdz)
+
 # a=alldata[!alt_positions,]
 alldata=alldata[alt_positions,]
 # b=alldata[!alt_positions,]
@@ -387,7 +390,7 @@ list=mnvs$mdz
 mnv_status_compiled=rep("NA",length(list))
 for(i in 1:length(list)){
   # i=1
-  #To be considered a true variant, an mnv must meet two criteria: 1) have a 0 or 1 in the mdz field (hamming distance of <2), 2) not have >1 in the mdz field. This takes out potentially epistatic mutants, e.g. T315I and T243V seen on the same read. So this variant caller needs to be updated to not take out these automatically, but we can worry about that later. I only found 1 read with a 0 AND a 27 in the MDZ field for our D0 WT scenario.
+  #To be considered a true variant, an mnv must meet two criteria: 1) have a 0 or 1 in the mdz field (hamming distance of <2), 2) not have >1 in the mdz field. This takes out potentially epistatic mutants, e.g. T315I and T243V seen on the same read. So this variant caller needs to be updated to NOT take out these automatically, but we can worry about that later. I only found 1 read with a 0 AND a 27 in the MDZ field for our D0 WT scenario.
   #Firstbasically searching if there's a 0 or a 1 in the MDZ field of the mnv
   #########Test for Criteria 1###############
   mnv_status_i=!grepl("2|3|4|5|6|7|8|9|11",head(strsplit(list[i],"A|G|C|T")[[1]][-1],-1))
@@ -774,18 +777,18 @@ ggplot(calls_missense,aes(x=protein_start,y=alt_aa))+
 
 ```{r}
 source("code/variantcaller/add_l298l.R")
-for(i in c(1:5)){
+for(i in c(1:1)){
   sample=paste("sample",i,sep = "")
   # sample="sample1"
   
-  input_df_nol298l=read.csv(paste("data/Consensus_Data/novogene_lane29a/",sample,"/nol298l/sscs/variant_caller_outputs/variants_unique_ann.csv",sep=""))
-  input_df_l298l=read.csv(paste("data/Consensus_Data/novogene_lane29a/",sample,"/l298l/sscs/variant_caller_outputs/variants_unique_ann.csv",sep=""))
+  input_df_nol298l=read.csv(paste("data/Consensus_Data/novogene_lane29b/for_export/",sample,"/nol298l/duplex/variant_caller_outputs/variants_unique_ann.csv",sep=""))
+  input_df_l298l=read.csv(paste("data/Consensus_Data/novogene_lane29b/for_export/",sample,"/l298l/duplex/variant_caller_outputs/variants_unique_ann.csv",sep=""))
   
   output_df=add_l298l(input_df_nol298l,input_df_l298l)
   output_df=output_df[, !names(output_df) == "X", drop = FALSE]
 
   write.csv(output_df,
-            paste("data/Consensus_Data/novogene_lane29a/",sample,"/sscs/variant_caller_outputs/variants_unique_ann.csv",sep = ""),row.names = F)  
+            paste("data/Consensus_Data/novogene_lane29b/for_export/",sample,"/duplex/variant_caller_outputs/variants_unique_ann.csv",sep = ""),row.names = F)  
 }
 ```
 

@@ -1,33 +1,33 @@
 Identifier,CellLine,Netgr_wodrug,Replicate,Time_Days,Time_Hours,TotalCells,dirname_input,skip_flag,Comments
 KR1_D0,K562,0.025,1,0,0,150,novogene_lane29a/sample1,FALSE,Used RepA counts for all
-KR1_P_0.4,K562,0.025,1,6,144,4000,novogene_lane29a/sample2,FALSE,
-KR1_PL_1,K562,0.025,1,6,144,1360,novogene_lane29a/sample3,FALSE,
-KR1_PL_5,K562,0.025,1,6,144,380,novogene_lane29a/sample4,FALSE,
-KR1_A30,K562,0.025,1,6,144,117,novogene_lane29a/sample5,FALSE,
+KR1_P_0.4,K562,0.025,1,6,144,3400,novogene_lane29a/sample2,FALSE,
+KR1_PL_1,K562,0.025,1,6,144,1000,novogene_lane29a/sample3,FALSE,
+KR1_PL_5,K562,0.025,1,6,144,300,novogene_lane29a/sample4,FALSE,
+KR1_A30,K562,0.025,1,6,144,96,novogene_lane29a/sample5,FALSE,
 KR2_D0,K562,0.025,1,0,0,120,novogene_lane29a/sample6,FALSE,
 KR2_P_0.4,K562,0.025,1,6,144,2876,novogene_lane29a/sample7,FALSE,
 KR2_PL_1,K562,0.025,1,6,144,360,novogene_lane29a/sample8,FALSE,
 KR2_PL_5,K562,0.025,1,6,144,188,novogene_lane29a/sample9,FALSE,
 KR2_A30,K562,0.025,1,6,144,810,novogene_lane29a/sample10,FALSE,
 KR3_D0,K562,0.025,1,0,0,167,novogene_lane29a/sample11,TRUE,informatics incomplete
-KR3_P_0.4,K562,0.025,1,6,144,5010,novogene_lane29a/sample12,FALSE,
-KR3_PL_1,K562,0.025,1,6,144,3090,novogene_lane29a/sample13,FALSE,
-KR3_PL_5,K562,0.025,1,6,144,456,novogene_lane29a/sample14,TRUE,informatics incomplete
-KR3_A30,K562,0.025,1,6,144,985,novogene_lane29a/sample15,TRUE,informatics incomplete
-KR4_D0,K562,0.025,1,0,0,36,novogene_lane29a/sample16,FALSE,
-KR4_P_0.4,K562,0.025,1,6,144,52,novogene_lane29a/sample17,FALSE,low depth
-KR4_PL_1_A,K562,0.025,1,6,144,2525,novogene_lane29a/sample18,FALSE,
-KR4_PL_1_B,K562,0.025,2,6,144,2728,novogene_lane29a/sample19,FALSE,
-KR4_PL_5,K562,0.025,1,6,144,535,novogene_lane29a/sample20,FALSE,
-KR4_A30,K562,0.025,1,6,144,1144,novogene_lane29a/sample21,FALSE,
-KR1_P_0.1_A,K562,0.025,1,6,144,3604,novogene_lane29b/sample1,FALSE,
-KR1_P_0.1_B,K562,0.025,2,6,144,3838,novogene_lane29b/sample2,FALSE,
-KR1_A10,K562,0.025,1,6,144,500,novogene_lane29b/sample3,TRUE,averageoftworeplicatesused
+KR3_P_0.4,K562,0.025,1,6,144,4241,novogene_lane29a/sample12,FALSE,
+KR3_PL_1,K562,0.025,1,6,144,2643,novogene_lane29a/sample13,FALSE,
+KR3_PL_5,K562,0.025,1,6,144,666,novogene_lane29a/sample14,TRUE,
+KR3_A30,K562,0.025,1,6,144,902,novogene_lane29a/sample15,TRUE,
+KR4_D0,K562,0.025,1,0,0,150,novogene_lane29a/sample16,FALSE,
+KR4_P_0.4,K562,0.025,1,6,144,27,novogene_lane29a/sample17,FALSE,low sequencing depth
+KR4_PL_1_A,K562,0.025,1,6,144,2164,novogene_lane29a/sample18,FALSE,
+KR4_PL_1_B,K562,0.025,2,6,144,2643,novogene_lane29a/sample19,FALSE,
+KR4_PL_5,K562,0.025,1,6,144,450,novogene_lane29a/sample20,FALSE,
+KR4_A30,K562,0.025,1,6,144,1050,novogene_lane29a/sample21,FALSE,
+KR1_P_0.1_A,K562,0.025,1,6,144,3178,novogene_lane29b/sample1,FALSE,
+KR1_P_0.1_B,K562,0.025,2,6,144,3378,novogene_lane29b/sample2,FALSE,
+KR1_A10,K562,0.025,1,6,144,500,novogene_lane29b/sample3,TRUE,
 KR2_P_0.1_A,K562,0.025,1,6,144,3442,novogene_lane29b/sample4,FALSE,
 KR2_P_0.1_B,K562,0.025,2,6,144,2860,novogene_lane29b/sample5,FALSE,
-KR2_A10,K562,0.025,1,6,144,1750,novogene_lane29b/sample6,TRUE,averageoftworeplicatesused
-KR3_P_0.1_A,K562,0.025,1,6,144,5010,novogene_lane29b/sample7,TRUE,
-KR3_P_0.1_B,K562,0.025,2,6,144,3634,novogene_lane29b/sample8,TRUE,
-KR3_A10,K562,0.025,1,6,144,2000,novogene_lane29b/sample9,TRUE,averageoftworeplicatesused
-KR4_P_0.1,K562,0.025,1,6,144,1500,novogene_lane29b/sample10,FALSE,
-KR4_A10,K562,0.025,1,6,144,2450,novogene_lane29b/sample11,FALSE,averageoftworeplicatesused
+KR2_A10,K562,0.025,1,6,144,1750,novogene_lane29b/sample6,TRUE,
+KR3_P_0.1_A,K562,0.025,1,6,144,4339,novogene_lane29b/sample7,TRUE,informatics incomplete
+KR3_P_0.1_B,K562,0.025,2,6,144,4867,novogene_lane29b/sample8,TRUE,
+KR3_A10,K562,0.025,1,6,144,2000,novogene_lane29b/sample9,TRUE,
+KR4_P_0.1,K562,0.025,1,6,144,1150,novogene_lane29b/sample10,FALSE,
+KR4_A10,K562,0.025,1,6,144,2150,novogene_lane29b/sample11,FALSE,
