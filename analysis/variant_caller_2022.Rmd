@@ -104,8 +104,13 @@ outdir=c("data/Consensus_Data/novogene_lane29b/for_export/sample3/duplex/variant
                    "data/Consensus_Data/novogene_lane29b/for_export/sample9/duplex/variant_caller_outputs",
                    "data/Consensus_Data/novogene_lane29b/for_export/sample3/l298l/duplex/variant_caller_outputs")
 
-seqdata_tsv_name=c("data/Consensus_Data/novogene_lane29a/sample2/nol298l/sscs/sscs_sorted_filtered.tsv.gz")
-outdir=c("data/Consensus_Data/novogene_lane29a/sample2/nol298l/sscs/variant_caller_outputs")
+seqdata_tsv_name=c("data/Consensus_Data/novogene_lane29a/sample16/sscs/sscs_sorted_filtered.tsv.gz",
+                   "data/Consensus_Data/novogene_lane29a/sample18/sscs/sscs_sorted_filtered.tsv.gz",
+                   "data/Consensus_Data/novogene_lane29a/sample19/sscs/sscs_sorted_filtered.tsv.gz")
+outdir=c("data/Consensus_Data/novogene_lane29a/sample16/sscs/variant_caller_outputs",
+                   "data/Consensus_Data/novogene_lane29a/sample18/sscs/variant_caller_outputs",
+                   "data/Consensus_Data/novogene_lane29a/sample19/sscs/variant_caller_outputs")
+
 ```
 
 
@@ -260,6 +265,8 @@ for(i in c(1:nrow(alldata))){
   end=alldata$pos[i]+alldata$mlen[i]
   coverage_stats$depth[c(start:end)]=coverage_stats$depth[c(start:end)]+1
 }
+
+
 # toc()
 # ggplot(coverage_stats,aes(x=pos,y=depth))+geom_col()
 
@@ -709,7 +716,17 @@ calls_sum_merged=rbind(snps_sum_ann_reformatted,mnv_sum_ann_reformatted)
 #                                           consequence_terms)
 
 
+# Update to coverage calculations 11.10.2023:
+# I realized that the default coverage stats for measure the depth at the start of the sequence instead of the depth at the point where the mutant was seen. For example, if the read starts at residue 230 where CRISPR sscs depths are 10k but the mutant is located at position 250, where CRISPR depths are 1M, the default coverage stats code thinks that the depth at position 250 is only 10k.
+# In order to get the right depth at a residue, my solution is to just taking the max depth at that residue.
+# In the future, it would be better to modify the coverage stats code, where you know the coverage stats by residue and when you call a mutant, then you assign the appropriate coverage stats to it
+calls_sum_merged=calls_sum_merged%>%
+  group_by(protein_start)%>%
+  mutate(depth=round(max(depth)))
 
+calls_ann=calls_sum_merged%>%
+  group_by(protein_start)%>%
+  mutate(depth=round(max(depth)))
 
 
 write.csv(calls_ann,paste(outdir_curr,"/variants_ann.csv",sep = ""),row.names = F)
