@@ -1,0 +1,5 @@
+type,alt_start_pos,alt_end_pos,ref,ref_codon,alt,alt_codon,frame_pos,ct,depth,protein_start,protein_end,ref_aa,alt_aa,amino_acids,consequence_terms
+snp,985,986,G,GAG,A,AAG,0,1,45,329,329,E,K,E/K,missense_variant
+mnv,1024,1027,TAC,TAC,GGT,GGT,0,1,45,342,342,Y,G,Y/G,missense_variant
+mnv,1030,1032,GC,GCC,AT,ATC,0,5,47,344,344,A,I,A/I,missense_variant
+mnv,1030,1033,GCC,GCC,AAG,AAG,0,1,47,344,344,A,K,A/K,missense_variant

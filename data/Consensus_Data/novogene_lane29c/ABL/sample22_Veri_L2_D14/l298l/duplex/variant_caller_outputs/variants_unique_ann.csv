@@ -1,0 +1,9 @@
+type,alt_start_pos,alt_end_pos,ref,ref_codon,alt,alt_codon,frame_pos,ct,depth,protein_start,protein_end,ref_aa,alt_aa,amino_acids,consequence_terms
+snp,819,820,A,TTG,A,TTA,2,1,5348.0,273,273,L,L,L/L,synonymous_variant
+snp,821,822,T,AAG,G,AGG,1,1,5429.0,274,274,K,R,K/R,missense_variant
+snp,826,827,T,GAC,A,AAC,0,2,5073.5,276,276,D,N,D/N,missense_variant
+snp,829,830,G,ACC,G,GCC,0,2,4799.0,277,277,T,A,T/A,missense_variant
+snp,842,843,A,GAA,G,GGA,1,1,5348.0,281,281,E,G,E/G,missense_variant
+snp,843,844,G,GAA,G,GAG,2,1,5348.0,281,281,E,E,E/E,synonymous_variant
+snp,894,895,A,CTG,G,CTG,2,1924,9089.3,298,298,L,L,L/L,synonymous_variant
+mnv,739,741,CT,AAG,GG,GGG,0,1,4799.0,247,247,K,G,K/G,missense_variant

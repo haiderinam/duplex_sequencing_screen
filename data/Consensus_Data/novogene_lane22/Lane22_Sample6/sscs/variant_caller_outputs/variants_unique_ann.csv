@@ -1,6 +1,6 @@
-"type","alt_start_pos","alt_end_pos","ref","ref_codon","alt","alt_codon","frame_pos","ct","depth","protein_start","protein_end","ref_aa","alt_aa","amino_acids","consequence_terms"
-"snp",1479,1480,"T","TTT","C","TTC",2,1,29,493,493,"F","F","F/F","synonymous_variant"
-"mnv",1403,1405,"TC","GTC","CT","GCT",1,1,13,468,468,"V","A","V/A","missense_variant"
-"mnv",1408,1411,"GAA","GAA","AAG","AAG",0,1,13,470,470,"E","K","E/K","missense_variant"
-"mnv",1459,1462,"GCT","GCT","CAC","CAC",0,1,13,487,487,"A","H","A/H","missense_variant"
-"mnv",1528,1531,"CTG","CTG","TTC","TTC",0,1,27,510,510,"L","F","L/F","missense_variant"
+type,alt_start_pos,alt_end_pos,ref,ref_codon,alt,alt_codon,frame_pos,ct,depth,protein_start,protein_end,ref_aa,alt_aa,amino_acids,consequence_terms
+snp,1479,1480,T,TTT,C,TTC,2,1,29,493,493,F,F,F/F,synonymous_variant
+mnv,1403,1405,TC,GTC,CT,GCT,1,1,13,468,468,V,A,V/A,missense_variant
+mnv,1408,1411,GAA,GAA,AAG,AAG,0,1,13,470,470,E,K,E/K,missense_variant
+mnv,1459,1462,GCT,GCT,CAC,CAC,0,1,13,487,487,A,H,A/H,missense_variant
+mnv,1528,1531,CTG,CTG,TTC,TTC,0,1,27,510,510,L,F,L/F,missense_variant
