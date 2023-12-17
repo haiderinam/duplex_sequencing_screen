@@ -1,0 +1,18 @@
+Colname,Description
+species,"Mutation, such as T315I"
+consequence_terms,"Missense variant, or erroneous synonymous SNPs"
+ref_aa,"WT amino acid on ABL, e.g. T for the 315th position"
+protein_start,"WT amino acid on ABL, e.g. residue 315 for T315I"
+alt_aa,"ALT amino acid, e.g. I for the T315I"
+ref,"Reference nucleotides on ABL that were mutated (1 nucleotide in case of a SNV, 2-3 nucleotides in case of an mnv)"
+alt,"Alternate nucleotides on ABL that were mutated (1 nucleotide in case of a SNV, 2-3 nucleotides in case of an mnv)"
+ref_codon,The WT codon on ABL that was mutated
+alt_codon,The resulting codon after mutagenesis
+alt_codon_shortest,What is the shortest possible codon for this species? This informs n_nuc_min (next column)
+n_nuc_min,"On human ABL, what is the shortest number of nucelotide substitutions required to make this species?"
+netgr_PL1,Net growth rate under 6 days of selection with 1nM Ponatilink
+netgr_PL5,Net growth rate under 6 days of selection with 5nM Ponatilink
+netgr_Asc10,Net growth rate under 6 days of selection with 10nM Asciminib
+netgr_Asc30,Net growth rate under 6 days of selection with 30nM Asciminib
+netgr_Pon0.1,Net growth rate under 6 days of selection with 0.1nM Ponatinib
+netgr_Pon0.4,Net growth rate under 6 days of selection with 0.4nM Ponatinib

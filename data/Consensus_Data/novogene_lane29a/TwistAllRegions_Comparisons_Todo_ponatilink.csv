@@ -2,30 +2,32 @@ Num,dirname,before_screen1_identifier,after_screen1_identifier,before_screen2_id
 1,k562_r1_P_0.1_rep1vsrep2,KR1_D0,KR1_P_0.1_A,KR1_D0,KR1_P_0.1_B,Region1,240,321,FALSE,FALSE,crossreplicate
 2,k562_r2_P_0.1_rep1vsrep2,KR2_D0,KR2_P_0.1_A,KR2_D0,KR2_P_0.1_B,Region2,322,394,FALSE,FALSE,crossreplicate
 3,k562_r3_P_0.1_rep1vsrep2,KR3_D0,KR3_P_0.1_A,KR3_D0,KR3_P_0.1_B,Region3,394,465,FALSE,FALSE,crossreplicate
-4,k562_r4_PL_1_rep1vsrep2,KR4_D0,KR4_PL_1_A,KR4_D0,KR4_PL_1_B,Region4,465,518,TRUE,FALSE,crossreplicate
-5,k562_r1_PL1vsPL5,KR1_D0,KR1_PL_1,KR1_D0,KR1_PL_5,Region1,240,321,TRUE,FALSE,cross dose
-6,k562_r2_PL1vsPL5,KR2_D0,KR2_PL_1,KR2_D0,KR2_PL_5,Region2,322,394,TRUE,FALSE,cross dose
-7,k562_r3_PL1vsPL5,KR3_D0,KR3_PL_1,KR3_D0,KR3_PL_5,Region3,394,465,TRUE,TRUE,cross dose
-8,k562_r4_PL1vsPL5,KR4_D0,"KR4_PL_1_A,KR4_PL_1_B",KR4_D0,KR4_PL_5,Region4,465,518,TRUE,FALSE,cross dose
-9,k562_r1_Ponatilink5vsPonatinib0.4,KR1_D0,KR1_PL_5,KR1_D0,KR1_P_0.4,Region1,240,321,TRUE,FALSE,cross drug
-10,k562_r2_Ponatilink5vsPonatinib0.4,KR2_D0,KR2_PL_5,KR2_D0,KR2_P_0.4,Region2,322,394,TRUE,FALSE,cross drug
-11,k562_r3_Ponatilink5vsPonatinib0.4,KR3_D0,KR3_PL_5,KR3_D0,KR3_P_0.4,Region3,394,465,TRUE,TRUE,cross drug
-12,k562_r4_Ponatilink5vsPonatinib0.4,KR4_D0,KR4_PL_5,KR4_D0,KR4_P_0.4,Region4,465,518,TRUE,TRUE,cross drug
-13,k562_r1_Ponatilink5vsAsc30,KR1_D0,KR1_PL_5,KR1_D0,KR1_A30,Region1,240,321,TRUE,FALSE,cross drug
-14,k562_r2_Ponatilink5vsAsc30,KR2_D0,KR2_PL_5,KR2_D0,KR2_A30,Region2,322,394,TRUE,FALSE,cross drug
-15,k562_r3_Ponatilink5vsAsc30,KR3_D0,KR3_PL_5,KR3_D0,KR3_A30,Region3,394,465,TRUE,TRUE,cross drug
-16,k562_r4_Ponatilink5vsAsc30,KR4_D0,KR4_PL_5,KR4_D0,KR4_A30,Region4,465,518,TRUE,FALSE,cross drug
-17,k562_r1_Ponatinib0.4vsAsc30,KR1_D0,KR1_P_0.4,KR1_D0,KR1_A30,Region1,240,321,TRUE,FALSE,cross drug
-18,k562_r2_Ponatinib0.4vsAsc30,KR2_D0,KR2_P_0.4,KR2_D0,KR2_A30,Region2,322,394,TRUE,FALSE,cross drug
-19,k562_r3_Ponatinib0.4vsAsc30,KR3_D0,KR3_P_0.4,KR3_D0,KR3_A30,Region3,394,465,TRUE,TRUE,cross drug
-20,k562_r4_Ponatinib0.4vsAsc30,KR4_D0,KR4_P_0.4,KR4_D0,KR4_A30,Region4,465,518,TRUE,TRUE,cross drug
-21,,,,,,,,,,,
-22,,,,,,,,,,,
-23,,,,,,,,,,,
-24,k562_r4_Ponatilink5vsPonatinib0.1,KR4_D0,KR4_PL_5,KR4_D0,KR4_P_0.1,Region4,465,518,FALSE,FALSE,
-25,,,,,,,,,,,
-26,,,,,,,,,,,
-27,,,,,,,,,,,
-28,,,,,,,,,,,
-29,,,,,,,,,,,
-30,,,,,,,,,,,
+4,k562_r4_PL_1_rep1vsrep2,KR4_D0,KR4_PL_1_A,KR4_D0,KR4_PL_1_B,Region4,465,518,FALSE,FALSE,crossreplicate
+5,k562_r1_P_0.1vsP_0.4,KR1_D0,"KR1_P_0.1_A,KR1_P_0.1_B",KR1_D0,KR1_P_0.4,Region1,240,321,FALSE,FALSE,cross dose
+6,k562_r2_P_0.1vsP_0.4,KR2_D0,KR2_PL_1,KR2_D0,KR2_PL_5,Region2,322,394,FALSE,FALSE,cross dose
+7,k562_r3_P_0.1vsP_0.4,KR3_D0,KR3_PL_1,KR3_D0,KR3_PL_5,Region3,394,465,FALSE,FALSE,cross dose
+8,k562_r4_P_0.1vsP_0.4,KR4_D0,KR4_P_0.1,KR4_D0,KR4_P_0.4,Region4,465,518,FALSE,TRUE,cross dose
+9,k562_r1_PL1vsPL5,KR1_D0,KR1_PL_1,KR1_D0,KR1_PL_5,Region1,240,321,FALSE,FALSE,cross dose
+10,k562_r2_PL1vsPL5,KR2_D0,KR2_PL_1,KR2_D0,KR2_PL_5,Region2,322,394,FALSE,FALSE,cross dose
+11,k562_r3_PL1vsPL5,KR3_D0,KR3_PL_1,KR3_D0,KR3_PL_5,Region3,394,465,FALSE,FALSE,cross dose
+12,k562_r4_PL1vsPL5,KR4_D0,"KR4_PL_1_A,KR4_PL_1_B",KR4_D0,KR4_PL_5,Region4,465,518,FALSE,FALSE,cross dose
+13,k562_r1_Asc10vsAsc30,KR1_D0,KR1_A10,KR1_D0,KR1_A30,Region1,240,321,FALSE,FALSE,cross dose
+14,k562_r2_Asc10vsAsc30,KR2_D0,KR2_A10,KR2_D0,KR2_A30,Region2,322,394,FALSE,FALSE,cross dose
+15,k562_r3_Asc10vsAsc30,KR3_D0,KR3_A10,KR3_D0,KR3_A30,Region3,394,465,FALSE,FALSE,cross dose
+16,k562_r4_Asc10vsAsc30,KR4_D0,KR4_A10,KR4_D0,KR4_A30,Region4,465,518,FALSE,FALSE,cross dose
+17,k562_r1_Ponatilink5vsPonatinib0.4,KR1_D0,KR1_PL_5,KR1_D0,KR1_P_0.4,Region1,240,321,FALSE,FALSE,cross drug
+18,k562_r2_Ponatilink5vsPonatinib0.4,KR2_D0,KR2_PL_5,KR2_D0,KR2_P_0.4,Region2,322,394,FALSE,FALSE,cross drug
+19,k562_r3_Ponatilink5vsPonatinib0.4,KR3_D0,KR3_PL_5,KR3_D0,KR3_P_0.4,Region3,394,465,FALSE,TRUE,cross drug
+20,k562_r4_Ponatilink5vsPonatinib0.4,KR4_D0,KR4_PL_5,KR4_D0,KR4_P_0.4,Region4,465,518,FALSE,TRUE,cross drug
+21,k562_r1_Ponatilink5vsAsc30,KR1_D0,KR1_PL_5,KR1_D0,KR1_A30,Region1,240,321,FALSE,FALSE,cross drug
+22,k562_r2_Ponatilink5vsAsc30,KR2_D0,KR2_PL_5,KR2_D0,KR2_A30,Region2,322,394,FALSE,FALSE,cross drug
+23,k562_r3_Ponatilink5vsAsc30,KR3_D0,KR3_PL_5,KR3_D0,KR3_A30,Region3,394,465,FALSE,TRUE,cross drug
+24,k562_r4_Ponatilink5vsAsc30,KR4_D0,KR4_PL_5,KR4_D0,KR4_A30,Region4,465,518,FALSE,FALSE,cross drug
+25,k562_r1_Ponatinib0.4vsAsc30,KR1_D0,KR1_P_0.4,KR1_D0,KR1_A30,Region1,240,321,FALSE,FALSE,cross drug
+26,k562_r2_Ponatinib0.4vsAsc30,KR2_D0,KR2_P_0.4,KR2_D0,KR2_A30,Region2,322,394,FALSE,FALSE,cross drug
+27,k562_r3_Ponatinib0.4vsAsc30,KR3_D0,KR3_P_0.4,KR3_D0,KR3_A30,Region3,394,465,FALSE,TRUE,cross drug
+28,k562_r4_Ponatinib0.4vsAsc30,KR4_D0,KR4_P_0.4,KR4_D0,KR4_A30,Region4,465,518,FALSE,TRUE,cross drug
+28,k562_r4_Ponatinib0.1vsAsc30,KR4_D0,KR4_P_0.1,KR4_D0,KR4_A30,Region4,465,518,FALSE,FALSE,cross drug
+,,,,,,,,,,,
+,,,,,,,,,,,
+,k562_r4_Ponatilink5vsPonatinib0.1,KR4_D0,KR4_PL_5,KR4_D0,KR4_P_0.1,Region4,465,518,FALSE,FALSE,

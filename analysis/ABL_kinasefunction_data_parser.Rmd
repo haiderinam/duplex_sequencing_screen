@@ -68,6 +68,8 @@ screen_compare_means=compare_screens(before_screen1_identifier,
                                      before_screen2_identifier,
                                      after_screen2_identifier)
 
+# Making sure "mutants" are within mutagenized region
+screen_compare_means=screen_compare_means%>%filter(protein_start%in%c(position_start:position_end))
 screen_compare_means_forexport=apply(screen_compare_means,2,as.character)
 # dirname
 # write.csv(screen_compare_means_forexport,file="output/ABLEnrichmentScreens/ABL_Region1_Lane18_Comparisons/cross-replicate/baf3_IL3_rep1vsrep2_ft/screen_comparison_baf3_IL3_low_rep1vsrep2ft.csv")
@@ -128,13 +130,13 @@ source("code/plotting/heatmap_plotting_function.R")
 # rm(list=ls())
 cellcounts_matrix_dir="data/Consensus_Data/novogene_lane29a/TwistAllRegions_CellCounts_Matrix_ponatilink.csv"
 comparisons=read.csv("data/Consensus_Data/novogene_lane29a/TwistAllRegions_Comparisons_Todo_ponatilink.csv")
-# comparisons=comparisons%>%filter(Completed%in%"FALSE")
+comparisons=comparisons%>%filter(Completed%in%"FALSE")
 comparisons=comparisons%>%filter(Skip_flag%in%"FALSE")
 
 for(i in 1:nrow(comparisons)){
 # for(i in 12:nrow(comparisons)){
-# for(i in 1:1){
-  # i=10
+# for(i in 10:10){
+  # i=1
   dirname=comparisons$dirname[i]
   pathname=paste("output/ABLEnrichmentScreens/ABL_Ponatilink_Screens/",dirname,sep = "")
   # Create directory if it doesn't already exist
@@ -158,7 +160,8 @@ screen_compare_means=compare_screens(before_screen1_identifier,
                                      before_screen2_identifier,
                                      after_screen2_identifier,
                                      cellcounts_matrix_dir)
-
+# Making sure "mutants" are within mutagenized region
+screen_compare_means=screen_compare_means%>%filter(protein_start%in%c(position_start:position_end))
 screen_compare_means_forexport=apply(screen_compare_means,2,as.character)
 # dirname
 
@@ -203,6 +206,205 @@ ggsave(paste("output/ABLEnrichmentScreens/ABL_Ponatilink_Screens/",dirname,"/plo
 
 ```
 
+```{r}
+screen_compare_means=screen_compare_means%>%
+  mutate(ct=case_when(ct_screen1_before%in%1~"1",
+                      ct_screen1_before%in%c(2:10)~"2-10",
+                      ct_screen1_before%in%c(11:50)~"11-50",
+                      ct_screen1_before>=51~"50+"))
+
+
+
+twist=read.csv("data/codon_table.csv",header = T)
+twist=twist%>%filter(Twist%in%T)
+screen_compare_means=screen_compare_means%>%
+  mutate(twist_codon=case_when(alt_codon%in%twist$Codon~T,
+         T~F))
+
+
+ggplot(screen_compare_means,aes(x=netgr_obs_screen1,y=netgr_obs_screen2,color=ct,label=species))+geom_text(size=2.5)+geom_abline()+cleanup+stat_cor(method = "pearson")+labs(color="Known\nResistant\nMutant")+scale_x_continuous("Net growth rate screen 1")+scale_y_continuous("Net growth rate screen 2")
+
+ggplot(screen_compare_means,aes(x=netgr_obs_screen1,y=netgr_obs_screen2,color=twist_codon,label=species))+geom_text(size=2.5)+geom_abline()+cleanup+stat_cor(method = "pearson")+labs(color="Known\nResistant\nMutant")+scale_x_continuous("Net growth rate screen 1")+scale_y_continuous("Net growth rate screen 2")
+
+# Do duplicates lead to lower correlations?
+# Answer: it is not the fact that there are duplicates but the error rate
+screen_compare_means=screen_compare_means%>%
+  group_by(species)%>%
+  mutate(n=n())
+x=screen_compare_means[screen_compare_means$n%in%2,]
+ggplot(screen_compare_means,aes(x=netgr_obs_screen1,y=netgr_obs_screen2,color=n,label=species))+geom_text(size=2.5)+geom_abline()+cleanup+stat_cor(method = "pearson")+labs(color="Known\nResistant\nMutant")+scale_x_continuous("Net growth rate screen 1")+scale_y_continuous("Net growth rate screen 2")
+
+# Does filtering for REF length of <=3 remove these duplicates?
+# Ans: it removes half of them 
+screen_compare_means_filtered=screen_compare_means%>%
+  filter(nchar(ref)<=3)%>%
+  group_by(species)%>%
+  mutate(n=n())
+x=screen_compare_means_filtered[screen_compare_means_filtered$n%in%2,]
+
+ggplot(screen_compare_means_filtered,aes(x=netgr_obs_screen1,y=netgr_obs_screen2,color=factor(n),label=species))+geom_text(size=2.5)+geom_abline()+cleanup+stat_cor(method = "pearson")+labs(color="Known\nResistant\nMutant")+scale_x_continuous("Net growth rate screen 1")+scale_y_continuous("Net growth rate screen 2")
+```
+
+For ponatilink: Making a combined dataframe of all regions
+```{r}
+############# PONATILINK SCREENS ############# 
+
+r1=read.csv("output/ABLEnrichmentScreens/ABL_Ponatilink_Screens/k562_r1_PL1vsPL5/screen_comparison_k562_r1_PL1vsPL5.csv")
+r1=r1%>%filter(protein_start%in%c(240:321))
+
+r2=read.csv("output/ABLEnrichmentScreens/ABL_Ponatilink_Screens/k562_r2_PL1vsPL5/screen_comparison_k562_r2_PL1vsPL5.csv")
+r2=r2%>%filter(protein_start%in%c(322:393))
+
+r3=read.csv("output/ABLEnrichmentScreens/ABL_Ponatilink_Screens/k562_r3_PL1vsPL5/screen_comparison_k562_r3_PL1vsPL5.csv")
+r3=r3%>%filter(protein_start%in%c(394:465))
+
+r4=read.csv("output/ABLEnrichmentScreens/ABL_Ponatilink_Screens/k562_r4_PL1vsPL5/screen_comparison_k562_r4_PL1vsPL5.csv")
+r4=r4%>%filter(protein_start%in%c(466:518))
+
+pl1vs5_all=rbind(r1,r2,r3,r4)
+
+pl1vs5_all=pl1vs5_all%>%dplyr::select(-c("X",
+                                         "alt_start_pos",
+                                         "score_mean",
+                                         "score_screen1",
+                                         "ct_screen1_before",
+                                         "depth_screen1_before",
+                                         "ct_screen1_after",
+                                         "depth_screen1_after",
+                                         "maf_screen1_before",
+                                         "maf_screen1_after",
+                                         "score_screen2",
+                                         "ct_screen2_before",
+                                         "depth_screen2_before",
+                                         "ct_screen2_after",
+                                         "depth_screen2_after",
+                                         "maf_screen2_before",
+                                         "maf_screen2_after",
+                                         "resmuts",
+                                         "resresids",
+                                         "netgr_obs_mean"))
+
+pl1vs5_all=pl1vs5_all%>%rename(netgr_PL1=netgr_obs_screen1,netgr_PL5=netgr_obs_screen2)
+pl1vs5_all=pl1vs5_all%>%dplyr::select(c("species","consequence_terms"),"ref_aa",everything())
+
+
+
+############# Asciminib SCREENS ############# 
+
+r1=read.csv("output/ABLEnrichmentScreens/ABL_Ponatilink_Screens/k562_r1_Asc10vsAsc30/screen_comparison_k562_r1_Asc10vsAsc30.csv")
+r1=r1%>%filter(protein_start%in%c(240:321))
+
+r2=read.csv("output/ABLEnrichmentScreens/ABL_Ponatilink_Screens/k562_r2_Asc10vsAsc30/screen_comparison_k562_r2_Asc10vsAsc30.csv")
+r2=r2%>%filter(protein_start%in%c(322:393))
+
+r3=read.csv("output/ABLEnrichmentScreens/ABL_Ponatilink_Screens/k562_r3_Asc10vsAsc30/screen_comparison_k562_r3_Asc10vsAsc30.csv")
+r3=r3%>%filter(protein_start%in%c(394:465))
+
+r4=read.csv("output/ABLEnrichmentScreens/ABL_Ponatilink_Screens/k562_r4_Asc10vsAsc30/screen_comparison_k562_r4_Asc10vsAsc30.csv")
+r4=r4%>%filter(protein_start%in%c(466:518))
+
+asc10vsasc30_all=rbind(r1,r2,r3,r4)
+
+asc10vsasc30_all=asc10vsasc30_all%>%dplyr::select(-c("X",
+                                         "alt_start_pos",
+                                         "score_mean",
+                                         "score_screen1",
+                                         "ct_screen1_before",
+                                         "depth_screen1_before",
+                                         "ct_screen1_after",
+                                         "depth_screen1_after",
+                                         "maf_screen1_before",
+                                         "maf_screen1_after",
+                                         "score_screen2",
+                                         "ct_screen2_before",
+                                         "depth_screen2_before",
+                                         "ct_screen2_after",
+                                         "depth_screen2_after",
+                                         "maf_screen2_before",
+                                         "maf_screen2_after",
+                                         "resmuts",
+                                         "resresids",
+                                         "netgr_obs_mean"))
+
+asc10vsasc30_all=asc10vsasc30_all%>%rename(netgr_Asc10=netgr_obs_screen1,netgr_Asc30=netgr_obs_screen2)
+asc10vsasc30_all=asc10vsasc30_all%>%dplyr::select(c("species","consequence_terms"),"ref_aa",everything())
+
+
+
+############# Ponatinib SCREENS ############# 
+
+r1=read.csv("output/ABLEnrichmentScreens/ABL_Ponatilink_Screens/k562_r1_P_0.1vsP_0.4/screen_comparison_k562_r1_P_0.1vsP_0.4.csv")
+r1=r1%>%filter(protein_start%in%c(240:321))
+
+r2=read.csv("output/ABLEnrichmentScreens/ABL_Ponatilink_Screens/k562_r2_P_0.1vsP_0.4/screen_comparison_k562_r2_P_0.1vsP_0.4.csv")
+r2=r2%>%filter(protein_start%in%c(322:393))
+
+r3=read.csv("output/ABLEnrichmentScreens/ABL_Ponatilink_Screens/k562_r3_P_0.1vsP_0.4/screen_comparison_k562_r3_P_0.1vsP_0.4.csv")
+r3=r3%>%filter(protein_start%in%c(394:465))
+
+r4=read.csv("output/ABLEnrichmentScreens/ABL_Ponatilink_Screens/k562_r4_Ponatinib0.1vsAsc30/screen_comparison_k562_r4_Ponatinib0.1vsAsc30.csv")
+r4=r4%>%filter(protein_start%in%c(466:518))
+r4=r4%>%mutate(netgr_obs_screen2=NA)
+
+P0.1vsP0.4_all=rbind(r1,r2,r3,r4)
+
+P0.1vsP0.4_all=P0.1vsP0.4_all%>%dplyr::select(-c("X",
+                                         "alt_start_pos",
+                                         "score_mean",
+                                         "score_screen1",
+                                         "ct_screen1_before",
+                                         "depth_screen1_before",
+                                         "ct_screen1_after",
+                                         "depth_screen1_after",
+                                         "maf_screen1_before",
+                                         "maf_screen1_after",
+                                         "score_screen2",
+                                         "ct_screen2_before",
+                                         "depth_screen2_before",
+                                         "ct_screen2_after",
+                                         "depth_screen2_after",
+                                         "maf_screen2_before",
+                                         "maf_screen2_after",
+                                         "resmuts",
+                                         "resresids",
+                                         "netgr_obs_mean"))
+
+P0.1vsP0.4_all=P0.1vsP0.4_all%>%rename(netgr_Pon0.1=netgr_obs_screen1,netgr_Pon0.4=netgr_obs_screen2)
+P0.1vsP0.4_all=P0.1vsP0.4_all%>%dplyr::select(c("species","consequence_terms"),"ref_aa",everything())
+
+# colnames(pl1vs5_all)
+PL_Asc=merge(pl1vs5_all,
+             asc10vsasc30_all,
+             by=c("species",
+                  "consequence_terms",
+                  "ref_aa",
+                  "protein_start",
+                  "alt_aa",
+                  "ref",
+                  "alt",
+                  "ref_codon",
+                  "alt_codon",
+                  "alt_codon_shortest",
+                  "n_nuc_min"))
+
+Ponatilink_all=merge(PL_Asc,
+             P0.1vsP0.4_all,
+             by=c("species",
+                  "consequence_terms",
+                  "ref_aa",
+                  "protein_start",
+                  "alt_aa",
+                  "ref",
+                  "alt",
+                  "ref_codon",
+                  "alt_codon",
+                  "alt_codon_shortest",
+                  "n_nuc_min"))
+
+write.csv(Ponatilink_all,"output/ABLEnrichmentScreens/ABL_Ponatilink_Screens/ponatilink_combined_growthrates_11.14.23.csv")
+```
+
+
 Plotting all ponatilink data
 ```{r}
 # source("code/plotting/heatmap_plotting_function.R")
@@ -222,6 +424,8 @@ heatmap_plotting_function(kr3d6,394,465,fill_name = "Count")
 
 
 kr4d0=read.csv("data/Consensus_Data/novogene_lane29a/sample16/sscs/variant_caller_outputs/variants_unique_ann.csv")
+class(kr4d0$depth)
+# class(1)
 kr4d0=kr4d0%>%filter(protein_start%in%c(465:512),consequence_terms%in%"missense_variant",ct>=1)
 heatmap_plotting_function(kr4d0,465,512,fill_variable = "depth",fill_name = "Net growth rate")
 

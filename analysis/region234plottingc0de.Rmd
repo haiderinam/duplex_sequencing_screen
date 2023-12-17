@@ -61,7 +61,7 @@ comparisons=read.csv("data/Consensus_Data/novogene_lane23/TwistAllRegions_Compar
 comparisons=comparisons%>%filter(Completed%in%"FALSE")
 
 # for(i in 1:nrow(comparisons)){
-for(i in 6:8){
+for(i in 1:8){
   # i=10
   dirname=comparisons$dirname[i]
   pathname=paste("output/ABLEnrichmentScreens/ABL_Region234_Comparisons/",dirname,sep = "")
@@ -181,7 +181,7 @@ btr4d0b=btr4d0b%>%dplyr::select(ref_aa,protein_start,alt_aa,type,maf,alt_codon)
 
 btr4d0=merge(btr4d0a,btr4d0b,by = c("ref_aa","protein_start","alt_aa","type","alt_codon"))
 btr4d0b=btr4d0b%>%dplyr::select(ref_aa,protein_start,alt_aa,type,maf,alt_codon)
-
+# x=btr4d0%>%filter(protein_start%in%"486")
 btr4d0=merge(btr4d0a,btr4d0b,by = c("ref_aa","protein_start","alt_aa","type","alt_codon"))
 btr4d0=btr4d0%>%filter(alt_codon%in%twist_alt_codon)
 btr4d0=btr4d0%>%mutate(species=paste(ref_aa,protein_start,alt_aa,sep=""))

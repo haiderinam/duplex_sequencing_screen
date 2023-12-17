@@ -54,8 +54,8 @@ source("code/variantcaller/vep_fromquery.R")
 source("code/variantcaller/transcript_verifier.R")
 cdn_tbl=read.csv("data/codon_table.csv",header = T)
 
-ref_offset=0
-# ref_offset=723
+ref_offset=0 #use for everything else
+ref_offset=723 #use for ABL
 ############For EGFR#############
 # enst="ENST00000275493"
 # chr=7
@@ -90,26 +90,63 @@ mode="local"
 
 
 ```{r}
-seqdata_tsv_name=c("data/Consensus_Data/novogene_lane29b/for_export/sample3/duplex/duplex_sorted_filtered.tsv.gz",
-                   "data/Consensus_Data/novogene_lane29b/for_export/sample6/duplex/duplex_sorted_filtered.tsv.gz",
-                   "data/Consensus_Data/novogene_lane29b/for_export/sample7/duplex/duplex_sorted_filtered.tsv.gz",
-                   "data/Consensus_Data/novogene_lane29b/for_export/sample8/duplex/duplex_sorted_filtered.tsv.gz",
-                   "data/Consensus_Data/novogene_lane29b/for_export/sample9/duplex/duplex_sorted_filtered.tsv.gz",
-                   "data/Consensus_Data/novogene_lane29b/for_export/sample3/l298l/duplex/duplex_sorted_filtered.tsv.gz")
+# The following script creates a list of the main directory of all samples in a for a sequencing lane 
+seqdata_tsv_name=list.files("data/Consensus_Data/novogene_lane29a", pattern = "^sscs_sorted_filtered\\.tsv\\.gz$", recursive = TRUE, full.names = TRUE)
+outdir <- gsub("sscs_sorted_filtered\\.tsv\\.gz$", "variant_caller_outputs", seqdata_tsv_name)
 
-outdir=c("data/Consensus_Data/novogene_lane29b/for_export/sample3/duplex/variant_caller_outputs",
-                   "data/Consensus_Data/novogene_lane29b/for_export/sample6/duplex/variant_caller_outputs",
-                   "data/Consensus_Data/novogene_lane29b/for_export/sample7/duplex/variant_caller_outputs",
-                   "data/Consensus_Data/novogene_lane29b/for_export/sample8/duplex/variant_caller_outputs",
-                   "data/Consensus_Data/novogene_lane29b/for_export/sample9/duplex/variant_caller_outputs",
-                   "data/Consensus_Data/novogene_lane29b/for_export/sample3/l298l/duplex/variant_caller_outputs")
+seqdata_tsv_name=list.files("data/Consensus_Data/novogene_lane18", pattern = "^sscs_sorted_filtered\\.tsv\\.gz$", recursive = TRUE, full.names = TRUE)
+outdir <- gsub("sscs_sorted_filtered\\.tsv\\.gz$", "variant_caller_outputs", seqdata_tsv_name)
 
-seqdata_tsv_name=c("data/Consensus_Data/novogene_lane29a/sample16/sscs/sscs_sorted_filtered.tsv.gz",
-                   "data/Consensus_Data/novogene_lane29a/sample18/sscs/sscs_sorted_filtered.tsv.gz",
-                   "data/Consensus_Data/novogene_lane29a/sample19/sscs/sscs_sorted_filtered.tsv.gz")
-outdir=c("data/Consensus_Data/novogene_lane29a/sample16/sscs/variant_caller_outputs",
-                   "data/Consensus_Data/novogene_lane29a/sample18/sscs/variant_caller_outputs",
-                   "data/Consensus_Data/novogene_lane29a/sample19/sscs/variant_caller_outputs")
+seqdata_tsv_name=list.files("data/Consensus_Data/novogene_lane27b", pattern = "^sscs_sorted_filtered\\.tsv\\.gz$", recursive = TRUE, full.names = TRUE)
+outdir <- gsub("sscs_sorted_filtered\\.tsv\\.gz$", "variant_caller_outputs", seqdata_tsv_name)
+
+seqdata_tsv_name=list.files("data/Consensus_Data/novogene_lane28b", pattern = "^sscs_sorted_filtered\\.tsv\\.gz$", recursive = TRUE, full.names = TRUE)
+outdir <- gsub("sscs_sorted_filtered\\.tsv\\.gz$", "variant_caller_outputs", seqdata_tsv_name)
+
+seqdata_tsv_name=list.files("data/Consensus_Data/novogene_lane29b", pattern = "^sscs_sorted_filtered\\.tsv\\.gz$", recursive = TRUE, full.names = TRUE)
+outdir <- gsub("sscs_sorted_filtered\\.tsv\\.gz$", "variant_caller_outputs", seqdata_tsv_name)
+
+# seqdata_tsv_name=list.files("data/Consensus_Data/novogene_lane29a", pattern = "^sscs_sorted_filtered\\.tsv\\.gz$", recursive = TRUE, full.names = TRUE)
+# outdir <- gsub("sscs_sorted_filtered\\.tsv\\.gz$", "variant_caller_outputs", seqdata_tsv_name)
+
+seqdata_tsv_name=list.files("data/Consensus_Data/novogene_lane28", pattern = "^sscs_sorted_filtered\\.tsv\\.gz$", recursive = TRUE, full.names = TRUE)
+outdir <- gsub("sscs_sorted_filtered\\.tsv\\.gz$", "variant_caller_outputs", seqdata_tsv_name)
+
+seqdata_tsv_name=list.files("data/Consensus_Data/novogene_lane23", pattern = "^sscs_sorted_filtered\\.tsv\\.gz$", recursive = TRUE, full.names = TRUE)
+outdir <- gsub("sscs_sorted_filtered\\.tsv\\.gz$", "variant_caller_outputs", seqdata_tsv_name)
+
+seqdata_tsv_name=list.files("data/Consensus_Data/novogene_lane27b", pattern = "^duplex_sorted_filtered\\.tsv\\.gz$", recursive = TRUE, full.names = TRUE)
+outdir <- gsub("duplex_sorted_filtered\\.tsv\\.gz$", "variant_caller_outputs", seqdata_tsv_name)
+
+seqdata_tsv_name=list.files("data/Consensus_Data/novogene_lane29c/LTK", pattern = "^sscs_sorted_filtered\\.tsv\\.gz$", recursive = TRUE, full.names = TRUE)
+outdir <- gsub("sscs_sorted_filtered\\.tsv\\.gz$", "variant_caller_outputs", seqdata_tsv_name)
+
+seqdata_tsv_name=list.files("data/Consensus_Data/novogene_lane29c/LTK", pattern = "^duplex_sorted_filtered\\.tsv\\.gz$", recursive = TRUE, full.names = TRUE)
+outdir <- gsub("duplex_sorted_filtered\\.tsv\\.gz$", "variant_caller_outputs", seqdata_tsv_name)
+
+seqdata_tsv_name=list.files("data/Consensus_Data/novogene_lane29c/ABL", pattern = "^duplex_sorted_filtered\\.tsv\\.gz$", recursive = TRUE, full.names = TRUE)
+outdir <- gsub("duplex_sorted_filtered\\.tsv\\.gz$", "variant_caller_outputs", seqdata_tsv_name)
+
+seqdata_tsv_name=list.files("data/Consensus_Data/novogene_lane29c/ABL", pattern = "^duplex_sorted_filtered\\.tsv\\.gz$", recursive = TRUE, full.names = TRUE)
+outdir <- gsub("duplex_sorted_filtered\\.tsv\\.gz$", "variant_caller_outputs", seqdata_tsv_name)
+
+
+
+# seqdata_tsv_name=list.files("data/Consensus_Data/novogene_lane29a", pattern = "^duplex_sorted_filtered\\.tsv\\.gz$", recursive = TRUE, full.names = TRUE)
+# outdir <- gsub("duplex_sorted_filtered\\.tsv\\.gz$", "variant_caller_outputs", seqdata_tsv_name)
+
+# seqdata_tsv_name=list.files("data/Consensus_Data/novogene_lane29c/ABL", pattern = "^sscs_sorted_filtered\\.tsv\\.gz$", recursive = TRUE, full.names = TRUE)
+# outdir <- gsub("sscs_sorted_filtered\\.tsv\\.gz$", "variant_caller_outputs", seqdata_tsv_name)
+
+# To do: lane 29b, 28, 27b, 18,19
+
+
+# seqdata_tsv_name=c("data/Consensus_Data/novogene_lane29a/sample16/sscs/sscs_sorted_filtered.tsv.gz",
+#                    "data/Consensus_Data/novogene_lane29a/sample18/sscs/sscs_sorted_filtered.tsv.gz",
+#                    "data/Consensus_Data/novogene_lane29a/sample19/sscs/sscs_sorted_filtered.tsv.gz")
+# outdir=c("data/Consensus_Data/novogene_lane29a/sample16/sscs/variant_caller_outputs",
+#                    "data/Consensus_Data/novogene_lane29a/sample18/sscs/variant_caller_outputs",
+#                    "data/Consensus_Data/novogene_lane29a/sample19/sscs/variant_caller_outputs")
 
 ```
 
@@ -172,7 +209,8 @@ ref_genomic_coordinates=ref_genomic_coordinates%>%filter(!codon%in%"")
 ####This is the main chunk of code for reading, sorting the tsv file, variant calling, variant annotation using ensembl
 ```{r}
 for(j in 1:length(seqdata_tsv_name)){
-# for(j in 3:length(seqdata_tsv_name)){
+# for(j in 1:1)){
+# for(j in 42:length(seqdata_tsv_name)){
   # j=1
   seqdata_tsv_name_current=seqdata_tsv_name[j]
   outdir_curr=outdir[j]
@@ -265,7 +303,27 @@ for(i in c(1:nrow(alldata))){
   end=alldata$pos[i]+alldata$mlen[i]
   coverage_stats$depth[c(start:end)]=coverage_stats$depth[c(start:end)]+1
 }
-
+# coverage_stats_og=coverage_stats
+    # library("data.table")
+    # # Convert your data frames to data tables
+    # setDT(alldata)
+    # setDT(coverage_stats)
+    # 
+    # # Add a row index to coverage_stats for later update
+    # coverage_stats[, idx := .I]
+    # 
+    # # Create a data table of ranges from alldata
+    # ranges <- alldata[, .(start = pos, end = pos + mlen)]
+    # 
+    # # Perform an overlapping join
+    # overlaps <- foverlaps(ranges, coverage_stats, by.x = c("start", "end"), by.y = c("V1", "V2"), type = "within")
+    # 
+    # # Update coverage_stats by counting the overlaps
+    # coverage_stats[, depth := 0]  # Initialize depth
+    # coverage_stats[overlaps$idx, depth := depth + .N, by = .(idx)]
+    # 
+    # # Clean up, if necessary
+    # coverage_stats[, idx := NULL]  # Remove the index column if it's no longer needed
 
 # toc()
 # ggplot(coverage_stats,aes(x=pos,y=depth))+geom_col()
@@ -294,6 +352,9 @@ alldata=alldata%>%filter(mlen>=70)
 
 #######Filtering out deletions########
 alldata=alldata[!grepl("\\^",alldata$mdz),]
+
+#######Filtering out insertions########
+alldata=alldata[!grepl("I",alldata$cigar),]
 # x=alldata
 #####Filtering out any reads with an alignment score of 0####
 #Optionally you can also filter out cigar strings of '*' i think
@@ -487,7 +548,7 @@ mnvs=mnvs%>%
 
 # Why did I use which.max 1/ref cordinates-alt_start_pos? Because it gives me the lowest non-negative match for the variant in the reference:
 # https://stackoverflow.com/questions/28560188/find-the-index-of-minimum-non-negative-value-in-r
-ref_genomic_coordinates[(ref_genomic_coordinates$start-594)%in%c(0,1,2),"resi"]
+# ref_genomic_coordinates[(ref_genomic_coordinates$start-594)%in%c(0,1,2),"resi"]
 # sort(ref_genomic_coordinates$start-594)
 # which.min(ref_genomic_coordinates$start-594)
 
@@ -643,9 +704,9 @@ calls_ann=rbind(snps_ann%>%mutate(amino_acids=paste(ref_aa,"/",alt_aa,sep=""))%>
   
   
   # mnv_sum_ann=vep_fromdf(mnv_sum)
-  tic()
+  # tic()
   mnv_sum_ann=vep_fromdf_parralel(mnv_sum,chr,enst)
-  toc()
+  # toc()
   mnv_sum_ann$type="mnv"
   mnvs_ann=merge(mnvs,mnv_sum_ann%>%dplyr::select(-depth),by=c("alt_start_pos","alt_end_pos","ref","alt"))
   # a=vep_fromdf(a)
@@ -720,13 +781,28 @@ calls_sum_merged=rbind(snps_sum_ann_reformatted,mnv_sum_ann_reformatted)
 # I realized that the default coverage stats for measure the depth at the start of the sequence instead of the depth at the point where the mutant was seen. For example, if the read starts at residue 230 where CRISPR sscs depths are 10k but the mutant is located at position 250, where CRISPR depths are 1M, the default coverage stats code thinks that the depth at position 250 is only 10k.
 # In order to get the right depth at a residue, my solution is to just taking the max depth at that residue.
 # In the future, it would be better to modify the coverage stats code, where you know the coverage stats by residue and when you call a mutant, then you assign the appropriate coverage stats to it
+# tic()
 calls_sum_merged=calls_sum_merged%>%
   group_by(protein_start)%>%
-  mutate(depth=round(max(depth)))
-
-calls_ann=calls_sum_merged%>%
+  mutate(depth=round(max(depth),1))
+# toc()
+# tic()
+# calls_ann_og=calls_ann
+# calls_ann=calls_ann_og
+calls_ann=calls_ann%>%
   group_by(protein_start)%>%
-  mutate(depth=round(max(depth)))
+  mutate(depth=round(max(depth),1))
+# toc()
+
+# Update for filtering out deletions 11.25.2023:
+#Deletions (and insertions) happen when the length of alt is greater than ref. I was able to remove insertions by just filtering the MDZ field to not have "I"s in them. However, no such demarkation exists in the MDZ field for deletions. Therefore, I'll call a deletion whenever the alt is different than the reference sequence  
+calls_sum_merged=calls_sum_merged%>%
+  filter(nchar(ref)%in%nchar(alt))
+
+calls_ann=calls_ann%>%
+  filter(nchar(ref)%in%nchar(alt))
+
+
 
 
 write.csv(calls_ann,paste(outdir_curr,"/variants_ann.csv",sep = ""),row.names = F)
@@ -794,18 +870,26 @@ ggplot(calls_missense,aes(x=protein_start,y=alt_aa))+
 
 ```{r}
 source("code/variantcaller/add_l298l.R")
-for(i in c(1:1)){
-  sample=paste("sample",i,sep = "")
-  # sample="sample1"
+l298l.samples=list.files("data/Consensus_Data/novogene_lane29c/ABL")
+
+for(i in c(1:length(l298l.samples))){
   
-  input_df_nol298l=read.csv(paste("data/Consensus_Data/novogene_lane29b/for_export/",sample,"/nol298l/duplex/variant_caller_outputs/variants_unique_ann.csv",sep=""))
-  input_df_l298l=read.csv(paste("data/Consensus_Data/novogene_lane29b/for_export/",sample,"/l298l/duplex/variant_caller_outputs/variants_unique_ann.csv",sep=""))
+  # sample=paste("sample",i,sep = "")
+  sample=l298l.samples[i]
+  
+  input_df_nol298l=read.csv(paste("data/Consensus_Data/novogene_lane29c/ABL/",sample,"/nol298l/sscs/variant_caller_outputs/variants_unique_ann.csv",sep=""))
+  input_df_l298l=read.csv(paste("data/Consensus_Data/novogene_lane29c/ABL/",sample,"/l298l/sscs/variant_caller_outputs/variants_unique_ann.csv",sep=""))
+  # The following lines of code let you do the L298L thing semi-manually, i.e. instead of selecting all subdirectories within a parent directory like above
+  # for(i in c(1:21)){
+  # sample="sample1"
+  # input_df_nol298l=read.csv(paste("data/Consensus_Data/novogene_lane18/",sample,"/nol298l/sscs/variant_caller_outputs/variants_unique_ann.csv",sep=""))
+  # input_df_l298l=read.csv(paste("data/Consensus_Data/novogene_lane18/",sample,"/l298l/sscs/variant_caller_outputs/variants_unique_ann.csv",sep=""))
   
   output_df=add_l298l(input_df_nol298l,input_df_l298l)
   output_df=output_df[, !names(output_df) == "X", drop = FALSE]
 
   write.csv(output_df,
-            paste("data/Consensus_Data/novogene_lane29b/for_export/",sample,"/duplex/variant_caller_outputs/variants_unique_ann.csv",sep = ""),row.names = F)  
+            paste("data/Consensus_Data/novogene_lane29c/ABL/",sample,"/sscs/variant_caller_outputs/variants_unique_ann.csv",sep = ""),row.names = F)  
 }
 ```
 

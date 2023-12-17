@@ -19,6 +19,9 @@ cdn_tbl=read.csv("data/codon_table.csv",header = T)
 
 
 for(j in 1:length(seqdata_tsv_name)){
+# for(j in 1:1)){
+  # for(j in 3:length(seqdata_tsv_name)){
+  # j=1
   seqdata_tsv_name_current=seqdata_tsv_name[j]
   outdir_curr=outdir[j]
 
@@ -110,6 +113,28 @@ for(j in 1:length(seqdata_tsv_name)){
     end=alldata$pos[i]+alldata$mlen[i]
     coverage_stats$depth[c(start:end)]=coverage_stats$depth[c(start:end)]+1
   }
+  # coverage_stats_og=coverage_stats
+  # library("data.table")
+  # # Convert your data frames to data tables
+  # setDT(alldata)
+  # setDT(coverage_stats)
+  #
+  # # Add a row index to coverage_stats for later update
+  # coverage_stats[, idx := .I]
+  #
+  # # Create a data table of ranges from alldata
+  # ranges <- alldata[, .(start = pos, end = pos + mlen)]
+  #
+  # # Perform an overlapping join
+  # overlaps <- foverlaps(ranges, coverage_stats, by.x = c("start", "end"), by.y = c("V1", "V2"), type = "within")
+  #
+  # # Update coverage_stats by counting the overlaps
+  # coverage_stats[, depth := 0]  # Initialize depth
+  # coverage_stats[overlaps$idx, depth := depth + .N, by = .(idx)]
+  #
+  # # Clean up, if necessary
+  # coverage_stats[, idx := NULL]  # Remove the index column if it's no longer needed
+
   # toc()
   # ggplot(coverage_stats,aes(x=pos,y=depth))+geom_col()
 
@@ -138,6 +163,9 @@ for(j in 1:length(seqdata_tsv_name)){
   #######Filtering out deletions########
   alldata=alldata[!grepl("\\^",alldata$mdz),]
 
+  #######Filtering out insertions########
+  alldata=alldata[!grepl("I",alldata$cigar),]
+  # x=alldata
   #####Filtering out any reads with an alignment score of 0####
   #Optionally you can also filter out cigar strings of '*' i think
   alldata=alldata[!grepl("AS:i:0",alldata$mdz),]
@@ -150,6 +178,7 @@ for(j in 1:length(seqdata_tsv_name)){
   #######Filtering for Non-Reference########
   # alt_positions=grepl("[0-9]{3}$",alldata$mdz)
   alt_positions=grepl("[a-zA-Z]",alldata$mdz)
+
   # a=alldata[!alt_positions,]
   alldata=alldata[alt_positions,]
   # b=alldata[!alt_positions,]
@@ -239,7 +268,7 @@ for(j in 1:length(seqdata_tsv_name)){
   mnv_status_compiled=rep("NA",length(list))
   for(i in 1:length(list)){
     # i=1
-    #To be considered a true variant, an mnv must meet two criteria: 1) have a 0 or 1 in the mdz field (hamming distance of <2), 2) not have >1 in the mdz field. This takes out potentially epistatic mutants, e.g. T315I and T243V seen on the same read. So this variant caller needs to be updated to not take out these automatically, but we can worry about that later. I only found 1 read with a 0 AND a 27 in the MDZ field for our D0 WT scenario.
+    #To be considered a true variant, an mnv must meet two criteria: 1) have a 0 or 1 in the mdz field (hamming distance of <2), 2) not have >1 in the mdz field. This takes out potentially epistatic mutants, e.g. T315I and T243V seen on the same read. So this variant caller needs to be updated to NOT take out these automatically, but we can worry about that later. I only found 1 read with a 0 AND a 27 in the MDZ field for our D0 WT scenario.
     #Firstbasically searching if there's a 0 or a 1 in the MDZ field of the mnv
     #########Test for Criteria 1###############
     mnv_status_i=!grepl("2|3|4|5|6|7|8|9|11",head(strsplit(list[i],"A|G|C|T")[[1]][-1],-1))
@@ -329,7 +358,7 @@ for(j in 1:length(seqdata_tsv_name)){
 
   # Why did I use which.max 1/ref cordinates-alt_start_pos? Because it gives me the lowest non-negative match for the variant in the reference:
   # https://stackoverflow.com/questions/28560188/find-the-index-of-minimum-non-negative-value-in-r
-  ref_genomic_coordinates[(ref_genomic_coordinates$start-594)%in%c(0,1,2),"resi"]
+  # ref_genomic_coordinates[(ref_genomic_coordinates$start-594)%in%c(0,1,2),"resi"]
   # sort(ref_genomic_coordinates$start-594)
   # which.min(ref_genomic_coordinates$start-594)
 
@@ -485,9 +514,9 @@ for(j in 1:length(seqdata_tsv_name)){
 
 
     # mnv_sum_ann=vep_fromdf(mnv_sum)
-    tic()
+    # tic()
     mnv_sum_ann=vep_fromdf_parralel(mnv_sum,chr,enst)
-    toc()
+    # toc()
     mnv_sum_ann$type="mnv"
     mnvs_ann=merge(mnvs,mnv_sum_ann%>%dplyr::select(-depth),by=c("alt_start_pos","alt_end_pos","ref","alt"))
     # a=vep_fromdf(a)
@@ -558,9 +587,21 @@ for(j in 1:length(seqdata_tsv_name)){
   #                                           consequence_terms)
 
 
-
-
-
+  # Update to coverage calculations 11.10.2023:
+  # I realized that the default coverage stats for measure the depth at the start of the sequence instead of the depth at the point where the mutant was seen. For example, if the read starts at residue 230 where CRISPR sscs depths are 10k but the mutant is located at position 250, where CRISPR depths are 1M, the default coverage stats code thinks that the depth at position 250 is only 10k.
+  # In order to get the right depth at a residue, my solution is to just taking the max depth at that residue.
+  # In the future, it would be better to modify the coverage stats code, where you know the coverage stats by residue and when you call a mutant, then you assign the appropriate coverage stats to it
+  # tic()
+  calls_sum_merged=calls_sum_merged%>%
+    group_by(protein_start)%>%
+    mutate(depth=round(max(depth),1))
+  # toc()
+  # tic()
+  calls_ann_og=calls_ann
+  calls_ann=calls_ann%>%
+    group_by(protein_start)%>%
+    mutate(depth=round(max(depth),1))
+  # toc()
   write.csv(calls_ann,paste(outdir_curr,"/variants_ann.csv",sep = ""),row.names = F)
   write.csv(calls_sum_merged,paste(outdir_curr,"/variants_unique_ann.csv",sep = ""),row.names=F)
   paste("CSV written for sample",seqdata_tsv_name_current)
