@@ -26,6 +26,7 @@ library(pROC)
 #Cleanup code for plotting
 source("code/plotting/cleanup.R")
 source("code/compare_screens.R")
+source("code/merge_samples.R")
 source("code/plotting/heatmap_plotting_function.R")
 ```
 
@@ -60,15 +61,16 @@ cellcounts_matrix_dir="data/Consensus_Data/novogene_lane23/TwistAllRegions_CellC
 comparisons=read.csv("data/Consensus_Data/novogene_lane23/TwistAllRegions_Comparisons_Todo.csv")
 comparisons=comparisons%>%filter(Completed%in%"FALSE")
 
-# for(i in 1:nrow(comparisons)){
-for(i in 1:8){
-  # i=10
+for(i in 1:nrow(comparisons)){
+# for(i in 7:nrow(comparisons)){
+# for(i in 1:8){
+  # i=12
   dirname=comparisons$dirname[i]
   pathname=paste("output/ABLEnrichmentScreens/ABL_Region234_Comparisons/",dirname,sep = "")
   # Create directory if it doesn't already exist
   if (!file.exists(pathname)){
     dir.create(pathname)
-} 
+}
 before_screen1_identifier=unlist(strsplit(comparisons$before_screen1_identifier[i],","))
 after_screen1_identifier=unlist(strsplit(comparisons$after_screen1_identifier[i],","))
 before_screen2_identifier=unlist(strsplit(comparisons$before_screen2_identifier[i],","))
@@ -84,6 +86,12 @@ screen_compare_means=compare_screens(before_screen1_identifier,
                                      after_screen2_identifier,
                                      cellcounts_matrix_dir)
 
+# Adding a flag,"depleted", for when a mutant completely drops out of a screen in both replicates
+screen_compare_means=screen_compare_means%>%mutate(depleted=case_when(ct_screen1_after%in%0.5&&ct_screen2_after%in%0.5~"TRUE",
+                                                                      T~"FALSE"))
+
+
+
 screen_compare_means_forexport=apply(screen_compare_means,2,as.character)
 write.csv(screen_compare_means_forexport,file = paste("output/ABLEnrichmentScreens/ABL_Region234_Comparisons/",dirname,"/screen_comparison_",dirname,".csv",sep=""))
 
@@ -98,23 +106,27 @@ ggsave(paste("output/ABLEnrichmentScreens/ABL_Region234_Comparisons/",dirname,"/
 # screen_compare_means2=screen_compare_means%>%filter(alt_codon%in%twist$Codon)
 
 # Plot 2a: What do the correlations look like for net growth rate (show mutants in text)?
-ggplot(screen_compare_means,aes(x=netgr_obs_screen1,y=netgr_obs_screen2,color=resmuts,label=species))+geom_text(size=2.5)+geom_abline()+cleanup+stat_cor(method = "pearson")+labs(color="Known\nResistant\nMutant")+scale_x_continuous("Net growth rate screen 1")+scale_y_continuous("Net growth rate screen 2")
+ggplot(screen_compare_means%>%filter(protein_start%in%c(start_site:end_site)),aes(x=netgr_obs_screen1,y=netgr_obs_screen2,color=resmuts,label=species))+geom_text(size=2.5)+geom_abline()+cleanup+stat_cor(method = "pearson")+labs(color="Known\nResistant\nMutant")+scale_x_continuous("Net growth rate screen 1")+scale_y_continuous("Net growth rate screen 2")
 ggsave(paste("output/ABLEnrichmentScreens/ABL_Region234_Comparisons/",dirname,"/plot2a_Netgrowthrate_correlations_text.pdf",sep=""),width=6,height=4,units="in",useDingbats=F)
 
 # Plot 2b: What do the correlations look like for enrichment scores (show mutants in points)?
-ggplot(screen_compare_means,aes(x=netgr_obs_screen1,y=netgr_obs_screen2,label=species))+geom_point(color="black",shape=21,size=2,aes(fill=resmuts))+geom_abline()+cleanup+stat_cor(method = "pearson")+labs(fill="Known\nResistant\nMutant")+scale_x_continuous("Net growth rate screen 1")+scale_y_continuous("Net growth rate screen 2")
+ggplot(screen_compare_means%>%filter(protein_start%in%c(start_site:end_site)),aes(x=netgr_obs_screen1,y=netgr_obs_screen2,label=species))+geom_point(color="black",shape=21,size=2,aes(fill=resmuts),alpha=.7)+geom_abline()+cleanup+stat_cor(method = "pearson")+labs(fill="Known\nResistant\nMutant")+scale_x_continuous("Net growth rate screen 1")+scale_y_continuous("Net growth rate screen 2")
 ggsave(paste("output/ABLEnrichmentScreens/ABL_Region234_Comparisons/",dirname,"/plot2b_Netgrowthrate_correlations_points.pdf",sep=""),width=6,height=4,units="in",useDingbats=F)
 # Plot 2c: What do the correlations look like for enrichment scores (show mutants in text)?
-ggplot(screen_compare_means,aes(x=score_screen1,y=score_screen2,color=resmuts,label=species))+geom_text(size=2.5)+geom_abline()+cleanup+ stat_cor(method = "pearson")+labs(color="Known\nResistant\nMutant")+scale_x_continuous("Enrichment score screen 1")+scale_y_continuous("Enrichment score screen 2")
+ggplot(screen_compare_means%>%filter(protein_start%in%c(start_site:end_site)),aes(x=score_screen1,y=score_screen2,color=resmuts,label=species))+geom_text(size=2.5)+geom_abline()+cleanup+ stat_cor(method = "pearson")+labs(color="Known\nResistant\nMutant")+scale_x_continuous("Enrichment score screen 1")+scale_y_continuous("Enrichment score screen 2")
 ggsave(paste("output/ABLEnrichmentScreens/ABL_Region234_Comparisons/",dirname,"/plot2c_Enrichmentscores_correlations_text.pdf",sep=""),width=6,height=4,units="in",useDingbats=F)
 
+# Plot 2d: What do the correlations look like for net growth rates (show mutants in text + add depleted flag)?
+ggplot(screen_compare_means%>%filter(protein_start%in%c(start_site:end_site)),aes(x=netgr_obs_screen1,y=netgr_obs_screen2,label=species))+geom_point(color="black",shape=21,size=2,aes(fill=depleted),alpha=.7)+geom_abline()+cleanup+stat_cor(method = "pearson")+labs(fill="Depleting\nMutant")+scale_x_continuous("Net growth rate screen 1")+scale_y_continuous("Net growth rate screen 2")
+ggsave(paste("output/ABLEnrichmentScreens/ABL_Region234_Comparisons/",dirname,"/plot2d_Netgrowthrate_correlations_depletedmutants_points.pdf",sep=""),width=6,height=4,units="in",useDingbats=F)
+
 # Plot 3a: Plots: what are the overall net growth rate distributions?
-ggplot(screen_compare_means,aes(x=netgr_obs_mean,fill=resmuts))+geom_density(alpha=0.7)+cleanup+labs(fill="Known\nResistant\nMutant")+scale_x_continuous("Mean net growth rate of screens")
+ggplot(screen_compare_means%>%filter(protein_start%in%c(start_site:end_site)),aes(x=netgr_obs_mean,fill=resmuts))+geom_density(alpha=0.7)+cleanup+labs(fill="Known\nResistant\nMutant")+scale_x_continuous("Mean net growth rate of screens")
 ggsave(paste("output/ABLEnrichmentScreens/ABL_Region234_Comparisons/",dirname,"/plot3a_Netgrowthrate_distributions_resmuts.pdf",sep=""),width=6,height=4,units="in",useDingbats=F)
 # Plot 3b: Plots: what are the net growth rate distributions?
 
 library(reshape2)
-screen_compare_melt=melt(screen_compare_means%>%dplyr::select(species,netgr_obs_screen1,netgr_obs_screen2),id.vars = "species",measure.vars =c("netgr_obs_screen1","netgr_obs_screen2"),variable.name = "Condition",value.name = "netgr_obs")
+screen_compare_melt=melt(screen_compare_means%>%filter(protein_start%in%c(start_site:end_site))%>%dplyr::select(species,netgr_obs_screen1,netgr_obs_screen2),id.vars = "species",measure.vars =c("netgr_obs_screen1","netgr_obs_screen2"),variable.name = "Condition",value.name = "netgr_obs")
 
 
 ggplot(screen_compare_melt,aes(x=netgr_obs,fill=Condition))+
@@ -129,6 +141,7 @@ ggsave(paste("output/ABLEnrichmentScreens/ABL_Region234_Comparisons/",dirname,"/
 # dirname="K562_Medium_rep1vs2"
 
 ```
+
 
 I have new sequencing data from Lane 27b and Lane 28.
 For BTR4D0: I'll look at the correlation between lane 28 sample 17 and lane 27b sample 9
@@ -276,3 +289,258 @@ ggplot(btr4d0,
   stat_cor(method = "pearson")
 
 ```
+
+
+For Imatinib: Making a combined dataframe of all regions
+```{r}
+############# IL3 SCREENS ############# 
+
+r1=read.csv("output/ABLEnrichmentScreens/ABL_Region1_Lane18_Comparisons/cross-replicate/baf3_IL3_rep1vsrep2_ft/screen_comparison_baf3_IL3_low_rep1vsrep2ft.csv")
+# Adding a dummy depleted variable. Ideally should add a case_when ct=0.5 clause to this region 1 dataset
+r1$depleted=FALSE
+
+r1=r1%>%filter(protein_start%in%c(240:321))
+
+r2=read.csv("output/ABLEnrichmentScreens/ABL_Region234_Comparisons/baf3_r2_IL3_low_rep1vsrep2/screen_comparison_baf3_r2_IL3_low_rep1vsrep2.csv")
+r2=r2%>%filter(protein_start%in%c(322:393))
+
+r3=read.csv("output/ABLEnrichmentScreens/ABL_Region234_Comparisons/baf3_r3_IL3_low_rep1vsrep2/screen_comparison_baf3_r3_IL3_low_rep1vsrep2.csv")
+r3=r3%>%filter(protein_start%in%c(394:465))
+
+r4=read.csv("output/ABLEnrichmentScreens/ABL_Region234_Comparisons/baf3_r4_IL3_low_rep1vsrep2/screen_comparison_baf3_r4_IL3_low_rep1vsrep2.csv")
+r4=r4%>%filter(protein_start%in%c(466:518))
+
+il3_1_vsil3_2_all=rbind(r1,r2,r3,r4)
+
+il3_1_vsil3_2_all=il3_1_vsil3_2_all%>%dplyr::select(-c("X",
+                                         "alt_start_pos",
+                                         "score_mean",
+                                         "score_screen1",
+                                         "ct_screen1_before",
+                                         "depth_screen1_before",
+                                         "ct_screen1_after",
+                                         "depth_screen1_after",
+                                         "maf_screen1_before",
+                                         "maf_screen1_after",
+                                         "score_screen2",
+                                         "ct_screen2_before",
+                                         "depth_screen2_before",
+                                         "ct_screen2_after",
+                                         "depth_screen2_after",
+                                         "maf_screen2_before",
+                                         "maf_screen2_after",
+                                         "resmuts",
+                                         "resresids",
+                                         "netgr_obs_mean"))
+
+il3_1_vsil3_2_all=il3_1_vsil3_2_all%>%rename(netgr.IL3.1=netgr_obs_screen1,netgr.IL3.2=netgr_obs_screen2)
+il3_1_vsil3_2_all=il3_1_vsil3_2_all%>%dplyr::select(c("species","consequence_terms"),"ref_aa",everything())
+
+
+############# Imatinib low (300nM) screens  ############# 
+
+r1=read.csv("output/ABLEnrichmentScreens/ABL_Region1_Lane18_Comparisons/cross-replicate/baf3_Imat_low_rep1vsrep2_ft/screen_comparison_baf3_Imat_low_rep1vsrep2_ft.csv")
+# Adding a dummy depleted variable. Ideally should add a case_when ct=0.5 clause to this region 1 dataset
+r1$depleted=FALSE
+
+r1=r1%>%filter(protein_start%in%c(240:321))
+
+r2=read.csv("output/ABLEnrichmentScreens/ABL_Region234_Comparisons/baf3_r2_Imat_low_rep1vsrep2/screen_comparison_baf3_r2_Imat_low_rep1vsrep2.csv")
+r2=r2%>%filter(protein_start%in%c(322:393))
+
+r3=read.csv("output/ABLEnrichmentScreens/ABL_Region234_Comparisons/baf3_r3_Imat_low_rep1vsrep2/screen_comparison_baf3_r3_Imat_low_rep1vsrep2.csv")
+r3=r3%>%filter(protein_start%in%c(394:465))
+
+r4=read.csv("output/ABLEnrichmentScreens/ABL_Region234_Comparisons/baf3_r4_Imat_low_rep1vsrep2/screen_comparison_baf3_r4_Imat_low_rep1vsrep2.csv")
+r4=r4%>%filter(protein_start%in%c(466:518))
+
+
+imatlow_1_vsimatlow_2_all=rbind(r1,r2,r3,r4)
+
+imatlow_1_vsimatlow_2_all=imatlow_1_vsimatlow_2_all%>%dplyr::select(-c("X",
+                                         "alt_start_pos",
+                                         "score_mean",
+                                         "score_screen1",
+                                         "ct_screen1_before",
+                                         "depth_screen1_before",
+                                         "ct_screen1_after",
+                                         "depth_screen1_after",
+                                         "maf_screen1_before",
+                                         "maf_screen1_after",
+                                         "score_screen2",
+                                         "ct_screen2_before",
+                                         "depth_screen2_before",
+                                         "ct_screen2_after",
+                                         "depth_screen2_after",
+                                         "maf_screen2_before",
+                                         "maf_screen2_after",
+                                         "resmuts",
+                                         "resresids",
+                                         "netgr_obs_mean"))
+
+imatlow_1_vsimatlow_2_all=imatlow_1_vsimatlow_2_all%>%rename(netgr.imat.low.1=netgr_obs_screen1,netgr.imat.low.2=netgr_obs_screen2)
+imatlow_1_vsimatlow_2_all=imatlow_1_vsimatlow_2_all%>%dplyr::select(c("species","consequence_terms"),"ref_aa",everything())
+
+
+
+############# Imatinib medium 600nM SCREENS ############# 
+
+r1=read.csv("output/ABLEnrichmentScreens/ABL_Region1_Lane18_Comparisons/cross-replicate/baf3_Imat_medium_rep1vsrep2_ft/screen_comparison_baf3_Imat_medium_rep1vsrep2_ft.csv")
+# Adding a dummy depleted variable. Ideally should add a case_when ct=0.5 clause to this region 1 dataset
+r1$depleted=FALSE
+
+r1=r1%>%filter(protein_start%in%c(240:321))
+
+r2=read.csv("output/ABLEnrichmentScreens/ABL_Region234_Comparisons/baf3_r2_Imat_medium_rep1vsrep2/screen_comparison_baf3_r2_Imat_medium_rep1vsrep2.csv")
+r2=r2%>%filter(protein_start%in%c(322:393))
+
+r3=read.csv("output/ABLEnrichmentScreens/ABL_Region234_Comparisons/baf3_r3_Imat_medium_rep1vsrep2/screen_comparison_baf3_r3_Imat_medium_rep1vsrep2.csv")
+r3=r3%>%filter(protein_start%in%c(394:465))
+
+r4=read.csv("output/ABLEnrichmentScreens/ABL_Region234_Comparisons/baf3_r4_Imat_medium_rep1vsrep2/screen_comparison_baf3_r4_Imat_medium_rep1vsrep2.csv")
+r4=r4%>%filter(protein_start%in%c(466:518))
+
+imatmid_1_vsimatmid_2_all=rbind(r1,r2,r3,r4)
+
+imatmid_1_vsimatmid_2_all=imatmid_1_vsimatmid_2_all%>%dplyr::select(-c("X",
+                                         "alt_start_pos",
+                                         "score_mean",
+                                         "score_screen1",
+                                         "ct_screen1_before",
+                                         "depth_screen1_before",
+                                         "ct_screen1_after",
+                                         "depth_screen1_after",
+                                         "maf_screen1_before",
+                                         "maf_screen1_after",
+                                         "score_screen2",
+                                         "ct_screen2_before",
+                                         "depth_screen2_before",
+                                         "ct_screen2_after",
+                                         "depth_screen2_after",
+                                         "maf_screen2_before",
+                                         "maf_screen2_after",
+                                         "resmuts",
+                                         "resresids",
+                                         "netgr_obs_mean"))
+
+imatmid_1_vsimatmid_2_all=imatmid_1_vsimatmid_2_all%>%rename(netgr.imat.mid.1=netgr_obs_screen1,netgr.imat.mid.2=netgr_obs_screen2)
+imatmid_1_vsimatmid_2_all=imatmid_1_vsimatmid_2_all%>%dplyr::select(c("species","consequence_terms"),"ref_aa",everything())
+
+
+############# Imatinib high 1200nM SCREENS ############# 
+
+r1=read.csv("output/ABLEnrichmentScreens/ABL_Region1_Lane18_Comparisons/cross-replicate/baf3_Imat_high_rep1vsrep2_ft/screen_comparison_baf3_Imat_high_rep1vsrep2_ft.csv")
+# Adding a dummy depleted variable. Ideally should add a case_when ct=0.5 clause to this region 1 dataset
+r1$depleted=FALSE
+
+r1=r1%>%filter(protein_start%in%c(240:321))
+
+r2=read.csv("output/ABLEnrichmentScreens/ABL_Region234_Comparisons/baf3_r2_Imat_high_rep1vsrep2/screen_comparison_baf3_r2_Imat_high_rep1vsrep2.csv")
+r2=r2%>%filter(protein_start%in%c(322:393))
+
+r3=read.csv("output/ABLEnrichmentScreens/ABL_Region234_Comparisons/baf3_r3_Imat_high_rep1vsrep2/screen_comparison_baf3_r3_Imat_high_rep1vsrep2.csv")
+r3=r3%>%filter(protein_start%in%c(394:465))
+
+r4=read.csv("output/ABLEnrichmentScreens/ABL_Region234_Comparisons/baf3_r4_Imat_high_rep1vsrep2/screen_comparison_baf3_r4_Imat_high_rep1vsrep2.csv")
+r4=r4%>%filter(protein_start%in%c(466:518))
+
+imathigh_1_vsimathigh_2_all=rbind(r1,r2,r3,r4)
+
+imathigh_1_vsimathigh_2_all=imathigh_1_vsimathigh_2_all%>%dplyr::select(-c("X",
+                                         "alt_start_pos",
+                                         "score_mean",
+                                         "score_screen1",
+                                         "ct_screen1_before",
+                                         "depth_screen1_before",
+                                         "ct_screen1_after",
+                                         "depth_screen1_after",
+                                         "maf_screen1_before",
+                                         "maf_screen1_after",
+                                         "score_screen2",
+                                         "ct_screen2_before",
+                                         "depth_screen2_before",
+                                         "ct_screen2_after",
+                                         "depth_screen2_after",
+                                         "maf_screen2_before",
+                                         "maf_screen2_after",
+                                         "resmuts",
+                                         "resresids",
+                                         "netgr_obs_mean"))
+
+imathigh_1_vsimathigh_2_all=imathigh_1_vsimathigh_2_all%>%rename(netgr.imat.high.1=netgr_obs_screen1,netgr.imat.high.2=netgr_obs_screen2)
+imathigh_1_vsimathigh_2_all=imathigh_1_vsimathigh_2_all%>%dplyr::select(c("species","consequence_terms"),"ref_aa",everything())
+
+# colnames(pl1vs5_all)
+il3_1_vsil3_2_all=il3_1_vsil3_2_all%>%dplyr::select(-"depleted")
+imatlow_1_vsimatlow_2_all=imatlow_1_vsimatlow_2_all%>%dplyr::select(-"depleted")
+imatmid_1_vsimatmid_2_all=imatmid_1_vsimatmid_2_all%>%dplyr::select(-"depleted")
+imathigh_1_vsimathigh_2_all=imathigh_1_vsimathigh_2_all%>%dplyr::select(-"depleted")
+
+il3_imatlow=merge(il3_1_vsil3_2_all,
+             imatlow_1_vsimatlow_2_all,
+             by=c("species",
+                  "consequence_terms",
+                  "ref_aa",
+                  "protein_start",
+                  "alt_aa",
+                  "ref",
+                  "alt",
+                  "ref_codon",
+                  "alt_codon",
+                  "alt_codon_shortest",
+                  "n_nuc_min"))
+
+imatmid_imathigh=merge(imatmid_1_vsimatmid_2_all,
+             imathigh_1_vsimathigh_2_all,
+             by=c("species",
+                  "consequence_terms",
+                  "ref_aa",
+                  "protein_start",
+                  "alt_aa",
+                  "ref",
+                  "alt",
+                  "ref_codon",
+                  "alt_codon",
+                  "alt_codon_shortest",
+                  "n_nuc_min"))
+
+imatinib_all=merge(il3_imatlow,
+             imatmid_imathigh,
+             by=c("species",
+                  "consequence_terms",
+                  "ref_aa",
+                  "protein_start",
+                  "alt_aa",
+                  "ref",
+                  "alt",
+                  "ref_codon",
+                  "alt_codon",
+                  "alt_codon_shortest",
+                  "n_nuc_min"))
+
+
+
+write.csv(imatinib_all,"output/ABLEnrichmentScreens/ABL_Region234_Comparisons/imatinib_combined_growthrates_1.2.23.csv")
+
+write.csv(il3_1_vsil3_2_all,"output/ABLEnrichmentScreens/ABL_Region234_Comparisons/il3_combined_counts_1.2.23.csv")
+
+write.csv(imatlow_1_vsimatlow_2_all,"output/ABLEnrichmentScreens/ABL_Region234_Comparisons/imatinib_300nM_combined_counts_1.2.23.csv")
+
+write.csv(imatmid_1_vsimatmid_2_all,"output/ABLEnrichmentScreens/ABL_Region234_Comparisons/imatinib_600nM_combined_counts_1.2.23.csv")
+
+write.csv(imathigh_1_vsimathigh_2_all,"output/ABLEnrichmentScreens/ABL_Region234_Comparisons/imatinib_1200nM_combined_counts_1.2.23.csv")
+
+
+source("code/plotting/heatmap_plotting_function.R")
+heatmap_plotting_function(imatinib_all%>%filter(!netgr_IL3.1%in%"NaN"),240,512,fill_variable = "netgr_IL3.2",fill_name = "Net growth rate")
+ggsave("output/ABLEnrichmentScreens/ABL_Region234_Comparisons/imatinib_heatmap_il3.pdf",width=16,height=4,units="in",useDingbats=F)
+
+heatmap_plotting_function(imatinib_all%>%filter(!netgr.imat.low.2%in%"NaN"),240,512,fill_variable = "netgr.imat.low.2",fill_name = "Net growth rate")
+ggsave("output/ABLEnrichmentScreens/ABL_Region234_Comparisons/imatinib_heatmap_300nM.pdf",width=16,height=4,units="in",useDingbats=F)
+
+# heatmap_plotting_function()
+
+
+```
+
+

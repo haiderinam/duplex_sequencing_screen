@@ -130,6 +130,9 @@ outdir <- gsub("duplex_sorted_filtered\\.tsv\\.gz$", "variant_caller_outputs", s
 seqdata_tsv_name=list.files("data/Consensus_Data/novogene_lane29c/ABL", pattern = "^duplex_sorted_filtered\\.tsv\\.gz$", recursive = TRUE, full.names = TRUE)
 outdir <- gsub("duplex_sorted_filtered\\.tsv\\.gz$", "variant_caller_outputs", seqdata_tsv_name)
 
+seqdata_tsv_name=list.files("data/Consensus_Data/novogene_lane28b/for_export", pattern = "^sscs_sorted_filtered\\.tsv\\.gz$", recursive = TRUE, full.names = TRUE)
+outdir <- gsub("sscs_sorted_filtered\\.tsv\\.gz$", "variant_caller_outputs", seqdata_tsv_name)
+
 
 
 # seqdata_tsv_name=list.files("data/Consensus_Data/novogene_lane29a", pattern = "^duplex_sorted_filtered\\.tsv\\.gz$", recursive = TRUE, full.names = TRUE)

@@ -31,6 +31,13 @@ compare_screens=function(before_screen1_identifier,
   # before_screen2_identifier="KTRMD0"
   # after_screen2_identifier=c("KTRM1_D6","KTRM2_D6")
   # after_screen2_identifier="KTRM2_D6"
+
+
+  # before_screen1_identifier="BTR3ID0"
+  # after_screen1_identifier="BTR3M_D6_A"
+  # before_screen2_identifier="BTR3ID0"
+  # after_screen2_identifier="BTR3M_D6_B"
+  # cellcounts_matrix_location="data/Consensus_Data/novogene_lane23/TwistAllRegions_CellCounts_Matrix.csv"
   source("code/res_residues_adder.R")
   source("code/resmuts_adder.R")
   source("code/merge_samples.R")
@@ -56,24 +63,28 @@ compare_screens=function(before_screen1_identifier,
   netgr=mean(after_screen1_counts$Netgr_wodrug)
 
 
-  # length(before_screen1_counts[,1])
+  # Running merge samples on all the directories specified for this sample
   # This if statements sees if there are two samples specified at a timepoint, and if so, merges those samples
   # Note that the code below can only do at max two separate sequencing samples. It can be modified in the future to allow multiple samples
-  if(length(before_screen1_counts[,1])>=2){
-    before_timepoint=merge_samples(paste(before_screen1_counts$dirname_input[1],"/sscs",sep=""),paste(before_screen1_counts$dirname_input[2],"/sscs",sep=""))
-  } else {
-    before_timepoint=read.csv(paste("data/Consensus_Data/",before_screen1_counts$dirname_input[1],"/sscs/variant_caller_outputs/variants_unique_ann.csv",sep=""))
-  }
+  # if(length(before_screen1_counts[,1])>=2){
+  #   before_timepoint=merge_samples(paste(before_screen1_counts$dirname_input[1],"/sscs",sep=""),paste(before_screen1_counts$dirname_input[2],"/sscs",sep=""))
+  # } else {
+  #   before_timepoint=read.csv(paste("data/Consensus_Data/",before_screen1_counts$dirname_input[1],"/sscs/variant_caller_outputs/variants_unique_ann.csv",sep=""))
+  # }
+  filepaths=paste(before_screen1_counts$dirname_input,"/sscs",sep="")
+  before_timepoint=do.call(merge_samples,as.list(filepaths))
 
   before_timepoint=variants_parser(before_timepoint,cells_before)
 
-
+  # Running merge samples on all the directories specified for this sample
   # This if statements sees if there are two samples specified at a timepoint, and if so, merges those samples
-  if(length(after_screen1_counts[,1])>=2){
-    after_timepoint=merge_samples(paste(after_screen1_counts$dirname_input[1],"/sscs",sep=""),paste(after_screen1_counts$dirname_input[2],"/sscs",sep=""))
-  } else {
-    after_timepoint=read.csv(paste("data/Consensus_Data/",after_screen1_counts$dirname_input[1],"/sscs/variant_caller_outputs/variants_unique_ann.csv",sep=""))
-  }
+  # if(length(after_screen1_counts[,1])>=2){
+  #   after_timepoint=merge_samples(paste(after_screen1_counts$dirname_input[1],"/sscs",sep=""),paste(after_screen1_counts$dirname_input[2],"/sscs",sep=""))
+  # } else {
+  #   after_timepoint=read.csv(paste("data/Consensus_Data/",after_screen1_counts$dirname_input[1],"/sscs/variant_caller_outputs/variants_unique_ann.csv",sep=""))
+  # }
+  filepaths=paste(after_screen1_counts$dirname_input,"/sscs",sep="")
+  after_timepoint=do.call(merge_samples,as.list(filepaths))
 
 
   after_timepoint=variants_parser(after_timepoint,cells_after)
@@ -96,23 +107,27 @@ compare_screens=function(before_screen1_identifier,
   netgr=mean(after_screen2_counts$Netgr_wodrug)
 
 
-
+  # Running merge samples on all the directories specified for this sample
   # This if statements sees if there are two samples specified at a timepoint, and if so, merges those samples
-  if(length(before_screen2_counts[,1])>=2){
-    before_timepoint=merge_samples(paste(before_screen2_counts$dirname_input[1],"/sscs",sep=""),paste(before_screen2_counts$dirname_input[2],"/sscs",sep=""))
-  } else {
-    before_timepoint=read.csv(paste("data/Consensus_Data/",before_screen2_counts$dirname_input[1],"/sscs/variant_caller_outputs/variants_unique_ann.csv",sep=""))
-  }
+  # if(length(before_screen2_counts[,1])>=2){
+  #   before_timepoint=merge_samples(paste(before_screen2_counts$dirname_input[1],"/sscs",sep=""),paste(before_screen2_counts$dirname_input[2],"/sscs",sep=""))
+  # } else {
+  #   before_timepoint=read.csv(paste("data/Consensus_Data/",before_screen2_counts$dirname_input[1],"/sscs/variant_caller_outputs/variants_unique_ann.csv",sep=""))
+  # }
+  filepaths=paste(before_screen2_counts$dirname_input,"/sscs",sep="")
+  before_timepoint=do.call(merge_samples,as.list(filepaths))
 
   before_timepoint=variants_parser(before_timepoint,cells_before)
 
-
+  # Running merge samples on all the directories specified for this sample
   # This if statements sees if there are two samples specified at a timepoint, and if so, merges those samples
-  if(length(after_screen2_counts[,1])>=2){
-    after_timepoint=merge_samples(paste(after_screen2_counts$dirname_input[1],"/sscs",sep=""),paste(after_screen2_counts$dirname_input[2],"/sscs",sep=""))
-  } else {
-    after_timepoint=read.csv(paste("data/Consensus_Data/",after_screen2_counts$dirname_input[1],"/sscs/variant_caller_outputs/variants_unique_ann.csv",sep=""))
-  }
+  # if(length(after_screen2_counts[,1])>=2){
+  #   after_timepoint=merge_samples(paste(after_screen2_counts$dirname_input[1],"/sscs",sep=""),paste(after_screen2_counts$dirname_input[2],"/sscs",sep=""))
+  # } else {
+  #   after_timepoint=read.csv(paste("data/Consensus_Data/",after_screen2_counts$dirname_input[1],"/sscs/variant_caller_outputs/variants_unique_ann.csv",sep=""))
+  # }
+  filepaths=paste(after_screen2_counts$dirname_input,"/sscs",sep="")
+  after_timepoint=do.call(merge_samples,as.list(filepaths))
 
   after_timepoint=variants_parser(after_timepoint,cells_after)
 

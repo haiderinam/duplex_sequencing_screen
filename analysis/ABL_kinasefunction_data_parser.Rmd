@@ -81,23 +81,27 @@ heatmap_plotting_function(screen_compare_means,242,321,fill_variable = "netgr_ob
 
 # Plot 2a: What do the correlations look like for net growth rate (show mutants in text)?
 
-ggplot(screen_compare_means,aes(x=netgr_obs_screen1,y=netgr_obs_screen2,color=resmuts,label=species))+geom_text(size=2.5)+geom_abline()+cleanup+stat_cor(method = "pearson")+labs(color="Known\nResistant\nMutant")+scale_x_continuous("Net growth rate screen 1")+scale_y_continuous("Net growth rate screen 2")
+ggplot(screen_compare_means%>%filter(protein_start%in%c(start_site:end_site)),aes(x=netgr_obs_screen1,y=netgr_obs_screen2,color=resmuts,label=species))+geom_text(size=2.5)+geom_abline()+cleanup+stat_cor(method = "pearson")+labs(color="Known\nResistant\nMutant")+scale_x_continuous("Net growth rate screen 1")+scale_y_continuous("Net growth rate screen 2")
 # ggsave(paste("output/ABLEnrichmentScreens/ABL_Region1_Lane18_Comparisons/",dirname,"/plot2a_Netgrowthrate_correlations_text.pdf",sep=""),width=6,height=4,units="in",useDingbats=F)
 
 # Plot 2b: What do the correlations look like for enrichment scores (show mutants in points)?
-ggplot(screen_compare_means,aes(x=netgr_obs_screen1,y=netgr_obs_screen2,label=species))+geom_point(color="black",shape=21,size=2,aes(fill=resmuts))+geom_abline()+cleanup+stat_cor(method = "pearson")+labs(fill="Known\nResistant\nMutant")+scale_x_continuous("Net growth rate screen 1")+scale_y_continuous("Net growth rate screen 2")
+ggplot(screen_compare_means%>%filter(protein_start%in%c(start_site:end_site)),aes(x=netgr_obs_screen1,y=netgr_obs_screen2,label=species))+geom_point(color="black",shape=21,size=2,aes(fill=resmuts))+geom_abline()+cleanup+stat_cor(method = "pearson")+labs(fill="Known\nResistant\nMutant")+scale_x_continuous("Net growth rate screen 1")+scale_y_continuous("Net growth rate screen 2")
 # ggsave(paste("output/ABLEnrichmentScreens/ABL_Region1_Lane18_Comparisons/",dirname,"/plot2b_Netgrowthrate_correlations_points.pdf",sep=""),width=6,height=4,units="in",useDingbats=F)
 # Plot 2c: What do the correlations look like for enrichment scores (show mutants in text)?
-ggplot(screen_compare_means,aes(x=score_screen1,y=score_screen2,color=resmuts,label=species))+geom_text(size=2.5)+geom_abline()+cleanup+ stat_cor(method = "pearson")+labs(color="Known\nResistant\nMutant")+scale_x_continuous("Enrichment score screen 1")+scale_y_continuous("Enrichment score screen 2")
+ggplot(screen_compare_means%>%filter(protein_start%in%c(start_site:end_site)),aes(x=score_screen1,y=score_screen2,color=resmuts,label=species))+geom_text(size=2.5)+geom_abline()+cleanup+ stat_cor(method = "pearson")+labs(color="Known\nResistant\nMutant")+scale_x_continuous("Enrichment score screen 1")+scale_y_continuous("Enrichment score screen 2")
 # ggsave(paste("output/ABLEnrichmentScreens/ABL_Region1_Lane18_Comparisons/",dirname,"/plot2c_Enrichmentscores_correlations_text.pdf",sep=""),width=6,height=4,units="in",useDingbats=F)
 
+# Plot 2d: What do the correlations look like for net growth rates (show mutants in text + add depleted flag)?
+ggplot(screen_compare_means%>%filter(protein_start%in%c(start_site:end_site)),aes(x=netgr_obs_screen1,y=netgr_obs_screen2,label=species))+geom_point(color="black",shape=21,size=2,aes(fill=depleted),alpha=.7)+geom_abline()+cleanup+stat_cor(method = "pearson")+labs(fill="Depleting\nMutant")+scale_x_continuous("Net growth rate screen 1")+scale_y_continuous("Net growth rate screen 2")
+ggsave(paste("output/ABLEnrichmentScreens/ABL_Region234_Comparisons/",dirname,"/plot2d_Netgrowthrate_correlations_depletedmutants_points.pdf",sep=""),width=6,height=4,units="in",useDingbats=F)
+
 # Plot 3a: Plots: what are the overall net growth rate distributions?
-ggplot(screen_compare_means,aes(x=netgr_obs_mean,fill=resmuts))+geom_density(alpha=0.7)+cleanup+labs(fill="Known\nResistant\nMutant")+scale_x_continuous("Mean net growth rate of screens")
+ggplot(screen_compare_means%>%filter(protein_start%in%c(start_site:end_site)),aes(x=netgr_obs_mean,fill=resmuts))+geom_density(alpha=0.7)+cleanup+labs(fill="Known\nResistant\nMutant")+scale_x_continuous("Mean net growth rate of screens")
 # ggsave(paste("output/ABLEnrichmentScreens/ABL_Region1_Lane18_Comparisons/",dirname,"/plot3a_Netgrowthrate_distributions_resmuts.pdf",sep=""),width=6,height=4,units="in",useDingbats=F)
 # Plot 3b: Plots: what are the net growth rate distributions?
 
 library(reshape2)
-screen_compare_melt=melt(screen_compare_means%>%dplyr::select(species,netgr_obs_screen1,netgr_obs_screen2),id.vars = "species",measure.vars =c("netgr_obs_screen1","netgr_obs_screen2"),variable.name = "Condition",value.name = "netgr_obs")
+screen_compare_melt=melt(screen_compare_means%>%filter(protein_start%in%c(start_site:end_site))%>%dplyr::select(species,netgr_obs_screen1,netgr_obs_screen2),id.vars = "species",measure.vars =c("netgr_obs_screen1","netgr_obs_screen2"),variable.name = "Condition",value.name = "netgr_obs")
 
 
 ggplot(screen_compare_melt,aes(x=netgr_obs,fill=Condition))+
@@ -119,8 +123,6 @@ ggplot(screen_compare_melt,aes(x=netgr_obs,fill=Condition))+
 #11.02.23
 #The following code was taken from ABL_SM_CRISPR_Cut_Analyses.Rmd
 #Essentially all this code does is that it takes two BaF3 ABL Region 1 D0 samples and two D6 samples, and creates a dataframe with enrichment scores.
-
-
 
 ```{r}
 source("code/compare_screens.R")
@@ -149,7 +151,9 @@ before_screen2_identifier=unlist(strsplit(comparisons$before_screen2_identifier[
 
 after_screen2_identifier=unlist(strsplit(comparisons$after_screen2_identifier[i],","))
 position_start=comparisons$ABL_Start[i]
+start_site=position_start
 position_end=comparisons$ABL_End[i]
+end_site=position_end
   # length(after_screen1_identifier)
 # screen_compare_means=compare_screens(comparisons$before_screen1_identifier[i],
 #                                      comparisons$after_screen1_identifier[i],
@@ -162,6 +166,11 @@ screen_compare_means=compare_screens(before_screen1_identifier,
                                      cellcounts_matrix_dir)
 # Making sure "mutants" are within mutagenized region
 screen_compare_means=screen_compare_means%>%filter(protein_start%in%c(position_start:position_end))
+
+# Adding a flag,"depleted", for when a mutant completely drops out of a screen in both replicates
+screen_compare_means=screen_compare_means%>%mutate(depleted=case_when(ct_screen1_after%in%0.5&&ct_screen2_after%in%0.5~"TRUE",
+                                                                      T~"FALSE"))
+
 screen_compare_means_forexport=apply(screen_compare_means,2,as.character)
 # dirname
 
@@ -174,23 +183,27 @@ ggsave(paste("output/ABLEnrichmentScreens/ABL_Ponatilink_Screens/",dirname,"/plo
 
 # Plot 2a: What do the correlations look like for net growth rate (show mutants in text)?
 
-ggplot(screen_compare_means,aes(x=netgr_obs_screen1,y=netgr_obs_screen2,label=species))+geom_text(size=2.5)+geom_abline()+cleanup+stat_cor(method = "pearson")+labs(color="Known\nResistant\nMutant")+scale_x_continuous("Net growth rate screen 1")+scale_y_continuous("Net growth rate screen 2")
+ggplot(screen_compare_means%>%filter(protein_start%in%c(start_site:end_site)),aes(x=netgr_obs_screen1,y=netgr_obs_screen2,label=species))+geom_text(size=2.5)+geom_abline()+cleanup+stat_cor(method = "pearson")+labs(color="Known\nResistant\nMutant")+scale_x_continuous("Net growth rate screen 1")+scale_y_continuous("Net growth rate screen 2")
 ggsave(paste("output/ABLEnrichmentScreens/ABL_Ponatilink_Screens/",dirname,"/plot2a_Netgrowthrate_correlations_text.pdf",sep=""),width=6,height=4,units="in",useDingbats=F)
 
 # Plot 2b: What do the correlations look like for enrichment scores (show mutants in points)?
-ggplot(screen_compare_means,aes(x=netgr_obs_screen1,y=netgr_obs_screen2,label=species))+geom_point()+geom_abline()+cleanup+stat_cor(method = "pearson")+labs(fill="Known\nResistant\nMutant")+scale_x_continuous("Net growth rate screen 1")+scale_y_continuous("Net growth rate screen 2")
+ggplot(screen_compare_means%>%filter(protein_start%in%c(start_site:end_site)),aes(x=netgr_obs_screen1,y=netgr_obs_screen2,label=species))+geom_point()+geom_abline()+cleanup+stat_cor(method = "pearson")+labs(fill="Known\nResistant\nMutant")+scale_x_continuous("Net growth rate screen 1")+scale_y_continuous("Net growth rate screen 2")
 ggsave(paste("output/ABLEnrichmentScreens/ABL_Ponatilink_Screens/",dirname,"/plot2b_Netgrowthrate_correlations_points.pdf",sep=""),width=6,height=4,units="in",useDingbats=F)
 # Plot 2c: What do the correlations look like for enrichment scores (show mutants in text)?
-ggplot(screen_compare_means,aes(x=score_screen1,y=score_screen2,label=species))+geom_text(size=2.5)+geom_abline()+cleanup+ stat_cor(method = "pearson")+labs(color="Known\nResistant\nMutant")+scale_x_continuous("Enrichment score screen 1")+scale_y_continuous("Enrichment score screen 2")
+ggplot(screen_compare_means%>%filter(protein_start%in%c(start_site:end_site)),aes(x=score_screen1,y=score_screen2,label=species))+geom_text(size=2.5)+geom_abline()+cleanup+ stat_cor(method = "pearson")+labs(color="Known\nResistant\nMutant")+scale_x_continuous("Enrichment score screen 1")+scale_y_continuous("Enrichment score screen 2")
 ggsave(paste("output/ABLEnrichmentScreens/ABL_Ponatilink_Screens/",dirname,"/plot2c_Enrichmentscores_correlations_text.pdf",sep=""),width=6,height=4,units="in",useDingbats=F)
 
+# Plot 2d: What do the correlations look like for net growth rates (show mutants in text + add depleted flag)?
+ggplot(screen_compare_means%>%filter(protein_start%in%c(start_site:end_site)),aes(x=netgr_obs_screen1,y=netgr_obs_screen2,label=species))+geom_point(color="black",shape=21,size=2,aes(fill=depleted),alpha=.7)+geom_abline()+cleanup+stat_cor(method = "pearson")+labs(fill="Depleting\nMutant")+scale_x_continuous("Net growth rate screen 1")+scale_y_continuous("Net growth rate screen 2")
+ggsave(paste("output/ABLEnrichmentScreens/ABL_Ponatilink_Screens/",dirname,"/plot2d_Netgrowthrate_correlations_depletedmutants_points.pdf",sep=""),width=6,height=4,units="in",useDingbats=F)
+
 # Plot 3a: Plots: what are the overall net growth rate distributions?
-ggplot(screen_compare_means,aes(x=netgr_obs_mean))+geom_density(alpha=0.7)+cleanup+labs(fill="Known\nResistant\nMutant")+scale_x_continuous("Mean net growth rate of screens")
+ggplot(screen_compare_means%>%filter(protein_start%in%c(start_site:end_site)),aes(x=netgr_obs_mean))+geom_density(alpha=0.7)+cleanup+labs(fill="Known\nResistant\nMutant")+scale_x_continuous("Mean net growth rate of screens")
 ggsave(paste("output/ABLEnrichmentScreens/ABL_Ponatilink_Screens/",dirname,"/plot3a_Netgrowthrate_distributions_resmuts.pdf",sep=""),width=6,height=4,units="in",useDingbats=F)
 # Plot 3b: Plots: what are the net growth rate distributions?
 
 library(reshape2)
-screen_compare_melt=melt(screen_compare_means%>%dplyr::select(species,netgr_obs_screen1,netgr_obs_screen2),id.vars = "species",measure.vars =c("netgr_obs_screen1","netgr_obs_screen2"),variable.name = "Condition",value.name = "netgr_obs")
+screen_compare_melt=melt(screen_compare_means%>%filter(protein_start%in%c(start_site:end_site))%>%dplyr::select(species,netgr_obs_screen1,netgr_obs_screen2),id.vars = "species",measure.vars =c("netgr_obs_screen1","netgr_obs_screen2"),variable.name = "Condition",value.name = "netgr_obs")
 
 
 ggplot(screen_compare_melt,aes(x=netgr_obs,fill=Condition))+
@@ -553,3 +566,16 @@ ggsave("output/ABLEnrichmentScreens/ABL_Ponatilink_Screens/Imatinib_heatmap.pdf"
 
 length(unique(brall$species))
 ```
+Plotting out lane29c LTK heatmap
+```{r}
+ltk1=read.csv("data/Consensus_Data/novogene_lane29c/LTK/sample5_LTK_R1_D0/sscs/variant_caller_outputs/variants_unique_ann.csv",header = T,stringsAsFactors = F)
+ltk1=ltk1%>%filter(protein_start%in%c(515:599))
+
+ltk2=read.csv("data/Consensus_Data/novogene_lane29c/LTK/sample12_LTK_R2_D0/sscs/variant_caller_outputs/variants_unique_ann.csv",header = T,stringsAsFactors = F)
+ltk2=ltk2%>%filter(protein_start%in%c(586:671))
+
+ltk12=rbind(ltk1,ltk2)
+heatmap_plotting_function(ltk12,520,664,fill_variable = "ct")
+
+```
+

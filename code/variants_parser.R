@@ -4,6 +4,7 @@
 # Calculates total mutant cells/mL based on total cells/mL and MAF. The total cells value defaults to 1.
 # Parses out the ref amino acid and the alt amino acid
 # Figures out which codons would realistically be the shortest codons (based on hamming distance)
+# Also filters for twist's 19 expected codons according to twist's (as opposed to all possible codons)
 #
 # input_df=before_timepoint
 # totalcells=cells_before

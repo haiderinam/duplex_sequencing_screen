@@ -1,4 +1,4 @@
-compare_screens=function(before_screen1_identifier,
+compare_screens_archive=function(before_screen1_identifier,
                          after_screen1_identifier,
                          before_screen2_identifier,
                          after_screen2_identifier,
@@ -26,6 +26,7 @@ compare_screens=function(before_screen1_identifier,
   source("code/res_residues_adder.R")
   source("code/resmuts_adder.R")
   source("code/merge_samples.R")
+  source("code/merge_samples_twosamples.R")
   source("code/variants_parser.R")
   source("code/compare_samples.R")
   source("code/depth_finder.R")
@@ -49,7 +50,7 @@ compare_screens=function(before_screen1_identifier,
   # length(before_screen1_counts[,1])
   # This if statements sees if there are two samples specified at a timepoint, and if so, merges those samples
   if(length(before_screen1_counts[,1])>=2){
-    before_timepoint=merge_samples(paste("Novogene_lane",before_screen1_counts$SequencingLane_Num[1],"/sample",before_screen1_counts$SequencingLane_Sample[1],"/sscs",sep=""),paste("Novogene_lane",before_screen1_counts$SequencingLane_Num[2],"/sample",before_screen1_counts$SequencingLane_Sample[2],"/sscs",sep=""))
+    before_timepoint=merge_samples_twosamples(paste("Novogene_lane",before_screen1_counts$SequencingLane_Num[1],"/sample",before_screen1_counts$SequencingLane_Sample[1],"/sscs",sep=""),paste("Novogene_lane",before_screen1_counts$SequencingLane_Num[2],"/sample",before_screen1_counts$SequencingLane_Sample[2],"/sscs",sep=""))
   } else {
     before_timepoint=read.csv(paste("data/Consensus_Data/Novogene_lane",before_screen1_counts$SequencingLane_Num[1],"/sample",before_screen1_counts$SequencingLane_Sample[1],"/sscs/variant_caller_outputs/variants_unique_ann.csv",sep = ""))
   }
@@ -88,7 +89,7 @@ compare_screens=function(before_screen1_identifier,
 
   # This if statements sees if there are two samples specified at a timepoint, and if so, merges those samples
   if(length(before_screen2_counts[,1])>=2){
-    before_timepoint=merge_samples(paste("Novogene_lane",before_screen2_counts$SequencingLane_Num[1],"/sample",before_screen2_counts$SequencingLane_Sample[1],"/sscs",sep=""),paste("Novogene_lane",before_screen2_counts$SequencingLane_Num[2],"/sample",before_screen2_counts$SequencingLane_Sample[2],"/sscs",sep=""))
+    before_timepoint=merge_samples_twosamples(paste("Novogene_lane",before_screen2_counts$SequencingLane_Num[1],"/sample",before_screen2_counts$SequencingLane_Sample[1],"/sscs",sep=""),paste("Novogene_lane",before_screen2_counts$SequencingLane_Num[2],"/sample",before_screen2_counts$SequencingLane_Sample[2],"/sscs",sep=""))
   } else {
     before_timepoint=read.csv(paste("data/Consensus_Data/Novogene_lane",before_screen2_counts$SequencingLane_Num[1],"/sample",before_screen2_counts$SequencingLane_Sample[1],"/sscs/variant_caller_outputs/variants_unique_ann.csv",sep = ""))
   }
