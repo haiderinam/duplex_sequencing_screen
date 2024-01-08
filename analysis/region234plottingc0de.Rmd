@@ -65,6 +65,7 @@ for(i in 1:nrow(comparisons)){
 # for(i in 7:nrow(comparisons)){
 # for(i in 1:8){
   # i=12
+  # i=1
   dirname=comparisons$dirname[i]
   pathname=paste("output/ABLEnrichmentScreens/ABL_Region234_Comparisons/",dirname,sep = "")
   # Create directory if it doesn't already exist
@@ -476,6 +477,10 @@ imatlow_1_vsimatlow_2_all=imatlow_1_vsimatlow_2_all%>%dplyr::select(-"depleted")
 imatmid_1_vsimatmid_2_all=imatmid_1_vsimatmid_2_all%>%dplyr::select(-"depleted")
 imathigh_1_vsimathigh_2_all=imathigh_1_vsimathigh_2_all%>%dplyr::select(-"depleted")
 
+a= imatlow_1_vsimatlow_2_all %>%
+  filter(duplicated(species) & duplicated(species, fromLast = TRUE))
+
+
 il3_imatlow=merge(il3_1_vsil3_2_all,
              imatlow_1_vsimatlow_2_all,
              by=c("species",
@@ -519,8 +524,11 @@ imatinib_all=merge(il3_imatlow,
                   "n_nuc_min"))
 
 
+# a=imatinib_all%>%filter(protein_start%in%c(381:384))
 
-write.csv(imatinib_all,"output/ABLEnrichmentScreens/ABL_Region234_Comparisons/imatinib_combined_growthrates_1.2.23.csv")
+
+
+write.csv(imatinib_all,"output/ABLEnrichmentScreens/ABL_Region234_Comparisons/ABLfullkinase_allconditions_growthrates_1.2.23.csv")
 
 write.csv(il3_1_vsil3_2_all,"output/ABLEnrichmentScreens/ABL_Region234_Comparisons/il3_combined_counts_1.2.23.csv")
 
@@ -532,15 +540,56 @@ write.csv(imathigh_1_vsimathigh_2_all,"output/ABLEnrichmentScreens/ABL_Region234
 
 
 source("code/plotting/heatmap_plotting_function.R")
-heatmap_plotting_function(imatinib_all%>%filter(!netgr_IL3.1%in%"NaN"),240,512,fill_variable = "netgr_IL3.2",fill_name = "Net growth rate")
-ggsave("output/ABLEnrichmentScreens/ABL_Region234_Comparisons/imatinib_heatmap_il3.pdf",width=16,height=4,units="in",useDingbats=F)
+heatmap_plotting_function(imatinib_all%>%filter(!netgr.IL3.2%in%"NaN"),240,512,fill_variable = "netgr.IL3.2",fill_name = "Net growth rate \n(Hrs^-1)")
 
-heatmap_plotting_function(imatinib_all%>%filter(!netgr.imat.low.2%in%"NaN"),240,512,fill_variable = "netgr.imat.low.2",fill_name = "Net growth rate")
-ggsave("output/ABLEnrichmentScreens/ABL_Region234_Comparisons/imatinib_heatmap_300nM.pdf",width=16,height=4,units="in",useDingbats=F)
+ggsave("output/ABLEnrichmentScreens/ABL_Region234_Comparisons/baf3_il3_heatmap.pdf",width=16,height=4,units="in",useDingbats=F)
+
+heatmap_plotting_function(imatinib_all%>%filter(!netgr.imat.low.2%in%"NaN"),240,512,fill_variable = "netgr.imat.low.2",fill_name = "Net growth rate \n(Hrs^-1)")
+ggsave("output/ABLEnrichmentScreens/ABL_Region234_Comparisons/baf3_imatinib_heatmap_300nM.pdf",width=16,height=4,units="in",useDingbats=F)
+
+
+heatmap_plotting_function(imatinib_all%>%filter(!netgr.imat.mid.2%in%"NaN"),240,512,fill_variable = "netgr.imat.mid.2",fill_name = "Net growth rate \n(Hrs^-1)")
+ggsave("output/ABLEnrichmentScreens/ABL_Region234_Comparisons/baf3_imatinib_heatmap_600nM.pdf",width=16,height=4,units="in",useDingbats=F)
+
+heatmap_plotting_function(imatinib_all%>%filter(!netgr.imat.high.2%in%"NaN"),240,512,fill_variable = "netgr.imat.high.2",fill_name = "Net growth rate \n(Hrs^-1)")
+ggsave("output/ABLEnrichmentScreens/ABL_Region234_Comparisons/baf3_imatinib_heatmap_1200nM.pdf",width=16,height=4,units="in",useDingbats=F)
+
+heatmap_plotting_function(imathigh_1_vsimathigh_2_all%>%filter(!netgr.imat.high.2%in%"NaN"),240,512,fill_variable = "netgr.imat.low.2",fill_name = "Net growth rate \n(Hrs^-1)")
+ggsave("output/ABLEnrichmentScreens/ABL_Region234_Comparisons/baf3_imatinib_heatmap_1200nM.pdf",width=16,height=4,units="in",useDingbats=F)
 
 # heatmap_plotting_function()
 
 
 ```
 
+```{r}
+a= r1 %>%
+  filter(duplicated(species) & duplicated(species, fromLast = TRUE))
+
+a= r2 %>%
+  filter(duplicated(species) & duplicated(species, fromLast = TRUE))
+
+a= r4 %>%
+  filter(duplicated(species) & duplicated(species, fromLast = TRUE))
+
+a= imatinib_all %>%
+  filter(duplicated(species) & duplicated(species, fromLast = TRUE))
+
+a=imathigh_1_vsimathigh_2_all%>%filter(protein_start%in%c(394:465))
+
+
+analysis=il3_1_vsil3_2_all%>%mutate(region=case_when(protein_start%in%c(240:321)~"region1",
+                                                     protein_start%in%c(322:393)~"region2",
+                                                     protein_start%in%c(394:465)~"region3",
+                                                     protein_start%in%c(465:518)~"region4",
+                                                     T~"noregion"))
+analysis_sum=analysis%>%group_by(region,alt_aa)%>%summarise(netgr.IL3.1=mean(netgr.IL3.1,na.rm = T),
+                                                        netgr.IL3.2=mean(netgr.IL3.2,na.rm = T))
+
+ggplot(analysis_sum,aes(x=alt_aa,y=netgr.IL3.1))+geom_point()+facet_wrap(~region)
+# a=il3_1_vsil3_2_all%>%f
+
+a= imathigh_1_vsimathigh_2_all %>%
+  filter(protein_start%in%"459")
+```
 

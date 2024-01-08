@@ -89,6 +89,11 @@ compare_screens=function(before_screen1_identifier,
 
   after_timepoint=variants_parser(after_timepoint,cells_after)
 
+  ### Had do add in a piece of code to unlist these dataframes before running the compare samples code for some reason.
+  before_timepoint <- as.data.frame(lapply(before_timepoint, unlist))
+  after_timepoint <- as.data.frame(lapply(after_timepoint, unlist))
+  ###
+
   before_after=compare_samples(before_timepoint,after_timepoint,netgr,delta_t)
 
   # before_after=before_after%>%filter(ct.x>=3)
@@ -130,6 +135,11 @@ compare_screens=function(before_screen1_identifier,
   after_timepoint=do.call(merge_samples,as.list(filepaths))
 
   after_timepoint=variants_parser(after_timepoint,cells_after)
+
+  ### Had do add in a piece of code to unlist these dataframes before running the compare samples code for some reason.
+  before_timepoint <- as.data.frame(lapply(before_timepoint, unlist))
+  after_timepoint <- as.data.frame(lapply(after_timepoint, unlist))
+  ###
 
   before_after=compare_samples(before_timepoint,after_timepoint,netgr,delta_t)
 

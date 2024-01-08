@@ -21,7 +21,7 @@ mnv,1090,1093,CTT,CTT,AGC,AGC,0,1,197.0,364,364,L,S,L/S,missense_variant
 mnv,1105,1107,TG,TGC,AT,ATC,0,1,197.0,369,369,C,I,C/I,missense_variant
 mnv,1114,1116,GG,GGG,AA,AAG,0,1,197.0,372,372,G,K,G/K,missense_variant
 mnv,1117,1119,GA,GAG,CT,CTG,0,1,197.0,373,373,E,L,E/L,missense_variant
-mnv,1120,1123,AAC,AAC,GCT,GCT,0,1,197.0,374,374,N,A,,missense_variant
+mnv,1120,1123,AAC,AAC,GCT,GCT,0,1,197.0,374,374,N,A,N/A,missense_variant
 mnv,1121,1123,AC,AAC,TG,ATG,1,1,197.0,374,374,N,M,N/M,missense_variant
 mnv,1123,1126,CAC,CAC,TGG,TGG,0,1,197.0,375,375,H,W,H/W,missense_variant
 mnv,1126,1129,TTG,TTG,ACC,ACC,0,1,197.0,376,376,L,T,L/T,missense_variant

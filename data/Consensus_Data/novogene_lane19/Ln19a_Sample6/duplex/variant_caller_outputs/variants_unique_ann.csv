@@ -1,6 +1,6 @@
 type,alt_start_pos,alt_end_pos,ref,ref_codon,alt,alt_codon,frame_pos,ct,depth,protein_start,protein_end,ref_aa,alt_aa,amino_acids,consequence_terms
 snp,944,945,C,ACT,T,ATT,1,11,2228.1818181818203,315,315,T,I,T/I,missense_variant
-snp,960,961,C,TAC,T,TAT,2,17,2196.7058823529396,320,320,Y,Y,Y/Y,synonymous_variant
+snp,960,961,C,TAC,T,TAT,2,17,2196.70588235294,320,320,Y,Y,Y/Y,synonymous_variant
 snp,965,966,A,AAC,G,AGC,1,6,2302.5,322,322,N,S,N/S,missense_variant
 snp,967,968,C,CTC,A,ATC,0,3,2248.0,323,323,L,I,L/I,missense_variant
 snp,970,971,C,CTG,A,ATG,0,20,2214.05,324,324,L,M,L/M,missense_variant
@@ -42,7 +42,7 @@ snp,1116,1117,G,GGG,A,GGA,2,4,5154.0,372,372,G,G,G/G,synonymous_variant
 snp,1119,1120,G,GAG,A,GAA,2,1,5154.0,373,373,E,E,E/E,synonymous_variant
 snp,1121,1122,A,AAC,G,AGC,1,9,5154.0,374,374,N,S,N/S,missense_variant
 snp,1123,1124,C,CAC,T,TAC,0,1,5154.0,375,375,H,Y,H/Y,missense_variant
-snp,1125,1126,C,CAC,G,CAG,2,3,5225.666666666671,375,375,H,Q,H/Q,missense_variant
+snp,1125,1126,C,CAC,G,CAG,2,3,5225.6666666666715,375,375,H,Q,H/Q,missense_variant
 snp,1131,1132,G,GTG,A,GTA,2,1,5154.0,377,377,V,V,V/V,synonymous_variant
 snp,1135,1136,G,GTA,A,ATA,0,8,4861.75,379,379,V,I,V/I,missense_variant
 snp,1149,1150,C,GGC,A,GGA,2,1,5154.0,383,383,G,G,G/G,synonymous_variant
@@ -132,7 +132,7 @@ mnv,1052,1054,TG,ATG,CC,ACC,1,17,2087.58823529412,351,351,M,T,M/T,missense_varia
 mnv,1052,1054,TG,ATG,GC,AGC,1,3,2281.3333333333303,351,351,M,S,M/S,missense_variant
 mnv,1054,1057,GAG,GAG,ACC,ACC,0,2,2139.0,352,352,E,T,E/T,missense_variant
 mnv,1075,1078,TTC,TTC,GCT,GCT,0,4,3898.5,359,359,F,A,F/A,missense_variant
-mnv,1084,1087,AGA,AGA,CAG,CAG,0,3,4323.333333333329,362,362,R,Q,R/Q,missense_variant
+mnv,1084,1087,AGA,AGA,CAG,CAG,0,3,4323.3333333333285,362,362,R,Q,R/Q,missense_variant
 mnv,1090,1093,CTT,CTT,ATC,ATC,0,2,5154.0,364,364,L,I,L/I,missense_variant
 mnv,1090,1093,CTT,CTT,ATG,ATG,0,10,4920.2,364,364,L,M,L/M,missense_variant
 mnv,1090,1093,CTT,CTT,GTG,GTG,0,4,4569.5,364,364,L,V,L/V,missense_variant
@@ -140,7 +140,7 @@ mnv,1090,1093,CTT,CTT,TGC,TGC,0,4,5154.0,364,364,L,C,L/C,missense_variant
 mnv,1105,1107,TG,TGC,AC,ACC,0,49,4805.48979591837,369,369,C,T,C/T,missense_variant
 mnv,1105,1107,TG,TGC,AT,ATC,0,170,4927.37647058823,369,369,C,I,C/I,missense_variant
 mnv,1105,1108,TGC,TGC,ATG,ATG,0,16,5002.0,369,369,C,M,C/M,missense_variant
-mnv,1105,1108,TGC,TGC,ATT,ATT,0,12,4750.333333333329,369,369,C,I,C/I,missense_variant
+mnv,1105,1108,TGC,TGC,ATT,ATT,0,12,4750.3333333333285,369,369,C,I,C/I,missense_variant
 mnv,1105,1108,TGC,TGC,GCT,GCT,0,2,5154.0,369,369,C,A,C/A,missense_variant
 mnv,1105,1108,TGC,TGC,GTG,GTG,0,53,5015.37735849057,369,369,C,V,C/V,missense_variant
 mnv,1114,1116,GG,GGG,AA,AAG,0,3,5154.0,372,372,G,K,G/K,missense_variant
@@ -163,7 +163,7 @@ mnv,1126,1129,TTG,TTG,AGA,AGA,0,1,5154.0,376,376,L,R,L/R,missense_variant
 mnv,1129,1132,GTG,GTG,TAC,TAC,0,1,5154.0,377,377,V,Y,V/Y,missense_variant
 mnv,1129,1132,GTG,GTG,TGC,TGC,0,3,5154.0,377,377,V,C,V/C,missense_variant
 mnv,1135,1138,GTA,GTA,ATC,ATC,0,21,5154.0,379,379,V,I,V/I,missense_variant
-mnv,1135,1138,GTA,GTA,CTG,CTG,0,18,4882.166666666671,379,379,V,L,V/L,missense_variant
+mnv,1135,1138,GTA,GTA,CTG,CTG,0,18,4882.1666666666715,379,379,V,L,V/L,missense_variant
 mnv,1138,1141,GCT,GCT,AGC,AGC,0,5,5154.0,380,380,A,S,A/S,missense_variant
 mnv,1151,1153,TG,CTG,AC,CAC,1,1,5154.0,384,384,L,H,L/H,missense_variant
 mnv,1153,1156,AGC,AGC,GCT,GCT,0,13,5154.0,385,385,S,A,S/A,missense_variant

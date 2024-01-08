@@ -498,7 +498,7 @@ snp,954,955,T,GAT,A,ATA,2,4950,12920699.0,318,318,D,I,D/I,missense_variant
 snp,954,955,T,GAT,C,ATC,2,12,12920699.0,318,318,D,I,D/I,missense_variant
 snp,954,955,T,GAT,T,ATT,2,921,12920699.0,318,318,D,I,D/I,missense_variant
 snp,955,956,A,AAC,C,CCC,0,9,13031044.0,319,319,N,P,N/P,missense_variant
-snp,955,956,A,AAC,G,GCC,0,2883,13031044.0,319,319,N,A,,missense_variant
+snp,955,956,A,AAC,G,GCC,0,2883,13031044.0,319,319,N,A,N/A,missense_variant
 snp,955,956,A,AAC,T,TCC,0,8,13031044.0,319,319,N,S,N/S,missense_variant
 snp,956,957,A,AAC,A,AAC,1,63,13031044.0,319,319,N,N,N/N,synonymous_variant
 snp,956,957,A,AAC,G,AGC,1,2,13031044.0,319,319,N,S,N/S,missense_variant
@@ -801,8 +801,8 @@ mnv,952,954,GA,GAT,GC,GCG,0,2,12920699.0,318,318,D,A,D/A,missense_variant
 mnv,953,955,AT,GAT,CA,ACA,1,8,12920699.0,318,318,D,T,D/T,missense_variant
 mnv,953,955,AT,GAT,CT,ACT,1,44,12920699.0,318,318,D,T,D/T,missense_variant
 mnv,955,957,AA,AAC,GA,GAC,0,1,13031044.0,319,319,N,D,N/D,missense_variant
-mnv,955,958,AAC,AAC,GCA,GCA,0,3,13031044.0,319,319,N,A,,missense_variant
-mnv,955,958,AAC,AAC,GCT,GCT,0,1,13031044.0,319,319,N,A,,missense_variant
+mnv,955,958,AAC,AAC,GCA,GCA,0,3,13031044.0,319,319,N,A,N/A,missense_variant
+mnv,955,958,AAC,AAC,GCT,GCT,0,1,13031044.0,319,319,N,A,N/A,missense_variant
 mnv,958,960,AC,ACT,CG,CGC,0,1,13031044.0,320,320,T,R,T/R,missense_variant
 mnv,959,961,CT,ACT,GA,TGA,1,1,13031044.0,320,320,T,O,T/O,stop_gained
 mnv,961,963,CT,CTA,AA,AAG,0,34,12545525.8,321,321,L,K,L/K,missense_variant
@@ -849,7 +849,7 @@ mnv,1411,1414,CCC,CCC,ATG,ATG,0,1,1576.0,471,471,P,M,P/M,missense_variant
 mnv,1411,1414,CCC,CCC,GAG,GAG,0,1,1576.0,471,471,P,E,P/E,missense_variant
 mnv,1411,1414,CCC,CCC,GCT,GCT,0,2,1576.0,471,471,P,A,P/A,missense_variant
 mnv,1411,1414,CCC,CCC,GTG,GTG,0,1,1576.0,471,471,P,V,P/V,missense_variant
-mnv,1414,1417,AAC,AAC,GCT,GCT,0,1,1576.0,472,472,N,A,,missense_variant
+mnv,1414,1417,AAC,AAC,GCT,GCT,0,1,1576.0,472,472,N,A,N/A,missense_variant
 mnv,1415,1417,AC,AAC,AC,AAC,1,1,1576.0,472,472,N,N,N/N,synonymous_variant
 mnv,1417,1420,TAC,TAC,ATG,ATG,0,1,1576.0,473,473,Y,M,Y/M,missense_variant
 mnv,1417,1420,TAC,TAC,GGT,GGT,0,1,1576.0,473,473,Y,G,Y/G,missense_variant

@@ -73,7 +73,7 @@ mnv,1228,1231,AGC,AGC,TGG,TGG,0,1,503.0,410,410,S,W,S/W,missense_variant
 mnv,1234,1237,GCC,GCC,AGA,AGA,0,1,839.0,412,412,A,R,A/R,missense_variant
 mnv,1235,1237,CC,GCC,TG,GTG,1,1,503.0,412,412,A,V,A/V,missense_variant
 mnv,1237,1240,TAC,TAC,AAG,AAG,0,1,503.0,413,413,Y,K,Y/K,missense_variant
-mnv,1240,1243,AAC,AAC,GCT,GCT,0,2,671.0,414,414,N,A,,missense_variant
+mnv,1240,1243,AAC,AAC,GCT,GCT,0,2,671.0,414,414,N,A,N/A,missense_variant
 mnv,1243,1246,AAG,AAG,TTC,TTC,0,2,671.0,415,415,K,F,K/F,missense_variant
 mnv,1244,1246,AG,AAG,GA,AGA,1,1,839.0,415,415,K,R,K/R,missense_variant
 mnv,1244,1246,AG,AAG,TC,ATC,1,1,839.0,415,415,K,I,K/I,missense_variant
@@ -180,7 +180,7 @@ mnv,1363,1365,GA,GAC,AC,ACC,0,2,1074.5,455,455,D,T,D/T,missense_variant
 mnv,1363,1365,GA,GAC,TG,TGC,0,1,1067.0,455,455,D,C,D/C,missense_variant
 mnv,1366,1369,TAC,TAC,GAT,GAT,0,1,1067.0,456,456,Y,D,Y/D,missense_variant
 mnv,1366,1369,TAC,TAC,GTG,GTG,0,1,1067.0,456,456,Y,V,Y/V,missense_variant
-mnv,1375,1377,GA,GAG,AT,ATG,0,3,1014.6666666666699,459,459,E,M,E/M,missense_variant
+mnv,1375,1377,GA,GAG,AT,ATG,0,3,1014.66666666667,459,459,E,M,E/M,missense_variant
 mnv,1375,1377,GA,GAG,CT,CTG,0,1,1067.0,459,459,E,L,E/L,missense_variant
 mnv,1375,1378,GAG,GAG,AAC,AAC,0,1,1067.0,459,459,E,N,E/N,missense_variant
 mnv,1375,1378,GAG,GAG,AGC,AGC,0,2,887.0,459,459,E,S,E/S,missense_variant
@@ -224,7 +224,7 @@ mnv,1390,1392,TG,TGC,AA,AAC,0,1,910.0,464,464,C,N,C/N,missense_variant
 mnv,1390,1392,TG,TGC,AT,ATC,0,1,1067.0,464,464,C,I,C/I,missense_variant
 mnv,1390,1393,TGC,TGC,ATG,ATG,0,3,946.666666666667,464,464,C,M,C/M,missense_variant
 mnv,1393,1396,CCA,CCA,AAC,AAC,0,1,1067.0,465,465,P,N,P/N,missense_variant
-mnv,1393,1396,CCA,CCA,AAG,AAG,0,3,1014.6666666666699,465,465,P,K,P/K,missense_variant
+mnv,1393,1396,CCA,CCA,AAG,AAG,0,3,1014.66666666667,465,465,P,K,P/K,missense_variant
 mnv,1393,1396,CCA,CCA,AGC,AGC,0,1,1067.0,465,465,P,S,P/S,missense_variant
 mnv,1393,1396,CCA,CCA,ATC,ATC,0,1,1067.0,465,465,P,I,P/I,missense_variant
 mnv,1393,1396,CCA,CCA,GAG,GAG,0,2,1067.0,465,465,P,E,P/E,missense_variant

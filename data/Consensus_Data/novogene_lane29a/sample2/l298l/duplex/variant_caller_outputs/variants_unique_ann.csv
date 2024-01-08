@@ -239,7 +239,7 @@ mnv,886,889,CCT,CCT,TTC,TTC,0,1,2170.0,296,296,P,F,P/F,missense_variant
 mnv,887,889,CT,CCT,AC,CAC,1,2,2170.0,296,296,P,H,P/H,missense_variant
 mnv,889,891,AA,AAC,TT,TTC,0,1,2008.0,297,297,N,F,N/F,missense_variant
 mnv,889,892,AAC,AAC,CTG,CTG,0,1,2008.0,297,297,N,L,N/L,missense_variant
-mnv,889,892,AAC,AAC,GCT,GCT,0,1,2008.0,297,297,N,A,,missense_variant
+mnv,889,892,AAC,AAC,GCT,GCT,0,1,2008.0,297,297,N,A,N/A,missense_variant
 mnv,890,892,AC,AAC,GA,AGA,1,2,2008.0,297,297,N,R,N/R,missense_variant
 mnv,892,895,CTG,CTG,AAC,AAC,0,1,1906.1,298,298,L,N,L/N,missense_variant
 mnv,896,898,TG,GTG,GT,GGT,1,1,2170.0,299,299,V,G,V/G,missense_variant

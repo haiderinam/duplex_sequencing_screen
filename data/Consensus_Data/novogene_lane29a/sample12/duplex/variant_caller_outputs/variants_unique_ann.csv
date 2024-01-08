@@ -61,7 +61,7 @@ mnv,1231,1234,CTG,CTG,ACC,ACC,0,1,2125.0,411,411,L,T,L/T,missense_variant
 mnv,1232,1234,TG,CTG,AC,CAC,1,1,2125.0,411,411,L,H,L/H,missense_variant
 mnv,1235,1237,CC,GCC,AG,GAG,1,1,2125.0,412,412,A,E,A/E,missense_variant
 mnv,1237,1240,TAC,TAC,GAT,GAT,0,1,2812.0,413,413,Y,D,Y/D,missense_variant
-mnv,1240,1243,AAC,AAC,GCT,GCT,0,1,2570.5,414,414,N,A,,missense_variant
+mnv,1240,1243,AAC,AAC,GCT,GCT,0,1,2570.5,414,414,N,A,N/A,missense_variant
 mnv,1240,1243,AAC,AAC,TGG,TGG,0,2,2570.5,414,414,N,W,N/W,missense_variant
 mnv,1246,1248,TT,TTC,AC,ACC,0,1,2125.0,416,416,F,T,F/T,missense_variant
 mnv,1249,1252,TCC,TCC,CAG,CAG,0,1,2125.0,417,417,S,Q,S/Q,missense_variant

@@ -37,7 +37,7 @@ mnv,1429,1432,CAG,CAG,AGC,AGC,0,1,850.0,477,477,Q,S,Q/S,missense_variant
 mnv,1432,1434,TG,TGG,AA,AAG,0,1,850.0,478,478,W,K,W/K,missense_variant
 mnv,1432,1435,TGG,TGG,AGC,AGC,0,2,850.0,478,478,W,S,W/S,missense_variant
 mnv,1435,1437,AA,AAT,CC,CCT,0,1,850.0,479,479,N,P,N/P,missense_variant
-mnv,1435,1437,AA,AAT,GC,GCT,0,2,850.0,479,479,N,A,,missense_variant
+mnv,1435,1437,AA,AAT,GC,GCT,0,2,850.0,479,479,N,A,N/A,missense_variant
 mnv,1435,1438,AAT,AAT,TAC,TAC,0,1,850.0,479,479,N,Y,N/Y,missense_variant
 mnv,1436,1438,AT,AAT,CC,ACC,1,1,850.0,479,479,N,T,N/T,missense_variant
 mnv,1436,1438,AT,AAT,TC,ATC,1,1,850.0,479,479,N,I,N/I,missense_variant

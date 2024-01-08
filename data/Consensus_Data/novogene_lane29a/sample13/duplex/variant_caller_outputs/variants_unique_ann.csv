@@ -54,7 +54,7 @@ mnv,1222,1225,CCC,CCC,GAG,GAG,0,2,3916.0,408,408,P,E,P/E,missense_variant
 mnv,1222,1225,CCC,CCC,TGG,TGG,0,4,3916.0,408,408,P,W,P/W,missense_variant
 mnv,1234,1236,GC,GCC,AA,AAC,0,1,3460.0,412,412,A,N,A/N,missense_variant
 mnv,1240,1243,AAC,AAC,GAG,GAG,0,1,4372.0,414,414,N,E,N/E,missense_variant
-mnv,1240,1243,AAC,AAC,GCT,GCT,0,3,4372.0,414,414,N,A,,missense_variant
+mnv,1240,1243,AAC,AAC,GCT,GCT,0,3,4372.0,414,414,N,A,N/A,missense_variant
 mnv,1240,1243,AAC,AAC,GGT,GGT,0,1,4372.0,414,414,N,G,N/G,missense_variant
 mnv,1243,1245,AA,AAG,TG,TGG,0,1,4372.0,415,415,K,W,K/W,missense_variant
 mnv,1247,1249,TC,TTC,GG,TGG,1,3,3764.0,416,416,F,W,F/W,missense_variant

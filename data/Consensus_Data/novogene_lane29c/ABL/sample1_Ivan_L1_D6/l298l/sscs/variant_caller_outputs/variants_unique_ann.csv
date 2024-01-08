@@ -149,7 +149,7 @@ snp,994,995,T,TTA,A,AGG,0,1,1178025.0,332,332,L,R,L/R,missense_variant
 snp,995,996,T,TTA,A,CAG,1,1,1178025.0,332,332,L,Q,L/Q,missense_variant
 snp,997,998,G,GGC,G,GAG,0,1,1174108.0,333,333,G,E,G/E,missense_variant
 snp,1005,1006,T,AAT,A,GTA,2,4,1174108.0,335,335,N,V,N/V,missense_variant
-snp,1011,1012,T,AAT,A,GCA,2,1,1135393.0,337,337,N,A,,missense_variant
+snp,1011,1012,T,AAT,A,GCA,2,1,1135393.0,337,337,N,A,N/A,missense_variant
 snp,1018,1019,T,TGG,A,ATG,0,1,1174108.0,340,340,W,M,W/M,missense_variant
 snp,1034,1035,C,ACC,T,ATT,1,1,1174108.0,345,345,T,I,T/I,missense_variant
 snp,1061,1062,G,AGC,C,CCG,1,1,860.0,354,354,S,P,S/P,missense_variant

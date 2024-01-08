@@ -55,7 +55,7 @@ source("code/variantcaller/transcript_verifier.R")
 cdn_tbl=read.csv("data/codon_table.csv",header = T)
 
 ref_offset=0 #use for everything else
-ref_offset=723 #use for ABL
+# ref_offset=723 #use for EGFR?
 ############For EGFR#############
 # enst="ENST00000275493"
 # chr=7
@@ -130,8 +130,9 @@ outdir <- gsub("duplex_sorted_filtered\\.tsv\\.gz$", "variant_caller_outputs", s
 seqdata_tsv_name=list.files("data/Consensus_Data/novogene_lane29c/ABL", pattern = "^duplex_sorted_filtered\\.tsv\\.gz$", recursive = TRUE, full.names = TRUE)
 outdir <- gsub("duplex_sorted_filtered\\.tsv\\.gz$", "variant_caller_outputs", seqdata_tsv_name)
 
-seqdata_tsv_name=list.files("data/Consensus_Data/novogene_lane28b/for_export", pattern = "^sscs_sorted_filtered\\.tsv\\.gz$", recursive = TRUE, full.names = TRUE)
-outdir <- gsub("sscs_sorted_filtered\\.tsv\\.gz$", "variant_caller_outputs", seqdata_tsv_name)
+seqdata_tsv_name=list.files("data/Consensus_Data/novogene_lane28b/for_export", pattern = "^duplex_sorted_filtered\\.tsv\\.gz$", recursive = TRUE, full.names = TRUE)
+outdir <- gsub("duplex_sorted_filtered\\.tsv\\.gz$", "variant_caller_outputs", seqdata_tsv_name)
+
 
 
 

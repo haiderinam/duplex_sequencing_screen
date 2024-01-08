@@ -22,7 +22,7 @@ mnv,1207,1210,ATC,ATC,CCT,CCT,0,2,501.0,403,403,I,P,I/P,missense_variant
 mnv,1208,1210,TC,ATC,AG,AAG,1,1,501.0,403,403,I,K,I/K,missense_variant
 mnv,1213,1215,TG,TGG,GT,GTG,0,1,283.0,405,405,W,V,W/V,missense_variant
 mnv,1222,1224,CC,CCC,AT,ATC,0,1,283.0,408,408,P,I,P/I,missense_variant
-mnv,1240,1243,AAC,AAC,GCT,GCT,0,1,501.0,414,414,N,A,,missense_variant
+mnv,1240,1243,AAC,AAC,GCT,GCT,0,1,501.0,414,414,N,A,N/A,missense_variant
 mnv,1240,1243,AAC,AAC,GGT,GGT,0,1,501.0,414,414,N,G,N/G,missense_variant
 mnv,1255,1258,AAG,AAG,CAC,CAC,0,1,283.0,419,419,K,H,K/H,missense_variant
 mnv,1258,1260,TC,TCC,AT,ATC,0,1,593.0,420,420,S,I,S/I,missense_variant

@@ -7,7 +7,7 @@ snp,913,914,A,AAC,C,CGC,0,1,5194.0,305,305,N,R,N/R,missense_variant
 snp,935,936,A,GAT,G,TGT,1,1,5194.0,312,312,D,C,D/C,missense_variant
 snp,943,944,G,GCC,G,GCT,0,1,5194.0,315,315,A,A,A/A,synonymous_variant
 snp,953,954,A,GAT,C,ACG,1,2,5753.0,318,318,D,T,D/T,missense_variant
-snp,955,956,A,AAC,G,GCC,0,7,5273.9,319,319,N,A,,missense_variant
+snp,955,956,A,AAC,G,GCC,0,7,5273.9,319,319,N,A,N/A,missense_variant
 snp,959,960,C,ACT,G,TGC,1,2,5473.5,320,320,T,C,T/C,missense_variant
 snp,973,974,A,AAA,T,TAC,0,1,5737.0,325,325,K,Y,K/Y,missense_variant
 mnv,857,859,CC,GCC,GG,GGG,1,2,5753.0,286,286,A,G,A/G,missense_variant

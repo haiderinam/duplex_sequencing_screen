@@ -216,7 +216,7 @@ snp,950,951,G,GGA,C,TCC,1,1,7757531.0,317,317,G,S,G/S,missense_variant
 snp,953,954,A,GAT,C,ACG,1,1,8593921.0,318,318,D,T,D/T,missense_variant
 snp,954,955,T,GAT,A,ATA,2,5,8593921.0,318,318,D,I,D/I,missense_variant
 snp,954,955,T,GAT,T,ATT,2,1,8593921.0,318,318,D,I,D/I,missense_variant
-snp,955,956,A,AAC,G,GCC,0,1,8593921.0,319,319,N,A,,missense_variant
+snp,955,956,A,AAC,G,GCC,0,1,8593921.0,319,319,N,A,N/A,missense_variant
 snp,958,959,A,ACT,C,CAC,0,4,7966628.5,320,320,T,H,T/H,missense_variant
 snp,961,962,C,CTA,A,AGG,0,6,8175726.0,321,321,L,R,L/R,missense_variant
 snp,961,962,C,CTA,T,TGG,0,2,8175726.0,321,321,L,W,L/W,missense_variant
@@ -235,7 +235,7 @@ snp,994,995,T,TTA,A,AGG,0,2,4321588.0,332,332,L,R,L/R,missense_variant
 snp,995,996,T,TTA,T,CTG,1,1,4321588.0,332,332,L,L,L/L,synonymous_variant
 snp,1005,1006,T,AAT,A,GTA,2,2,2092680.0,335,335,N,V,N/V,missense_variant
 snp,1006,1007,C,CAC,G,GAC,0,1,4183182.0,336,336,H,D,H/D,missense_variant
-snp,1011,1012,T,AAT,A,GCA,2,1,1606.0,337,337,N,A,,missense_variant
+snp,1011,1012,T,AAT,A,GCA,2,1,1606.0,337,337,N,A,N/A,missense_variant
 snp,1012,1013,G,GGG,C,CTG,0,1,4321649.0,338,338,G,L,G/L,missense_variant
 snp,1018,1019,T,TGG,A,ATG,0,1,4304266.0,340,340,W,M,W/M,missense_variant
 snp,1020,1021,G,TGG,A,CTA,2,2,4304266.0,340,340,W,L,W/L,missense_variant

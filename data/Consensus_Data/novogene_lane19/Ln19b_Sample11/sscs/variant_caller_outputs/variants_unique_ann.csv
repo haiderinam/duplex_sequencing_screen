@@ -22,7 +22,7 @@ snp,1466,1467,T,ATC,G,AGC,1,2,855.5,489,489,I,S,I/S,missense_variant
 snp,1467,1468,C,ATC,G,ATG,2,1,771.0,489,489,I,M,I/M,missense_variant
 snp,1474,1475,G,GCC,A,ACC,0,2,855.5,492,492,A,T,A/T,missense_variant
 snp,1475,1476,C,GCC,T,GTC,1,1,946.0,492,492,A,V,A/V,missense_variant
-snp,1479,1480,T,TTT,C,TTC,2,22,936.4545454545449,493,493,F,F,F/F,synonymous_variant
+snp,1479,1480,T,TTT,C,TTC,2,22,936.4545454545447,493,493,F,F,F/F,synonymous_variant
 snp,1493,1494,A,CAG,T,CTG,1,1,940.0,498,498,Q,L,Q/L,missense_variant
 snp,1498,1499,T,TCC,G,GCC,0,2,878.0,500,500,S,A,S/A,missense_variant
 snp,1505,1506,T,ATC,C,ACC,1,2,940.0,502,502,I,T,I/T,missense_variant

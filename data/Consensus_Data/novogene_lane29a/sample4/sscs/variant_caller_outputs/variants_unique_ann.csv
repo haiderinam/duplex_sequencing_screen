@@ -1426,7 +1426,7 @@ mnv,889,892,AAC,AAC,CCT,CCT,0,32,2360275.6,297,297,N,P,N/P,missense_variant
 mnv,889,892,AAC,AAC,CTG,CTG,0,105,2360275.6,297,297,N,L,N/L,missense_variant
 mnv,889,892,AAC,AAC,GAG,GAG,0,8,2360275.6,297,297,N,E,N/E,missense_variant
 mnv,889,892,AAC,AAC,GAT,GAT,0,6,2360275.6,297,297,N,D,N/D,missense_variant
-mnv,889,892,AAC,AAC,GCT,GCT,0,84,2360275.6,297,297,N,A,,missense_variant
+mnv,889,892,AAC,AAC,GCT,GCT,0,84,2360275.6,297,297,N,A,N/A,missense_variant
 mnv,889,892,AAC,AAC,GGT,GGT,0,21,2360275.6,297,297,N,G,N/G,missense_variant
 mnv,889,892,AAC,AAC,GTG,GTG,0,38,2360275.6,297,297,N,V,N/V,missense_variant
 mnv,889,892,AAC,AAC,TGG,TGG,0,4,2360275.6,297,297,N,W,N/W,missense_variant
@@ -2257,7 +2257,7 @@ snp,1435,1436,A,AAT,C,CAT,0,2,1847.0,479,479,N,H,N/H,missense_variant
 snp,1435,1436,A,AAT,G,GAT,0,1,1847.0,479,479,N,D,N/D,missense_variant
 snp,1437,1438,T,AAT,G,AAG,2,1,1847.0,479,479,N,K,N/K,missense_variant
 mnv,1435,1437,AA,AAT,CC,CCT,0,2,1847.0,479,479,N,P,N/P,missense_variant
-mnv,1435,1437,AA,AAT,GC,GCT,0,2,1847.0,479,479,N,A,,missense_variant
+mnv,1435,1437,AA,AAT,GC,GCT,0,2,1847.0,479,479,N,A,N/A,missense_variant
 mnv,1435,1437,AA,AAT,GG,GGT,0,1,1847.0,479,479,N,G,N/G,missense_variant
 mnv,1435,1438,AAT,AAT,CAC,CAC,0,1,1847.0,479,479,N,H,N/H,missense_variant
 mnv,1435,1438,AAT,AAT,CAG,CAG,0,1,1847.0,479,479,N,Q,N/Q,missense_variant

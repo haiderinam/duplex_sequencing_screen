@@ -405,7 +405,7 @@ mnv,952,954,GA,GAT,GG,GGG,0,1,7043924.0,318,318,D,G,D/G,missense_variant
 mnv,953,955,AT,GAT,CA,ACA,1,4,7043924.0,318,318,D,T,D/T,missense_variant
 mnv,953,955,AT,GAT,CC,ACC,1,52,7043924.0,318,318,D,T,D/T,missense_variant
 snp,955,956,A,AAC,C,CCC,0,5,7043924.0,319,319,N,P,N/P,missense_variant
-snp,955,956,A,AAC,G,GCC,0,1440,7043924.0,319,319,N,A,,missense_variant
+snp,955,956,A,AAC,G,GCC,0,1440,7043924.0,319,319,N,A,N/A,missense_variant
 snp,955,956,A,AAC,T,TCC,0,12,7043924.0,319,319,N,S,N/S,missense_variant
 snp,956,957,A,AAC,A,AAC,1,55,7043924.0,319,319,N,N,N/N,synonymous_variant
 snp,956,957,A,AAC,G,AGC,1,5,7043924.0,319,319,N,S,N/S,missense_variant
