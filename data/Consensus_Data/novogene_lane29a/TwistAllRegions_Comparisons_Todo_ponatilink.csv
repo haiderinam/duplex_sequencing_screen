@@ -1,8 +1,8 @@
 Num,dirname,before_screen1_identifier,after_screen1_identifier,before_screen2_identifier,after_screen2_identifier,ABL_Region,ABL_Start,ABL_End,Completed,Skip_flag,Comment
-1,k562_r1_P_0.1_rep1vsrep2,KR1_D0,KR1_P_0.1_A,KR1_D0,KR1_P_0.1_B,Region1,240,321,FALSE,FALSE,crossreplicate
-2,k562_r2_P_0.1_rep1vsrep2,KR2_D0,KR2_P_0.1_A,KR2_D0,KR2_P_0.1_B,Region2,322,394,FALSE,FALSE,crossreplicate
-3,k562_r3_P_0.1_rep1vsrep2,KR3_D0,KR3_P_0.1_A,KR3_D0,KR3_P_0.1_B,Region3,394,465,FALSE,FALSE,crossreplicate
-4,k562_r4_PL_1_rep1vsrep2,KR4_D0,KR4_PL_1_A,KR4_D0,KR4_PL_1_B,Region4,465,518,FALSE,FALSE,crossreplicate
+1,k562_r1_P_0.1_rep1vsrep2,KR1_D0,KR1_P_0.1_A,KR1_D0,KR1_P_0.1_B,ABL Region1,240,321,FALSE,FALSE,crossreplicate
+2,k562_r2_P_0.1_rep1vsrep2,KR2_D0,KR2_P_0.1_A,KR2_D0,KR2_P_0.1_B,ABL Region2,322,394,FALSE,FALSE,crossreplicate
+3,k562_r3_P_0.1_rep1vsrep2,KR3_D0,KR3_P_0.1_A,KR3_D0,KR3_P_0.1_B,ABL Region3,394,465,FALSE,FALSE,crossreplicate
+4,k562_r4_PL_1_rep1vsrep2,KR4_D0,KR4_PL_1_A,KR4_D0,KR4_PL_1_B,ABL Region4,465,518,FALSE,FALSE,crossreplicate
 5,k562_r1_P_0.1vsP_0.4,KR1_D0,"KR1_P_0.1_A,KR1_P_0.1_B",KR1_D0,KR1_P_0.4,Region1,240,321,FALSE,FALSE,cross dose
 6,k562_r2_P_0.1vsP_0.4,KR2_D0,KR2_PL_1,KR2_D0,KR2_PL_5,Region2,322,394,FALSE,FALSE,cross dose
 7,k562_r3_P_0.1vsP_0.4,KR3_D0,KR3_PL_1,KR3_D0,KR3_PL_5,Region3,394,465,FALSE,FALSE,cross dose
