@@ -133,11 +133,11 @@ outdir <- gsub("duplex_sorted_filtered\\.tsv\\.gz$", "variant_caller_outputs", s
 seqdata_tsv_name=list.files("data/Consensus_Data/novogene_lane28b", pattern = "^duplex_sorted_filtered\\.tsv\\.gz$", recursive = TRUE, full.names = TRUE)
 outdir <- gsub("duplex_sorted_filtered\\.tsv\\.gz$", "variant_caller_outputs", seqdata_tsv_name)
 
-seqdata_tsv_name=list.files("data/Consensus_Data/novogene_lane28c_300GBs", pattern = "^sscs_sorted_filtered\\.tsv\\.gz$", recursive = TRUE, full.names = TRUE)
+seqdata_tsv_name=list.files("data/Consensus_Data/novogene_lane28c", pattern = "^sscs_sorted_filtered\\.tsv\\.gz$", recursive = TRUE, full.names = TRUE)
 outdir <- gsub("sscs_sorted_filtered\\.tsv\\.gz$", "variant_caller_outputs", seqdata_tsv_name)
 
 
-seqdata_tsv_name=list.files("data/Consensus_Data/novogene_lane28c_300GBs", pattern = "^duplex_sorted_filtered\\.tsv\\.gz$", recursive = TRUE, full.names = TRUE)
+seqdata_tsv_name=list.files("data/Consensus_Data/novogene_lane28c", pattern = "^duplex_sorted_filtered\\.tsv\\.gz$", recursive = TRUE, full.names = TRUE)
 outdir <- gsub("duplex_sorted_filtered\\.tsv\\.gz$", "variant_caller_outputs", seqdata_tsv_name)
 
 
@@ -217,7 +217,8 @@ ref_genomic_coordinates=ref_genomic_coordinates%>%filter(!codon%in%"")
 
 ####This is the main chunk of code for reading, sorting the tsv file, variant calling, variant annotation using ensembl
 ```{r}
-for(j in 1:length(seqdata_tsv_name)){
+# for(j in 1:length(seqdata_tsv_name)){
+for(j in 10:length(seqdata_tsv_name)){
 # for(j in 1:1)){
 # for(j in 42:length(seqdata_tsv_name)){
   # j=1
