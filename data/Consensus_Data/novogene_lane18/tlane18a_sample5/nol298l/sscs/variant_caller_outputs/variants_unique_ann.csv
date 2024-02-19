@@ -1,4 +1,4 @@
-type,alt_start_pos,alt_end_pos,ref,ref_codon,alt,alt_codon,frame_pos,ct,depth,protein_start,protein_end,ref_aa,alt_aa,amino_acids,consequence_terms
-snp,917,918,C,ACC,A,AAC,1,1,16,306,306,T,N,T/N,missense_variant
-snp,949,950,T,TTC,A,ATC,0,1,16,317,317,F,I,F/I,missense_variant
-mnv,763,766,GAG,GAG,TAC,TAC,0,1,5,255,255,E,Y,E/Y,missense_variant
+"type","alt_start_pos","alt_end_pos","ref","ref_codon","alt","alt_codon","frame_pos","ct","depth","protein_start","protein_end","ref_aa","alt_aa","amino_acids","consequence_terms"
+"snp",917,918,"C","ACC","A","AAC",1,1,8,306,306,"T","N","T/N","missense_variant"
+"snp",949,950,"T","TTC","A","ATC",0,1,6,317,317,"F","I","F/I","missense_variant"
+"mnv",763,766,"GAG","GAG","TAC","TAC",0,1,5,255,255,"E","Y","E/Y","missense_variant"

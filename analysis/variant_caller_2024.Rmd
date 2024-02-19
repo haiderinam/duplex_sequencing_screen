@@ -70,7 +70,7 @@ chr=9 #The chromosome number on hg38. This argument is passed into the ensembl v
 ref_txt_name="data/Refs/ABL/NM_005157.6_CDS.txt"
 ref_csv_name="data/Refs/ABL/abl1_NM_005157.6_full_coordinates.csv"
 
-#############For LTK#############
+############For LTK#############
 # enst="ENST00000263800" #Ensembl transcript ID for the canonical transcript
 # chr=15 #The chromosome number on hg38. This argument is passed into the ensembl variant effect predictor
 # ref_txt_name="data/Refs/LTK/nm_002344.6_cds.txt"
@@ -91,61 +91,53 @@ mode="local"
 
 ```{r}
 # The following script creates a list of the main directory of all samples in a for a sequencing lane 
-seqdata_tsv_name=list.files("data/Consensus_Data/novogene_lane29a", pattern = "^sscs_sorted_filtered\\.tsv\\.gz$", recursive = TRUE, full.names = TRUE)
-outdir <- gsub("sscs_sorted_filtered\\.tsv\\.gz$", "variant_caller_outputs", seqdata_tsv_name)
+# seqdata_tsv_name=list.files("data/Consensus_Data/novogene_lane18", pattern = "^duplex_sorted_filtered\\.tsv\\.gz$", recursive = TRUE, full.names = TRUE)
+# outdir <- gsub("duplex_sorted_filtered\\.tsv\\.gz$", "variant_caller_outputs", seqdata_tsv_name)
 
-seqdata_tsv_name=list.files("data/Consensus_Data/novogene_lane18", pattern = "^sscs_sorted_filtered\\.tsv\\.gz$", recursive = TRUE, full.names = TRUE)
-outdir <- gsub("sscs_sorted_filtered\\.tsv\\.gz$", "variant_caller_outputs", seqdata_tsv_name)
-
-seqdata_tsv_name=list.files("data/Consensus_Data/novogene_lane27b", pattern = "^sscs_sorted_filtered\\.tsv\\.gz$", recursive = TRUE, full.names = TRUE)
-outdir <- gsub("sscs_sorted_filtered\\.tsv\\.gz$", "variant_caller_outputs", seqdata_tsv_name)
-
-seqdata_tsv_name=list.files("data/Consensus_Data/novogene_lane28b", pattern = "^sscs_sorted_filtered\\.tsv\\.gz$", recursive = TRUE, full.names = TRUE)
-outdir <- gsub("sscs_sorted_filtered\\.tsv\\.gz$", "variant_caller_outputs", seqdata_tsv_name)
-
-seqdata_tsv_name=list.files("data/Consensus_Data/novogene_lane29b", pattern = "^sscs_sorted_filtered\\.tsv\\.gz$", recursive = TRUE, full.names = TRUE)
-outdir <- gsub("sscs_sorted_filtered\\.tsv\\.gz$", "variant_caller_outputs", seqdata_tsv_name)
-
-# seqdata_tsv_name=list.files("data/Consensus_Data/novogene_lane29a", pattern = "^sscs_sorted_filtered\\.tsv\\.gz$", recursive = TRUE, full.names = TRUE)
-# outdir <- gsub("sscs_sorted_filtered\\.tsv\\.gz$", "variant_caller_outputs", seqdata_tsv_name)
-
-seqdata_tsv_name=list.files("data/Consensus_Data/novogene_lane28", pattern = "^sscs_sorted_filtered\\.tsv\\.gz$", recursive = TRUE, full.names = TRUE)
-outdir <- gsub("sscs_sorted_filtered\\.tsv\\.gz$", "variant_caller_outputs", seqdata_tsv_name)
-
-seqdata_tsv_name=list.files("data/Consensus_Data/novogene_lane23", pattern = "^sscs_sorted_filtered\\.tsv\\.gz$", recursive = TRUE, full.names = TRUE)
-outdir <- gsub("sscs_sorted_filtered\\.tsv\\.gz$", "variant_caller_outputs", seqdata_tsv_name)
-
-seqdata_tsv_name=list.files("data/Consensus_Data/novogene_lane27b", pattern = "^duplex_sorted_filtered\\.tsv\\.gz$", recursive = TRUE, full.names = TRUE)
-outdir <- gsub("duplex_sorted_filtered\\.tsv\\.gz$", "variant_caller_outputs", seqdata_tsv_name)
-
-seqdata_tsv_name=list.files("data/Consensus_Data/novogene_lane29c/LTK", pattern = "^sscs_sorted_filtered\\.tsv\\.gz$", recursive = TRUE, full.names = TRUE)
-outdir <- gsub("sscs_sorted_filtered\\.tsv\\.gz$", "variant_caller_outputs", seqdata_tsv_name)
-
-seqdata_tsv_name=list.files("data/Consensus_Data/novogene_lane29c/LTK", pattern = "^duplex_sorted_filtered\\.tsv\\.gz$", recursive = TRUE, full.names = TRUE)
-outdir <- gsub("duplex_sorted_filtered\\.tsv\\.gz$", "variant_caller_outputs", seqdata_tsv_name)
-
-seqdata_tsv_name=list.files("data/Consensus_Data/novogene_lane29c/ABL", pattern = "^duplex_sorted_filtered\\.tsv\\.gz$", recursive = TRUE, full.names = TRUE)
-outdir <- gsub("duplex_sorted_filtered\\.tsv\\.gz$", "variant_caller_outputs", seqdata_tsv_name)
-
-seqdata_tsv_name=list.files("data/Consensus_Data/novogene_lane29c/ABL", pattern = "^duplex_sorted_filtered\\.tsv\\.gz$", recursive = TRUE, full.names = TRUE)
-outdir <- gsub("duplex_sorted_filtered\\.tsv\\.gz$", "variant_caller_outputs", seqdata_tsv_name)
-
-seqdata_tsv_name=list.files("data/Consensus_Data/novogene_lane28b", pattern = "^duplex_sorted_filtered\\.tsv\\.gz$", recursive = TRUE, full.names = TRUE)
-outdir <- gsub("duplex_sorted_filtered\\.tsv\\.gz$", "variant_caller_outputs", seqdata_tsv_name)
-
-seqdata_tsv_name=list.files("data/Consensus_Data/novogene_lane28c", pattern = "^sscs_sorted_filtered\\.tsv\\.gz$", recursive = TRUE, full.names = TRUE)
-outdir <- gsub("sscs_sorted_filtered\\.tsv\\.gz$", "variant_caller_outputs", seqdata_tsv_name)
+# seqdata_tsv_name=list.files("data/Consensus_Data/novogene_lane29a", pattern = "^duplex_sorted_filtered\\.tsv\\.gz$", recursive = TRUE, full.names = TRUE)
+# outdir <- gsub("duplex_sorted_filtered\\.tsv\\.gz$", "variant_caller_outputs", seqdata_tsv_name)
 
 
-seqdata_tsv_name=list.files("data/Consensus_Data/novogene_lane28c", pattern = "^duplex_sorted_filtered\\.tsv\\.gz$", recursive = TRUE, full.names = TRUE)
-outdir <- gsub("duplex_sorted_filtered\\.tsv\\.gz$", "variant_caller_outputs", seqdata_tsv_name)
+
+# seqdata_tsv_name=list.files("data/Consensus_Data/novogene_lane27b", pattern = "^duplex_sorted_filtered\\.tsv\\.gz$", recursive = TRUE, full.names = TRUE)
+# outdir <- gsub("duplex_sorted_filtered\\.tsv\\.gz$", "variant_caller_outputs", seqdata_tsv_name)
+
+# seqdata_tsv_name=list.files("data/Consensus_Data/novogene_lane28a", pattern = "^duplex_sorted_filtered\\.tsv\\.gz$", recursive = TRUE, full.names = TRUE)
+# outdir <- gsub("duplex_sorted_filtered\\.tsv\\.gz$", "variant_caller_outputs", seqdata_tsv_name)
+
+# seqdata_tsv_name=list.files("data/Consensus_Data/novogene_lane28b", pattern = "^duplex_sorted_filtered\\.tsv\\.gz$", recursive = TRUE, full.names = TRUE)
+# outdir <- gsub("duplex_sorted_filtered\\.tsv\\.gz$", "variant_caller_outputs", seqdata_tsv_name)
+
+# seqdata_tsv_name=list.files("data/Consensus_Data/novogene_lane19", pattern = "^duplex_sorted_filtered\\.tsv\\.gz$", recursive = TRUE, full.names = TRUE)
+# outdir <- gsub("duplex_sorted_filtered\\.tsv\\.gz$", "variant_caller_outputs", seqdata_tsv_name)
+
+# seqdata_tsv_name=list.files("data/Consensus_Data/novogene_lane19_20", pattern = "^duplex_sorted_filtered\\.tsv\\.gz$", recursive = TRUE, full.names = TRUE)
+# outdir <- gsub("duplex_sorted_filtered\\.tsv\\.gz$", "variant_caller_outputs", seqdata_tsv_name)
+
+# seqdata_tsv_name=list.files("data/Consensus_Data/novogene_lane23", pattern = "^duplex_sorted_filtered\\.tsv\\.gz$", recursive = TRUE, full.names = TRUE)
+# outdir <- gsub("duplex_sorted_filtered\\.tsv\\.gz$", "variant_caller_outputs", seqdata_tsv_name)
+
 
 
 # seqdata_tsv_name=list.files("data/Consensus_Data/novogene_lane29a", pattern = "^duplex_sorted_filtered\\.tsv\\.gz$", recursive = TRUE, full.names = TRUE)
 # outdir <- gsub("duplex_sorted_filtered\\.tsv\\.gz$", "variant_caller_outputs", seqdata_tsv_name)
 
+# seqdata_tsv_name=list.files("data/Consensus_Data/novogene_lane29b", pattern = "^duplex_sorted_filtered\\.tsv\\.gz$", recursive = TRUE, full.names = TRUE)
+# outdir <- gsub("duplex_sorted_filtered\\.tsv\\.gz$", "variant_caller_outputs", seqdata_tsv_name)
+#
 # seqdata_tsv_name=list.files("data/Consensus_Data/novogene_lane29c/ABL", pattern = "^sscs_sorted_filtered\\.tsv\\.gz$", recursive = TRUE, full.names = TRUE)
 # outdir <- gsub("sscs_sorted_filtered\\.tsv\\.gz$", "variant_caller_outputs", seqdata_tsv_name)
+
+
+
+# seqdata_tsv_name=list.files("data/Consensus_Data/novogene_lane29c/LTK", pattern = "^sscs_sorted_filtered\\.tsv\\.gz$", recursive = TRUE, full.names = TRUE)
+# outdir <- gsub("sscs_sorted_filtered\\.tsv\\.gz$", "variant_caller_outputs", seqdata_tsv_name)
+# 
+# seqdata_tsv_name=list.files("data/Consensus_Data/novogene_lane29c/LTK", pattern = "^duplex_sorted_filtered\\.tsv\\.gz$", recursive = TRUE, full.names = TRUE)
+# outdir <- gsub("duplex_sorted_filtered\\.tsv\\.gz$", "variant_caller_outputs", seqdata_tsv_name)
+
+
+
 
 # To do: lane 29b, 28, 27b, 18,19
 
@@ -163,9 +155,10 @@ outdir <- gsub("duplex_sorted_filtered\\.tsv\\.gz$", "variant_caller_outputs", s
 
 ```{r}
 ##########################Optional Chunk of Code##########################
-#Note: as of August 2022, Ensembl's rest api is being pretty slow for the CDS to Chromosomal coordinates. So this function might take a long time to run. You should only need to run it once to make sure your genomic coordinates are right though.
 #Below is code to verify that the your CDS to Hg38 mapping coordinates are the same as the coordinates predicted by Ensemble's rest API.
 #This can be useful if you're not sure if your hg38 choromosome coordinates are correct
+#Note: as of August 2022, Ensembl's rest api is being pretty slow for the CDS to Chromosomal coordinates. So the following function might take a long time to run. You should only need to run it once to make sure your genomic coordinates are right though.
+
 library(httr)
 library(jsonlite)
 library(xml2)
@@ -218,9 +211,10 @@ ref_genomic_coordinates=ref_genomic_coordinates%>%filter(!codon%in%"")
 ####This is the main chunk of code for reading, sorting the tsv file, variant calling, variant annotation using ensembl
 ```{r}
 # for(j in 1:length(seqdata_tsv_name)){
-for(j in 10:length(seqdata_tsv_name)){
+# for(j in 1:length(seqdata_tsv_name)){
 # for(j in 1:1)){
-# for(j in 42:length(seqdata_tsv_name)){
+
+for(j in 1:length(seqdata_tsv_name)){
   # j=1
   seqdata_tsv_name_current=seqdata_tsv_name[j]
   outdir_curr=outdir[j]
@@ -903,25 +897,29 @@ ggplot(calls_missense,aes(x=protein_start,y=alt_aa))+
 ```{r}
 source("code/variantcaller/add_l298l.R")
 l298l.samples=list.files("data/Consensus_Data/novogene_lane29c/ABL")
+# l298l.samples=list.files("data/Consensus_Data/novogene_lane18")
 
 for(i in c(1:length(l298l.samples))){
   
   # sample=paste("sample",i,sep = "")
   sample=l298l.samples[i]
   
-  input_df_nol298l=read.csv(paste("data/Consensus_Data/novogene_lane29c/ABL/",sample,"/nol298l/sscs/variant_caller_outputs/variants_unique_ann.csv",sep=""))
-  input_df_l298l=read.csv(paste("data/Consensus_Data/novogene_lane29c/ABL/",sample,"/l298l/sscs/variant_caller_outputs/variants_unique_ann.csv",sep=""))
+  input_df_nol298l=read.csv(paste("data/Consensus_Data/novogene_lane29c/ABL/",sample,"/nol298l/duplex/variant_caller_outputs/variants_unique_ann.csv",sep=""))
+  input_df_l298l=read.csv(paste("data/Consensus_Data/novogene_lane29c/ABL/",sample,"/l298l/duplex/variant_caller_outputs/variants_unique_ann.csv",sep=""))
+  # input_df_nol298l=read.csv(paste("data/Consensus_Data/novogene_lane18/",sample,"/nol298l/duplex/variant_caller_outputs/variants_unique_ann.csv",sep=""))
+  # input_df_l298l=read.csv(paste("data/Consensus_Data/novogene_lane18/",sample,"/l298l/duplex/variant_caller_outputs/variants_unique_ann.csv",sep=""))
+  
   # The following lines of code let you do the L298L thing semi-manually, i.e. instead of selecting all subdirectories within a parent directory like above
   # for(i in c(1:21)){
   # sample="sample1"
-  # input_df_nol298l=read.csv(paste("data/Consensus_Data/novogene_lane18/",sample,"/nol298l/sscs/variant_caller_outputs/variants_unique_ann.csv",sep=""))
-  # input_df_l298l=read.csv(paste("data/Consensus_Data/novogene_lane18/",sample,"/l298l/sscs/variant_caller_outputs/variants_unique_ann.csv",sep=""))
+  
   
   output_df=add_l298l(input_df_nol298l,input_df_l298l)
   output_df=output_df[, !names(output_df) == "X", drop = FALSE]
 
-  write.csv(output_df,
-            paste("data/Consensus_Data/novogene_lane29c/ABL/",sample,"/sscs/variant_caller_outputs/variants_unique_ann.csv",sep = ""),row.names = F)  
+  write.csv(output_df,paste("data/Consensus_Data/novogene_lane29c/ABL/",sample,"/duplex/variant_caller_outputs/variants_unique_ann.csv",sep = ""),row.names = F)
+  # write.csv(output_df,
+            # paste("data/Consensus_Data/novogene_lane18/",sample,"/duplex/variant_caller_outputs/variants_unique_ann.csv",sep = ""),row.names = F)  
 }
 ```
 
