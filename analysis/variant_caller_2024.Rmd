@@ -17,6 +17,7 @@ library(tictoc)
 library(doParallel)
 library(foreach)
 
+
 #Cleanup code for plotting
 cleanup=theme_bw() +
   theme(plot.title = element_text(hjust=.5),
@@ -41,6 +42,8 @@ cleanup=theme_bw() +
 #3. Is the name of the txt file that has the sequence of the *coding sequence* of the protein. This sequence should be the exact same sequence as the sequence used to align the consensus reads to make the bam file. Note that this sequence should be the coding sequence, not the entire cDNA sequence (that includes the UTRs).
 #4. ref_csv_name is the name of the csv file that has the following columns: resi (or the residue number of the protein), chr_start, and pos (the nucleotide position of the coding sequence). To find which genomic coordinates match to the coding sequence, look at the Ensembl CCDS entry for that coding sequence.
 #5. ref_offset. This field should be set to 0 for most cases. Unless there is a difference between the sequence that you used for your alignments (to generate the SAM/BAM file) and the sequence you're using for ref_txt_name.
+
+#6. Your input tsv file.
 
 #Instructions to find the coding sequence for a gene such as ABL: google ensembl + human ABL. That will take you to a page that lists out ABL's transcript variants. Look at the transcript that has the "Ensembl Canonical" transcript flag. That transcript,ENST00000318560, is the canonical transcript for ABL. You'll also see a REFSEQ entry for this transcript. For ABL, this is NM_005157.6. Go to NCBI Refseq, seach NM_005157.6. This will take you to an NCBI page with the mRNA/cDNA sequence NM_005157. To get just the coding sequence, click on "CDS". This will highglight the coding sequence in brown. At the bottom of the page, there will be a button to export the sequence as a .fasta file. Make sure only the coding sequence (starts with ATG and end with a stop codon) is exported.
 #Now go back to the ensembl transcript page and click on the first CCDS entry. For ABL, this is CCDS35166. This is the canonical coding sequence for ABL. The page on CCDS35166 shows the exact chromosomal coordinates of each position of the coding sequence. You can use this information to make the csv file (ref_csv_name) that maps out the full conversion between CDS and Chr.
@@ -77,12 +80,6 @@ ref_csv_name="data/Refs/ABL/abl1_NM_005157.6_full_coordinates.csv"
 # ref_csv_name="data/Refs/LTK/ltk_NM_002344.6_full_coordinates.csv"
 
 
-# seqdata_tsv_name=c("data/Consensus_data/novogene_lane16b/Sample8_combined/duplex/duplex_sorted_filtered.tsv.gz")
-
-# outdir=c("data/Consensus_data/novogene_lane16b/Sample8_combined/duplex/variant_caller_outputs/")
-
-
-
 #The local variant caller is much faster but does not include the polyphen classifications that the ensembl rest server spits out. Also, as it stands right now the local variant caller cant handle indels or mnvs that span multiple codons
 mode="local"
 # mode="ensembl"
@@ -90,7 +87,7 @@ mode="local"
 
 
 ```{r}
-# The following script creates a list of the main directory of all samples in a for a sequencing lane 
+# Input #6: Your TSV Files
 # seqdata_tsv_name=list.files("data/Consensus_Data/novogene_lane18", pattern = "^duplex_sorted_filtered\\.tsv\\.gz$", recursive = TRUE, full.names = TRUE)
 # outdir <- gsub("duplex_sorted_filtered\\.tsv\\.gz$", "variant_caller_outputs", seqdata_tsv_name)
 
@@ -136,6 +133,9 @@ mode="local"
 # seqdata_tsv_name=list.files("data/Consensus_Data/novogene_lane29c/LTK", pattern = "^duplex_sorted_filtered\\.tsv\\.gz$", recursive = TRUE, full.names = TRUE)
 # outdir <- gsub("duplex_sorted_filtered\\.tsv\\.gz$", "variant_caller_outputs", seqdata_tsv_name)
 
+
+seqdata_tsv_name=list.files("data/Consensus_Data/novogene_lane28c_rerun", pattern = "^duplex_sorted_filtered\\.tsv\\.gz$", recursive = TRUE, full.names = TRUE)
+outdir <- gsub("duplex_sorted_filtered\\.tsv\\.gz$", "variant_caller_outputs", seqdata_tsv_name)
 
 
 
@@ -212,7 +212,7 @@ ref_genomic_coordinates=ref_genomic_coordinates%>%filter(!codon%in%"")
 ```{r}
 # for(j in 1:length(seqdata_tsv_name)){
 # for(j in 1:length(seqdata_tsv_name)){
-# for(j in 1:1)){
+# for(j in 1:1){
 
 for(j in 1:length(seqdata_tsv_name)){
   # j=1

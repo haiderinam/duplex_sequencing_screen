@@ -145,6 +145,16 @@ ggsave(paste("output/ABLEnrichmentScreens/ABL_Region234_Comparisons/",dirname,"/
 
 
 I have new sequencing data from Lane 27b and Lane 28.
+Below, I am going to correlate the two datasets for region 4
+
+
+```{r}
+codon_table=read.csv("data/codon_table.csv",header = T,stringsAsFactors = F)
+twist_codons=codon_table%>%filter(Twist%in%T)
+  # twist_alt_codon=twist_codons[twist_codons$Letter%in%alt_aa,"Codon"]
+twist_alt_codon=twist_codons[,"Codon"]
+```
+
 For BTR4D0: I'll look at the correlation between lane 28 sample 17 and lane 27b sample 9
 ```{r}
 # source("code/merge_samples.R")
@@ -222,11 +232,11 @@ For BTR4DHD6A vs B: I'll look at the correlation between
 # source("code/compare_samples.R")
 # source("code/compare_samples_archive.R")
 
-btr4d0a=read.csv("data/Consensus_Data/novogene_lane28/sample23/sscs/variant_caller_outputs/variants_unique_ann.csv")
+btr4d0a=read.csv("data/Consensus_Data/novogene_lane28c/sample23/sscs/variant_caller_outputs/variants_unique_ann.csv")
 btr4d0a=btr4d0a%>%filter(consequence_terms%in%"missense_variant",!ct%in%c(1,2,3))%>%mutate(maf=ct/depth)
 btr4d0a=btr4d0a%>%dplyr::select(ref_aa,protein_start,alt_aa,type,maf,alt_codon)
 
-btr4d0b=read.csv("data/Consensus_Data/novogene_lane28/sample24/sscs/variant_caller_outputs/variants_unique_ann.csv")
+btr4d0b=read.csv("data/Consensus_Data/novogene_lane28c/sample24/sscs/variant_caller_outputs/variants_unique_ann.csv")
 btr4d0b=btr4d0b%>%filter(consequence_terms%in%"missense_variant",!ct%in%c(1,2,3))%>%mutate(maf=ct/depth)
 btr4d0b=btr4d0b%>%dplyr::select(ref_aa,protein_start,alt_aa,type,maf,alt_codon)
 
@@ -248,12 +258,7 @@ ggplot(btr4d0,
   stat_cor(method = "pearson")
 
 ```
-```{r}
-codon_table=read.csv("data/codon_table.csv",header = T,stringsAsFactors = F)
-twist_codons=codon_table%>%filter(Twist%in%T)
-  # twist_alt_codon=twist_codons[twist_codons$Letter%in%alt_aa,"Codon"]
-twist_alt_codon=twist_codons[,"Codon"]
-```
+
 
 For BTR4DID6A vs B: I'll look at the correlation between
  lane 28 sample 18 and 19
@@ -296,7 +301,8 @@ For Imatinib: Making a combined dataframe of all regions
 ```{r}
 ############# IL3 SCREENS ############# 
 
-r1=read.csv("output/ABLEnrichmentScreens/ABL_Region1_Lane18_Comparisons/cross-replicate/baf3_IL3_rep1vsrep2_ft/screen_comparison_baf3_IL3_low_rep1vsrep2ft.csv")
+r1=read.csv("output/ABLEnrichmentScreens/ABL_Region1_Lane18_Comparisons/cross-replicate/baf3_IL3_rep1vsrep2_ft/screen_comparison_baf3_IL3_low_rep1vsrep2_ft.csv")
+
 # Adding a dummy depleted variable. Ideally should add a case_when ct=0.5 clause to this region 1 dataset
 r1$depleted=FALSE
 
@@ -554,15 +560,13 @@ ggsave("output/ABLEnrichmentScreens/ABL_Region234_Comparisons/baf3_imatinib_heat
 heatmap_plotting_function(imatinib_all%>%filter(!netgr.imat.high.2%in%"NaN"),240,512,fill_variable = "netgr.imat.high.2",fill_name = "Net growth rate \n(Hrs^-1)")
 ggsave("output/ABLEnrichmentScreens/ABL_Region234_Comparisons/baf3_imatinib_heatmap_1200nM.pdf",width=16,height=4,units="in",useDingbats=F)
 
-heatmap_plotting_function(imathigh_1_vsimathigh_2_all%>%filter(!netgr.imat.high.2%in%"NaN"),240,512,fill_variable = "netgr.imat.low.2",fill_name = "Net growth rate \n(Hrs^-1)")
-ggsave("output/ABLEnrichmentScreens/ABL_Region234_Comparisons/baf3_imatinib_heatmap_1200nM.pdf",width=16,height=4,units="in",useDingbats=F)
-
 # heatmap_plotting_function()
 
 
 ```
 
 ```{r}
+# Checking for duplicates in all the data
 a= r1 %>%
   filter(duplicated(species) & duplicated(species, fromLast = TRUE))
 
@@ -575,7 +579,7 @@ a= r4 %>%
 a= imatinib_all %>%
   filter(duplicated(species) & duplicated(species, fromLast = TRUE))
 
-a=imathigh_1_vsimathigh_2_all%>%filter(protein_start%in%c(394:465))
+# a=imathigh_1_vsimathigh_2_all%>%filter(protein_start%in%c(394:465))
 
 
 analysis=il3_1_vsil3_2_all%>%mutate(region=case_when(protein_start%in%c(240:321)~"region1",
@@ -593,3 +597,43 @@ a= imathigh_1_vsimathigh_2_all %>%
   filter(protein_start%in%"459")
 ```
 
+
+
+
+
+
+
+
+For BTR2LD0A vs B: I'll look at the correlation between
+ lane 28 sample 23 and 24
+```{r}
+# source("code/merge_samples.R")
+# source("code/compare_samples.R")
+# source("code/compare_samples_archive.R")
+
+btr4d0a=read.csv("data/Consensus_Data/novogene_lane28c_old/sample6/sscs/variant_caller_outputs/variants_unique_ann.csv")
+btr4d0a=btr4d0a%>%filter(consequence_terms%in%"missense_variant",!ct%in%c(1,2,3))%>%mutate(maf=ct/depth)
+btr4d0a=btr4d0a%>%dplyr::select(ref_aa,protein_start,alt_aa,type,maf,alt_codon)
+
+btr4d0b=read.csv("data/Consensus_Data/novogene_lane28c/sample6/sscs/variant_caller_outputs/variants_unique_ann.csv")
+btr4d0b=btr4d0b%>%filter(consequence_terms%in%"missense_variant",!ct%in%c(1,2,3))%>%mutate(maf=ct/depth)
+btr4d0b=btr4d0b%>%dplyr::select(ref_aa,protein_start,alt_aa,type,maf,alt_codon)
+
+btr4d0=merge(btr4d0a,btr4d0b,by = c("ref_aa","protein_start","alt_aa","type","alt_codon"))
+btr4d0=btr4d0%>%filter(alt_codon%in%twist_alt_codon)
+btr4d0=btr4d0%>%mutate(species=paste(ref_aa,protein_start,alt_aa,sep=""))
+
+ggplot(btr4d0,
+       aes(x=maf.x,y=maf.y,color=type))+geom_point()+
+  scale_x_continuous(trans="log10")+
+  scale_y_continuous(trans="log10")+
+  stat_cor(method = "pearson")
+
+ggplot(btr4d0,
+       aes(x=maf.x,y=maf.y,color=type,label=species))+
+  geom_text()+
+  scale_x_continuous(trans="log10")+
+  scale_y_continuous(trans="log10")+
+  stat_cor(method = "pearson")
+
+```

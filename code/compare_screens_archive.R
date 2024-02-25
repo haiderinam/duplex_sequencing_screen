@@ -3,6 +3,7 @@ compare_screens_archive=function(before_screen1_identifier,
                          before_screen2_identifier,
                          after_screen2_identifier,
                          cellcounts_matrix_location){
+  # cellcounts_matrix_location=cellcounts_matrix_dir
   # Inputs: 1) Condition 1 baseline, 2) Condition 1 treated, 3) Condition 2 Baseline, 4) Condition 2 treated
   # 5)The location of the cell counts table
   # These inputs can have a single sample in the name or specify two samples to merge

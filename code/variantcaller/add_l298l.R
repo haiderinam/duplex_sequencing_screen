@@ -22,5 +22,3 @@ add_l298l=function(input_df_nol298l,input_df_l298l){
   input_df_l298ladded
 }
 
-
-
