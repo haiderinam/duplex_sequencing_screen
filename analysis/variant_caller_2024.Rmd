@@ -134,7 +134,7 @@ mode="local"
 # outdir <- gsub("duplex_sorted_filtered\\.tsv\\.gz$", "variant_caller_outputs", seqdata_tsv_name)
 
 
-seqdata_tsv_name=list.files("data/Consensus_Data/novogene_lane28c_rerun", pattern = "^duplex_sorted_filtered\\.tsv\\.gz$", recursive = TRUE, full.names = TRUE)
+seqdata_tsv_name=list.files("data/Consensus_Data/novogene_lane28c", pattern = "^duplex_sorted_filtered\\.tsv\\.gz$", recursive = TRUE, full.names = TRUE)
 outdir <- gsub("duplex_sorted_filtered\\.tsv\\.gz$", "variant_caller_outputs", seqdata_tsv_name)
 
 
@@ -215,7 +215,7 @@ ref_genomic_coordinates=ref_genomic_coordinates%>%filter(!codon%in%"")
 # for(j in 1:1){
 
 for(j in 1:length(seqdata_tsv_name)){
-  # j=1
+  j=23
   seqdata_tsv_name_current=seqdata_tsv_name[j]
   outdir_curr=outdir[j]
   
@@ -236,7 +236,8 @@ names(alldata)=c("pos","cigar","tlen","seq","mdz")
 # names(alldata)=c("flag","pos","mapq","cigar","tlen","seq","mdz")
 alldata=alldata%>%mutate(mdz=gsub("MD:Z:","",mdz))
 
-
+# alldata2=alldata
+# alldata=alldata2
 ########Calculating Clip Distance for soft-clipped reads########
 ######Detecting soft-clipped reads and noting how many bases were soft clipped
 #This is because the positions on the mdz field exclude the soft clipped portion of the read.
@@ -369,9 +370,16 @@ alldata=alldata[!grepl("AS:i:0",alldata$mdz),]
 # Gets rid of 10% of reads. This might be too stringent a filter because of course you would expect Ns in a 10bp window###
 alldata=alldata[!grepl("N",alldata$seq),]
 
+# a=alldata%>%filter(!seq%in%c("GAGAAGGACTACCGCATGGAGCGCCCAGAAGGCTGCCCAGAGAAGGTCTATGAACTCATGCGAGCATGTTGGCAGTGGAATCCCTCTGACCGGCCCTCCTTTGCTGAAATCCACCAAGCCTTTGAAACAATGT",
+#                    "GAGAAGGACTACCGCATGGAGCGCCCAGAAGGCTGCCCAGAGAAGGTCTATGAACTCATGCGAGCATGTTGGCAGTGGAATCCCTCTGACCGGCCCTCCTTTGCTGAAATCCACCAAGCCTTTGAAACAATGT",
+#                    "TGAAATCCACCAAGCCTTTGAAACAATGTTCCAGGAATCCAGTATCTCAGACGAAGTGGAAAAGGAGCTGGGGAAACAAGGCGTCCGTGGGGCTGTGAGTACCTTGCTGCAGGCCCCAGAGCTGCCCACCAAG",
+#                    "TGAAATCCACCAAGCCTTTGAAACAATGTTCCAGGAATCCAGTATCTCAGACGAAGTGGAAAAGGAGCTGGGGAAACAAGGCGTCCGTGGGGCTGTGAGTACCTTGCTGCAGGCCCCAGAGCTGCCCACCAAG"))
+
+
 #######Filtering for Non-Reference########
 # alt_positions=grepl("[0-9]{3}$",alldata$mdz)
 alt_positions=grepl("[a-zA-Z]",alldata$mdz)
+# a=alldata%>%filter(mdz%in%133)
 
 # a=alldata[!alt_positions,]
 alldata=alldata[alt_positions,]
