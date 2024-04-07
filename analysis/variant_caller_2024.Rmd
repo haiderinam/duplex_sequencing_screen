@@ -217,7 +217,7 @@ ref_genomic_coordinates=ref_genomic_coordinates%>%filter(!codon%in%"")
 # for(j in 1:length(seqdata_tsv_name)){
 # for(j in 1:length(seqdata_tsv_name)){
 # for(j in 1:1){
-for(j in 1:length(seqdata_tsv_name)){
+for(j in 7:length(seqdata_tsv_name)){
   # j=23
   seqdata_tsv_name_current=seqdata_tsv_name[j]
   outdir_curr=outdir[j]

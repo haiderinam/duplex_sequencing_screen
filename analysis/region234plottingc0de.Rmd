@@ -98,7 +98,7 @@ screen_compare_means=screen_compare_means%>%mutate(depleted=case_when(ct_screen1
 screen_compare_means_forexport=apply(screen_compare_means,2,as.character)
 write.csv(screen_compare_means_forexport,file = paste("output/ABLEnrichmentScreens/ABL_Region234_Comparisons/",dirname,"/screen_comparison_",dirname,".csv",sep=""))
 
-
+  
 
 # Plot 1. What does the heatmap look like from the average of the net growth rate?
 start_site=comparisons$ABL_Start[i]
