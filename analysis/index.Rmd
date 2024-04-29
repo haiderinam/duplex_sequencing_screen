@@ -81,6 +81,10 @@ editor_options:
 * Click [here](ABL_cosmic_analysis.html) to view our analyses of whether mutants in the cosmic/sanger database are resistant according to our screens.  
 <img src="assets/abl_cosmic_analysis.png" width="300" height="216"  alt="">.  
 
+  
+* Click [here](ABL_cosmic_analysis_fullkinase.html) to view our analyses of imatinib resistance in the full ABL kinase. This includes heatmaps, scatterplots, boxplots, waterfall plots, all analyzing the imatinib resistance profile of the ABL kinase.  
+<img src="assets/fullkinase_scatter.png" width="300" height="281"  alt="">.  
+
 
 
 

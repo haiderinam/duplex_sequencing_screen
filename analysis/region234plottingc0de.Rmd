@@ -475,13 +475,20 @@ ggsave(paste("output/ABLEnrichmentScreens/ABL_Region234_Comparisons/",dirname,"/
 
 
 
+########################################
 For Imatinib: Making a combined dataframe of all regions
 This chunk of code is the same as above except that the combined dataframes also include enrichment scores
+
+This chunk of code also has median centering and normalizing the imatinib dataset by region. Region 2 and 3 scores and net growth rates were normalized by a constant factor of 0.7
+
+This chunk of code also adds data for the F359C region by including data from a previous screen
+########################################
+
 ```{r}
-sum(r1$ct_screen1_before)
-sum(r2$ct_screen1_before)
-sum(r3$ct_screen1_before)
-sum(r4$ct_screen1_before)
+# sum(r1$ct_screen1_before)
+# sum(r2$ct_screen1_before)
+# sum(r3$ct_screen1_before)
+# sum(r4$ct_screen1_before)
 ############# IL3 SCREENS ############# 
 # rm(list=ls())
 r1=read.csv("output/ABLEnrichmentScreens/ABL_Region1_Lane18_Comparisons/cross-replicate/baf3_IL3_rep1vsrep2_ft/screen_comparison_baf3_IL3_low_rep1vsrep2_ft.csv")
@@ -499,6 +506,24 @@ r3=r3%>%filter(protein_start%in%c(394:465))
 
 r4=read.csv("output/ABLEnrichmentScreens/ABL_Region234_Comparisons/baf3_r4_IL3_low_rep1vsrep2/screen_comparison_baf3_r4_IL3_low_rep1vsrep2.csv")
 r4=r4%>%filter(protein_start%in%c(466:518))
+
+
+######### median centering r2 and 3 around 0.06
+r2=r2%>%mutate(netgr_obs_screen1=netgr_obs_screen1*.7,
+               netgr_obs_screen2=netgr_obs_screen2*.7,
+               score_screen1=score_screen1*.7,
+               score_screen2=score_screen2*.7)
+r3=r3%>%mutate(netgr_obs_screen1=netgr_obs_screen1*.7,
+               netgr_obs_screen2=netgr_obs_screen2*.7,
+               score_screen1=score_screen1*.7,
+               score_screen2=score_screen2*.7)
+r4=r4%>%mutate(netgr_obs_screen1=netgr_obs_screen1*.7,
+               netgr_obs_screen2=netgr_obs_screen2*.7,
+               score_screen1=score_screen1*.7,
+               score_screen2=score_screen2*.7)
+
+
+
 
 il3_1_vsil3_2_all=rbind(r1,r2,r3,r4)
 
@@ -534,6 +559,8 @@ r1$depleted=FALSE
 
 r1=r1%>%filter(protein_start%in%c(240:321))
 
+
+
 r2=read.csv("output/ABLEnrichmentScreens/ABL_Region234_Comparisons/baf3_r2_Imat_low_rep1vsrep2/screen_comparison_baf3_r2_Imat_low_rep1vsrep2.csv")
 r2=r2%>%filter(protein_start%in%c(322:393))
 
@@ -543,6 +570,20 @@ r3=r3%>%filter(protein_start%in%c(394:465))
 r4=read.csv("output/ABLEnrichmentScreens/ABL_Region234_Comparisons/baf3_r4_Imat_low_rep1vsrep2/screen_comparison_baf3_r4_Imat_low_rep1vsrep2.csv")
 r4=r4%>%filter(protein_start%in%c(466:518))
 
+######### median centering r2 and 3 around 0.06
+r2=r2%>%mutate(netgr_obs_screen1=netgr_obs_screen1*.7,
+               netgr_obs_screen2=netgr_obs_screen2*.7,
+               score_screen1=score_screen1*.7,
+               score_screen2=score_screen2*.7)
+r3=r3%>%mutate(netgr_obs_screen1=netgr_obs_screen1*.7,
+               netgr_obs_screen2=netgr_obs_screen2*.7,
+               score_screen1=score_screen1*.7,
+               score_screen2=score_screen2*.7)
+r4=r4%>%mutate(netgr_obs_screen1=netgr_obs_screen1*.7,
+               netgr_obs_screen2=netgr_obs_screen2*.7,
+               score_screen1=score_screen1*.7,
+               score_screen2=score_screen2*.7)
+#########
 
 imatlow_1_vsimatlow_2_all=rbind(r1,r2,r3,r4)
 
@@ -589,6 +630,21 @@ r3=r3%>%filter(protein_start%in%c(394:465))
 r4=read.csv("output/ABLEnrichmentScreens/ABL_Region234_Comparisons/baf3_r4_Imat_medium_rep1vsrep2/screen_comparison_baf3_r4_Imat_medium_rep1vsrep2.csv")
 r4=r4%>%filter(protein_start%in%c(466:518))
 
+######### median centering r2 and 3 around 0.06
+r2=r2%>%mutate(netgr_obs_screen1=netgr_obs_screen1*.7,
+               netgr_obs_screen2=netgr_obs_screen2*.7,
+               score_screen1=score_screen1*.7,
+               score_screen2=score_screen2*.7)
+r3=r3%>%mutate(netgr_obs_screen1=netgr_obs_screen1*.7,
+               netgr_obs_screen2=netgr_obs_screen2*.7,
+               score_screen1=score_screen1*.7,
+               score_screen2=score_screen2*.7)
+r4=r4%>%mutate(netgr_obs_screen1=netgr_obs_screen1*.7,
+               netgr_obs_screen2=netgr_obs_screen2*.7,
+               score_screen1=score_screen1*.7,
+               score_screen2=score_screen2*.7)
+#########
+
 imatmid_1_vsimatmid_2_all=rbind(r1,r2,r3,r4)
 
 imatmid_1_vsimatmid_2_all=imatmid_1_vsimatmid_2_all%>%dplyr::select(-c("X",
@@ -632,6 +688,21 @@ r3=r3%>%filter(protein_start%in%c(394:465))
 
 r4=read.csv("output/ABLEnrichmentScreens/ABL_Region234_Comparisons/baf3_r4_Imat_high_rep1vsrep2/screen_comparison_baf3_r4_Imat_high_rep1vsrep2.csv")
 r4=r4%>%filter(protein_start%in%c(466:518))
+######### median centering r2 and 3 around 0.06
+r2=r2%>%mutate(netgr_obs_screen1=netgr_obs_screen1*.7,
+               netgr_obs_screen2=netgr_obs_screen2*.7,
+               score_screen1=score_screen1*.7,
+               score_screen2=score_screen2*.7)
+r3=r3%>%mutate(netgr_obs_screen1=netgr_obs_screen1*.7,
+               netgr_obs_screen2=netgr_obs_screen2*.7,
+               score_screen1=score_screen1*.7,
+               score_screen2=score_screen2*.7)
+r4=r4%>%mutate(netgr_obs_screen1=netgr_obs_screen1*.7,
+               netgr_obs_screen2=netgr_obs_screen2*.7,
+               score_screen1=score_screen1*.7,
+               score_screen2=score_screen2*.7)
+#########
+
 
 imathigh_1_vsimathigh_2_all=rbind(r1,r2,r3,r4)
 
@@ -652,6 +723,7 @@ imathigh_1_vsimathigh_2_all=imathigh_1_vsimathigh_2_all%>%dplyr::select(-c("X",
                                          "maf_screen2_after",
                                          "resmuts",
                                          "resresids",
+                                         "netgr_obs_mean"
                                          ))
 
 imathigh_1_vsimathigh_2_all=imathigh_1_vsimathigh_2_all%>%
@@ -665,8 +737,117 @@ imatlow_1_vsimatlow_2_all=imatlow_1_vsimatlow_2_all%>%dplyr::select(-"depleted")
 imatmid_1_vsimatmid_2_all=imatmid_1_vsimatmid_2_all%>%dplyr::select(-"depleted")
 imathigh_1_vsimathigh_2_all=imathigh_1_vsimathigh_2_all%>%dplyr::select(-"depleted")
 
-a= imatlow_1_vsimatlow_2_all %>%
-  filter(duplicated(species) & duplicated(species, fromLast = TRUE))
+# a= imatlow_1_vsimatlow_2_all %>%
+  # filter(duplicated(species) & duplicated(species, fromLast = TRUE))
+
+##############################Adding F359C data##########################
+#######################IL3 Data################
+tsi_il3=read.csv("output/ABLEnrichmentScreens/IL3_Enrichment_bgmerged_2.20.23.csv",header = T,stringsAsFactors = F)
+tsi_il3=tsi_il3%>%filter(!((ct_screen2_after%in%0.5)&(ct_screen1_after%in%0.5)))
+
+tsi_il3=tsi_il3%>%
+  filter(protein_start%in%c(354:361))%>%
+  dplyr::select(species,
+                consequence_terms,
+                ref_aa,
+                protein_start,
+                alt_aa,
+                ref,
+                alt,
+                ref_codon,
+                alt_codon,
+                alt_codon_shortest,
+                n_nuc_min,
+                score.IL3.1=score_screen1,
+                netgr.IL3.1=netgr_obs_screen1,
+                score.IL3.2=score_screen2,
+                netgr.IL3.2=netgr_obs_screen2)
+
+il3_1_vsil3_2_all=il3_1_vsil3_2_all%>%filter(!protein_start%in%c(354:361))
+il3_1_vsil3_2_all=rbind(il3_1_vsil3_2_all,
+                         tsi_il3)
+il3_1_vsil3_2_all=il3_1_vsil3_2_all%>%arrange(protein_start)
+#######################Imatinib 300nM####################
+tsi_imatinib=read.csv("output/ABLEnrichmentScreens/Imat_Enrichment_bgmerged_2.22.23.csv",header = T,stringsAsFactors = F)
+tsi_imatinib=tsi_imatinib%>%filter(!((ct_screen2_after%in%0.5)&(ct_screen1_after%in%0.5)))
+
+tsi_imatinib=tsi_imatinib%>%
+  filter(protein_start%in%c(354:361))%>%
+  dplyr::select(species,
+                consequence_terms,
+                ref_aa,
+                protein_start,
+                alt_aa,
+                ref,
+                alt,
+                ref_codon,
+                alt_codon,
+                alt_codon_shortest,
+                n_nuc_min,
+                score.imat.low.1=score_screen1,
+                netgr.imat.low.1=netgr_obs_screen1,
+                score.imat.low.2=score_screen2,
+                netgr.imat.low.2=netgr_obs_screen2)
+
+imatlow_1_vsimatlow_2_all=imatlow_1_vsimatlow_2_all%>%filter(!protein_start%in%c(354:361))
+imatlow_1_vsimatlow_2_all=rbind(imatlow_1_vsimatlow_2_all,
+                         tsi_imatinib)
+imatlow_1_vsimatlow_2_all=imatlow_1_vsimatlow_2_all%>%arrange(protein_start)
+
+#######################Imatinib 600nM####################
+tsi_imatinib=read.csv("output/ABLEnrichmentScreens/Imat_Enrichment_bgmerged_2.22.23.csv",header = T,stringsAsFactors = F)
+tsi_imatinib=tsi_imatinib%>%filter(!((ct_screen2_after%in%0.5)&(ct_screen1_after%in%0.5)))
+
+tsi_imatinib=tsi_imatinib%>%
+  filter(protein_start%in%c(354:361))%>%
+  dplyr::select(species,
+                consequence_terms,
+                ref_aa,
+                protein_start,
+                alt_aa,
+                ref,
+                alt,
+                ref_codon,
+                alt_codon,
+                alt_codon_shortest,
+                n_nuc_min,
+                score.imat.mid.1=score_screen1,
+                netgr.imat.mid.1=netgr_obs_screen1,
+                score.imat.mid.2=score_screen2,
+                netgr.imat.mid.2=netgr_obs_screen2)
+
+imatmid_1_vsimatmid_2_all=imatmid_1_vsimatmid_2_all%>%filter(!protein_start%in%c(354:361))
+imatmid_1_vsimatmid_2_all=rbind(imatmid_1_vsimatmid_2_all,
+                         tsi_imatinib)
+imatmid_1_vsimatmid_2_all=imatmid_1_vsimatmid_2_all%>%arrange(protein_start)
+
+#######################Imatinib 1200nM####################
+tsi_imatinib=read.csv("output/ABLEnrichmentScreens/Imat_Enrichment_bgmerged_2.22.23.csv",header = T,stringsAsFactors = F)
+tsi_imatinib=tsi_imatinib%>%filter(!((ct_screen2_after%in%0.5)&(ct_screen1_after%in%0.5)))
+
+tsi_imatinib=tsi_imatinib%>%
+  filter(protein_start%in%c(354:361))%>%
+  dplyr::select(species,
+                consequence_terms,
+                ref_aa,
+                protein_start,
+                alt_aa,
+                ref,
+                alt,
+                ref_codon,
+                alt_codon,
+                alt_codon_shortest,
+                n_nuc_min,
+                score.imat.high.1=score_screen1,
+                netgr.imat.high.1=netgr_obs_screen1,
+                score.imat.high.2=score_screen2,
+                netgr.imat.high.2=netgr_obs_screen2)
+
+imathigh_1_vsimathigh_2_all=imathigh_1_vsimathigh_2_all%>%filter(!protein_start%in%c(354:361))
+imathigh_1_vsimathigh_2_all=rbind(imathigh_1_vsimathigh_2_all,
+                         tsi_imatinib)
+imathigh_1_vsimathigh_2_all=imathigh_1_vsimathigh_2_all%>%arrange(protein_start)
+############################################################
 
 
 il3_imatlow=merge(il3_1_vsil3_2_all,
@@ -712,6 +893,9 @@ imatinib_all=merge(il3_imatlow,
                   "n_nuc_min"))
 
 
+
+
+
 # a=imatinib_all%>%filter(protein_start%in%c(381:384))
 
 
@@ -751,19 +935,17 @@ ggsave("output/ABLEnrichmentScreens/ABL_Region234_Comparisons/baf3_imatinib_heat
 ############### Imat High Net Gr############
 heatmap_plotting_function(imatinib_all%>%filter(!netgr.imat.high.2%in%"NaN"),240,512,fill_variable = "netgr.imat.high.2",fill_name = "Net growth rate \n(Hrs^-1)")
 ggsave("output/ABLEnrichmentScreens/ABL_Region234_Comparisons/baf3_imatinib_heatmap_1200nM.pdf",width=16,height=4,units="in",useDingbats=F)
+
+
 ############### Imat High Enrichment Score############
 heatmap_plotting_function(imatinib_all%>%filter(!score.imat.high.2%in%"NaN"),240,512,fill_variable = "score.imat.high.2",fill_name = "Enrichment Score")
-ggsave("output/ABLEnrichmentScreens/ABL_Region234_Comparisons/baf3_imatinib_heatmap_1200nM_score.pdf",width=16,height=4,units="in",useDingbats=F)
+ggsave("output/ABLEnrichmentScreens/ABL_Region234_Comparisons/baf3_imatinib_heatmap_1200nM_score_medianadjusted.pdf",width=16,height=4,units="in",useDingbats=F)
 
 
-a=il3_1_vsil3_2_all%>%filter(protein_start%in%392)
-b=il3_1_vsil3_2_all%>%filter(protein_start%in%395)
+# a=il3_1_vsil3_2_all%>%filter(protein_start%in%392)
+# b=il3_1_vsil3_2_all%>%filter(protein_start%in%395)
 
 ```
-
-
-
-
 
 
 
@@ -776,6 +958,7 @@ codon_table=read.csv("data/codon_table.csv",header = T,stringsAsFactors = F)
 twist_codons=codon_table%>%filter(Twist%in%T)
   # twist_alt_codon=twist_codons[twist_codons$Letter%in%alt_aa,"Codon"]
 twist_alt_codon=twist_codons[,"Codon"]
+
 ```
 
 For BTR4D0: I'll look at the correlation between lane 28 sample 17 and lane 27b sample 9
