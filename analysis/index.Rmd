@@ -86,6 +86,9 @@ editor_options:
 <img src="assets/fullkinase_scatter.png" width="300" height="281"  alt="">.  
 
 
+* Click [here](ABL_Gnomad_analysis.html) to view our analyses of how SNPs in Gnomad enable potentially drug resistant mutants, necessitating the study of multi-nucleotide variants in DMS screens.  
+<img src="assets/gnomad_enabled.png" width="600" height="300"  alt="">.  
+
 
 
 

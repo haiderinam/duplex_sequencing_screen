@@ -7,7 +7,7 @@ output: html_document
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
-knitr::opts_knit$set(root.dir = normalizePath(".."))
+# knitr::opts_knit$set(root.dir = normalizePath(".."))
 # rm(list=ls())
 
 library(stringr)
@@ -18,6 +18,8 @@ library(tictoc)
 library(doParallel)
 library(foreach)
 library(RColorBrewer)
+library(reshape2)
+
 #Cleanup code for plotting
 cleanup=theme_bw() +
   theme(plot.title = element_text(hjust=.5),
@@ -28,6 +30,9 @@ cleanup=theme_bw() +
         axis.text = element_text(face="bold",color="black",size="11"),
         text=element_text(size=11,face="bold"),
         axis.title=element_text(face="bold",size="11"))
+```
+```{r}
+source("code/cosmic_data_adder.R")
 ```
 
 FUNCTION 1
@@ -123,6 +128,7 @@ ref_genomic_coordinates=ref_genomic_coordinates%>%filter(!codon%in%"")
 
 MAIN GNOMAD ANALYSIS
 ```{r}
+# rm(list=ls())
 # gnomad=read.csv("data/Gnomad_ABL/gnomAD_v2.1.1_ENSG00000097007_2023_03_03_02_21_35.csv")
 gnomad=read.csv("data/Gnomad_ABL/gnomAD_v3.1.2_ENSG00000097007_2023_03_03_14_02_24.csv")
 # 1100 Gnomad SNPS total
@@ -162,7 +168,7 @@ c=data%>%filter(protein_start%in%c(247,473))
 
 # ABL kinase Spans from 130835447 to 130884388
 
-#Aim is to create a list of gnomad enabled mutants, i.e. mutants that would have required multi-nucleotide variants before, but are now a single codon away
+#Aim is to create a list of gnomad enabled mutants, i.e. mutants that would have required multi-nucleotide variants before, but are now a single nucleotide away
 # First: Make a function that calculates all possible amino acid substitutions for a given ref codon at a hamming distance of 1.
 #A key pessimistic question to ask is: for any given residue, how many amino acid substitution types are only possible with two nucleotide substitutions? If basically every amino acid susbtitution is possible with a single nucleotide change, then it doesn't really matter if you make more possible with MNVs.
 gnomad_simple=gnomad%>%select(Position,Reference,Alternate,Protein.Consequence,residue,Transcript.Consequence,VEP.Annotation,Allele.Count)
@@ -187,14 +193,16 @@ gnomad_simple=gnomad_simple%>%
   mutate(ref_codon=(ref_genomic_coordinates[(position-ref_genomic_coordinates$start)%in%c(0,1,2),"codon"])[[1]],
          position_codon_end=(ref_genomic_coordinates[(position-ref_genomic_coordinates$start)%in%c(0,1,2),"end"])[[1]],
          alt_offset=position_codon_end-position,
-         alt_codon=case_when(alt_offset%in%1~paste(Alternate,substr(ref_codon,2,3),sep=""),
-                             alt_offset%in%3~paste(substr(ref_codon,1,2),Alternate,sep = ""),
+         alt_codon=case_when(alt_offset%in%3~paste(Alternate,substr(ref_codon,2,3),sep=""),
+                             alt_offset%in%1~paste(substr(ref_codon,1,2),Alternate,sep = ""),
                              alt_offset%in%2~paste(substr(ref_codon,1,1),Alternate,substr(ref_codon,3,3),sep = "")))
+# ref_genomic_coordinates(130835462)
+# ref_genomic_coordinates$start
 
 gnomad_simple=gnomad_simple%>%dplyr::rename("refseq_codon"="ref_codon",
-                                            "gnomad_codon"="alt_codon",)
+                                            "gnomad_codon"="alt_codon")
 
-
+a=gnomad_simple%>%filter(refseq_codon%in%gnomad_codon)
 
 ########## Next figure out all unique gnomad codons by ABL residue.
 # If a given residue has no gnomad SNPs, then there are no unique gnomad codons of course
@@ -203,6 +211,9 @@ gnomad_simple=gnomad_simple%>%dplyr::rename("refseq_codon"="ref_codon",
 # gnomad_simple$gnomad_enabled_AAs=NA
 for(i in seq(1:nrow(gnomad_simple))){
   # gnomad_bypos=gnomad_simple%>%filter(residue%in%residue_i)
+  # i=1
+  # i=168
+  # 167, 168
   gnomad_byiter=gnomad_simple[i,]
   resi_i=gnomad_byiter$residue
   enabled_i=gnomad_unique_AAs(gnomad_byiter$refseq_codon,gnomad_byiter$gnomad_codon)
@@ -224,7 +235,7 @@ for(i in seq(1:nrow(gnomad_simple))){
 gnomad_enabled=gnomad_enabled%>%distinct(enabled_i,resi_i)
 gnomad_enabled=gnomad_enabled%>%dplyr::select(protein_start=resi_i,alt_aa=enabled_i)
 gnomad_enabled$gnomad_enabled=T
-# a=gnomad_enabled%>%filter(protein_start%in%c(242:494))
+# a=gnomad_enabled%>%fi lter(protein_start%in%c(242:494))
 # There are a total of 166 gnomad enabled ABL mutants. We see 72 of these mutants in our imatinib screens
 # I have the gnomad enabled alternate amino acid by residue, but it might also be nice ot get a residue specific gnomad probability.
 gnomad_pos_probabilities=gnomad%>%
@@ -238,31 +249,107 @@ gnomad_pos_probabilities=gnomad%>%
 gnomad_enabled=merge(gnomad_enabled,gnomad_pos_probabilities,by=c("protein_start"),all.x = T)
 
 ########## Then merge with Imatinib dataset by adding a "gnomad enabled" flag to the IL3 dataset###########
-imatdata=read.csv("output/ABLEnrichmentScreens/Imatinib_Enrichment_2.20.23_v2.csv",header = T,stringsAsFactors = F)
-imatdata=imatdata%>%rowwise()%>%mutate(netgr_obs_mean=mean(netgr_obs.x,netgr_obs.y))
+# New CRISPR-DS imatinib data (conducted at 300nM, 600nM, 1200nM)
+imatdata=read.csv("output/ABLEnrichmentScreens/ABL_Region234_Comparisons/ABLfullkinase_allconditions_growthrates_1.2.23.csv",header = T,stringsAsFactors = F)
+imatdata=imatdata%>%rowwise()%>%mutate(netgr_obs_mean=mean(c(netgr.imat.high.1,netgr.imat.high.2)))
+
+imatdata=imatdata%>%filter(!(species=="R332M"& alt =="ATG"),!(species=="R460N"& alt =="AAC"))
+
+# Old enzymatic fragmentation imatinib data (conducted at 300nM)
+# imatdata=read.csv("output/ABLEnrichmentScreens/Imatinib_Enrichment_2.20.23_v2.csv",header = T,stringsAsFactors = F)
+# imatdata=imatdata%>%rowwise()%>%mutate(netgr_obs_mean=mean(netgr_obs.x,netgr_obs.y))
 
 imatdata=merge(imatdata,gnomad_enabled,by=c("protein_start","alt_aa"),all.x=T)
 imatdata[imatdata$gnomad_enabled%in%NA,"gnomad_enabled"]=F
+
+imatdata_gnomad=imatdata%>%filter(gnomad_enabled%in%T)%>%dplyr::select(ref_aa,protein_start,alt_aa,netgr_obs_mean,gnomad_enabled,Allele.Frequency.Gnomad)
+# imatdata_gnomad=imatdata_gnomad%>%filter(protein_start%in%c(247,473))
+
+# The following line of code gives you the percentile rankings of the net growth rate distribution
+quantile(imatdata$netgr_obs_mean,c(.5,.75,.90))
+# The following line of code tells you what the percentile is for a given net growth rate
+ecdf(imatdata$netgr_obs_mean)(.0133)
+
+
+# write.csv(imatdata_gnomad,"data/Gnomad_ABL/gnomad_enabled_mutants.csv")
+
 
 ########## Then plot the distribtuion of the gnomad scores and figure out which mutants fall at the fringes of that distribution.##########
 ggplot(imatdata%>%filter(protein_start%in%c(242:494)),aes(x=netgr_obs_mean,fill=gnomad_enabled))+geom_density()+facet_wrap(~gnomad_enabled)
 a=imatdata%>%filter(gnomad_enabled%in%T)
 a=imatdata%>%filter(protein_start%in%c(247,473))
-
-sd(imatdata$netgr_obs_mean)
-0.003016086+0.03076209+0.03076209
-quantile(imatdata$netgr_obs_mean,c(.5,.75,.85))
-a=gnomad%>%filter(residue%in%473)
-a=gnomad%>%filter(residue%in%247)
-# a=gnomad_simple%>%filter(residue%in%473)
 # Once I have all the alt amino acids possible, I will figure out how many of these alt amino acids are at a distance of 1
 gnomad_unique_AAs("CGA","CAA")
-gnomad_unique_AAs("CGA","CGG")
 
 
-imatdata_gnomad=imatdata%>%filter(gnomad_enabled%in%T)%>%dplyr::select(ref_aa,protein_start,alt_aa,netgr_obs_mean,gnomad_enabled,Allele.Frequency.Gnomad)
-a=clinvar%>%filter(residue%in%c("473","247"))
-# write.csv(imatdata_gnomad,"data/Gnomad_ABL/gnomad_enabled_mutants.csv")
+# 6.1.24 checking if the gnomad enabled mutants are resistant across multiple imatinib contexts
+imatdata_gnomad=imatdata%>%filter(gnomad_enabled%in%T)%>%dplyr::select(ref_aa,protein_start,alt_aa,gnomad_enabled,Allele.Frequency.Gnomad,netgr.imat.low.1,netgr.imat.low.2,netgr.imat.mid.1,netgr.imat.mid.2,netgr.imat.high.1,netgr.imat.high.2)
+imatdata_gnomad=imatdata_gnomad%>%mutate(species=paste(ref_aa,protein_start,alt_aa,sep=""))
+
+imatdata_gnomad=imatdata_gnomad%>%
+  rowwise()%>%
+  mutate(netgr_average=mean(c(netgr.imat.low.1,
+                              netgr.imat.low.2,
+                              netgr.imat.mid.1,
+                              netgr.imat.mid.2,
+                              netgr.imat.high.1,
+                              netgr.imat.high.2)))
+
+# imatdata_gnomad=imatdata_gnomad%>%
+#   mutate(rank= rank(-netgr_average))
+
+imatdata_gnomad$rank=rank(-imatdata_gnomad$netgr_average)
+# class(imatdata_gnomad$netgr_average)
+
+imatdata_gnomad_melt=melt(imatdata_gnomad,id.vars = c("species","ref_aa","protein_start","alt_aa","gnomad_enabled","Allele.Frequency.Gnomad","rank"),measure.vars =c("netgr.imat.low.1","netgr.imat.low.2","netgr.imat.mid.1","netgr.imat.mid.2","netgr.imat.high.1","netgr.imat.high.2"),
+                          variable.name = "dose_condition",value.name = "netgr")
+
+
+
+library(forcats)
+imatdata_gnomad_melt <- imatdata_gnomad_melt %>%
+  mutate(species = fct_reorder(species, -rank, .desc = TRUE))
+
+ggplot(imatdata_gnomad_melt,aes(x=species,y=netgr,color=dose_condition))+
+  geom_point()
+
+netgr_average=imatdata_gnomad%>%dplyr::select(species,netgr_average,rank)
+
+ggplot(imatdata_gnomad_melt%>%arrange(desc(rank)),aes(x=species,y=netgr,label=species))+
+  geom_boxplot()+
+  geom_text(data = netgr_average, aes(x = species, y = netgr_average, label = species),
+            position = position_nudge(y = 0.02), # Adjust the position if needed
+            size = 2, color = "red",
+            angle=90)+
+  scale_x_discrete("SNP-enabled ABL mutant")+
+  scale_y_continuous("Net growth rate (Hrs ^-1)")+
+  cleanup+
+  theme(axis.text.x = element_blank(),
+        axis.ticks.x = element_blank())
+
+# ggsave("output/ABLEnrichmentScreens/ABL_Region234_Comparisons/sm_imatinib_plots/gnomad_enabled_mutants.pdf",width=8,height = 4, units="in",useDingbats=F)
+
+imatdata_gnomad <- imatdata_gnomad %>%
+  mutate(species = fct_reorder(species, -rank, .desc = TRUE))
+# imatdata_gnomad=imatdata_gnomad%>%arrange(desc(rank))
+
+ggplot(imatdata_gnomad%>%arrange(desc(rank)),aes(x=reorder(species, -netgr_average),y=netgr_average,label=species,size=Allele.Frequency.Gnomad))+
+  geom_point(color="black",fill="gray90",shape=21)+
+  geom_text(data = netgr_average, aes(x = species, y = netgr_average, label = species),
+            position = position_nudge(y = 0.02), # Adjust the position if needed
+            size = 2, color = "red",
+            angle=90)+
+  scale_x_discrete("SNP-enabled ABL mutant")+
+  scale_y_continuous("Net growth rate (Hrs ^-1)")+
+  cleanup+
+  theme(axis.text.x = element_blank(),
+        axis.ticks.x = element_blank(),
+        legend.position = "none")
+
+# ggsave("output/ABLEnrichmentScreens/ABL_Region234_Comparisons/sm_imatinib_plots/gnomad_enabled_mutants_penetrance.pdf",width=8,height = 4, units="in",useDingbats=F)
+
+
+a=gnomad%>%filter(Position%in%"130872897")
 ```
 
 
@@ -330,6 +417,6 @@ ggplot(imatdata%>%filter(!species%in%"T315I",protein_start>=242,protein_start<=4
   scale_fill_manual(values=c("gray90","orange"))+theme(legend.position = "none")+scale_y_continuous("Net Growth Rate")+scale_x_discrete("Short et al Ph+ ALL Status",labels=c("Not Detected","Detected"))
 
 
-t.test(a$netgr_obs_mean,b$netgr_obs_mean)
+# t.test(a$netgr_obs_mean,b$netgr_obs_mean)
 ```
 

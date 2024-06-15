@@ -7,7 +7,7 @@ output: html_document
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
-# knitr::opts_knit$set(root.dir = normalizePath(".."))
+knitr::opts_knit$set(root.dir = normalizePath(".."))
 # rm(list=ls())
 
 library(stringr)
@@ -90,8 +90,9 @@ Checking region 2 3 4 plots
 ```{r}
 #######################Inputting Data#######################
 data=read.csv("output/ABLEnrichmentScreens/ABL_Region234_Comparisons/ABLfullkinase_allconditions_growthrates_1.2.23.csv",header = T,stringsAsFactors = F)
-data=data%>%rowwise()%>%mutate(netgr_mean=mean(netgr.imat.high.1,netgr.imat.high.1),
-                               score_mean=mean(score.imat.high.1,score.imat.high.1))
+data=data%>%rowwise()%>%mutate(netgr_mean=mean(c(netgr.imat.high.1,netgr.imat.high.2)),
+                               score_mean=mean(c(score.imat.high.1,score.imat.high.2)))
+
 # class(data)
 data=resmuts_adder(data)
 data=res_residues_adder(data)
@@ -321,5 +322,170 @@ ggplot(standards,aes(x=M5,y=netgr.imat.mid.1,label=species))+geom_text()
 ggplot(standards,aes(x=M3,y=netgr.IL3.1,label=species))+geom_text()
 
 # As you can see, there isn't a strong correlation between the mutant standards measured in DMS DS and in the 20-mutant spike-in screen. Part of the reason is probably the absense of high sensitivity mutants (such as V299L) from the spike-in data
+```
+Plotting the short et al data for Twinstrand
+```{r}
+
+#################################
+short_mutants=read.csv("data/Short_et_al_fig1/short_et_al_3.12.23.csv",header = T)
+short_mutants$preexisting_all=T
+short_mutants=short_mutants%>%dplyr::select(-Index)%>%rename(species=Species)
+data_merged=merge(data_merged,short_mutants,by="species",all.x = T)
+data_merged[!data_merged$preexisting_all%in%T,"preexisting_all"]=F
+nrow(data_merged%>%filter(preexisting_all%in%T))
+# source("code/resmuts_adder.R")
+data_merged=resmuts_adder(data_merged)
+data_merged$resmut_cosmic="neither"
+data_merged[data_merged$preexisting_all%in%TRUE,"resmut_cosmic"]="preexisting"
+data_merged[data_merged$resmuts%in%TRUE,"resmut_cosmic"]="resmut"
+data_merged$resmut_cosmic=factor(data_merged$resmut_cosmic,levels=c("neither","preexisting","resmut"))
+
+
+ggplot(data_merged%>%filter(n_nuc_min%in%1),aes(x=resmut_cosmic,y=netgr_obs_mean,fill=resmut_cosmic))+
+  geom_violin(color="black")+
+  # geom_boxplot(color="black")+
+  geom_jitter(color="black", size=.5,width=.1, alpha=0.9)+
+  scale_fill_manual(values=c("gray90","gray50","red"))+scale_y_continuous(name=bquote('Net Growth Rate '(Hours^-1)))+scale_x_discrete("",labels=c("Undetected","Pre-existing\n ALL","Known\nResistant\n Variant"))+cleanup+theme(legend.position = "none")
+
+# ggsave("data/Short_et_al_fig1/shortetal_netgr_BoxPlot_4.14.23.pdf",width=4,height=4,units="in",useDingbats=F)
+# ggsave("output/SM_Imatinib_Plots/shortetal_netgr_BoxPlot_4.14.23.pdf",width=3,height=3,units="in",useDingbats=F)
+x=short_mutants%>%filter(!Classification%in%"Silent")
+x=data_merged%>%filter(protein_start%in%c(242:322),preexisting_all%in%T)
+x=data_merged%>%filter(protein_start>=242,protein_start<=322,n_nuc_min%in%1,preexisting_all%in%T,resmuts%in%F)
+x=data_merged%>%filter(n_nuc_min%in%1,preexisting_all%in%T,resmuts%in%F)
+```
+
+5.5.2024 Analyses on VUDR and Dose Escalation Candidates:
+```{r}
+#####################Analyses on VUDRs#####################
+# 45 of the 262 Sanger mutants look "resistant". What does that suggest?
+# Before our analyses, 36% of the sanger mutants were VUDRs, i.e. a third of our piechart.
+# After our full kinase screens, it looks like we have an answer for most of these 262 mutants. Make a new pie chart for these mutants.
+# Elvin performed verification IC50s on at least 12 of these mutants (and 6 sensitive mutants)? How many of these mutants verified to be resistant? Make a plot of screen IC50 (netgr at 300, 600, 1200nM) vs observed dose response of these mutants.
+
+# a=data%>%filter(!resmut_cosmic%in%"neither")
+# a=data%>%filter(resmut_cosmic2%in%"escalation_candidate")
+
+
+ggplot(data%>%filter(!species%in%c("V299L"),!resmut_cosmic%in%"neither",protein_start>=242,protein_start<=494)%>%arrange(resmuts),aes(x=netgr.imat.high.1,y=netgr.imat.high.2))+
+  geom_point(color="black",shape=21,aes(fill=factor(resmut_cosmic)))+
+  geom_label_repel(size=2,aes(label=ifelse(resmuts%in%T,species,"")))+
+  geom_abline(linetype="dashed")+
+  scale_x_continuous(name="Net Growth Rate Rep A",limits=c(-.025,.06))+
+  scale_y_continuous(name="Net Growth Rate Rep B",limits=c(-.025,.06))+
+  labs(fill="Sanger\n Mutant")+
+  scale_fill_manual(values=c("orange","red"))+
+  coord_equal()+
+  cleanup+theme(legend.position = "none")
+
+ggplot(data%>%filter(!species%in%c("V299L"),!resmut_cosmic%in%"neither",protein_start>=242,protein_start<=494)%>%arrange(resmuts),aes(x=netgr.imat.low.1,y=netgr.imat.low.2))+
+  geom_point(color="black",shape=21,aes(fill=factor(resmut_cosmic)))+
+  geom_label_repel(size=2,aes(label=ifelse(resmuts%in%T,species,"")))+
+  geom_abline(linetype="dashed")+
+  scale_x_continuous(name="Net Growth Rate Rep A",limits=c(-.025,.06))+
+  scale_y_continuous(name="Net Growth Rate Rep B",limits=c(-.025,.06))+
+  labs(fill="Sanger\n Mutant")+
+  scale_fill_manual(values=c("orange","red"))+
+  coord_equal()+
+  cleanup+theme(legend.position = "none")
+
+
+ggplot(data%>%filter(!species%in%c("V299L"),!resmut_cosmic%in%"neither",protein_start>=242,protein_start<=512),aes(x=netgr_mean,fill=resmuts))+
+  geom_density(alpha=.7)+
+  scale_x_continuous(bquote('Net Growth Rate '(Hours^-1)))+
+  scale_y_continuous("Density")+
+  scale_fill_manual(values=c("orange","red"))+
+  cleanup+
+  theme(legend.position = "none")
+
+
+#####################Analyses on Dose Escalation Candidates#####################
+# You tested out the IC50s of these candidates to verify if they were actually good candidates for dose escalation. Finish these analyses, make a contingency table or something to that effect.
+# Looking at candidates for dose escalation:
+dose_escalation=c("F311L",
+                  "F311I",
+                  "F317L",
+                  "F317C",
+                  "L273M",
+                  "E279A",
+                  "E275K",
+                  "E279K",
+                  "E258A",
+                  "D276N",
+                  "T277A",
+                  "V289F",
+                  "L248R",
+                  "T319I",
+                  "E292V",
+                  "E275Q",
+                  "Y253N",
+                  "K247R")
+
+data=data%>%mutate(resmut_cosmic2=as.character(resmut_cosmic),
+                   resmut_cosmic2=case_when(species%in%dose_escalation~"escalation_candidate",
+                                            T~resmut_cosmic2))
+
+# Net growth rate of dose escalation mutant candidates at 400mg imatinib
+ggplot(data%>%filter(!species%in%c("V299L"),!resmut_cosmic%in%"neither",protein_start>=242,protein_start<=494)%>%arrange(resmuts),aes(x=netgr.imat.low.1,y=netgr.imat.low.2))+
+  geom_point(color="black",shape=21,aes(fill=factor(resmut_cosmic2)))+
+  geom_label_repel(size=2,aes(label=ifelse(resmut_cosmic2%in%"escalation_candidate",species,"")))+
+  geom_abline(linetype="dashed")+
+  scale_x_continuous(name="Net Growth Rate Rep A",limits=c(-.025,.065))+
+  scale_y_continuous(name="Net Growth Rate Rep B",limits=c(-.025,.065))+
+  labs(fill="Sanger\n Mutant")+
+  scale_fill_manual(values=c("orange","blue","red"))+
+  coord_equal()+
+  cleanup+theme(legend.position = "none")
+
+
+
+# Net growth rate of dose escalation mutant candidates at 600mg imatinib
+ggplot(data%>%filter(!species%in%c("V299L"),!resmut_cosmic%in%"neither",protein_start>=242,protein_start<=494)%>%arrange(resmuts),aes(x=netgr.imat.mid.1,y=netgr.imat.mid.2))+
+  geom_point(color="black",shape=21,aes(fill=factor(resmut_cosmic2)))+
+  geom_label_repel(size=2,aes(label=ifelse(resmut_cosmic2%in%"escalation_candidate",species,"")))+
+  geom_abline(linetype="dashed")+
+  scale_x_continuous(name="Net Growth Rate Rep A",limits=c(-.025,.065))+
+  scale_y_continuous(name="Net Growth Rate Rep B",limits=c(-.025,.065))+
+  labs(fill="Sanger\n Mutant")+
+  scale_fill_manual(values=c("orange","blue","red"))+
+  coord_equal()+
+  cleanup+theme(legend.position = "none")
+
+
+
+# Net growth rate of dose escalation mutant candidates at 800mg imatinib
+ggplot(data%>%filter(!species%in%c("V299L"),!resmut_cosmic%in%"neither",protein_start>=242,protein_start<=494)%>%arrange(resmuts),aes(x=netgr.imat.high.1,y=netgr.imat.high.2))+
+  geom_point(color="black",shape=21,aes(fill=factor(resmut_cosmic2)))+
+  geom_label_repel(size=2,aes(label=ifelse(resmut_cosmic2%in%"escalation_candidate",species,"")))+
+  geom_abline(linetype="dashed")+
+  scale_x_continuous(name="Net Growth Rate Rep A",limits=c(-.025,.065))+
+  scale_y_continuous(name="Net Growth Rate Rep B",limits=c(-.025,.065))+
+  labs(fill="Sanger\n Mutant")+
+  scale_fill_manual(values=c("orange","blue","red"))+
+  coord_equal()+
+  cleanup+theme(legend.position = "none")
+
+
+# Net growth rate of dose escalation mutant candidates at average 600mg, 800mg imatinib
+ggplot(data%>%filter(!species%in%c("V299L"),!resmut_cosmic%in%"neither",protein_start>=242,protein_start<=494)%>%rowwise()%>%mutate(netgr_mean_mid=mean(c(netgr.imat.mid.1,netgr.imat.mid.2)))%>%arrange(resmuts),aes(x=netgr_mean,y=netgr_mean_mid))+
+  geom_point(color="black",shape=21,aes(fill=factor(resmut_cosmic2)))+
+  geom_label_repel(size=2,aes(label=ifelse(resmut_cosmic2%in%"escalation_candidate",species,"")))+
+  geom_abline(linetype="dashed")+
+  scale_x_continuous(name="Net Growth Rate Rep A",limits=c(-.025,.065))+
+  scale_y_continuous(name="Net Growth Rate Rep B",limits=c(-.025,.065))+
+  labs(fill="Sanger\n Mutant")+
+  scale_fill_manual(values=c("orange","blue","gray90","red"))+
+  coord_equal()+
+  cleanup+theme(legend.position = "none")
+# ggplotly(plotly)
+
+a=read.csv("output/ABLEnrichmentScreens/ABL_Region1_Lane18_Comparisons/cross-replicate/baf3_Imat_high_rep1vsrep2_ft/screen_comparison_baf3_Imat_high_rep1vsrep2_ft.csv",header = T,stringsAsFactors = F)
+a=a%>%filter(species%in%dose_escalation)
+a=a%>%filter(protein_start%in%311)
+```
+
+
+```{r}
+
 ```
 
