@@ -194,23 +194,23 @@ ggplot(data%>%filter(!species%in%c("V299L"),protein_start>=242,protein_start<=51
 #######################Heatmaps#######################
 heatmap_plotting_function(data%>%mutate(netgr_mean=case_when(netgr_mean>=.055~.055,
                                                                  netgr_mean<=0~0,
-                                                    T~netgr_mean)),242,494,fill_variable = "netgr_mean",fill_name = "Net growth rate")+
-  scale_x_continuous(name="Residue on the ABL Kinase",limits=c(242,494),expand=c(0,0))+
+                                                    T~netgr_mean)),242,512,fill_variable = "netgr_mean",fill_name = "Net growth rate")+
+  scale_x_continuous(name="Residue on the ABL Kinase",limits=c(242,512),expand=c(0,0))+
   # scale_fill_gradient2(low ="darkblue",mid = "white",midpoint=0.04, high ="red",name="Net growth rate")+
   # scale_fill_gradient(low ="lightblue", high ="red",name="Net growth rate")+
   scale_fill_gradient2(low="blue",mid ="#9999FF",midpoint=.03, high ="red",name="Net growth rate")+theme(legend.position = "none")
-# ggsave("output/ABLEnrichmentScreens/ABL_Region234_Comparisons/sm_imatinib_plots/baf3_imatinib_heatmap_1200nM_score_medianadjusted.pdf",width=10,height = 4,units = "in",useDingbats=F)
+ggsave("output/ABLEnrichmentScreens/ABL_Region234_Comparisons/sm_imatinib_plots/baf3_imatinib_heatmap_1200nM_score_medianadjusted_extended.pdf",width=10,height = 4,units = "in",useDingbats=F)
 
 
 # Heatmap with legend for adobe illustrator
 heatmap_plotting_function(data%>%mutate(netgr_mean=case_when(netgr_mean>=.055~.055,
                                                                  netgr_mean<=0~0,
-                                                    T~netgr_mean)),242,494,fill_variable = "netgr_mean",fill_name = "Net growth rate")+
-  scale_x_continuous(name="Residue on the ABL Kinase",limits=c(242,494),expand=c(0,0))+
+                                                    T~netgr_mean)),242,512,fill_variable = "netgr_mean",fill_name = "Net growth rate")+
+  scale_x_continuous(name="Residue on the ABL Kinase",limits=c(242,512),expand=c(0,0))+
   # scale_fill_gradient2(low ="darkblue",mid = "white",midpoint=0.04, high ="red",name="Net growth rate")+
   # scale_fill_gradient(low ="lightblue", high ="red",name="Net growth rate")+
   scale_fill_gradient2(low="blue",mid ="#9999FF",midpoint=.03, high ="red",name="Net growth rate")
-# ggsave("output/ABLEnrichmentScreens/ABL_Region234_Comparisons/sm_imatinib_plots/baf3_imatinib_heatmap_1200nM_score_medianadjusted_withlegend.pdf",width=12,height = 4,units = "in",useDingbats=F)
+ggsave("output/ABLEnrichmentScreens/ABL_Region234_Comparisons/sm_imatinib_plots/baf3_imatinib_heatmap_1200nM_score_medianadjusted_withlegend.pdf",width=12,height = 4,units = "in",useDingbats=F)
 
 ```
 

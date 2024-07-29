@@ -86,7 +86,6 @@ merge_samples <- function(...){
 
   # Iteratively merge all dataframes
   merged_df <- Reduce(merge_function, dataframes)
-
   # Return the merged dataframe
   return(merged_df)
 }

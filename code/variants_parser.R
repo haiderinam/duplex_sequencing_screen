@@ -5,15 +5,35 @@
 # Parses out the ref amino acid and the alt amino acid
 # Figures out which codons would realistically be the shortest codons (based on hamming distance)
 # Also filters for twist's 19 expected codons according to twist's (as opposed to all possible codons)
+# Update 07.28.24:
+# Twist used one set of codons for mutagenizing ABL residues 242:494 and another set for 495:512
+# This function was updated so that it counts a unique set of alt codons residues 495 onwards
+# Note that this update assumes that the updated twist alternate codons only occur during residues 495 through 512.
+# This change also affects the heatmap_plotting_function code
 #
 # input_df=before_timepoint
 # totalcells=cells_before
+# a=variants_parser(before_timepoint,cells_before)
+
 variants_parser=function(input_df,totalcells=1,codon_table=read.csv("data/codon_table.csv")){
   # tic()
   # codon_table=read.csv("data/codon_table.csv")
+  codon_table2=codon_table%>%filter(Twist2%in%T)
   codon_table=codon_table%>%filter(Twist%in%T)
 
-  input_df=input_df%>%filter(alt_codon%in%codon_table$Codon)
+
+  input_df_default=input_df%>%filter(protein_start<=494,alt_codon%in%codon_table$Codon)
+
+  if(max(input_df$protein_start)>=495){
+    input_df_extended=input_df%>%filter(protein_start>=495,alt_codon%in%codon_table2$Codon)
+    input_df_nonextended=input_df%>%filter(protein_start<=494,alt_codon%in%codon_table$Codon)
+    input_df_default=rbind(input_df_nonextended,input_df_extended)
+  }
+  # a=input_df_extended%>%filter(protein_start%in%497,alt_aa%in%c("A","D","G","P"))
+  input_df=input_df_default
+
+
+
   ##############################Not parrallel option for variants parser###########
   # input_df=input_df%>%
   #   rowwise()%>%

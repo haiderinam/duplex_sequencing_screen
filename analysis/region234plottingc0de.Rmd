@@ -385,7 +385,7 @@ comparisons=read.csv("data/Consensus_Data/novogene_lane23/TwistAllRegions_Compar
 comparisons=comparisons%>%filter(Completed%in%"FALSE")
 
 # for(i in 1:nrow(comparisons)){
-for(i in 9:9){
+for(i in 9:12){
   # i=9
 # for(i in 7:nrow(comparisons)){
 # for(i in 1:8){
@@ -432,7 +432,7 @@ write.csv(screen_compare_means_forexport,file = paste("output/ABLEnrichmentScree
 # Plot 1. What does the heatmap look like from the average of the net growth rate?
 start_site=comparisons$ABL_Start[i]
 end_site=comparisons$ABL_End[i]
-
+# source("code/plotting/heatmap_plotting_function.R")
 heatmap_plotting_function(screen_compare_means,start_site,end_site,fill_variable = "netgr_obs_mean",fill_name = "Net growth rate")
 ggsave(paste("output/ABLEnrichmentScreens/ABL_Region234_Comparisons/",dirname,"/plot1_heatmap.pdf",sep=""),width=10,height=6,units="in",useDingbats=F)
 # screen_compare_means2=screen_compare_means%>%filter(alt_codon%in%twist$Codon)
@@ -1181,6 +1181,7 @@ ggplot(btr4d0,
 
 ```{r}
 # Checking for duplicates in all the data
+
 a= r1 %>%
   filter(duplicated(species) & duplicated(species, fromLast = TRUE))
 

@@ -578,4 +578,3 @@ ltk12=rbind(ltk1,ltk2)
 heatmap_plotting_function(ltk12,520,664,fill_variable = "ct")
 
 ```
-
