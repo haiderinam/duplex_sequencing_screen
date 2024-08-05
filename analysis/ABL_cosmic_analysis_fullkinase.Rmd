@@ -325,7 +325,10 @@ ggplot(standards,aes(x=M3,y=netgr.IL3.1,label=species))+geom_text()
 ```
 Plotting the short et al data for Twinstrand
 ```{r}
-
+source("code/resmuts_adder.R")
+data_merged=read.csv("output/ABLEnrichmentScreens/ABL_Region234_Comparisons/ABLfullkinase_allconditions_growthrates_7.29.24.csv")
+data_merged=data_merged%>%rowwise()%>%mutate(netgr_obs_mean=(netgr.imat.high.1+netgr.imat.high.2)/2)
+data_merged=resmuts_adder(data_merged)
 #################################
 short_mutants=read.csv("data/Short_et_al_fig1/short_et_al_3.12.23.csv",header = T)
 short_mutants$preexisting_all=T
@@ -342,17 +345,19 @@ data_merged$resmut_cosmic=factor(data_merged$resmut_cosmic,levels=c("neither","p
 
 
 ggplot(data_merged%>%filter(n_nuc_min%in%1),aes(x=resmut_cosmic,y=netgr_obs_mean,fill=resmut_cosmic))+
-  geom_violin(color="black")+
-  # geom_boxplot(color="black")+
-  geom_jitter(color="black", size=.5,width=.1, alpha=0.9)+
+  # geom_violin(color="black")+
+  geom_boxplot(color="black")+
+  # geom_jitter(color="black", size=.5,width=.1, alpha=0.9)+
   scale_fill_manual(values=c("gray90","gray50","red"))+scale_y_continuous(name=bquote('Net Growth Rate '(Hours^-1)))+scale_x_discrete("",labels=c("Undetected","Pre-existing\n ALL","Known\nResistant\n Variant"))+cleanup+theme(legend.position = "none")
 
 # ggsave("data/Short_et_al_fig1/shortetal_netgr_BoxPlot_4.14.23.pdf",width=4,height=4,units="in",useDingbats=F)
-# ggsave("output/SM_Imatinib_Plots/shortetal_netgr_BoxPlot_4.14.23.pdf",width=3,height=3,units="in",useDingbats=F)
+ggsave("output/ABLEnrichmentScreens/ABL_Region234_Comparisons/sm_imatinib_plots/shortetal_netgr_BoxPlot_4.29.24.pdf",width=3,height=3,units="in",useDingbats=F)
 x=short_mutants%>%filter(!Classification%in%"Silent")
-x=data_merged%>%filter(protein_start%in%c(242:322),preexisting_all%in%T)
-x=data_merged%>%filter(protein_start>=242,protein_start<=322,n_nuc_min%in%1,preexisting_all%in%T,resmuts%in%F)
+x=data_merged%>%filter(preexisting_all%in%T)
 x=data_merged%>%filter(n_nuc_min%in%1,preexisting_all%in%T,resmuts%in%F)
+x=data_merged%>%filter(n_nuc_min%in%1,preexisting_all%in%T,resmuts%in%F)
+
+
 ```
 
 5.5.2024 Analyses on VUDR and Dose Escalation Candidates:

@@ -33,7 +33,7 @@ source("code/plotting/heatmap_plotting_function.R")
 
 
 ```{r}
-# setwd("OneDrive - The Pennsylvania State University/RProjects/duplex_sequencing_screen/")
+# setwd("OneDrive - The PennsylABLfullkinase_allconditions_growthratesvania State University/RProjects/duplex_sequencing_screen/")
 
 source("code/merge_samples.R")
 getwd()
@@ -900,15 +900,15 @@ imatinib_all=merge(il3_imatlow,
 
 
 
-write.csv(imatinib_all,"output/ABLEnrichmentScreens/ABL_Region234_Comparisons/ABLfullkinase_allconditions_growthrates_1.2.23.csv")
+write.csv(imatinib_all,"output/ABLEnrichmentScreens/ABL_Region234_Comparisons/ABLfullkinase_allconditions_growthrates_7.29.24.csv")
 
 write.csv(il3_1_vsil3_2_all,"output/ABLEnrichmentScreens/ABL_Region234_Comparisons/il3_combined_counts_1.2.23.csv")
 
-write.csv(imatlow_1_vsimatlow_2_all,"output/ABLEnrichmentScreens/ABL_Region234_Comparisons/imatinib_300nM_combined_counts_1.2.23.csv")
+write.csv(imatlow_1_vsimatlow_2_all,"output/ABLEnrichmentScreens/ABL_Region234_Comparisons/imatinib_300nM_combined_counts_7.29.24.csv")
 
-write.csv(imatmid_1_vsimatmid_2_all,"output/ABLEnrichmentScreens/ABL_Region234_Comparisons/imatinib_600nM_combined_counts_1.2.23.csv")
+write.csv(imatmid_1_vsimatmid_2_all,"output/ABLEnrichmentScreens/ABL_Region234_Comparisons/imatinib_600nM_combined_counts_7.29.24.csv")
 
-write.csv(imathigh_1_vsimathigh_2_all,"output/ABLEnrichmentScreens/ABL_Region234_Comparisons/imatinib_1200nM_combined_counts_1.2.23.csv")
+write.csv(imathigh_1_vsimathigh_2_all,"output/ABLEnrichmentScreens/ABL_Region234_Comparisons/imatinib_1200nM_combined_counts_7.29.24.csv")
 
 
 
