@@ -1,0 +1,24 @@
+---
+title: "Homepage Modeling"
+author: "Haider Inam"
+date: '2024-09-03'
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+* Click [here](dose_response_curve_fitting.html) for the script that reads BCRABL dose response data, and fits it to a 4-parameter dose response curve.  
+<img src="assets/4param_fit.png" width="400" height="300"  alt="">    
+
+
+* Click [here](clinical_abundance_predictions.html) for analysis looking at how well our data predicts BCRABL clinical abundance compared to conventional IC50s
+<img src="assets/clinical_abundance_predictions.png" width="600" height="400"  alt="">  
+* Click [here](nonlinear_growth_analysis.html) to see analysis of predictions based on Enrich2 vs Shendure vs our method
+
+* Click [here](dosing_normalization.html) for our dosing normalization strategy  
+<img src="assets/dosing_normalization.png" width="330" height="250"  alt="">  
+
+* Click [here](enrichment_simulations.html) for simulations showing enrichment and depletion events in a 3 mutant pool.
+<img src="assets/enrichment_simulations_3mutants.png" width="330" height="250"  alt="">  

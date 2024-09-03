@@ -1,0 +1,15 @@
+---
+title: "Homepage_base_editing"
+site: workflowr::wflow_site
+output:
+  workflowr::wflow_html:
+    toc: false
+editor_options:
+  chunk_output_type: console
+---
+
+* Click [here](ABL_BaseEditor_Analyses.html) to view analyses in which we compared base editing and saturating mutagenesis data on ABL. This is followed by analysis in which we decide on filter cutoffs for enrichment scores to detect signficantly depleting mutants that drop out for IL3 independence in BaF3s.     
+<img src="assets/abl_baseeditor-analysis.png" width="500" height="293"  alt="">  
+
+* Click [here](ABL_BaseEditor_Analyses_v2.html) to view analyses in which we predicted admixtures of mutants made by sgRNAs in Base Editing Screens. We then used the saturating mutagenesis data to predict the fitness of these sgRNAs.     
+<img src="assets/abl_baseeditor-analysis-v2.png" width="300" height="320"  alt="">  

@@ -8,87 +8,126 @@ editor_options:
   chunk_output_type: console
 ---
 
-# **Duplex Sequencing Spike-Ins**  
+# **BCR ABL Deep Mutational Scan**  
 
-<img src="assets/ds_coverages.png" width="400" height="300"  alt="">  
+* Click [here](homepage_Spike_In_Mutants.html) to analyses of the growth mutant standards under drug at low allele frequencies.  
+<a href="homepage_dms_screens.html">
+    <img src="assets/spikeins_illustration.png" width="300" height="300" alt="Click to go to spike-in mutant analyses" class="extrude-effect">
+</a>
 
-* Click [here](dose_response_curve_fitting.html) for the script that reads BCRABL dose response data, and fits it to a 4-parameter dose response curve.  
-<img src="assets/4param_fit.png" width="400" height="300"  alt="">    
+<style>
+    /* Base styles for the image */
+    .extrude-effect {
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3); /* Adds a shadow to give a 3D effect */
+        transition: transform 0.3s ease, box-shadow 0.3s ease; /* Adds smooth transition when hovering */
+        cursor: pointer; /* Changes the cursor to indicate it's clickable */
+        border-radius: 8px; /* Optional: Add rounded corners to the image */
+    }
 
-* Click [here](twinstrand_spikeins_data_generation.html) for the script that reads mutation annotation data and generates dataframes with annotated variants and the correct cell counts  
-
-* Click [here](growthrate_plots.html) for initial growth rate plots  
-<img src="assets/growthrates.png" width="400" height="300"  alt="">  
-
-* Click [here](growthrate_plots_ENU.html) for growth rate plots for ENU mutants  
-<img src="assets/growthrates_ENU.png" width="400" height="300"  alt="">  
-
-* Click [here](spikeins_depthofcoverages.html) for analysis looking at whether we achieved our desired depth of coverages
-<img src="assets/coverages.png" width="400" height="300"  alt="">  
-
-* Click [here](clinical_abundance_predictions.html) for analysis looking at how well our data predicts BCRABL clinical abundance compared to conventional IC50s
-<img src="assets/clinical_abundance_predictions.png" width="600" height="400"  alt="">  
-
-* Click [here](misc.html) for method to obtain confidence intervals on growth rates from IC50 measurements. Plotted alongside observed growth rate data, these confidence intervals show how well our pooled data matches predictions based off of IC50s. (Needs updates in methodology)  
-<img src="assets/pooled_trajectories_confidence.png" width="400" height="300"  alt=""> 
-
-
-* Click [here](4_7_20_update.html) for analyses of replicate to replicate agreement between the spike in replicates. Also includes this analysis for the mutagenesis replicates. Also includes the agreement in observed vs predicted depth of coverages for all sequencing pools. Note: this analysis does not include dosage corrections that improves replicate to replicate heterogeneity.  
-<img src="assets/mutagenesis_replicates_correlation.png" width="400" height="300"  alt="">  
-
-* Click [here](nonlinear_growth_analysis.html) to see analysis of predictions based on Enrich2 vs Shendure vs our method
-
-* Click [here](dosing_normalization.html) for our dosing normalization strategy  
-<img src="assets/dosing_normalization.png" width="330" height="250"  alt="">  
-
-* Click [here](enrichment_simulations.html) for simulations showing enrichment and depletion events in a 3 mutant pool.
-<img src="assets/enrichment_simulations_3mutants.png" width="330" height="250"  alt="">  
-
-* Click [here](E255K_alphas_figure.html) showing the conformity between the growth rates in the presence of drug measured at a low MAF via FACs, sequencing, and via IC50 studies for a single mutant.  
-<img src="assets/e255k_alphas.png" width="330" height="250"  alt="">  
-  
-
-* Click [here](ABL_SM_CRISPR_Cut_Analyses.html) to view BCRABL Imatinib heatmaps  generated using CRISPR-cut libraries
-<img src="assets/ABL_SM_Crispr_heatmap.png" width="400" height="283"  alt="">  
-
-* Click [here](lane14_comparisons.html) to view preliminary BCRABL Imatinib and Asciminib heatmaps  made with enzymatically sheared libraries
-<img src="assets/bcrabl_heatmap.png" width="400" height="250"  alt="">  
-  
-* Click [here](DupSeq_QC_Lane11.html) and to view iL3 independence data and [here](BCRABL_FunctionalKinaseAnalysis.html) to view iL3 independence heatmap and  [here](ABL_sheared_libraries.html) to view imatinib heatmaps on enzymatically sheared data
-<img src="assets/il3heatmap.png" width="800" height="200"  alt="">  
-  
-* Click [here](ErrorRate_Analysis.html) to view error rates without barcodes, with single strand consensi, and with duplex consensus sequencing.
-<img src="assets/Error_rates.png" width="420" height="300"  alt="">  
-
-* Click [here](K562_BCRABL_Analysis.html) to view the results of the BCRABL Library transduced in K562 Cells
-<img src="assets/k562_plot.png" width="800" height="222"  alt="">  
-  
-* Click [here](CDF-analysis-library-evenness.html) to view analyses of the CDFs of our saturating mutagenesis libraries. These show how even or uneven the libraries are at different stages of the screening process.      
-<img src="assets/unevenness_cdfs.png" width="387" height="300"  alt="">  
-  
-        
-* Click [here](ABL_BaseEditor_Analyses.html) to view analyses in which we compared base editing and saturating mutagenesis data on ABL. This is followed by analysis in which we decide on filter cutoffs for enrichment scores to detect signficantly depleting mutants that drop out for IL3 independence in BaF3s.     
-<img src="assets/abl_baseeditor-analysis.png" width="500" height="293"  alt="">  
-  
-    
-* Click [here](ABL_BaseEditor_Analyses_v2.html) to view analyses in which we predicted admixtures of mutants made by sgRNAs in Base Editing Screens. We then used the saturating mutagenesis data to predict the fitness of these sgRNAs.     
-<img src="assets/abl_baseeditor-analysis-v2.png" width="300" height="320"  alt="">  
-  
-* Click [here](ABL_kinasefunction_data_parser.html) to view initial kinase function analyses.  
-<img src="assets/kinase_function_dist.png" width="300" height="213"  alt="">  
+    /* Hover effect: image lifts up and shadow deepens */
+    .extrude-effect:hover {
+        transform: translateY(-10px); /* Makes the image appear to lift up */
+        box-shadow: 0 8px 16px rgba(0, 0, 0, 0.4); /* Darkens the shadow */
+    }
+</style>
 
 
-* Click [here](ABL_cosmic_analysis.html) to view our analyses of whether mutants in the cosmic/sanger database are resistant according to our screens.  
-<img src="assets/abl_cosmic_analysis.png" width="300" height="216"  alt="">.  
 
-  
-* Click [here](ABL_cosmic_analysis_fullkinase.html) to view our analyses of imatinib resistance in the full ABL kinase. This includes heatmaps, scatterplots, boxplots, waterfall plots, all analyzing the imatinib resistance profile of the ABL kinase.  
-<img src="assets/fullkinase_scatter.png" width="300" height="281"  alt="">.  
+* Click [here](Homepage_Modeling.html) to view various computational improvements including: logistic regressions of dose-response curves, predicting the effect on fitness of dosing errors.  
+<a href="Homepage_Modeling.html">
+    <img src="assets/enrichment_simulations_3mutants.png" width="300" height="232" alt="Click to go to spike-in mutant analyses" class="extrude-effect">
+</a>
+
+<style>
+    /* Base styles for the image */
+    .extrude-effect {
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3); /* Adds a shadow to give a 3D effect */
+        transition: transform 0.3s ease, box-shadow 0.3s ease; /* Adds smooth transition when hovering */
+        cursor: pointer; /* Changes the cursor to indicate it's clickable */
+        border-radius: 8px; /* Optional: Add rounded corners to the image */
+    }
+
+    /* Hover effect: image lifts up and shadow deepens */
+    .extrude-effect:hover {
+        transform: translateY(-10px); /* Makes the image appear to lift up */
+        box-shadow: 0 8px 16px rgba(0, 0, 0, 0.4); /* Darkens the shadow */
+    }
+</style>
 
 
-* Click [here](ABL_Gnomad_analysis.html) to view our analyses of how SNPs in Gnomad enable potentially drug resistant mutants, necessitating the study of multi-nucleotide variants in DMS screens.  
-<img src="assets/gnomad_enabled.png" width="600" height="300"  alt="">.  
 
+
+
+* Click [here](homepage_dms_screens.html) to view DMS analyses.  
+<a href="homepage_dms_screens.html">
+    <img src="assets/imatinib_heatmap.png" width="600" height="221" alt="Click to go to dms analyses" class="extrude-effect">
+</a>
+
+<style>
+    /* Base styles for the image */
+    .extrude-effect {
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3); /* Adds a shadow to give a 3D effect */
+        transition: transform 0.3s ease, box-shadow 0.3s ease; /* Adds smooth transition when hovering */
+        cursor: pointer; /* Changes the cursor to indicate it's clickable */
+        border-radius: 8px; /* Optional: Add rounded corners to the image */
+    }
+
+    /* Hover effect: image lifts up and shadow deepens */
+    .extrude-effect:hover {
+        transform: translateY(-10px); /* Makes the image appear to lift up */
+        box-shadow: 0 8px 16px rgba(0, 0, 0, 0.4); /* Darkens the shadow */
+    }
+</style>
+
+
+* Click [here](Homepage_variant_interpretation.html) view analyses interpreting variants of uncertain drug resistance in ABL.  
+<a href="homepage_dms_screens.html">
+    <img src="assets/vudrs.png" width="300" height="227" alt="Click to go to variant interpretation analyses" class="extrude-effect">
+</a>
+
+<style>
+    /* Base styles for the image */
+    .extrude-effect {
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3); /* Adds a shadow to give a 3D effect */
+        transition: transform 0.3s ease, box-shadow 0.3s ease; /* Adds smooth transition when hovering */
+        cursor: pointer; /* Changes the cursor to indicate it's clickable */
+        border-radius: 8px; /* Optional: Add rounded corners to the image */
+    }
+
+    /* Hover effect: image lifts up and shadow deepens */
+    .extrude-effect:hover {
+        transform: translateY(-10px); /* Makes the image appear to lift up */
+        box-shadow: 0 8px 16px rgba(0, 0, 0, 0.4); /* Darkens the shadow */
+    }
+</style>
+
+
+* Click [here](homepage_base_editing.html) to view base editing analyses.  
+<a href="homepage_base_editing.html">
+    <img src="assets/abl_baseeditor-analysis-v2.png" width="300" height="320" alt="Click to select base editing analysis" class="extrude-effect">
+</a>
+
+<style>
+    /* Base styles for the image */
+    .extrude-effect {
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3); /* Adds a shadow to give a 3D effect */
+        transition: transform 0.3s ease, box-shadow 0.3s ease; /* Adds smooth transition when hovering */
+        cursor: pointer; /* Changes the cursor to indicate it's clickable */
+        border-radius: 8px; /* Optional: Add rounded corners to the image */
+    }
+
+    /* Hover effect: image lifts up and shadow deepens */
+    .extrude-effect:hover {
+        transform: translateY(-10px); /* Makes the image appear to lift up */
+        box-shadow: 0 8px 16px rgba(0, 0, 0, 0.4); /* Darkens the shadow */
+    }
+</style>
+
+
+* Click [here](dose_escalation_verification.html) to view our validation IC50s with hits from the DMS screens.  
+
+* Click [here](Adding_Confidence_Intervals.html) to view our analyses on the error rates in spike-in data when using LFCs vs Net growth rates.  
+<img src="assets/percent_error.png" width="400" height="209"  alt="">  
 
 
 

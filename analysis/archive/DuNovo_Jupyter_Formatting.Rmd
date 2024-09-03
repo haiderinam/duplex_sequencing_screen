@@ -7,6 +7,7 @@ output: html_document
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_knit$set(root.dir = normalizePath(".."))
 library(dplyr)
 library(ggplot2)
 library(reshape2)
@@ -21,9 +22,9 @@ library(plotly)
 
 
 ```{r}
-files=list.files("../data/Dunovo/ToDo/")
+files=list.files("data/Dunovo/ToDo/")
 for(i in 1:length(files)){
-  filename=paste("../data/Dunovo/ToDo/",files[i],sep = "")
+  filename=paste("data/Dunovo/ToDo/",files[i],sep = "")
   variants_raw=read.csv(filename,
                         header=T,
                         stringsAsFactors = F,
@@ -55,7 +56,7 @@ for(i in 1:length(files)){
 ```
 Standalone Chunk
 ```{r}
-variants_raw=read.csv("../data/Dunovo/il3indep_2_novogenelane4_galaxy_output.csv",header=T,stringsAsFactors = F,check.names = F)
+variants_raw=read.csv("data/Dunovo/il3indep_2_novogenelane4_galaxy_output.csv",header=T,stringsAsFactors = F,check.names = F)
 
 variants_raw=variants_raw[,-1]
 variants_raw=variants_raw%>%filter(POS>=130862000,
@@ -81,12 +82,12 @@ write.csv(variants_updated,"il3indep2_novogenelane4_routput.csv")
 
 ```{r}
 rm(list=ls())
-il3indep2=read.csv("../data/Dunovo/il3indep2_novogenelane4_routput_processedSep-22-2021.csv")
+il3indep2=read.csv("data/Dunovo/il3indep2_novogenelane4_routput_processedSep-22-2021.csv")
 il3indep2=il3indep2%>%dplyr::select(-X,-Unnamed..0,-BIAS)
-il3indep3=read.csv("../data/Dunovo/il3indep3_novogenelane4_routput_processedSep-22-2021.csv")
+il3indep3=read.csv("data/Dunovo/il3indep3_novogenelane4_routput_processedSep-22-2021.csv")
 il3indep3=il3indep3%>%dplyr::select(-X,-Unnamed..0,-BIAS)
 
-il3indep4=read.csv("../data/Dunovo/il3indep4_novogenelane4_routput_processedSep-22-2021.csv")
+il3indep4=read.csv("data/Dunovo/il3indep4_novogenelane4_routput_processedSep-22-2021.csv")
 il3indep4=il3indep4%>%dplyr::select(-X,-Unnamed..0,-BIAS)
 
 il3=rbind(il3indep2,il3indep3,il3indep4)
@@ -101,13 +102,13 @@ sort(unique(il3$substitution))
 ```{r}
 ############RP4Medium#################
 
-rp4Mediumd4=read.csv("../data/Dunovo/RP4/RP4_Medium_D4_Duplex_routput_processedSep-23-2021.csv")
+rp4Mediumd4=read.csv("data/Dunovo/RP4/RP4_Medium_D4_Duplex_routput_processedSep-23-2021.csv")
 rp4Mediumd4=rp4Mediumd4%>%dplyr::select(-X,-Unnamed..0,-BIAS)%>%filter(variant_classification%in%"['missense_variant']")
 # rp4Medium=rp4Medium%>%dplyr::select(-X,-Unnamed..0,-BIAS)
 rp4Mediumd4=rp4Mediumd4%>%rowwise()%>%mutate(aa_change2=gsub(x = aa_change,pattern = "/",replacement = protein_pos))
 rp4Mediumd4_simple=rp4Mediumd4%>%dplyr::select(aa_change2,protein_pos,MAF_D4=MAF)
 
-rp4Mediumd2=read.csv("../data/Dunovo/RP4/RP4_Medium_D2_Duplex_routput_processedSep-23-2021.csv")
+rp4Mediumd2=read.csv("data/Dunovo/RP4/RP4_Medium_D2_Duplex_routput_processedSep-23-2021.csv")
 rp4Mediumd2=rp4Mediumd2%>%dplyr::select(-X,-Unnamed..0,-BIAS)%>%filter(variant_classification%in%"['missense_variant']")
 # rp4Medium=rp4Medium%>%dplyr::select(-X,-Unnamed..0,-BIAS)
 rp4Mediumd2=rp4Mediumd2%>%rowwise()%>%mutate(aa_change2=gsub(x = aa_change,pattern = "/",replacement = protein_pos))
@@ -121,13 +122,13 @@ rp4Mediummerged$enrichment=log10(rp4Mediummerged$MAF_D4/rp4Mediummerged$MAF_D2)
 
 ############RP5Medium#################
 
-rp5Mediumd4=read.csv("../data/Dunovo/RP5/RP5_Medium_D4_Duplex_routput_processedSep-23-2021.csv")
+rp5Mediumd4=read.csv("data/Dunovo/RP5/RP5_Medium_D4_Duplex_routput_processedSep-23-2021.csv")
 rp5Mediumd4=rp5Mediumd4%>%dplyr::select(-X,-Unnamed..0,-BIAS)%>%filter(variant_classification%in%"['missense_variant']")
 # rp5Medium=rp5Medium%>%dplyr::select(-X,-Unnamed..0,-BIAS)
 rp5Mediumd4=rp5Mediumd4%>%rowwise()%>%mutate(aa_change2=gsub(x = aa_change,pattern = "/",replacement = protein_pos))
 rp5Mediumd4_simple=rp5Mediumd4%>%dplyr::select(aa_change2,protein_pos,MAF_D4=MAF)
 
-rp5Mediumd2=read.csv("../data/Dunovo/RP5/RP5_Medium_D2_Duplex_routput_processedSep-23-2021.csv")
+rp5Mediumd2=read.csv("data/Dunovo/RP5/RP5_Medium_D2_Duplex_routput_processedSep-23-2021.csv")
 rp5Mediumd2=rp5Mediumd2%>%dplyr::select(-X,-Unnamed..0,-BIAS)%>%filter(variant_classification%in%"['missense_variant']")
 # rp5Medium=rp5Medium%>%dplyr::select(-X,-Unnamed..0,-BIAS)
 rp5Mediumd2=rp5Mediumd2%>%rowwise()%>%mutate(aa_change2=gsub(x = aa_change,pattern = "/",replacement = protein_pos))
@@ -153,13 +154,13 @@ ggplot(rp4rp5Mediummerged%>%filter(enrichmentRP5Medium<=2.5,enrichmentRP5Medium>
 rm(list=ls())
 ############RP4Medium#################
 
-rp4Mediumd4=read.csv("../data/Dunovo/RP4/RP4_Medium_D4_Duplex_routput_processedSep-23-2021.csv")
+rp4Mediumd4=read.csv("data/Dunovo/RP4/RP4_Medium_D4_Duplex_routput_processedSep-23-2021.csv")
 rp4Mediumd4=rp4Mediumd4%>%dplyr::select(-X,-Unnamed..0,-BIAS)%>%filter(variant_classification%in%"['missense_variant']")
 # rp4Medium=rp4Medium%>%dplyr::select(-X,-Unnamed..0,-BIAS)
 rp4Mediumd4=rp4Mediumd4%>%rowwise()%>%mutate(aa_change2=gsub(x = aa_change,pattern = "/",replacement = protein_pos))
 rp4Mediumd4_simple=rp4Mediumd4%>%dplyr::select(aa_change2,protein_pos,MAF_D4=MAF)
 
-rp4Mediumd2=read.csv("../data/Dunovo/RP4/RP4_Medium_D2_Duplex_routput_processedSep-23-2021.csv")
+rp4Mediumd2=read.csv("data/Dunovo/RP4/RP4_Medium_D2_Duplex_routput_processedSep-23-2021.csv")
 rp4Mediumd2=rp4Mediumd2%>%dplyr::select(-X,-Unnamed..0,-BIAS)%>%filter(variant_classification%in%"['missense_variant']")
 # rp4Medium=rp4Medium%>%dplyr::select(-X,-Unnamed..0,-BIAS)
 rp4Mediumd2=rp4Mediumd2%>%rowwise()%>%mutate(aa_change2=gsub(x = aa_change,pattern = "/",replacement = protein_pos))
@@ -173,13 +174,13 @@ rp4Mediummerged$enrichment=log10(rp4Mediummerged$MAF_D4/rp4Mediummerged$MAF_D2)
 
 ############RP5Medium#################
 
-rp5Mediumd4=read.csv("../data/Dunovo/RP5/RP5_Medium_D4_Duplex_routput_processedSep-23-2021.csv")
+rp5Mediumd4=read.csv("data/Dunovo/RP5/RP5_Medium_D4_Duplex_routput_processedSep-23-2021.csv")
 rp5Mediumd4=rp5Mediumd4%>%dplyr::select(-X,-Unnamed..0,-BIAS)%>%filter(variant_classification%in%"['missense_variant']")
 # rp5Medium=rp5Medium%>%dplyr::select(-X,-Unnamed..0,-BIAS)
 rp5Mediumd4=rp5Mediumd4%>%rowwise()%>%mutate(aa_change2=gsub(x = aa_change,pattern = "/",replacement = protein_pos))
 rp5Mediumd4_simple=rp5Mediumd4%>%dplyr::select(aa_change2,protein_pos,MAF_D4=MAF)
 
-rp5Mediumd2=read.csv("../data/Dunovo/RP5/RP5_Medium_D2_Duplex_routput_processedSep-23-2021.csv")
+rp5Mediumd2=read.csv("data/Dunovo/RP5/RP5_Medium_D2_Duplex_routput_processedSep-23-2021.csv")
 rp5Mediumd2=rp5Mediumd2%>%dplyr::select(-X,-Unnamed..0,-BIAS)%>%filter(variant_classification%in%"['missense_variant']")
 # rp5Medium=rp5Medium%>%dplyr::select(-X,-Unnamed..0,-BIAS)
 rp5Mediumd2=rp5Mediumd2%>%rowwise()%>%mutate(aa_change2=gsub(x = aa_change,pattern = "/",replacement = protein_pos))
@@ -223,7 +224,7 @@ b=a%>%filter(n==1)
 rm(list=ls())
 ############RP4Medium#################
 
-rp4Mediumd4=read.csv("../data/Dunovo/RP4/RP4_Medium_D4_SSCS_routput_processedSep-23-2021.csv")
+rp4Mediumd4=read.csv("data/Dunovo/RP4/RP4_Medium_D4_SSCS_routput_processedSep-23-2021.csv")
   rp4Mediumd4=rp4Mediumd4%>%group_by(protein_pos,REF)%>%mutate(n=n())%>%filter(n%in%1)
 # rp4Mediumd4=rp4Mediumd4%>%dplyr::select(-X,-Unnamed..0,-BIAS)
 rp4Mediumd4=rp4Mediumd4%>%dplyr::select(-X,-Unnamed..0,-BIAS)%>%filter(variant_classification%in%"['missense_variant']")
@@ -231,7 +232,7 @@ rp4Mediumd4=rp4Mediumd4%>%dplyr::select(-X,-Unnamed..0,-BIAS)%>%filter(variant_c
 rp4Mediumd4=rp4Mediumd4%>%rowwise()%>%mutate(aa_change2=gsub(x = aa_change,pattern = "/",replacement = protein_pos))
 rp4Mediumd4_simple=rp4Mediumd4%>%dplyr::select(aa_change2,protein_pos,MAF_D4=MAF)
 
-rp4Mediumd2=read.csv("../data/Dunovo/RP4/RP4_Medium_D2_SSCS_routput_processedSep-23-2021.csv")
+rp4Mediumd2=read.csv("data/Dunovo/RP4/RP4_Medium_D2_SSCS_routput_processedSep-23-2021.csv")
   rp4Mediumd2=rp4Mediumd2%>%group_by(protein_pos,REF)%>%mutate(n=n())%>%filter(n%in%1)
 # rp4Mediumd2=rp4Mediumd2%>%dplyr::select(-X,-Unnamed..0,-BIAS)
 rp4Mediumd2=rp4Mediumd2%>%dplyr::select(-X,-Unnamed..0,-BIAS)%>%filter(variant_classification%in%"['missense_variant']")
@@ -247,7 +248,7 @@ rp4Mediummerged$enrichment=log10(rp4Mediummerged$MAF_D4/rp4Mediummerged$MAF_D2)
 
 ############RP5Medium#################
 
-rp5Mediumd4=read.csv("../data/Dunovo/RP5/RP5_Medium_D4_SSCS_routput_processedSep-23-2021.csv")
+rp5Mediumd4=read.csv("data/Dunovo/RP5/RP5_Medium_D4_SSCS_routput_processedSep-23-2021.csv")
   rp5Mediumd4=rp5Mediumd4%>%group_by(protein_pos,REF)%>%mutate(n=n())%>%filter(n%in%1)
 # rp5Mediumd4=rp5Mediumd4%>%dplyr::select(-X,-Unnamed..0,-BIAS)
 rp5Mediumd4=rp5Mediumd4%>%dplyr::select(-X,-Unnamed..0,-BIAS)%>%filter(variant_classification%in%"['missense_variant']")
@@ -255,7 +256,7 @@ rp5Mediumd4=rp5Mediumd4%>%dplyr::select(-X,-Unnamed..0,-BIAS)%>%filter(variant_c
 rp5Mediumd4=rp5Mediumd4%>%rowwise()%>%mutate(aa_change2=gsub(x = aa_change,pattern = "/",replacement = protein_pos))
 rp5Mediumd4_simple=rp5Mediumd4%>%dplyr::select(aa_change2,protein_pos,MAF_D4=MAF)
 
-rp5Mediumd2=read.csv("../data/Dunovo/RP5/RP5_Medium_D2_SSCS_routput_processedSep-23-2021.csv")
+rp5Mediumd2=read.csv("data/Dunovo/RP5/RP5_Medium_D2_SSCS_routput_processedSep-23-2021.csv")
   rp5Mediumd2=rp5Mediumd2%>%group_by(protein_pos,REF)%>%mutate(n=n())%>%filter(n%in%1)
 # rp5Mediumd2=rp5Mediumd2%>%dplyr::select(-X,-Unnamed..0,-BIAS)
 rp5Mediumd2=rp5Mediumd2%>%dplyr::select(-X,-Unnamed..0,-BIAS)%>%filter(variant_classification%in%"['missense_variant']")
@@ -295,13 +296,13 @@ cor(rp4rp5Mediummerged$enrichmentRP5Medium,rp4rp5Mediummerged$enrichmentRP4Mediu
 rm(list=ls())
 ############RP4Medium#################
 
-rp4Mediumd4=read.csv("../data/Dunovo/RP4/RP4_Medium_D4_SSCS_routput_processedSep-23-2021.csv")
+rp4Mediumd4=read.csv("data/Dunovo/RP4/RP4_Medium_D4_SSCS_routput_processedSep-23-2021.csv")
 rp4Mediumd4=rp4Mediumd4%>%dplyr::select(-X,-Unnamed..0,-BIAS)%>%filter(variant_classification%in%"['missense_variant']")
 # rp4Medium=rp4Medium%>%dplyr::select(-X,-Unnamed..0,-BIAS)
 rp4Mediumd4=rp4Mediumd4%>%rowwise()%>%mutate(aa_change2=gsub(x = aa_change,pattern = "/",replacement = protein_pos))
 rp4Mediumd4_simple=rp4Mediumd4%>%dplyr::select(aa_change2,protein_pos,MAF_D4=MAF)
 
-rp4Mediumd2=read.csv("../data/Dunovo/RP4/RP4_Medium_D2_SSCS_routput_processedSep-23-2021.csv")
+rp4Mediumd2=read.csv("data/Dunovo/RP4/RP4_Medium_D2_SSCS_routput_processedSep-23-2021.csv")
 rp4Mediumd2=rp4Mediumd2%>%dplyr::select(-X,-Unnamed..0,-BIAS)%>%filter(variant_classification%in%"['missense_variant']")
 # rp4Medium=rp4Medium%>%dplyr::select(-X,-Unnamed..0,-BIAS)
 rp4Mediumd2=rp4Mediumd2%>%rowwise()%>%mutate(aa_change2=gsub(x = aa_change,pattern = "/",replacement = protein_pos))
@@ -315,13 +316,13 @@ rp4Mediummerged$enrichment=log10(rp4Mediummerged$MAF_D4/rp4Mediummerged$MAF_D2)
 
 ############RP5Medium#################
 
-rp5Mediumd4=read.csv("../data/Dunovo/RP5/RP5_Medium_D4_SSCS_routput_processedSep-23-2021.csv")
+rp5Mediumd4=read.csv("data/Dunovo/RP5/RP5_Medium_D4_SSCS_routput_processedSep-23-2021.csv")
 rp5Mediumd4=rp5Mediumd4%>%dplyr::select(-X,-Unnamed..0,-BIAS)%>%filter(variant_classification%in%"['missense_variant']")
 # rp5Medium=rp5Medium%>%dplyr::select(-X,-Unnamed..0,-BIAS)
 rp5Mediumd4=rp5Mediumd4%>%rowwise()%>%mutate(aa_change2=gsub(x = aa_change,pattern = "/",replacement = protein_pos))
 rp5Mediumd4_simple=rp5Mediumd4%>%dplyr::select(aa_change2,protein_pos,MAF_D4=MAF)
 
-rp5Mediumd2=read.csv("../data/Dunovo/RP5/RP5_Medium_D2_SSCS_routput_processedSep-23-2021.csv")
+rp5Mediumd2=read.csv("data/Dunovo/RP5/RP5_Medium_D2_SSCS_routput_processedSep-23-2021.csv")
 rp5Mediumd2=rp5Mediumd2%>%dplyr::select(-X,-Unnamed..0,-BIAS)%>%filter(variant_classification%in%"['missense_variant']")
 # rp5Medium=rp5Medium%>%dplyr::select(-X,-Unnamed..0,-BIAS)
 rp5Mediumd2=rp5Mediumd2%>%rowwise()%>%mutate(aa_change2=gsub(x = aa_change,pattern = "/",replacement = protein_pos))
@@ -349,7 +350,7 @@ Medium
 rm(list=ls())
 ############RP4Medium#################
 
-rp4Mediumd4=read.csv("../data/Dunovo/RP4/RP4_Low_D4_SSCS_routput_processedSep-23-2021.csv")
+rp4Mediumd4=read.csv("data/Dunovo/RP4/RP4_Low_D4_SSCS_routput_processedSep-23-2021.csv")
 
 rp4Mediumd4=rp4Mediumd4%>%dplyr::select(-X,-Unnamed..0,-BIAS)%>%filter(variant_classification%in%"['missense_variant']")
   rp4Mediumd4=rp4Mediumd4%>%filter(Nucleotide_Ct>=2)
@@ -357,7 +358,7 @@ rp4Mediumd4=rp4Mediumd4%>%dplyr::select(-X,-Unnamed..0,-BIAS)%>%filter(variant_c
 rp4Mediumd4=rp4Mediumd4%>%rowwise()%>%mutate(aa_change2=gsub(x = aa_change,pattern = "/",replacement = protein_pos))
 rp4Mediumd4_simple=rp4Mediumd4%>%dplyr::select(aa_change2,protein_pos,MAF_D4=MAF)
 
-rp4Mediumd2=read.csv("../data/Dunovo/RP4/RP4_Low_D2_SSCS_routput_processedSep-23-2021.csv")
+rp4Mediumd2=read.csv("data/Dunovo/RP4/RP4_Low_D2_SSCS_routput_processedSep-23-2021.csv")
   rp4Mediumd2=rp4Mediumd2%>%filter(Nucleotide_Ct>=2)
 rp4Mediumd2=rp4Mediumd2%>%dplyr::select(-X,-Unnamed..0,-BIAS)%>%filter(variant_classification%in%"['missense_variant']")
 # rp4Medium=rp4Medium%>%dplyr::select(-X,-Unnamed..0,-BIAS)
@@ -372,14 +373,14 @@ rp4Mediummerged$enrichment=log10(rp4Mediummerged$MAF_D4/rp4Mediummerged$MAF_D2)
 
 ############RP5Medium#################
 
-rp5Mediumd4=read.csv("../data/Dunovo/RP5/RP5_Low_D4_SSCS_routput_processedSep-23-2021.csv")
+rp5Mediumd4=read.csv("data/Dunovo/RP5/RP5_Low_D4_SSCS_routput_processedSep-23-2021.csv")
   rp5Mediumd4=rp5Mediumd4%>%filter(Nucleotide_Ct>=2)
 rp5Mediumd4=rp5Mediumd4%>%dplyr::select(-X,-Unnamed..0,-BIAS)%>%filter(variant_classification%in%"['missense_variant']")
 # rp5Medium=rp5Medium%>%dplyr::select(-X,-Unnamed..0,-BIAS)
 rp5Mediumd4=rp5Mediumd4%>%rowwise()%>%mutate(aa_change2=gsub(x = aa_change,pattern = "/",replacement = protein_pos))
 rp5Mediumd4_simple=rp5Mediumd4%>%dplyr::select(aa_change2,protein_pos,MAF_D4=MAF)
 
-rp5Mediumd2=read.csv("../data/Dunovo/RP5/RP5_Low_D2_SSCS_routput_processedSep-23-2021.csv")
+rp5Mediumd2=read.csv("data/Dunovo/RP5/RP5_Low_D2_SSCS_routput_processedSep-23-2021.csv")
   rp5Mediumd2=rp5Mediumd2%>%filter(Nucleotide_Ct>=2)
 rp5Mediumd2=rp5Mediumd2%>%dplyr::select(-X,-Unnamed..0,-BIAS)%>%filter(variant_classification%in%"['missense_variant']")
 # rp5Medium=rp5Medium%>%dplyr::select(-X,-Unnamed..0,-BIAS)
@@ -448,7 +449,7 @@ ggplot(rp4rp5Mediumd2,aes(x=MAF_D2.x,y=MAF_D2.y))+
   scale_y_continuous(name="Allele Frequency Replicate 2",trans="log10")+
   cleanup
 
-ggsave("bmes2021_MAF_D2.pdf",width=4,height=3,units="in",useDingbats=F)
+# ggsave("bmes2021_MAF_D2.pdf",width=4,height=3,units="in",useDingbats=F)
 
 ggplot(rp4rp5Mediumd2%>%filter(MAF_D2.x<=.05,MAF_D2.y<=.05),aes(x=MAF_D2.x,y=MAF_D2.y))+geom_point()+scale_x_continuous(trans="log10")+scale_y_continuous(trans="log10")
 cor(rp4rp5Mediumd2$MAF_D2.x,rp4rp5Mediumd2$MAF_D2.y,method="pearson")
@@ -460,7 +461,7 @@ ggplot(rp4rp5Mediumd4,aes(x=MAF_D4.x,y=MAF_D4.y))+
   scale_x_continuous(name="Allele Frequency Replicate 1",trans="log10")+
   scale_y_continuous(name="Allele Frequency Replicate 2",trans="log10")+
   cleanup
-ggsave("bmes2021_MAF_D4.pdf",width=4,height=3,units="in",useDingbats=F)
+# ggsave("bmes2021_MAF_D4.pdf",width=4,height=3,units="in",useDingbats=F)
 
 a=rp4rp5Mediumd4%>%filter(MAF_D4.x<=.2,MAF_D4.y<=.2)
 cor(a$MAF_D4.x,a$MAF_D4.y,method="pearson")

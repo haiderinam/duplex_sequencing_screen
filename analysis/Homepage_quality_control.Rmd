@@ -1,0 +1,17 @@
+---
+title: "Homepage Quality control"
+author: "Haider Inam"
+date: '2024-09-03'
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+* Click [here](ErrorRate_Analysis.html) to view error rates without barcodes, with single strand consensi, and with duplex consensus sequencing.
+<img src="assets/Error_rates.png" width="420" height="300"  alt="">  
+
+* Click [here](CDF-analysis-library-evenness.html) to view analyses of the CDFs of our saturating mutagenesis libraries. These show how even or uneven the libraries are at different stages of the screening process.      
+<img src="assets/unevenness_cdfs.png" width="387" height="300"  alt="">  

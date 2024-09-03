@@ -7,6 +7,7 @@ output: html_document
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
+# knitr::opts_knit$set(root.dir = normalizePath(".."))
 ```
 
 ####Please change required directories this chunk if compiling in R rather than RmD
@@ -16,13 +17,13 @@ knitr::opts_chunk$set(echo = TRUE)
 conc_for_predictions=0.8
 net_gr_wodrug=0.05
 #Reading required tables
-twinstrand_maf_merge=read.csv("../output/twinstrand_maf_merge.csv",header = T,stringsAsFactors = F)
+twinstrand_maf_merge=read.csv("output/twinstrand_maf_merge.csv",header = T,stringsAsFactors = F)
 # twinstrand_maf_merge=read.csv("output/twinstrand_maf_merge.csv",header = T,stringsAsFactors = F)
 
-twinstrand_simple_melt_merge=read.csv("../output/twinstrand_simple_melt_merge.csv",header = T,stringsAsFactors = F)
+twinstrand_simple_melt_merge=read.csv("output/twinstrand_simple_melt_merge.csv",header = T,stringsAsFactors = F)
 # twinstrand_simple_melt_merge=read.csv("output/twinstrand_simple_melt_merge.csv",header = T,stringsAsFactors = F)
 
-ic50data_long=read.csv("../output/ic50data_all_conc.csv",header = T,stringsAsFactors = F)
+ic50data_long=read.csv("output/ic50data_all_conc.csv",header = T,stringsAsFactors = F)
 # ic50data_long=read.csv("output/ic50data_all_conc.csv",header = T,stringsAsFactors = F)
 ic50data_long$netgr_pred=net_gr_wodrug-ic50data_long$drug_effect
 ```
@@ -145,7 +146,7 @@ ggplot(a,aes(x=AltDepth,y=expectedAltDepth))+geom_point()+scale_y_continuous(tra
 
 
 ggplot(a%>%filter(AltDepth>1),aes(x=AltDepth/60000,y=expectedAltDepth/60000))+geom_point()+scale_y_continuous(trans="log10",limits=c(.00001,.05),name = "Predicted frequency",breaks=c(10^-5,10^-4,10^-3,10^-2),labels=parse(text=c("10^-5","10^-4","10^-3","10^-2")))+scale_x_continuous(trans="log10",limits=c(.00001,.05),name="Measured frequency",breaks=c(10^-5,10^-4,10^-3,10^-2),labels=parse(text=c("10^-5","10^-4","10^-3","10^-2")))+geom_abline()+cleanup+theme(legend.position = "none")
-ggsave("grant_fig_v2.pdf",width = 2,height = 2,units = "in",useDingbats=F)
+# ggsave("grant_fig_v2.pdf",width = 2,height = 2,units = "in",useDingbats=F)
 
 ###Calculating correlation coefficient
 a=a%>%filter(AltDepth>1)
@@ -155,7 +156,7 @@ cor(a$AltDepth,a$expectedAltDepth)^2
 # write.csv(c,"pooled_fitness_with_drug_1250nM.csv")
 ```
 ```{r}
-twinstrand_maf_merge=read.csv("../output/twinstrand_maf_merge.csv",header = T,stringsAsFactors = F)
+twinstrand_maf_merge=read.csv("output/twinstrand_maf_merge.csv",header = T,stringsAsFactors = F)
 ###Putting data from all the experiments on the same plot
 #First, creating day 0 values for M4,M5,M7, and sp_enu_3. Whenever you see any of these experiments, add M3's or M6's or Sp_Enu4's D0 counts for its counts.
 twinstrand_maf_merge=merge(twinstrand_maf_merge,ic50data_long%>%filter(conc==0.8),by="mutant")

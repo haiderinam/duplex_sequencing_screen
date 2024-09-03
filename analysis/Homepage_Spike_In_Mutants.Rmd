@@ -1,0 +1,32 @@
+---
+title: "Homepage Spike In Mutants"
+author: "Haider Inam"
+date: '2024-09-03'
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+<img src="assets/ds_coverages.png" width="400" height="300"  alt="">  
+
+* Click [here](twinstrand_spikeins_data_generation.html) for the script that reads mutation annotation data and generates dataframes with annotated variants and the correct cell counts  
+
+* Click [here](growthrate_plots.html) for initial growth rate plots  
+<img src="assets/growthrates.png" width="400" height="300"  alt="">  
+
+
+* Click [here](spikeins_depthofcoverages.html) for analysis looking at whether we achieved our desired depth of coverages
+<img src="assets/coverages.png" width="400" height="300"  alt="">  
+
+
+* Click [here](misc.html) for method to obtain confidence intervals on growth rates from IC50 measurements. Plotted alongside observed growth rate data, these confidence intervals show how well our pooled data matches predictions based off of IC50s. (Needs updates in methodology)  
+<img src="assets/pooled_trajectories_confidence.png" width="400" height="300"  alt="">
+
+
+* Click [here](4_7_20_update.html) for analyses of replicate to replicate agreement between the spike in replicates. Also includes this analysis for the mutagenesis replicates. Also includes the agreement in observed vs predicted depth of coverages for all sequencing pools. Note: this analysis does not include dosage corrections that improves replicate to replicate heterogeneity.  
+<img src="assets/mutagenesis_replicates_correlation.png" width="400" height="300"  alt="">  
+
+* Click [here](E255K_alphas_figure.html) showing the conformity between the growth rates in the presence of drug measured at a low MAF via FACs, sequencing, and via IC50 studies for a single mutant.  
+<img src="assets/e255k_alphas.png" width="330" height="250"  alt="">  
+  

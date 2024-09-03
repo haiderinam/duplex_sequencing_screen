@@ -31,6 +31,7 @@ cleanup=theme_bw() +
         text=element_text(size=11,face="bold"),
         axis.title=element_text(face="bold",size="11"))
 ```
+
 ```{r}
 source("code/cosmic_data_adder.R")
 ```

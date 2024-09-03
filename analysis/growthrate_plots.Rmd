@@ -7,7 +7,8 @@ output: html_document
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
-knitr::opts_knit$set(root.dir=rprojroot::find_rstudio_root_file())
+# knitr::opts_knit$set(root.dir=rprojroot::find_rstudio_root_file())
+# knitr::opts_knit$set(root.dir = normalizePath(".."))
 ```
 
 ####Please change required directories this chunk if compiling in R rather than RmD
@@ -19,10 +20,10 @@ net_gr_wodrug=0.05
 ic50data=read.csv("data/heatmap_concat_data.csv",header = T,stringsAsFactors = F)
 # ic50data=read.csv("../data/heatmap_concat_data.csv",header = T,stringsAsFactors = F)
 
-twinstrand_maf=read.table("data/Twinstrand/prj00053-2019-12-02.deliverables/all.mut",sep="\t",header = T,stringsAsFactors = F)
+twinstrand_maf=read.table("output/Twinstrand/prj00053-2019-12-02.deliverables/all.mut",sep="\t",header = T,stringsAsFactors = F)
 # twinstrand_maf=read.table("../data/Twinstrand/prj00053-2019-12-02.deliverables/all.mut",sep="\t",header = T,stringsAsFactors = F)
 
-names=read.table("data/Twinstrand/prj00053-2019-12-02.deliverables/manifest.tsv",sep="\t",header = T,stringsAsFactors = F)
+names=read.table("output/Twinstrand/prj00053-2019-12-02.deliverables/manifest.tsv",sep="\t",header = T,stringsAsFactors = F)
 # names=read.table("../data/Twinstrand/prj00053-2019-12-02.deliverables/manifest.tsv",sep="\t",header = T,stringsAsFactors = F)
 
 # twinstrand_maf_merge=read.csv("../output/twinstrand_maf_merge.csv",header = T,stringsAsFactors = F)
@@ -99,7 +100,7 @@ ggplot(wasted_reads_sum_top4,aes(x=time_point,y=percentage,fill=time_point))+geo
 
 wasted_reads_sum_top2=wasted_reads%>%filter(mutant%in%c("T315I","Y253H"))%>%group_by(experiment,time_point)%>%summarize(percentage=sum(percentage))
 ggplot(wasted_reads_sum_top2,aes(x=time_point,y=percentage,fill=time_point))+geom_col(position=position_dodge(1))+facet_wrap(~experiment)+cleanup+scale_y_continuous(name = "Percentage of reads taken \n up by top 2 mutants")
-ggsave("wasted_reads_total_top2.pdf",width=4,height=3,units="in")
+# ggsave("wasted_reads_total_top2.pdf",width=4,height=3,units="in")
 
 
 ######Looking at the scenario where the top 4 mutants weren't there in the ENU experiments:
@@ -117,7 +118,7 @@ getPalette = colorRampPalette(brewer.pal(9, "Spectral"))
 
 
 ggplot(maf_without_wasted_reads%>%filter(time_point=="D3"),aes(x="",y=Percentage_new,fill=mutant))+geom_bar(width=1,stat="identity")+cleanup+theme(axis.text.x=element_text(angle=90),axis.title = element_blank())+coord_polar("y",start=0)+scale_fill_manual(values = getPalette(length(unique(maf_without_wasted_reads$mutant))))+ggtitle("With Mutants Removed")
-ggsave("maf_piechart_new.pdf",width=4,height=4,units="in")
+# ggsave("maf_piechart_new.pdf",width=4,height=4,units="in")
 
 
 
@@ -129,7 +130,7 @@ maf_with_wasted_reads=twinstrand_maf_merge%>%filter(experiment%in%"Enu_4",!mutan
 maf_with_wasted_reads$mutant=factor(maf_with_wasted_reads$mutant,levels = as.character(unique(maf_with_wasted_reads$mutant[order((maf_with_wasted_reads$AltDepth),decreasing = T)])))
 
 ggplot(maf_with_wasted_reads%>%filter(time_point=="D3"),aes(x="",y=Percentage,fill=mutant))+geom_bar(width=1,stat="identity")+cleanup+theme(axis.text.x=element_text(angle=90),axis.title = element_blank())+coord_polar("y",start=0)+scale_fill_manual(values = getPalette(length(unique(maf_with_wasted_reads$mutant))))+ggtitle("Without Removing Mutants")
-ggsave("maf_piechart_old.pdf",width=4,height=4,units="in")
+# ggsave("maf_piechart_old.pdf",width=4,height=4,units="in")
 
 maf_before_after=merge(maf_with_wasted_reads%>%filter(time_point=="D3")%>%ungroup()%>%dplyr::select(mutant,Percentage),maf_without_wasted_reads%>%filter(time_point=="D3")%>%ungroup()%>%dplyr::select(mutant,Percentage_new),by="mutant",all.x = T,all.y = T)
 maf_before_after=maf_before_after%>%mutate(Percentage_new=case_when(Percentage_new%in%NA~0,
@@ -139,25 +140,25 @@ maf_before_after_melt=melt(maf_before_after,id.vars = "mutant",measure.vars = c(
 
 
 ggplot(maf_before_after_melt%>%filter(!mutant%in%c("T315I","Y253H","G250E")),aes(x=mutant,y=Percentage,fill=Status))+geom_col(position=position_dodge(1))+cleanup+theme(axis.text.x = element_text(angle=90),legend.position = "bottom")
-ggsave("Residue_Skipping_Comparison.pdf",width=4,height=3,units="in")
+# ggsave("Residue_Skipping_Comparison.pdf",width=4,height=3,units="in")
 
 
 ```
 ```{r}
-twinstrand_maf=read.table("data/Twinstrand/prj00053-2019-12-02.deliverables/all.mut",sep="\t",header = T,stringsAsFactors = F)
+twinstrand_maf=read.table("output/Twinstrand/prj00053-2019-12-02.deliverables/all.mut",sep="\t",header = T,stringsAsFactors = F)
 # wt=twinstrand_maf_merge%>%filter(Sample%in%c("dna00762"))
 wt=twinstrand_maf%>%filter(Sample%in%c("dna00762"))
-wt_snps=read.table("/Volumes/MyPassportforMac/duplexsequencing/twinstrand_september2020/wt2/variants_SNPs_filtered_sorted.tsv",header = F,stringsAsFactors = F)
+# wt_snps=read.table("/Volumes/MyPassportforMac/duplexsequencing/twinstrand_september2020/wt2/variants_SNPs_filtered_sorted.tsv",header = F,stringsAsFactors = F)
 
-ggplot(wt_snps,aes(x=V1,y=V2*100/20000))+geom_col(width=3,position = position_dodge(1),fill="red")+cleanup+scale_x_continuous(name="Position in ABL1 Kinase Domain")+scale_y_continuous(name="Mutant Fraction %",limits=c(0,.15))+ggtitle("Minor Alleles Standard Sequencing")
-ggsave("wt_standardsequencing.pdf",width=3,height=2,units="in",useDingbats=F)
+# ggplot(wt_snps,aes(x=V1,y=V2*100/20000))+geom_col(width=3,position = position_dodge(1),fill="red")+cleanup+scale_x_continuous(name="Position in ABL1 Kinase Domain")+scale_y_continuous(name="Mutant Fraction %",limits=c(0,.15))+ggtitle("Minor Alleles Standard Sequencing")
+# ggsave("wt_standardsequencing.pdf",width=3,height=2,units="in",useDingbats=F)
 
 ggplot(twinstrand_maf%>%filter(Sample=="dna00762",!VariationType%in%c("indel"),!Start%in%c("130872199")),aes(x=Start,y=AltDepth*100/Depth))+geom_col(width=10,position=position_dodge(1),fill="red")+cleanup+scale_x_continuous(name="Position in ABL1 Kinase Domain")+scale_y_continuous(name="Mutant Fraction %",limits=c(0,.15))+ggtitle("Minor Alleles Duplex Sequencing")
-ggsave("wt_duplexconsensus.pdf",width=3,height=2,units="in",useDingbats=F)
+# ggsave("wt_duplexconsensus.pdf",width=3,height=2,units="in",useDingbats=F)
 # a=twinstrand_maf%>%filter(Sample=="dna00762",!VariationType%in%c("indel"))
 
 ggplot(twinstrand_maf%>%filter(Sample=="dna00763",!VariationType%in%c("indel"),!Start%in%c("130872199")),aes(x=Start,y=AltDepth*100/Depth))+geom_col(width=10,position=position_dodge(1),fill="red")+cleanup+scale_x_continuous(name="Position in ABL1 Kinase Domain")+scale_y_continuous(name="Mutant Fraction %",limits=c(0,.15))+ggtitle("Minor Alleles Duplex Sequencing")
-ggsave("m3d0_duplexconsensus.pdf",width=3,height=2,units="in",useDingbats=F)
+# ggsave("m3d0_duplexconsensus.pdf",width=3,height=2,units="in",useDingbats=F)
 # a=twinstrand_maf%>%filter(Sample=="dna00762",!VariationType%in%c("indel"))
 # a=twinstrand_maf%>%filter(Sample=="dna00763",!VariationType%in%c("indel"),!Start%in%c("130872199"))
 
@@ -252,7 +253,7 @@ ggplotly(plotly)
 
 ```{r}
 
-names=read.table("data/Twinstrand/prj00053-2019-12-02.deliverables/manifest.tsv",sep="\t",header = T,stringsAsFactors = F)
+names=read.table("output/Twinstrand/prj00053-2019-12-02.deliverables/manifest.tsv",sep="\t",header = T,stringsAsFactors = F)
 twinstrand_maf_names=merge(twinstrand_maf,names,by.x="Sample",by.y="TwinstrandId")
 a=twinstrand_maf_names%>%filter(tki_resistant_mutation=="True",CustomerName%in%c("M3D0","M3D3","M3D6"))
 ```

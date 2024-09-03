@@ -7,7 +7,7 @@ output: html_document
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
-knitr::opts_knit$set(root.dir = normalizePath(".."))
+# knitr::opts_knit$set(root.dir = normalizePath(".."))
 # rm(list=ls())
 
 library(stringr)
@@ -24,6 +24,7 @@ library(pROC)
 ```
 
 ```{r}
+# source("code/cosmic_data_adder.R")
 candidates=c("F311L",
              "F311I",
               "F317L",
@@ -104,7 +105,7 @@ plotly=ggplot(allmuts%>%filter(!dose%in%0),aes(x=dose,y=y))+
 ggplotly(plotly)
 
 # Basciallly there are two ways of plotting y (proportion alive) from our screens. One is to assume the same fitness without drug for all mutants, another is to assume fitness without drug that are different for all mutants.
-newdf=cosmic_data_adder(df)
+# newdf=cosmic_data_adder(df)
 ```
 
 Plotting IC50 fitnesses

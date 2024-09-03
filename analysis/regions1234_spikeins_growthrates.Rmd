@@ -1,0 +1,56 @@
+---
+title: "regions1234_spikeins_growthrates"
+author: "Haider Inam"
+date: '2024-08-11'
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_knit$set(root.dir = normalizePath(".."))
+# rm(list=ls())
+
+library(stringr)
+library(dplyr)
+library(ggplot2)
+library(plotly)
+library(tictoc)
+library(doParallel)
+library(foreach)
+library(RColorBrewer)
+library(reshape2)
+
+#Cleanup code for plotting
+cleanup=theme_bw() +
+  theme(plot.title = element_text(hjust=.5),
+        panel.grid.major = element_blank(),
+        panel.grid.major.y = element_blank(),
+        panel.background = element_blank(),
+        # axis.line = element_line(color = "black"),
+        axis.text = element_text(face="bold",color="black",size="11"),
+        text=element_text(size=11,face="bold"),
+        axis.title=element_text(face="bold",size="11"))
+```
+
+
+
+```{r}
+data=read.csv("data/region1234_spikein_growthrates_flowcytometry/spikein_growthrates_regions1-4_fordosecorrection.csv",header = T,stringsAsFactors = F)
+data=data%>%filter(!netgr_facs%in%"N/A")
+data$netgr_facs=as.numeric(data$netgr_facs)
+data$lfc_facs=as.numeric(data$lfc_facs)
+
+
+ggplot(data%>%filter(Day%in%6),aes(x=factor(Region),y=netgr_facs,fill=mutant,label=mutant))+geom_col(position=position_dodge())+geom_text(position = position_nudge(y = 0.01))+facet_wrap(~Dose)+scale_x_discrete("ABL Region")+scale_y_continuous("Net growth rate (Hrs-1)")
+
+ggplot(data,aes(x=factor(Region),y=lfc_facs,fill=factor(Day),label=mutant))+geom_col(position=position_dodge())+geom_text(position = position_nudge(y = 0.01))+facet_wrap(~Dose)+scale_x_discrete("ABL Region")+scale_y_continuous("Log Fold Change")
+
+ggplot(data,aes(x=factor(Region),y=netgr_facs,fill=factor(Day),label=mutant))+geom_col(position=position_dodge())+geom_text(position = position_nudge(y = 0.01))+facet_wrap(~Dose)+scale_x_discrete("ABL Region")+scale_y_continuous("Net growth rate")
+
+ggplot(data%>%filter(Day%in%6),aes(x=factor(Region),y=netgr_facs,label=mutant))+geom_boxplot(color="black",position=position_dodge())+geom_text(position = position_nudge(y = 0.01))+facet_wrap(~Dose)+scale_x_discrete("ABL Region")+scale_y_continuous("Net growth rate")
+
+ggplot(data%>%filter(Day%in%6),aes(x=factor(Region),y=lfc_facs,label=mutant))+geom_col(position=position_dodge())+geom_text(position = position_nudge(y = 0.01))+facet_wrap(~Dose)+scale_x_discrete("ABL Region")+scale_y_continuous("Log Fold Change")
+
+
+```
+

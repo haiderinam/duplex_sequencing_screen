@@ -7,7 +7,7 @@ output: html_document
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
-knitr::opts_knit$set(root.dir = normalizePath(".."))
+# knitr::opts_knit$set(root.dir = normalizePath(".."))
 # rm(list=ls())
 
 library(stringr)
@@ -55,7 +55,10 @@ b=merge_samples("novogene_lane23/Sample19/sscs","Novogene_lane19_20/Ln19b_Sample
 ggplot(b%>%filter(!alt_aa%in%"O",protein_start>464,protein_start<520),aes(x=protein_start,y=alt_aa,fill=ct))+geom_tile()
 ```
 
-```{r}
+  
+### Section 1: Data Parsing.  
+
+```{r,eval=F}
 # cellcounts_matrix_dir="data/Consensus_Data/novogene_lane23/TwistAllRegions_CellCounts_Matrix.csv"
 cellcounts_matrix_dir="data/Consensus_Data/novogene_lane23/TwistAllRegions_CellCounts_Matrix_onlyln2728_attempt5.csv"
 
@@ -376,7 +379,7 @@ compare_screens=function(before_screen1_identifier,
 
 
 
-```{r}
+```{r,eval=F}
 # source("code/compare_screens.R")
 # cellcounts_matrix_dir="data/Consensus_Data/novogene_lane23/TwistAllRegions_CellCounts_Matrix.csv"
 cellcounts_matrix_dir="data/Consensus_Data/novogene_lane23/TwistAllRegions_CellCounts_Matrix_onlyln2728_attempt5.csv"
@@ -384,8 +387,8 @@ cellcounts_matrix_dir="data/Consensus_Data/novogene_lane23/TwistAllRegions_CellC
 comparisons=read.csv("data/Consensus_Data/novogene_lane23/TwistAllRegions_Comparisons_Todo.csv")
 comparisons=comparisons%>%filter(Completed%in%"FALSE")
 
-# for(i in 1:nrow(comparisons)){
-for(i in 9:12){
+for(i in 1:nrow(comparisons)){
+# for(i in 9:12){
   # i=9
 # for(i in 7:nrow(comparisons)){
 # for(i in 1:8){
@@ -484,7 +487,7 @@ This chunk of code also has median centering and normalizing the imatinib datase
 This chunk of code also adds data for the F359C region by including data from a previous screen
 ########################################
 
-```{r}
+```{r,eval=F}
 # sum(r1$ct_screen1_before)
 # sum(r2$ct_screen1_before)
 # sum(r3$ct_screen1_before)
@@ -912,6 +915,11 @@ write.csv(imathigh_1_vsimathigh_2_all,"output/ABLEnrichmentScreens/ABL_Region234
 
 
 
+```
+
+### Section 2: Plotting heatmaps.  
+```{r}
+imatinib_all=read.csv("output/ABLEnrichmentScreens/ABL_Region234_Comparisons/ABLfullkinase_allconditions_growthrates_7.29.24.csv")
 ############### Plotting heatmaps with net growth rates#############
 ############### IL3 Net Gr############
 source("code/plotting/heatmap_plotting_function.R")
@@ -942,13 +950,9 @@ heatmap_plotting_function(imatinib_all%>%filter(!score.imat.high.2%in%"NaN"),240
 ggsave("output/ABLEnrichmentScreens/ABL_Region234_Comparisons/baf3_imatinib_heatmap_1200nM_score_medianadjusted.pdf",width=16,height=4,units="in",useDingbats=F)
 
 
-# a=il3_1_vsil3_2_all%>%filter(protein_start%in%392)
-# b=il3_1_vsil3_2_all%>%filter(protein_start%in%395)
-
 ```
 
-
-
+### Section 3: Looking at replicate correlations in net growth rates.  
 I have new sequencing data from Lane 27b and Lane 28.
 Below, I am going to correlate the two datasets for region 4
 
@@ -1055,9 +1059,14 @@ ggplot(btr4d0ab,aes(x=maf.x,y=maf.y,color=twist))+
 btr4d0ab=btr4d0ab%>%
   rowwise()%>%
   mutate(maf.mean=mean(maf.x,maf.y),
-         maf.sd=sd(c(maf.x,maf.y)),
-         maf.zscore=(maf.mean-mean(btr4d0ab$maf.mean))/maf.sd)
-# sd(c(1,2))
+         maf.sd=sd(c(maf.x,maf.y)))
+
+# btr4d0ab=btr4d0ab%>%
+#   rowwise()%>%
+#   mutate(maf.mean=mean(maf.x,maf.y),
+#          maf.sd=sd(c(maf.x,maf.y)),
+#          maf.zscore=(maf.mean-mean(btr4d0ab$maf.mean))/maf.sd)
+sd(c(1,2))
 ggplot(btr4d0ab,aes(x=maf.x,y=maf.y,color=log(maf.sd)))+
   geom_point()+
   scale_x_continuous(trans="log10")+
@@ -1179,7 +1188,7 @@ ggplot(btr4d0,
 
 
 
-```{r}
+```{r,eval=F}
 # Checking for duplicates in all the data
 
 a= r1 %>%

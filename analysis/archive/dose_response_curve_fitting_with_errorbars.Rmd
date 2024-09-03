@@ -7,11 +7,26 @@ output: html_document
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
-knitr::opts_knit$set(root.dir=rprojroot::find_rstudio_root_file())
+# knitr::opts_knit$set(root.dir = normalizePath(".."))
 ```
 Two ways of calculating errorbars for IC50 dose response data:  
 Method 1. Directly calculate the mean, SD, and 95% CI of the 8 or so replicates for each mutant at each of the 10 doses for BCRABL Imatinib IC50s. One Caveat here: You can calculate the errorbars this way but the data still fits better if the confidence intervals are around a mean that is not the average of the replicates but the fit from the 4 parameter logistic. Sounds confusing, yes.
 ```{r}
+library(knitr)
+library(tictoc)
+library(workflowr)
+library(VennDiagram)
+library(dplyr)
+library(foreach)
+library(doParallel)
+library(ggplot2)
+library(reshape2)
+library(RColorBrewer)
+library(devtools)
+library(ggsignif)
+library(plotly)
+library(BiocManager)
+library(drc)
 #rm(list=ls())
 net_gr_wodrug=0.055
 conc_for_predictions=0.8

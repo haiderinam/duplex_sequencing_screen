@@ -1,0 +1,28 @@
+---
+title: "Homepage supplemental projects"
+author: "Haider Inam"
+date: '2024-09-03'
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+
+* Click [here](growthrate_plots_ENU.html) for growth rate plots for ENU mutants  
+<img src="assets/growthrates_ENU.png" width="400" height="300"  alt="">  
+
+
+* Click [here](lane14_comparisons.html) to view preliminary BCRABL Imatinib and Asciminib heatmaps  made with enzymatically sheared libraries
+<img src="assets/bcrabl_heatmap.png" width="400" height="250"  alt="">  
+  
+  
+  * Click [here](DupSeq_QC_Lane11.html) and to view iL3 independence data and [here](BCRABL_FunctionalKinaseAnalysis.html) to view iL3 independence heatmap and  [here](ABL_sheared_libraries.html) to view imatinib heatmaps on enzymatically sheared data
+<img src="assets/il3heatmap.png" width="800" height="200"  alt="">  
+  
+
+* Click [here](K562_BCRABL_Analysis.html) to view the results of the BCRABL Library transduced in K562 Cells
+<img src="assets/k562_plot.png" width="800" height="222"  alt="">  
+  
