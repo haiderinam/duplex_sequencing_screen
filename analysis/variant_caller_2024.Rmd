@@ -143,6 +143,13 @@ seqdata_tsv_name=list.files("data/Consensus_Data/novogene_lane28c_properlypaired
 outdir <- gsub("sscs_sorted_filtered_pp\\.tsv\\.gz$", "variant_caller_outputs", seqdata_tsv_name)
 
 
+########Added the following for Marta 10.24.24##### 
+seqdata_tsv_name=list.files("data/Consensus_Data/Marta_tileseq", pattern = "sorted_filtered\\.tsv\\.gz$", recursive = TRUE, full.names = TRUE)
+outdir=dirname(seqdata_tsv_name)
+##########
+dirname(seqdata_tsv_name)
+seqdata_tsv_name[j]
+# outdir[j]
 # To do: lane 29b, 28, 27b, 18,19
 
 
@@ -217,7 +224,7 @@ ref_genomic_coordinates=ref_genomic_coordinates%>%filter(!codon%in%"")
 # for(j in 1:length(seqdata_tsv_name)){
 # for(j in 1:length(seqdata_tsv_name)){
 # for(j in 1:1){
-for(j in 7:length(seqdata_tsv_name)){
+for(j in 1:length(seqdata_tsv_name)){
   # j=23
   seqdata_tsv_name_current=seqdata_tsv_name[j]
   outdir_curr=outdir[j]
@@ -838,8 +845,6 @@ calls_sum_merged=calls_sum_merged%>%
 
 calls_ann=calls_ann%>%
   filter(nchar(ref)%in%nchar(alt))
-
-
 
 
 write.csv(calls_ann,paste(outdir_curr,"/variants_ann.csv",sep = ""),row.names = F)

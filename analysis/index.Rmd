@@ -29,7 +29,33 @@ editor_options:
         transform: translateY(-10px); /* Makes the image appear to lift up */
         box-shadow: 0 8px 16px rgba(0, 0, 0, 0.4); /* Darkens the shadow */
     }
+    
+        /* Styling for centered buttons */
+        .centered-button {
+            display: inline-block;
+            padding: 10px 20px;
+            background-color: #007BFF;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            font-weight: bold;
+            transition: background-color 0.3s ease;
+            margin-top: 20px;
+            text-align: center;
+        }
+
+        /* Hover effect for buttons */
+        .centered-button:hover {
+            background-color: #0056b3;
+        }
+
+        /* Centering container for text and buttons */
+        .center-container {
+            text-align: center; /* Center everything inside */
+        }
 </style>
+
+
 
 
 
