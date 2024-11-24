@@ -16,7 +16,7 @@ knitr::opts_chunk$set(echo = TRUE)
 
 * Click [here](regions1234_spikeins_growthrates.html) to view growth rates from mCherry-tagged mutant standards that were spiked-in with the DMS library in our functional screens. The growth rates from these mutants help us normalize the screen for dose-response.  
 
-* Click [here](region234_plottingcode.html) to view imatinib resistance heatmap and look at analyses of replicate correlations in our DMS screens.  
+* Click [here](region234plottingcode.html) to view imatinib resistance heatmap and look at analyses of replicate correlations in our DMS screens.  
 <img src="assets/imatinib_heatmap.png" width="600" height="221"  alt="">  
 
 
