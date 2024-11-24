@@ -11,7 +11,7 @@ editor_options:
 # **BCR ABL Deep Mutational Scan**  
 
 * Click [here](homepage_Spike_In_Mutants.html) to analyses of the growth mutant standards under drug at low allele frequencies.  
-<a href="homepage_Spike_In_Mutants.html">
+<a href="Homepage_Spike_In_Mutants.html">
     <img src="assets/spikeins_illustration.png" width="300" height="300" alt="Click to go to spike-in mutant analyses" class="extrude-effect">
 </a>
 

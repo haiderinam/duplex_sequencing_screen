@@ -181,4 +181,755 @@ a_mt=d0d6_mt%>%filter(protein_start==250)
 
 # ggplot(d0d6_mt%>%filter(),aes(netgrowth_mean))+geom_density()
 ```
+11/2/2024
+###Plotting figures of paper usign tileseq data
+```{r}
+##############################Adding F359C data##########################
+#######################IL3 Data################
+tsi_il3=read.csv("output/ABLEnrichmentScreens/IL3_Enrichment_bgmerged_2.20.23.csv",header = T,stringsAsFactors = F)
+tsi_il3=tsi_il3%>%filter(!((ct_screen2_after%in%0.5)&(ct_screen1_after%in%0.5)))
 
+tsi_il3=tsi_il3%>%
+  filter(protein_start%in%c(354:361))%>%
+  dplyr::select(species,
+                consequence_terms,
+                ref_aa,
+                protein_start,
+                alt_aa,
+                ref,
+                alt,
+                ref_codon,
+                alt_codon,
+                alt_codon_shortest,
+                n_nuc_min,
+                score.IL3.1=score_screen1,
+                netgr.IL3.1=netgr_obs_screen1,
+                score.IL3.2=score_screen2,
+                netgr.IL3.2=netgr_obs_screen2)
+
+il3_1_vsil3_2_all=il3_1_vsil3_2_all%>%filter(!protein_start%in%c(354:361))
+il3_1_vsil3_2_all=rbind(il3_1_vsil3_2_all,
+                         tsi_il3)
+il3_1_vsil3_2_all=il3_1_vsil3_2_all%>%arrange(protein_start)
+#######################Imatinib 300nM####################
+tsi_imatinib=read.csv("output/ABLEnrichmentScreens/Imat_Enrichment_bgmerged_2.22.23.csv",header = T,stringsAsFactors = F)
+tsi_imatinib=tsi_imatinib%>%filter(!((ct_screen2_after%in%0.5)&(ct_screen1_after%in%0.5)))
+
+tsi_imatinib=tsi_imatinib%>%
+  filter(protein_start%in%c(354:361))%>%
+  dplyr::select(species,
+                consequence_terms,
+                ref_aa,
+                protein_start,
+                alt_aa,
+                ref,
+                alt,
+                ref_codon,
+                alt_codon,
+                alt_codon_shortest,
+                n_nuc_min,
+                score.imat.low.1=score_screen1,
+                netgr.imat.low.1=netgr_obs_screen1,
+                score.imat.low.2=score_screen2,
+                netgr.imat.low.2=netgr_obs_screen2)
+
+imatlow_1_vsimatlow_2_all=imatlow_1_vsimatlow_2_all%>%filter(!protein_start%in%c(354:361))
+imatlow_1_vsimatlow_2_all=rbind(imatlow_1_vsimatlow_2_all,
+                         tsi_imatinib)
+imatlow_1_vsimatlow_2_all=imatlow_1_vsimatlow_2_all%>%arrange(protein_start)
+
+#######################Imatinib 600nM####################
+tsi_imatinib=read.csv("output/ABLEnrichmentScreens/Imat_Enrichment_bgmerged_2.22.23.csv",header = T,stringsAsFactors = F)
+tsi_imatinib=tsi_imatinib%>%filter(!((ct_screen2_after%in%0.5)&(ct_screen1_after%in%0.5)))
+
+tsi_imatinib=tsi_imatinib%>%
+  filter(protein_start%in%c(354:361))%>%
+  dplyr::select(species,
+                consequence_terms,
+                ref_aa,
+                protein_start,
+                alt_aa,
+                ref,
+                alt,
+                ref_codon,
+                alt_codon,
+                alt_codon_shortest,
+                n_nuc_min,
+                score.imat.mid.1=score_screen1,
+                netgr.imat.mid.1=netgr_obs_screen1,
+                score.imat.mid.2=score_screen2,
+                netgr.imat.mid.2=netgr_obs_screen2)
+
+imatmid_1_vsimatmid_2_all=imatmid_1_vsimatmid_2_all%>%filter(!protein_start%in%c(354:361))
+imatmid_1_vsimatmid_2_all=rbind(imatmid_1_vsimatmid_2_all,
+                         tsi_imatinib)
+imatmid_1_vsimatmid_2_all=imatmid_1_vsimatmid_2_all%>%arrange(protein_start)
+
+#######################Imatinib 1200nM####################
+tsi_imatinib=read.csv("output/ABLEnrichmentScreens/Imat_Enrichment_bgmerged_2.22.23.csv",header = T,stringsAsFactors = F)
+tsi_imatinib=tsi_imatinib%>%filter(!((ct_screen2_after%in%0.5)&(ct_screen1_after%in%0.5)))
+
+tsi_imatinib=tsi_imatinib%>%
+  filter(protein_start%in%c(354:361))%>%
+  dplyr::select(species,
+                consequence_terms,
+                ref_aa,
+                protein_start,
+                alt_aa,
+                ref,
+                alt,
+                ref_codon,
+                alt_codon,
+                alt_codon_shortest,
+                n_nuc_min,
+                score.imat.high.1=score_screen1,
+                netgr.imat.high.1=netgr_obs_screen1,
+                score.imat.high.2=score_screen2,
+                netgr.imat.high.2=netgr_obs_screen2)
+
+imathigh_1_vsimathigh_2_all=imathigh_1_vsimathigh_2_all%>%filter(!protein_start%in%c(354:361))
+imathigh_1_vsimathigh_2_all=rbind(imathigh_1_vsimathigh_2_all,
+                         tsi_imatinib)
+imathigh_1_vsimathigh_2_all=imathigh_1_vsimathigh_2_all%>%arrange(protein_start)
+############################################################
+
+```
+
+```{r}
+tsi_il3=read.csv("output/ABLEnrichmentScreens/Imat_Enrichment_bgmerged_2.22.23.csv",header = T,stringsAsFactors = F)
+tsi_il3=tsi_il3%>%filter(!((ct_screen2_after%in%0.5)&(ct_screen1_after%in%0.5)))
+
+tsi_il3=tsi_il3%>%
+  filter(protein_start%in%c(354:361))%>%
+  dplyr::select(species,
+                consequence_terms,
+                ref_aa,
+                protein_start,
+                alt_aa,
+                ref,
+                alt,
+                ref_codon,
+                alt_codon,
+                alt_codon_shortest,
+                n_nuc_min,
+                netgr_obs_screen1,
+                netgr_obs_screen2,
+                ct_screen1_before,
+                depth_screen1_before,
+                maf_screen1_before,
+                ct_screen1_after,
+                depth_screen1_after,
+                maf_screen1_after,
+                ct_screen2_before,
+                depth_screen2_before,
+                maf_screen2_before,
+                ct_screen2_after,
+                depth_screen2_after,
+                maf_screen2_after)
+
+# il3_1_vsil3_2_all=il3_1_vsil3_2_all%>%filter(!protein_start%in%c(354:361))
+# il3_1_vsil3_2_all=rbind(il3_1_vsil3_2_all,
+                         tsi_il3)
+```
+
+```{r}
+
+source("code/plotting/heatmap_plotting_function.R")
+source("code/resmuts_adder.R")
+source("code/cosmic_data_adder.R")
+source("code/res_residues_adder.R")
+source("code/shortest_codon_finder.R")
+
+
+data=read.csv("output/ABLEnrichmentScreens/ABL_Region1234_Tileseq/data/TileSeq_full_kinase_low_imatinib_with_lfc_corrected_netgrowths_intended_renamed.csv")
+data=data%>%filter(is_intended%in%1)
+# data=data%>%rename(
+#   species=mutant,
+#   ct_screen1_before=avg_ct_D0_A,
+#   ct_screen1_after=avg_ct_D6_A,
+#   depth_screen1_before=avg_depth_D0_A,
+#   depth_screen1_after=avg_depth_D6_A,
+#   maf_screen1_before=avg_MAF_D0_A,
+#   maf_screen1_after=avg_MAF_D6_A,
+#   netgr_obs_screen1=netgrowth_A,
+#   ct_screen2_before=avg_ct_D0_B,
+#   ct_screen2_after=avg_ct_D6_B,
+#   depth_screen2_before=avg_depth_D0_B,
+#   depth_screen2_after=avg_depth_D6_B,
+#   maf_screen2_before=avg_MAF_D0_B,
+#   maf_screen2_after=avg_MAF_D6_B,
+#   netgr_obs_screen2=netgrowth_B,
+# )
+tic()
+data=data%>%
+  rowwise()%>%
+  mutate(alt_codon_shortest=shortest_codon_finder(ref_codon,alt_aa)[[1]][1],
+         n_nuc_min=shortest_codon_finder(ref_codon,alt_aa)[[2]][1])
+toc()
+
+data$consequence_terms="missense_variant"
+
+data=data%>%
+  filter(!protein_start%in%c(354:361))%>%
+  dplyr::select(species,
+                consequence_terms,
+                ref_aa,
+                protein_start,
+                alt_aa,
+                ref,
+                alt,
+                ref_codon,
+                alt_codon,
+                alt_codon_shortest,
+                n_nuc_min,
+                netgr_obs_screen1,
+                netgr_obs_screen2,
+                ct_screen1_before,
+                depth_screen1_before,
+                maf_screen1_before,
+                ct_screen1_after,
+                depth_screen1_after,
+                maf_screen1_after,
+                ct_screen2_before,
+                depth_screen2_before,
+                maf_screen2_before,
+                ct_screen2_after,
+                depth_screen2_after,
+                maf_screen2_after)
+
+data=rbind(data,tsi_il3)
+data=data%>%rowwise()%>%mutate(netgrowth_mean=(netgr_obs_screen1+netgr_obs_screen2)/2)
+# data=data%>%mutate(species=paste(ref_aa,protein_start,alt_aa,sep=""))
+data=resmuts_adder(data)
+data=res_residues_adder(data)
+data=cosmic_data_adder(data)
+# data=data%>%rowwise()%>%mutate(netgr_mean=mean(netgr_obs.x,netgr_obs.y))
+# data=data%>%rowwise()%>%mutate(netgr_mean=netgr_obs_mean)
+data$resmut_cosmic="neither"
+data[data$cosmic_present%in%TRUE,"resmut_cosmic"]="cosmic"
+data[data$resmuts%in%TRUE,"resmut_cosmic"]="resmut"
+data$resmut_cosmic=factor(data$resmut_cosmic,levels=c("neither","cosmic","resmut"))
+
+
+
+# data_simple=data%>%dplyr::select(species,
+#                                  consequence_terms,
+#                                  ref_aa,
+#                                  protein_start,
+#                                  alt_aa,
+#                                  ref,
+#                                  alt,
+#                                  ref_codon,
+#                                  alt_codon,
+#                                  alt_codon_shortest=alt_codon,
+#                                  n_nuc_min=1,
+#                                  netgrowth_A,
+#                                  netgrowth_B)
+
+
+heatmap_plotting_function(data%>%mutate(netgrowth_mean=case_when(netgrowth_mean>=.06~.06,
+                                                                 netgrowth_mean<=0~0,
+                                                    T~netgrowth_mean)),242,512,fill_variable = "netgrowth_mean",fill_name = "Net growth rate")+
+  scale_x_continuous(name="Residue on the ABL Kinase",limits=c(242,512),expand=c(0,0))+
+  scale_fill_gradient2(low="blue",mid ="#9999FF",midpoint=.03, high ="red",name="Net growth rate")+theme(legend.position = "none")
+
+ggsave("output/ABLEnrichmentScreens/ABL_Region1234_Tileseq/output/baf3_imatinib_heatmap_300nM_netgr.pdf",width=16,height=4,units="in",useDingbats=F)
+
+
+
+#   a=data%>%filter(is_intended%in%1)
+ggplot(data%>%filter(!protein_start%in%359,protein_start>=242,protein_start<=512),aes(x=netgrowth_mean,fill=resmuts))+
+  geom_density(alpha=.7)+
+  scale_x_continuous(bquote('Net Growth Rate '(Hours^-1)))+
+  scale_y_continuous("Density")+
+  scale_fill_manual(values=c("gray","red"))+
+  cleanup+
+  theme(legend.position = "none")
+
+ggsave("output/ABLEnrichmentScreens/ABL_Region1234_Tileseq/output/baf3_imatinib_density_300nM_netgr.pdf",width=4,height=4,units="in",useDingbats=F)
+
+
+ggplot(data%>%filter(protein_start>=242,protein_start<=512)%>%arrange(resmuts),aes(x=netgr_obs_screen1,y=netgr_obs_screen2))+
+  geom_point(color="black",shape=21,aes(fill=factor(resmut_cosmic)))+
+  # geom_text_repel(aes(label=ifelse(resmuts%in%T,species,"")))+
+  geom_label_repel(size=2,aes(label=ifelse(resmuts%in%T,species,"")))+
+  geom_abline(linetype="dashed")+
+  scale_x_continuous(name="Net Growth Rate Rep A",limits=c(-.03,.09))+
+  scale_y_continuous(name="Net Growth Rate Rep B",limits=c(-.03,.09))+
+  labs(fill="Sanger\n Mutant")+
+  scale_fill_manual(values=c("gray90","orange","red"))+
+  coord_equal()+
+  cleanup+theme(legend.position = "none")
+
+ggsave("output/ABLEnrichmentScreens/ABL_Region1234_Tileseq/output/ImatinibEnrichment_Plot_netgr_300nM_onesitesonly_11.9.24.pdf",width=4,height=4,units="in",useDingbats=F)
+
+
+standards=read.csv("output/ic50data_all_conc.csv",header = T,stringsAsFactors = F)
+standards=standards%>%filter(conc%in%0.3)
+# data=data%>%filter(is_intended%in%1)
+standards=merge(data,standards,by.x="species",by.y="mutant")
+
+ggplot(standards,aes(x=.055-drug_effect,y=netgrowth_mean,label=species))+
+  geom_text(size=2)+
+  # scale_x_continuous("Predicted Net Growth Rate (Hrs-1) \nClonal IC50",limits=c(-0.01,.06))+
+  # scale_y_continuous("Observed Net Growth Rate (Hrs-1) \nDMS Screen",limits=c(-0.01,.06))+
+  scale_x_continuous(element_blank(),limits=c(-0.01,.065))+
+  scale_y_continuous(element_blank(),limits=c(-0.01,.065))+
+  stat_cor(method="pearson")+
+  geom_abline(linetype="dashed")+
+  cleanup
+ggsave("output/ABLEnrichmentScreens/ABL_Region1234_Tileseq/output/mutantstandards_dms_vs_ic50s_300nM.pdf",width=3,height = 3,units="in",useDingbats=F)
+
+
+data=data%>%
+```
+
+
+
+
+
+
+
+
+```{r}
+data=read.csv("output/ABLEnrichmentScreens/ABL_Region1234_Tileseq/data/TileSeq_full_kinase_low_imatinib_with_lfc_corrected_netgrowths_intended_renamed.csv")
+source("code/plotting/heatmap_plotting_function.R")
+source("code/resmuts_adder.R")
+source("code/cosmic_data_adder.R")
+source("code/res_residues_adder.R")
+data$consequence_terms="missense_variant"
+data=resmuts_adder(data)
+data=res_residues_adder(data)
+data=cosmic_data_adder(data)
+# data=data%>%rowwise()%>%mutate(netgr_mean=mean(netgr_obs.x,netgr_obs.y))
+# data=data%>%rowwise()%>%mutate(netgr_mean=netgr_obs_mean)
+data$resmut_cosmic="neither"
+data[data$cosmic_present%in%TRUE,"resmut_cosmic"]="cosmic"
+data[data$resmuts%in%TRUE,"resmut_cosmic"]="resmut"
+data$resmut_cosmic=factor(data$resmut_cosmic,levels=c("neither","cosmic","resmut"))
+
+
+heatmap_plotting_function(data%>%mutate(netgrowth_mean=case_when(netgrowth_mean>=.06~.06,
+                                                                 netgrowth_mean<=0~0,
+                                                    T~netgrowth_mean)),242,512,fill_variable = "netgrowth_mean",fill_name = "Net growth rate")+
+  scale_x_continuous(name="Residue on the ABL Kinase",limits=c(242,512),expand=c(0,0))+
+  scale_fill_gradient2(low="blue",mid ="#9999FF",midpoint=.03, high ="red",name="Net growth rate")+theme(legend.position = "none")
+
+# ggsave("output/ABLEnrichmentScreens/ABL_Region1234_Tileseq/output/baf3_imatinib_heatmap_600nM_netgr.pdf",width=16,height=4,units="in",useDingbats=F)
+
+
+
+#   a=data%>%filter(is_intended%in%1)
+ggplot(data%>%filter(!protein_start%in%359,protein_start>=242,protein_start<=512,is_intended%in%1),aes(x=netgrowth_mean,fill=resmuts))+
+  geom_density(alpha=.7)+
+  scale_x_continuous(bquote('Net Growth Rate '(Hours^-1)))+
+  scale_y_continuous("Density")+
+  scale_fill_manual(values=c("gray","red"))+
+  cleanup+
+  theme(legend.position = "none")
+
+# ggsave("output/ABLEnrichmentScreens/ABL_Region1234_Tileseq/output/baf3_imatinib_density_600nM_netgr.pdf",width=4,height=4,units="in",useDingbats=F)
+
+
+ggplot(data%>%filter(is_intended%in%1,protein_start>=242,protein_start<=512)%>%arrange(resmuts),aes(x=netgr_obs_screen1,y=netgr_obs_screen2))+
+  geom_point(color="black",shape=21,aes(fill=factor(resmut_cosmic)))+
+  # geom_text_repel(aes(label=ifelse(resmuts%in%T,species,"")))+
+  geom_label_repel(size=2,aes(label=ifelse(resmuts%in%T,species,"")))+
+  geom_abline(linetype="dashed")+
+  scale_x_continuous(name="Net Growth Rate Rep A",limits=c(-.03,.09))+
+  scale_y_continuous(name="Net Growth Rate Rep B",limits=c(-.03,.09))+
+  labs(fill="Sanger\n Mutant")+
+  scale_fill_manual(values=c("gray90","orange","red"))+
+  coord_equal()+
+  cleanup+theme(legend.position = "none")
+
+
+ggplot(data%>%filter(is_intended%in%1,protein_start>=242,protein_start<=512)%>%arrange(resmuts),aes(x=netgr_corr_rep1.low,y=netgr_corr_rep2.low))+
+  geom_point(color="black",shape=21,aes(fill=factor(resmut_cosmic)))+
+  # geom_text_repel(aes(label=ifelse(resmuts%in%T,species,"")))+
+  geom_label_repel(size=2,aes(label=ifelse(resmuts%in%T,species,"")))+
+  geom_abline(linetype="dashed")+
+  scale_x_continuous(name="Net Growth Rate Rep A",limits=c(-.03,.09))+
+  scale_y_continuous(name="Net Growth Rate Rep B",limits=c(-.03,.09))+
+  labs(fill="Sanger\n Mutant")+
+  scale_fill_manual(values=c("gray90","orange","red"))+
+  coord_equal()+
+  cleanup+theme(legend.position = "none")
+
+# ggsave("output/ABLEnrichmentScreens/ABL_Region1234_Tileseq/output/ImatinibEnrichment_Plot_netgr_600nM_onesitesonly_11.9.24.pdf",width=4,height=4,units="in",useDingbats=F)
+
+
+standards=read.csv("output/ic50data_all_conc.csv",header = T,stringsAsFactors = F)
+standards=standards%>%filter(conc%in%0.6)
+data=data%>%filter(is_intended%in%1)
+standards=merge(data,standards,by.x="species",by.y="mutant")
+
+ggplot(standards%>%filter(!species%in%c("F359C","F359I")),aes(x=.055-drug_effect,y=netgrowth_mean,label=species))+
+  geom_text(size=2)+
+  # scale_x_continuous("Predicted Net Growth Rate (Hrs-1) \nClonal IC50",limits=c(-0.01,.06))+
+  # scale_y_continuous("Observed Net Growth Rate (Hrs-1) \nDMS Screen",limits=c(-0.01,.06))+
+  scale_x_continuous(element_blank(),limits=c(-0.01,.065))+
+  scale_y_continuous(element_blank(),limits=c(-0.01,.065))+
+  stat_cor(method="pearson")+
+  geom_abline(linetype="dashed")+
+  cleanup
+
+ggplot(standards%>%filter(!species%in%c("F359C","F359I")),aes(x=.055-drug_effect,y=netgrowth_mean_corrected,label=species))+
+  geom_text(size=2)+
+  scale_x_continuous(element_blank(),limits=c(-0.01,.065))+
+  scale_y_continuous(element_blank(),limits=c(-0.01,.065))+
+  stat_cor(method="pearson")+
+  geom_abline(linetype="dashed")+
+  cleanup
+# ggsave("output/ABLEnrichmentScreens/ABL_Region1234_Tileseq/output/mutantstandards_dms_vs_ic50s_600nM.pdf",width=3,height = 3,units="in",useDingbats=F)
+
+
+ggplot(standards%>%filter(!species%in%c("F359C","F359I")),aes(x=.055-drug_effect,y=score_screen1,label=species))+
+  geom_text(size=2)+
+  stat_cor(method="pearson")+
+  geom_abline(linetype="dashed")+
+  cleanup
+
+# a=standards%>%filter(species%in%"V299L")
+
+# Looking at why the enrichment score distribution, and not the Log2FC distribution, is centered around 0
+# Looking at whether we see better NNMD for netgr or not
+
+
+ggplot(data%>%filter(!protein_start%in%359,protein_start>=242,protein_start<=512,is_intended%in%1),aes(x=netgrowth_mean,fill=resmuts))+
+  geom_density(alpha=.7)+
+  scale_x_continuous(bquote('Net Growth Rate '(Hours^-1)))+
+  scale_y_continuous("Density")+
+  scale_fill_manual(values=c("gray","red"))+
+  cleanup+
+  theme(legend.position = "none")
+
+ggplot(data%>%filter(!protein_start%in%359,protein_start>=242,protein_start<=512,is_intended%in%1),aes(x=score_screen1,fill=resmuts))+
+  geom_density(alpha=.7)+
+  scale_x_continuous(bquote('Net Growth Rate '(Hours^-1)))+
+  scale_y_continuous("Density")+
+  scale_fill_manual(values=c("gray","red"))+
+  cleanup+
+  theme(legend.position = "none")
+
+data=data%>%mutate(region=case_when(protein_start%in%c(240:322)~1,
+                                    protein_start%in%c(323:394)~2,
+                                    protein_start%in%c(395:464)~3,
+                                    protein_start%in%c(465:512)~4,
+                                    T~0))
+ggplot(data%>%filter(!protein_start%in%359,protein_start>=242,protein_start<=512,is_intended%in%1),aes(x=netgrowth_mean))+
+  geom_density(alpha=.7,aes(fill=as.factor(region)))+
+  scale_x_continuous(bquote('Net Growth Rate '(Hours^-1)))+
+  scale_y_continuous("Density")+
+  # scale_fill_manual(palette="set2")+
+  # facet_wrap(~region)+
+  cleanup
+
+
+ggplot(data%>%filter(!protein_start%in%359,protein_start>=242,protein_start<=512,is_intended%in%1),aes(x=score_mean))+
+  geom_density(alpha=.7,aes(fill=as.factor(region)))+
+  scale_x_continuous(bquote('Net Growth Rate '(Hours^-1)))+
+  scale_y_continuous("Density")+
+  # scale_fill_manual(palette="set2")+
+  # facet_wrap(~region)+
+  cleanup
+
+
+ggplot(data%>%filter(protein_start%in%c(242:512)),aes(x=score_screen1,netgr_obs_screen1,color=factor(region)))+geom_point()
+a=data%>%filter(species%in%"E459K")
+sum(data$netgrowth_mean > 0.06)
+sum(data$score_mean > 3.15)
+
+
+
+```
+
+
+
+
+
+
+
+
+
+
+```{r}
+data=read.csv("output/ABLEnrichmentScreens/ABL_Region1234_Tileseq/data/TileSeq_full_kinase_medium_imatinib_with_lfc_corrected_netgrowths_intended_renamed.csv")
+source("code/plotting/heatmap_plotting_function.R")
+source("code/resmuts_adder.R")
+source("code/cosmic_data_adder.R")
+source("code/res_residues_adder.R")
+data$consequence_terms="missense_variant"
+data=resmuts_adder(data)
+data=res_residues_adder(data)
+data=cosmic_data_adder(data)
+# data=data%>%rowwise()%>%mutate(netgr_mean=mean(netgr_obs.x,netgr_obs.y))
+# data=data%>%rowwise()%>%mutate(netgr_mean=netgr_obs_mean)
+data$resmut_cosmic="neither"
+data[data$cosmic_present%in%TRUE,"resmut_cosmic"]="cosmic"
+data[data$resmuts%in%TRUE,"resmut_cosmic"]="resmut"
+data$resmut_cosmic=factor(data$resmut_cosmic,levels=c("neither","cosmic","resmut"))
+
+
+heatmap_plotting_function(data%>%mutate(netgrowth_mean=case_when(netgrowth_mean>=.06~.06,
+                                                                 netgrowth_mean<=0~0,
+                                                    T~netgrowth_mean)),242,512,fill_variable = "netgrowth_mean",fill_name = "Net growth rate")+
+  scale_x_continuous(name="Residue on the ABL Kinase",limits=c(242,512),expand=c(0,0))+
+  scale_fill_gradient2(low="blue",mid ="#9999FF",midpoint=.03, high ="red",name="Net growth rate")+theme(legend.position = "none")
+
+# ggsave("output/ABLEnrichmentScreens/ABL_Region1234_Tileseq/output/baf3_imatinib_heatmap_600nM_netgr.pdf",width=16,height=4,units="in",useDingbats=F)
+
+
+
+#   a=data%>%filter(is_intended%in%1)
+ggplot(data%>%filter(!protein_start%in%359,protein_start>=242,protein_start<=512,is_intended%in%1),aes(x=netgrowth_mean,fill=resmuts))+
+  geom_density(alpha=.7)+
+  scale_x_continuous(bquote('Net Growth Rate '(Hours^-1)))+
+  scale_y_continuous("Density")+
+  scale_fill_manual(values=c("gray","red"))+
+  cleanup+
+  theme(legend.position = "none")
+
+# ggsave("output/ABLEnrichmentScreens/ABL_Region1234_Tileseq/output/baf3_imatinib_density_600nM_netgr.pdf",width=4,height=4,units="in",useDingbats=F)
+
+
+ggplot(data%>%filter(is_intended%in%1,protein_start>=242,protein_start<=512)%>%arrange(resmuts),aes(x=netgr_obs_screen1,y=netgr_obs_screen2))+
+  geom_point(color="black",shape=21,aes(fill=factor(resmut_cosmic)))+
+  # geom_text_repel(aes(label=ifelse(resmuts%in%T,species,"")))+
+  geom_label_repel(size=2,aes(label=ifelse(resmuts%in%T,species,"")))+
+  geom_abline(linetype="dashed")+
+  scale_x_continuous(name="Net Growth Rate Rep A",limits=c(-.03,.09))+
+  scale_y_continuous(name="Net Growth Rate Rep B",limits=c(-.03,.09))+
+  labs(fill="Sanger\n Mutant")+
+  scale_fill_manual(values=c("gray90","orange","red"))+
+  coord_equal()+
+  cleanup+theme(legend.position = "none")
+
+
+ggplot(data%>%filter(is_intended%in%1,protein_start>=242,protein_start<=512)%>%arrange(resmuts),aes(x=netgr_corr_rep1.medium,y=netgr_corr_rep2.medium))+
+  geom_point(color="black",shape=21,aes(fill=factor(resmut_cosmic)))+
+  # geom_text_repel(aes(label=ifelse(resmuts%in%T,species,"")))+
+  geom_label_repel(size=2,aes(label=ifelse(resmuts%in%T,species,"")))+
+  geom_abline(linetype="dashed")+
+  scale_x_continuous(name="Net Growth Rate Rep A",limits=c(-.03,.09))+
+  scale_y_continuous(name="Net Growth Rate Rep B",limits=c(-.03,.09))+
+  labs(fill="Sanger\n Mutant")+
+  scale_fill_manual(values=c("gray90","orange","red"))+
+  coord_equal()+
+  cleanup+theme(legend.position = "none")
+
+# ggsave("output/ABLEnrichmentScreens/ABL_Region1234_Tileseq/output/ImatinibEnrichment_Plot_netgr_600nM_onesitesonly_11.9.24.pdf",width=4,height=4,units="in",useDingbats=F)
+
+
+standards=read.csv("output/ic50data_all_conc.csv",header = T,stringsAsFactors = F)
+standards=standards%>%filter(conc%in%0.6)
+data=data%>%filter(is_intended%in%1)
+standards=merge(data,standards,by.x="species",by.y="mutant")
+
+ggplot(standards%>%filter(!species%in%c("F359C","F359I")),aes(x=.055-drug_effect,y=netgrowth_mean,label=species))+
+  geom_text(size=2)+
+  # scale_x_continuous("Predicted Net Growth Rate (Hrs-1) \nClonal IC50",limits=c(-0.01,.06))+
+  # scale_y_continuous("Observed Net Growth Rate (Hrs-1) \nDMS Screen",limits=c(-0.01,.06))+
+  scale_x_continuous(element_blank(),limits=c(-0.01,.065))+
+  scale_y_continuous(element_blank(),limits=c(-0.01,.065))+
+  stat_cor(method="pearson")+
+  geom_abline(linetype="dashed")+
+  cleanup
+
+ggplot(standards%>%filter(!species%in%c("F359C","F359I")),aes(x=.055-drug_effect,y=netgrowth_mean_corrected,label=species))+
+  geom_text(size=2)+
+  scale_x_continuous(element_blank(),limits=c(-0.01,.065))+
+  scale_y_continuous(element_blank(),limits=c(-0.01,.065))+
+  stat_cor(method="pearson")+
+  geom_abline(linetype="dashed")+
+  cleanup
+# ggsave("output/ABLEnrichmentScreens/ABL_Region1234_Tileseq/output/mutantstandards_dms_vs_ic50s_600nM.pdf",width=3,height = 3,units="in",useDingbats=F)
+
+
+ggplot(standards%>%filter(!species%in%c("F359C","F359I")),aes(x=.055-drug_effect,y=score_screen1,label=species))+
+  geom_text(size=2)+
+  stat_cor(method="pearson")+
+  geom_abline(linetype="dashed")+
+  cleanup
+
+# a=standards%>%filter(species%in%"V299L")
+
+```
+
+
+```{r}
+data=read.csv("output/ABLEnrichmentScreens/ABL_Region1234_Tileseq/data/TileSeq_full_kinase_high_imatinib_with_lfc_corrected_netgrowths_intended_renamed.csv")
+source("code/plotting/heatmap_plotting_function.R")
+source("code/resmuts_adder.R")
+source("code/cosmic_data_adder.R")
+source("code/res_residues_adder.R")
+data$consequence_terms="missense_variant"
+data=data%>%mutate(species=paste(ref_aa,protein_start,alt_aa,sep=""))
+data=resmuts_adder(data)
+data=res_residues_adder(data)
+data=cosmic_data_adder(data)
+# data=data%>%rowwise()%>%mutate(netgr_mean=mean(netgr_obs.x,netgr_obs.y))
+# data=data%>%rowwise()%>%mutate(netgr_mean=netgr_obs_mean)
+data$resmut_cosmic="neither"
+data[data$cosmic_present%in%TRUE,"resmut_cosmic"]="cosmic"
+data[data$resmuts%in%TRUE,"resmut_cosmic"]="resmut"
+data$resmut_cosmic=factor(data$resmut_cosmic,levels=c("neither","cosmic","resmut"))
+
+
+heatmap_plotting_function(data%>%mutate(netgrowth_mean=case_when(netgrowth_mean>=.06~.06,
+                                                                 netgrowth_mean<=0~0,
+                                                    T~netgrowth_mean)),242,512,fill_variable = "netgrowth_mean",fill_name = "Net growth rate")+
+  scale_x_continuous(name="Residue on the ABL Kinase",limits=c(242,512),expand=c(0,0))+
+  scale_fill_gradient2(low="blue",mid ="#9999FF",midpoint=.03, high ="red",name="Net growth rate")+theme(legend.position = "none")
+
+# ggsave("output/ABLEnrichmentScreens/ABL_Region1234_Tileseq/output/baf3_imatinib_heatmap_1200nM_netgr.pdf",width=16,height=4,units="in",useDingbats=F)
+
+
+
+#   a=data%>%filter(is_intended%in%1)
+ggplot(data%>%filter(!protein_start%in%359,protein_start>=242,protein_start<=512,is_intended%in%1),aes(x=netgrowth_mean,fill=resmuts))+
+  geom_density(alpha=.7)+
+  scale_x_continuous(bquote('Net Growth Rate '(Hours^-1)))+
+  scale_y_continuous("Density")+
+  scale_fill_manual(values=c("gray","red"))+
+  cleanup+
+  theme(legend.position = "none")
+
+ggplot(data%>%filter(!protein_start%in%359,protein_start>=242,protein_start<=512,is_intended%in%1),aes(x=netgrowth_mean_corrected,fill=resmuts))+
+  geom_density(alpha=.7)+
+  scale_x_continuous(bquote('Net Growth Rate '(Hours^-1)))+
+  scale_y_continuous("Density")+
+  scale_fill_manual(values=c("gray","red"))+
+  cleanup+
+  theme(legend.position = "none")
+
+# ggsave("output/ABLEnrichmentScreens/ABL_Region1234_Tileseq/output/baf3_imatinib_density_1200nM_netgr.pdf",width=4,height=4,units="in",useDingbats=F)
+
+
+ggplot(data%>%filter(is_intended%in%1,protein_start>=242,protein_start<=512)%>%arrange(resmuts),aes(x=netgr_obs_screen1,y=netgr_obs_screen2))+
+  geom_point(color="black",shape=21,aes(fill=factor(resmut_cosmic)))+
+  # geom_text_repel(aes(label=ifelse(resmuts%in%T,species,"")))+
+  geom_label_repel(size=2,aes(label=ifelse(resmuts%in%T,species,"")))+
+  geom_abline(linetype="dashed")+
+  scale_x_continuous(name="Net Growth Rate Rep A",limits=c(-.03,.09))+
+  scale_y_continuous(name="Net Growth Rate Rep B",limits=c(-.03,.09))+
+  labs(fill="Sanger\n Mutant")+
+  scale_fill_manual(values=c("gray90","orange","red"))+
+  coord_equal()+
+  cleanup+theme(legend.position = "none")
+
+# ggsave("output/ABLEnrichmentScreens/ABL_Region1234_Tileseq/output/ImatinibEnrichment_Plot_netgr_1200nM_onesitesonly_11.9.24.pdf",width=4,height=4,units="in",useDingbats=F)
+
+
+
+standards=read.csv("output/ic50data_all_conc.csv",header = T,stringsAsFactors = F)
+standards=standards%>%filter(conc%in%1.2)
+data=data%>%filter(is_intended%in%1)
+standards=merge(data,standards,by.x="species",by.y="mutant")
+
+ggplot(standards%>%filter(!species%in%c("F359C","F359I")),aes(x=.055-drug_effect,y=netgrowth_mean_corrected,label=species))+
+  geom_text(size=2)+
+  scale_x_continuous(element_blank(),limits=c(-0.01,.065))+
+  scale_y_continuous(element_blank(),limits=c(-0.01,.065))+
+  stat_cor(method="pearson")+
+  geom_abline(linetype="dashed")+
+  cleanup
+
+
+ggplot(standards%>%filter(!species%in%c("F359C","F359I")),aes(x=.055-drug_effect,y=netgrowth_mean,label=species))+
+  geom_text(size=2)+
+  scale_x_continuous(element_blank(),limits=c(-0.01,.065))+
+  scale_y_continuous(element_blank(),limits=c(-0.01,.065))+
+  stat_cor(method="pearson")+
+  geom_abline(linetype="dashed")+
+  cleanup
+
+
+ggplot(standards%>%filter(!species%in%c("F359C","F359I")),aes(x=.055-drug_effect,y=score_screen1,label=species))+
+  geom_text(size=2)+
+  # scale_x_continuous(element_blank(),limits=c(-0.01,.065))+
+  # scale_y_continuous(element_blank(),limits=c(-0.01,.065))+
+  stat_cor(method="pearson")+
+  geom_abline(linetype="dashed")+
+  cleanup
+
+# ggsave("output/ABLEnrichmentScreens/ABL_Region1234_Tileseq/output/mutantstandards_dms_vs_ic50s_1200nM.pdf",width=3,height = 3,units="in",useDingbats=F)
+
+
+# Looking at why the enrichment score distribution, and not the Log2FC distribution, is centered around 0
+# Looking at whether we see better NNMD for netgr or not
+
+
+ggplot(data%>%filter(!protein_start%in%359,protein_start>=242,protein_start<=512,is_intended%in%1),aes(x=netgrowth_mean,fill=resmuts))+
+  geom_density(alpha=.7)+
+  scale_x_continuous(bquote('Net Growth Rate '(Hours^-1)))+
+  scale_y_continuous("Density")+
+  scale_fill_manual(values=c("gray","red"))+
+  cleanup+
+  theme(legend.position = "none")
+
+ggplot(data%>%filter(!protein_start%in%359,protein_start>=242,protein_start<=512,is_intended%in%1),aes(x=score_screen1,fill=resmuts))+
+  geom_density(alpha=.7)+
+  scale_x_continuous(bquote('Net Growth Rate '(Hours^-1)))+
+  scale_y_continuous("Density")+
+  scale_fill_manual(values=c("gray","red"))+
+  cleanup+
+  theme(legend.position = "none")
+
+data=data%>%mutate(region=case_when(protein_start%in%c(240:322)~1,
+                                    protein_start%in%c(323:394)~2,
+                                    protein_start%in%c(395:464)~3,
+                                    protein_start%in%c(465:512)~4,
+                                    T~0))
+
+ggplot(data%>%filter(!protein_start%in%359,protein_start>=242,protein_start<=512,is_intended%in%1),aes(x=netgrowth_mean))+
+  geom_density(alpha=.7,aes(fill=as.factor(region)))+
+  scale_x_continuous(bquote('Net Growth Rate '(Hours^-1)))+
+  scale_y_continuous("Density")+
+  # scale_fill_manual(palette="set2")+
+  # facet_wrap(~region)+
+  cleanup
+
+ggplot(data%>%filter(!protein_start%in%359,protein_start>=242,protein_start<=512,is_intended%in%1),aes(x=netgrowth_mean_corrected))+
+  geom_density(alpha=.7,aes(fill=as.factor(region)))+
+  scale_x_continuous(bquote('Net Growth Rate '(Hours^-1)))+
+  scale_y_continuous("Density")+
+  # scale_fill_manual(palette="set2")+
+  # facet_wrap(~region)+
+  cleanup
+
+
+ggplot(data%>%filter(!protein_start%in%359,protein_start>=242,protein_start<=512,is_intended%in%1),aes(x=score_mean))+
+  geom_density(alpha=.7,aes(fill=as.factor(region)))+
+  scale_x_continuous(bquote('Net Growth Rate '(Hours^-1)))+
+  scale_y_continuous("Density")+
+  # scale_fill_manual(palette="set2")+
+  # facet_wrap(~region)+
+  cleanup
+
+ggplot(data%>%group_by(species)%>%mutate(n_species=n())%>%filter(protein_start>=242,protein_start<=512,n_species%in%1),aes(x=reorder(species,-netgrowth_mean),y=netgrowth_mean,fill=resmut_cosmic))+geom_col()+theme(axis.text.x=element_text(angle=90, hjust=1))+scale_y_continuous(name=bquote('Net Growth Rate '(Hours^-1)))+scale_x_discrete(name="Mutant")+scale_fill_manual(name="Resistance Status",labels=c("Never Seen","Sanger Mutant","Known Resistant Mutant"),values=c("gray","orange","red"))+cleanup+theme(legend.position = "none")
+ggsave("output/ABLEnrichmentScreens/ABL_Region1234_Tileseq/output/ImatinibEnrichment_netgr_Distribution.pdf",width=8,height=4,units="in",useDingbats=F)
+
+ggplot(data%>%filter(protein_start>=242,protein_start<=494,netgrowth_mean>=0.043),aes(x=reorder(species,-netgrowth_mean),y=netgrowth_mean,fill=resmut_cosmic))+geom_col()+
+  scale_y_continuous(name=bquote('Net Growth Rate '(Hours^-1)))+
+  scale_x_discrete(name="Mutant")+
+  scale_fill_manual(name="Resistance Status",labels=c("Never Seen","Sanger Mutant","Known Resistant Mutant"),values=c("gray","orange","red"))+
+  theme(axis.text.x=element_text(angle=90, hjust=1),
+        axis.text=element_text(size=6),
+        panel.grid.major = element_blank(),
+        panel.grid.major.y = element_blank(),
+        panel.background = element_blank())+
+  theme(legend.position = "none")
+ggsave("output/ABLEnrichmentScreens/ABL_Region1234_Tileseq/output/ImatinibEnrichment_netgr_Distribution_zoom.pdf",width=8,height=4,units="in",useDingbats=F)
+
+
+ggplot(data%>%group_by(species)%>%mutate(n_species=n())%>%filter(protein_start>=242,protein_start<=512,n_species%in%1),aes(x=reorder(species,-score_mean),y=score_mean,fill=resmut_cosmic))+geom_col()+theme(axis.text.x=element_text(angle=90, hjust=1))+scale_y_continuous(name=bquote('Net Growth Rate '(Hours^-1)))+scale_x_discrete(name="Mutant")+scale_fill_manual(name="Resistance Status",labels=c("Never Seen","Sanger Mutant","Known Resistant Mutant"),values=c("gray","orange","red"))+cleanup+theme(legend.position = "none")
+ggsave("output/ABLEnrichmentScreens/ABL_Region1234_Tileseq/output/ImatinibEnrichment_score_Distribution.pdf",width=8,height=4,units="in",useDingbats=F)
+
+
+ggplot(data%>%filter(protein_start%in%c(242:512)),aes(x=score_screen1,netgr_obs_screen1,color=factor(region)))+geom_point()
+a=data%>%filter(species%in%"E459K")
+sum(data$netgrowth_mean > 0.0567)
+sum(data$score_mean > 4.495)
+
+```
