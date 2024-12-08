@@ -274,7 +274,7 @@ heatmap_plotting_function(data%>%mutate(netgrowth_mean=case_when(netgrowth_mean>
   scale_x_continuous(name="Residue on the ABL Kinase",limits=c(242,512),expand=c(0,0))+
   scale_fill_gradient2(low="blue",mid ="#9999FF",midpoint=.03, high ="red",name="Net growth rate")+theme(legend.position = "none")
 
-ggsave(paste(dirname,"1a.baf3_imatinib_heatmap_netgr_",dose,"_","_",date,".pdf",sep=""),width=16,height=4,units="in",useDingbats=F)
+ggsave(paste(dirname,"1a.baf3_imatinib_heatmap_netgr_",dose,"_",date,".pdf",sep=""),width=16,height=4,units="in",useDingbats=F)
 
 ################Plot 1b#################
 heatmap_plotting_function(data%>%mutate(netgrowth_mean=case_when(netgrowth_mean_corr>=.06~.06,
@@ -283,29 +283,29 @@ heatmap_plotting_function(data%>%mutate(netgrowth_mean=case_when(netgrowth_mean_
   scale_x_continuous(name="Residue on the ABL Kinase",limits=c(242,512),expand=c(0,0))+
   scale_fill_gradient2(low="blue",mid ="#9999FF",midpoint=.03, high ="red",name="Net growth rate")+theme(legend.position = "none")
 
-ggsave(paste(dirname,"1b.baf3_imatinib_heatmap_netgr_corrected_",dose,"_","_",date,".pdf",sep=""),width=16,height=4,units="in",useDingbats=F)
+ggsave(paste(dirname,"1b.baf3_imatinib_heatmap_netgr_corrected_",dose,"_",date,".pdf",sep=""),width=16,height=4,units="in",useDingbats=F)
 
 ################Plot 2a#################
 #   a=data%>%filter(is_intended%in%1)
-ggplot(data%>%filter(!protein_start%in%359,protein_start>=242,protein_start<=512),aes(x=netgrowth_mean,fill=resmuts))+
+ggplot(data%>%filter(protein_start>=242,protein_start<=512),aes(x=netgrowth_mean,fill=resmuts))+
   geom_density(alpha=.7)+
-  scale_x_continuous(bquote('Net Growth Rate '(Hours^-1)))+
+  scale_x_continuous(bquote('Net Growth Rate '(Hours^-1)),limits=c(-.03,.09))+
   scale_y_continuous("Density")+
   scale_fill_manual(values=c("gray","red"))+
   cleanup+
   theme(legend.position = "none")
 
-ggsave(paste(dirname,"2a.baf3_imatinib_histograms_netgr_",dose,"_","_",date,".pdf",sep=""),width=4,height=4,units="in",useDingbats=F)
+ggsave(paste(dirname,"2a.baf3_imatinib_histograms_netgr_",dose,"_",date,".pdf",sep=""),width=4,height=4,units="in",useDingbats=F)
 ################Plot 2b#################
-ggplot(data%>%filter(!protein_start%in%359,protein_start>=242,protein_start<=512),aes(x=netgrowth_mean_corr,fill=resmuts))+
+ggplot(data%>%filter(protein_start>=242,protein_start<=512),aes(x=netgrowth_mean_corr,fill=resmuts))+
   geom_density(alpha=.7)+
-  scale_x_continuous(bquote('Net Growth Rate '(Hours^-1)))+
+  scale_x_continuous(bquote('Net Growth Rate '(Hours^-1)),limits=c(-.03,.09))+
   scale_y_continuous("Density")+
   scale_fill_manual(values=c("gray","red"))+
   cleanup+
   theme(legend.position = "none")
 
-ggsave(paste(dirname,"2b.baf3_imatinib_histograms_netgr_corrected_",dose,"_","_",date,".pdf",sep=""),width=4,height=4,units="in",useDingbats=F)
+ggsave(paste(dirname,"2b.baf3_imatinib_histograms_netgr_corrected_",dose,"_",date,".pdf",sep=""),width=4,height=4,units="in",useDingbats=F)
 
 ################Plot 3a#################
 ggplot(data%>%filter(protein_start>=242,protein_start<=512)%>%arrange(resmuts),aes(x=netgr_obs_screen1,y=netgr_obs_screen2))+
@@ -321,7 +321,7 @@ ggplot(data%>%filter(protein_start>=242,protein_start<=512)%>%arrange(resmuts),a
   coord_equal()+
   cleanup+theme(legend.position = "none")
 
-ggsave(paste(dirname,"3a.baf3_imatinib_correlations_netgr_",dose,"_","_",date,".pdf",sep=""),width=4,height=4,units="in",useDingbats=F)
+ggsave(paste(dirname,"3a.baf3_imatinib_correlations_netgr_",dose,"_",date,".pdf",sep=""),width=4,height=4,units="in",useDingbats=F)
 
 ################Plot 3b#################
 ggplot(data%>%filter(protein_start>=242,protein_start<=512)%>%arrange(resmuts),aes(x=netgr_obs_corr_screen1,y=netgr_obs_corr_screen2))+
@@ -337,11 +337,20 @@ ggplot(data%>%filter(protein_start>=242,protein_start<=512)%>%arrange(resmuts),a
   coord_equal()+
   cleanup+theme(legend.position = "none")
 
-ggsave(paste(dirname,"3b.baf3_imatinib_correlations_netgr_corrected_",dose,"_","_",date,".pdf",sep=""),width=4,height=4,units="in",useDingbats=F)
+ggsave(paste(dirname,"3b.baf3_imatinib_correlations_netgr_corrected_",dose,"_",date,".pdf",sep=""),width=4,height=4,units="in",useDingbats=F)
 
 
 standards=read.csv("output/ic50data_all_conc.csv",header = T,stringsAsFactors = F)
-standards=standards%>%filter(conc%in%0.3)
+if(dose%in%"300nM"){
+  standards=standards%>%filter(conc%in%0.3)
+} else if(dose%in%"600nM"){
+  standards=standards%>%filter(conc%in%0.6)
+} else if(dose%in%"1200nM"){
+  standards=standards%>%filter(conc%in%1.2)
+} else if(dose%in%"il3"){
+  standards=standards%>%filter(conc%in%0.3)
+}
+
 # data=data%>%filter(is_intended%in%1)
 standards=merge(data,standards,by.x="species",by.y="mutant")
 
@@ -350,24 +359,24 @@ ggplot(standards,aes(x=.055-drug_effect,y=netgrowth_mean,label=species))+
   geom_text(size=2)+
   # scale_x_continuous("Predicted Net Growth Rate (Hrs-1) \nClonal IC50",limits=c(-0.01,.06))+
   # scale_y_continuous("Observed Net Growth Rate (Hrs-1) \nDMS Screen",limits=c(-0.01,.06))+
-  scale_x_continuous(element_blank(),limits=c(-0.01,.065))+
-  scale_y_continuous(element_blank(),limits=c(-0.01,.065))+
+  scale_x_continuous("Predicted Net Growth Rate (Hrs-1) \nClonal IC50",limits=c(0.02,.065))+
+  scale_y_continuous("Observed Net Growth Rate (Hrs-1) \nDMS Screen",limits=c(0.02,.065))+
   stat_cor(method="pearson")+
   geom_abline(linetype="dashed")+
   cleanup
-ggsave(paste(dirname,"4a.baf3_imatinib_mutantstandards_netgr_",dose,"_","_",date,".pdf",sep=""),width=3,height = 3,units="in",useDingbats=F)
+ggsave(paste(dirname,"4a.baf3_imatinib_mutantstandards_netgr_",dose,"_",date,".pdf",sep=""),width=3,height = 3,units="in",useDingbats=F)
 
 ################Plot 4b#################
 ggplot(standards,aes(x=.055-drug_effect,y=netgrowth_mean_corr,label=species))+
   geom_text(size=2)+
   # scale_x_continuous("Predicted Net Growth Rate (Hrs-1) \nClonal IC50",limits=c(-0.01,.06))+
   # scale_y_continuous("Observed Net Growth Rate (Hrs-1) \nDMS Screen",limits=c(-0.01,.06))+
-  scale_x_continuous(element_blank(),limits=c(-0.01,.065))+
-  scale_y_continuous(element_blank(),limits=c(-0.01,.065))+
+  scale_x_continuous("Predicted Net Growth Rate (Hrs-1) \nClonal IC50",limits=c(0.02,.065))+
+  scale_y_continuous("Observed Net Growth Rate (Hrs-1) \nDMS Screen",limits=c(0.02,.065))+
   stat_cor(method="pearson")+
   geom_abline(linetype="dashed")+
   cleanup
-ggsave(paste(dirname,"4b.baf3_imatinib_mutantstandards_netgr_corrected_",dose,"_","_",date,".pdf",sep=""),width=3,height = 3,units="in",useDingbats=F)
+ggsave(paste(dirname,"4b.baf3_imatinib_mutantstandards_netgr_corrected_",dose,"_",date,".pdf",sep=""),width=3,height = 3,units="in",useDingbats=F)
 
 ################Plot 5a#################
 ggplot(data%>%filter(!species%in%c("V299L"),protein_start>=242,protein_start<=512),aes(x=resmut_cosmic,y=netgrowth_mean,fill=resmut_cosmic))+
@@ -380,7 +389,7 @@ ggplot(data%>%filter(!species%in%c("V299L"),protein_start>=242,protein_start<=51
   cleanup+
   theme(legend.position = "none",axis.title.x = element_blank())
 
-ggsave(paste(dirname,"5a.baf3_imatinib_sangermutants_netgr_",dose,"_","_",date,".pdf",sep=""),width=2.5,height=3,units="in",useDingbats=F)
+ggsave(paste(dirname,"5a.baf3_imatinib_sangermutants_netgr_",dose,"_",date,".pdf",sep=""),width=2.5,height=3,units="in",useDingbats=F)
 
 ################Plot 5b#################
 ggplot(data%>%filter(!species%in%c("V299L"),protein_start>=242,protein_start<=512),aes(x=resmut_cosmic,y=netgrowth_mean_corr,fill=resmut_cosmic))+
@@ -393,7 +402,7 @@ ggplot(data%>%filter(!species%in%c("V299L"),protein_start>=242,protein_start<=51
   cleanup+
   theme(legend.position = "none",axis.title.x = element_blank())
 
-ggsave(paste(dirname,"5b.baf3_imatinib_sangermutants_netgr_",dose,"_","_",date,".pdf",sep=""),width=2.5,height=3,units="in",useDingbats=F)
+ggsave(paste(dirname,"5b.baf3_imatinib_sangermutants_netgr_corrected_",dose,"_",date,".pdf",sep=""),width=2.5,height=3,units="in",useDingbats=F)
 
 
 short_mutants=read.csv("data/Short_et_al_fig1/short_et_al_3.12.23.csv",header = T)
@@ -414,7 +423,7 @@ ggplot(data_merged%>%filter(!species%in%"V299L",n_nuc_min%in%1),aes(x=resmut_cos
   # geom_boxplot(color="black")+
   geom_jitter(color="black", size=.5,width=.1, alpha=0.9)+
   scale_fill_manual(values=c("gray90","gray50","red"))+scale_y_continuous(name=bquote('Net Growth Rate '(Hours^-1)))+scale_x_discrete("",labels=c("Undetected","Pre-existing\n ALL","Known\nResistant\n Variant"))+cleanup+theme(legend.position = "none")
-ggsave(paste(dirname,"6a.baf3_imatinib_pre-existingALL_netgr_",dose,"_","_",date,".pdf",sep=""),width=4,height=4,units="in",useDingbats=F)
+ggsave(paste(dirname,"6a.baf3_imatinib_pre-existingALL_netgr_",dose,"_",date,".pdf",sep=""),width=4,height=4,units="in",useDingbats=F)
 
 ################Plot 6b#################
 ggplot(data_merged%>%filter(!species%in%"V299L",n_nuc_min%in%1),aes(x=resmut_cosmic,y=netgrowth_mean_corr,fill=resmut_cosmic))+
@@ -422,7 +431,7 @@ ggplot(data_merged%>%filter(!species%in%"V299L",n_nuc_min%in%1),aes(x=resmut_cos
   # geom_boxplot(color="black")+
   geom_jitter(color="black", size=.5,width=.1, alpha=0.9)+
   scale_fill_manual(values=c("gray90","gray50","red"))+scale_y_continuous(name=bquote('Net Growth Rate '(Hours^-1)))+scale_x_discrete("",labels=c("Undetected","Pre-existing\n ALL","Known\nResistant\n Variant"))+cleanup+theme(legend.position = "none")
-ggsave(paste(dirname,"6b.baf3_imatinib_pre-existingALL_netgr_corrected_",dose,"_","_",date,".pdf",sep=""),width=4,height=4,units="in",useDingbats=F)
+ggsave(paste(dirname,"6b.baf3_imatinib_pre-existingALL_netgr_corrected_",dose,"_",date,".pdf",sep=""),width=4,height=4,units="in",useDingbats=F)
 
 ################Plot 7a#################
 # IL3 and Imatinib data imported from Figure 2 of the paper. Datapoints extracted using ImageJ
@@ -430,11 +439,23 @@ alt_aa=c("W","Y","F","L","M","I","V","C","A","G","P","S","N","Q","H","R","K","D"
 growth_lfc=c(-1.49,-1.42,-1.11,0.95,1.22,1,0.5,0.03,-0.93,-1.66,-1.85,-1.31,-1.74,-0.29,-1.53,-1.65,-1.48,-1.77,0.76)
 imat_lfc=c(-0.28,-0.83,0.6,3.26,3.26,3.47,2.62,0.77,-0.42,-0.4,-0.72,-0.68,-0.6,1.83,-0.76,-0.53,-0.64,-0.66,3.04)
 t315x_df=cbind(alt_aa,growth_lfc,imat_lfc)
-
 t315_merge=merge(data%>%filter(protein_start%in%"315"),t315x_df,by="alt_aa")
-t315_merge$growth_lfc=as.numeric(t315_merge$growth_lfc)
-t315_merge$imat_lfc=as.numeric(t315_merge$imat_lfc)
-ggplot(t315_merge,aes(x=growth_lfc,y=netgrowth_mean,label=species))+geom_text(size=2.5)+scale_x_continuous("T315X Dataset IL3 LFC")+scale_y_continuous(bquote('Net Growth Rate '(Hours^-1)))+stat_cor(method="pearson")+cleanup
+# The following line of code sets "lfc" as the imatinib lfc (from the paper), unless we are plotting against iL3 data
+t315_merge$lfc=t315_merge$imat_lfc
+ylabel="T315X Dataset 600nM Imatinib LFC"
+if(dose%in%"il3"){
+  t315_merge$lfc=t315_merge$growth_lfc
+  ylabel="T315X Dataset iL3 Independence LFC"
+}
+
+t315_merge$lfc=as.numeric(t315_merge$lfc)
+
+ggplot(t315_merge,aes(x=lfc,y=netgrowth_mean,label=species))+geom_text(size=2.5)+scale_x_continuous(name=ylabel)+scale_y_continuous(bquote('Net Growth Rate '(Hours^-1)))+stat_cor(method="pearson")+cleanup
+ggsave(paste(dirname,"7a.baf3_imatinib_T315xdataset_netgr_",dose,"_",date,".pdf",sep=""),width=4,height=4,units="in",useDingbats=F)
+
+################Plot 7b#################
+ggplot(t315_merge,aes(x=lfc,y=netgrowth_mean_corr,label=species))+geom_text(size=2.5)+scale_x_continuous(name=ylabel)+scale_y_continuous(bquote('Net Growth Rate '(Hours^-1)))+stat_cor(method="pearson")+cleanup
+ggsave(paste(dirname,"7b.baf3_imatinib_T315xdataset_netgr_corrected",dose,"_",date,".pdf",sep=""),width=4,height=4,units="in",useDingbats=F)
 
 ```
 
@@ -481,5 +502,13 @@ ggplot(t315_merge,aes(x=growth_lfc,y=netgrowth_mean,label=species))+geom_text(si
 ggplot(t315_merge,aes(x=imat_lfc,y=netgr_obs_imat,label=species))+geom_text(size=2.5)+scale_x_continuous("T315X Dataset Imatinib LFC")+scale_y_continuous(bquote('Net Growth Rate '(Hours^-1)))+stat_cor(method="pearson")+ggtitle("Imatinib Fitness")+cleanup
 # ggsave("output/SM_Imatinib_Plots/T315X_Imatinib.pdf",width=3,height=3,units="in",useDingbats=F)
 cor(t315_merge$imat_lfc,t315_merge$netgr_obs_imat)
+```
+
+```{r}
+data=read.csv("output/ABLEnrichmentScreens/ABL_Region1234_Tileseq/data/TileSeq_full_kinase_low_imatinib_final_renamed.csv",header = T,stringsAsFactors = F)
+ggplot(data,aes(x=factor(protein_start),y=ct_screen1_before,fill=factor(is_intended)))+geom_boxplot()+cleanup+scale_y_continuous(trans="log10")+theme(axis.text.x=element_text(angle=90, hjust=1))
+
+ggsave(paste(dirname,"coverage_across_ABL",dose,"_",date,".pdf",sep=""),width=36,height=4,units="in",useDingbats=F)
+
 ```
 
