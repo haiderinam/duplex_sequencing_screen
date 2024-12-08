@@ -481,7 +481,7 @@ ggplot(standards,aes(x=.055-drug_effect,y=netgrowth_mean,label=species))+
 ggsave("output/ABLEnrichmentScreens/ABL_Region1234_Tileseq/output/mutantstandards_dms_vs_ic50s_300nM.pdf",width=3,height = 3,units="in",useDingbats=F)
 
 
-data=data%>%
+
 ```
 
 
