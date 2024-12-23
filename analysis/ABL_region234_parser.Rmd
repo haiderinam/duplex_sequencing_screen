@@ -1,5 +1,5 @@
 ---
-title: "ABL_allregions_analysis"
+title: "ABL_region234_parser"
 author: "Haider Inam"
 date: '2023-08-10'
 output: html_document
@@ -7,7 +7,7 @@ output: html_document
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
-knitr::opts_knit$set(root.dir = normalizePath(".."))
+# knitr::opts_knit$set(root.dir = normalizePath(".."))
 # rm(list=ls())
 
 library(stringr)
@@ -38,21 +38,6 @@ source("code/plotting/heatmap_plotting_function.R")
 source("code/merge_samples.R")
 getwd()
 source("code/res_residues_adder.R")
-
-# Region 2:
-a=merge_samples("Novogene_lane19_20/Ln19a_Sample2/sscs","Novogene_lane19_20/Ln19a_Sample3/sscs")
-ggplot(a%>%filter(!alt_aa%in%"O",protein_start>320,protein_start<394),aes(x=protein_start,y=alt_aa,fill=ct))+geom_tile()
-
-
-# Region 3:
-# b=merge_samples("novogene_lane23/Lane23_Sample19/sscs","Novogene_lane19_20/Ln19b_Sample9/sscs")
-b=read.csv("data/Consensus_Data/novogene_lane19_20/Ln19a_Sample11/sscs/variant_caller_outputs/variants_unique_ann.csv")
-ggplot(b%>%filter(!alt_aa%in%"O",protein_start>393,protein_start<465),aes(x=protein_start,y=alt_aa,fill=ct))+geom_tile()
-
-
-# Region 4:
-b=merge_samples("novogene_lane23/Sample19/sscs","Novogene_lane19_20/Ln19b_Sample9/sscs")
-ggplot(b%>%filter(!alt_aa%in%"O",protein_start>464,protein_start<520),aes(x=protein_start,y=alt_aa,fill=ct))+geom_tile()
 ```
 
   
@@ -695,34 +680,33 @@ write.csv(imathigh_1_vsimathigh_2_all,"output/ABLEnrichmentScreens/ABL_Region234
 
 ### Section 2: Plotting heatmaps.  
 ```{r}
-imatinib_all=read.csv("output/ABLEnrichmentScreens/ABL_Region234_Comparisons/ABLfullkinase_allconditions_growthrates_12.19.24.csv")
+imatinib_all=read.csv("output/ABLEnrichmentScreens/ABL_Region234_Comparisons/ABLfullkinase_allconditions_growthrates_12.19.24.csv")[-1]
 ############### Plotting heatmaps with net growth rates#############
 ############### IL3 Net Gr############
 source("code/plotting/heatmap_plotting_function.R")
-heatmap_plotting_function(imatinib_all%>%filter(!netgr.IL3.2%in%"NaN"),240,512,fill_variable = "netgr.IL3.2",fill_name = "Net growth rate \n(Hrs^-1)")
+heatmap_plotting_function(imatinib_all%>%filter(dose%in%"il3",!netgr_obs_screen2%in%"NaN"),240,512,fill_variable = "netgr_obs_mean",fill_name = "Net growth rate \n(Hrs^-1)")
 ggsave("output/ABLEnrichmentScreens/ABL_Region234_Comparisons/baf3_il3_heatmap.pdf",width=16,height=4,units="in",useDingbats=F)
 ############### IL3 Enrichment Score############
-heatmap_plotting_function(imatinib_all%>%filter(!score.IL3.2%in%"NaN"),240,512,fill_variable = "score.IL3.2",fill_name = "Enrichment Score")
+heatmap_plotting_function(imatinib_all%>%filter(dose%in%"il3",!score_screen2%in%"NaN"),240,512,fill_variable = "score_screen2",fill_name = "Enrichment Score")
 ggsave("output/ABLEnrichmentScreens/ABL_Region234_Comparisons/baf3_il3_heatmap_score.pdf",width=16,height=4,units="in",useDingbats=F)
 ############### Imat Low Net Gr############
-heatmap_plotting_function(imatinib_all%>%filter(!netgr.imat.low.2%in%"NaN"),240,512,fill_variable = "netgr.imat.low.2",fill_name = "Net growth rate \n(Hrs^-1)")
+heatmap_plotting_function(imatinib_all%>%filter(dose%in%"300nM",!netgr_obs_screen2%in%"NaN"),240,512,fill_variable = "netgr_obs_mean",fill_name = "Net growth rate \n(Hrs^-1)")
 ggsave("output/ABLEnrichmentScreens/ABL_Region234_Comparisons/baf3_imatinib_heatmap_300nM.pdf",width=16,height=4,units="in",useDingbats=F)
 ############## Imat Low Enrichment Score############
-heatmap_plotting_function(imatinib_all%>%filter(!score.imat.low.2%in%"NaN"),240,512,fill_variable = "score.imat.low.2",fill_name = "Enrichment Score")
+heatmap_plotting_function(imatinib_all%>%filter(dose%in%"300nM",!score_screen2%in%"NaN"),240,512,fill_variable = "score_screen2",fill_name = "Enrichment Score")
 ggsave("output/ABLEnrichmentScreens/ABL_Region234_Comparisons/baf3_imatinib_heatmap_300nM_score.pdf",width=16,height=4,units="in",useDingbats=F)
 ############### Imat Mid Net Gr############
-heatmap_plotting_function(imatinib_all%>%filter(!netgr.imat.mid.2%in%"NaN"),240,512,fill_variable = "netgr.imat.mid.2",fill_name = "Net growth rate \n(Hrs^-1)")
+heatmap_plotting_function(imatinib_all%>%filter(dose%in%"600nM",!netgr_obs_screen2%in%"NaN"),240,512,fill_variable = "netgr_obs_mean",fill_name = "Net growth rate \n(Hrs^-1)")
 ggsave("output/ABLEnrichmentScreens/ABL_Region234_Comparisons/baf3_imatinib_heatmap_600nM.pdf",width=16,height=4,units="in",useDingbats=F)
 ############### Imat Mid Enrichment Score############
-heatmap_plotting_function(imatinib_all%>%filter(!score.imat.mid.2%in%"NaN"),240,512,fill_variable = "score.imat.mid.2",fill_name = "Enrichment Score")
+heatmap_plotting_function(imatinib_all%>%filter(dose%in%"600nM",!score_screen2%in%"NaN"),240,512,fill_variable = "score_screen2",fill_name = "Enrichment Score")
 ggsave("output/ABLEnrichmentScreens/ABL_Region234_Comparisons/baf3_imatinib_heatmap_600nM_score.pdf",width=16,height=4,units="in",useDingbats=F)
 ############### Imat High Net Gr############
-heatmap_plotting_function(imatinib_all%>%filter(!netgr.imat.high.2%in%"NaN"),240,512,fill_variable = "netgr.imat.high.2",fill_name = "Net growth rate \n(Hrs^-1)")
+heatmap_plotting_function(imatinib_all%>%filter(dose%in%"1200nM",!netgr_obs_screen2%in%"NaN"),240,512,fill_variable = "netgr_obs_mean",fill_name = "Net growth rate \n(Hrs^-1)")
 ggsave("output/ABLEnrichmentScreens/ABL_Region234_Comparisons/baf3_imatinib_heatmap_1200nM.pdf",width=16,height=4,units="in",useDingbats=F)
 
-
 ############### Imat High Enrichment Score############
-heatmap_plotting_function(imatinib_all%>%filter(!score.imat.high.2%in%"NaN"),240,512,fill_variable = "score.imat.high.2",fill_name = "Enrichment Score")
+heatmap_plotting_function(imatinib_all%>%filter(dose%in%"1200nM",!score_screen2%in%"NaN"),240,512,fill_variable = "score_screen2",fill_name = "Enrichment Score")
 ggsave("output/ABLEnrichmentScreens/ABL_Region234_Comparisons/baf3_imatinib_heatmap_1200nM_score_medianadjusted.pdf",width=16,height=4,units="in",useDingbats=F)
 
 
