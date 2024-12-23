@@ -9,8 +9,5 @@ output: html_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-* Click [here](ABL_cosmic_analysis.html) to view our analyses of whether mutants in the cosmic/sanger database are resistant according to our screens.  
-<img src="assets/abl_cosmic_analysis.png" width="300" height="216"  alt="">.  
-
 * Click [here](ABL_Gnomad_analysis.html) to view our analyses of how SNPs in Gnomad enable potentially drug resistant mutants, necessitating the study of multi-nucleotide variants in DMS screens.  
 <img src="assets/gnomad_enabled.png" width="600" height="300"  alt="">.  
