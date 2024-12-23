@@ -5,9 +5,13 @@ date: '2023-01-31'
 output: html_document
 ---
 This code has some of the analysis done for libraries made using the enzymatic fragrmentation library prep approach (mostly data from lane 11-16)
+
+These are sheared TSII +TSI libraries treated at 300nM imatinib for 2 or 4 or 6 days
+URL for experiments: https://benchling.com/haider-inam/f/lib_4VmxpyTI-archive/etr_msCPLyuR-twist-sorted-pooled-screen-tsi-1/edit
+Note: A small part of the data from these sheared libraries was eventually used in the final ABL dataset! 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
-# knitr::opts_knit$set(root.dir = normalizePath(".."))
+knitr::opts_knit$set(root.dir = normalizePath(".."))
 
 library(stringr)
 library(dplyr)
@@ -109,8 +113,8 @@ ggplot(resmuts_merged,aes(x=netgr_pred_model,y=score,label=species))+geom_text()
 
 ```{r}
 il3D0=merge_samples("Novogene_lane14/Sample10_combined/sscs","Novogene_lane13/sample7/sscs")
-il3D0=merge_samples(il3D0,"Novogene_lane14/sample11/sscs")
-il3D0=merge_samples(il3D0,"Novogene_lane15/sample_3/sscs")
+il3D0=merge_samples_twosamples(il3D0,"Novogene_lane14/sample11/sscs")
+il3D0=merge_samples_twosamples(il3D0,"Novogene_lane15/sample_3/sscs")
 # il3D0=merge_samples(il3D0,"Novogene_lane17/sample1_combined/sscs")
 
 il3D0=variants_parser(il3D0,370)
@@ -190,14 +194,14 @@ netgr=.055
 # before_timepoint=merge_samples("Novogene_lane14/Sample10_combined/sscs","Novogene_lane14/sample11/sscs")
 
 before_timepoint=merge_samples("Novogene_lane14/Sample10_combined/sscs","Novogene_lane13/sample7/sscs")
-before_timepoint=merge_samples(before_timepoint,"Novogene_lane14/sample11/sscs")
-before_timepoint=merge_samples(before_timepoint,"Novogene_lane15/sample_3/sscs")
+before_timepoint=merge_samples_twosamples(before_timepoint,"Novogene_lane14/sample11/sscs")
+before_timepoint=merge_samples_twosamples(before_timepoint,"Novogene_lane15/sample_3/sscs")
 
 # before_timepoint=merge_samples("Novogene_lane15/sample_3/sscs","Novogene_lane13/sample7/sscs")
 
 before_timepoint=variants_parser(before_timepoint,cells_before)
 after_timepoint=merge_samples("Novogene_lane13/Sample9/sscs","Novogene_lane13/Sample10/sscs")
-after_timepoint=merge_samples(after_timepoint,"Novogene_lane15/Sample_4/sscs")
+after_timepoint=merge_samples_twosamples(after_timepoint,"Novogene_lane15/Sample_4/sscs")
 
 after_timepoint=variants_parser(after_timepoint,cells_after)
 
@@ -215,8 +219,8 @@ netgr=.055
 # before_timepoint=merge_samples("Novogene_lane15/sample_3/sscs","Novogene_lane13/sample7/sscs")
 
 before_timepoint=merge_samples("Novogene_lane14/Sample10_combined/sscs","Novogene_lane13/sample7/sscs")
-before_timepoint=merge_samples(before_timepoint,"Novogene_lane14/sample11/sscs")
-before_timepoint=merge_samples(before_timepoint,"Novogene_lane15/sample_3/sscs")
+before_timepoint=merge_samples_twosamples(before_timepoint,"Novogene_lane14/sample11/sscs")
+before_timepoint=merge_samples_twosamples(before_timepoint,"Novogene_lane15/sample_3/sscs")
 
 
 
@@ -545,10 +549,10 @@ cells_before=370 #total cells at before time point
 cells_after=10397 #total cells at after time point
 netgr=.055
 # before_timepoint=merge_samples("Novogene_lane15/sample_3/sscs","Novogene_lane13/sample7/sscs")
-
-before_timepoint=merge_samples("Novogene_lane14/Sample10_combined/sscs","Novogene_lane13/sample7/sscs")
-before_timepoint=merge_samples(before_timepoint,"Novogene_lane14/sample11/sscs")
-before_timepoint=merge_samples(before_timepoint,"Novogene_lane15/sample_3/sscs")
+source("code/merge_samples_twosamples.R")
+before_timepoint=merge_samples_twosamples("Novogene_lane14/Sample10_combined/sscs","Novogene_lane13/sample7/sscs")
+before_timepoint=merge_samples_twosamples(before_timepoint,"Novogene_lane14/sample11/sscs")
+before_timepoint=merge_samples_twosamples(before_timepoint,"Novogene_lane15/sample_3/sscs")
 
 
 

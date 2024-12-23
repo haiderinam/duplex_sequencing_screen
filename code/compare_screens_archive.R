@@ -25,6 +25,7 @@ compare_screens_archive=function(before_screen1_identifier,
   # after_screen2_identifier=c("KTRM1_D6","KTRM2_D6")
   # after_screen2_identifier="KTRM2_D6"
   source("code/res_residues_adder.R")
+  source("code/is_intended_adder.R")
   source("code/resmuts_adder.R")
   source("code/merge_samples.R")
   source("code/merge_samples_twosamples.R")
@@ -162,6 +163,8 @@ compare_screens_archive=function(before_screen1_identifier,
   #   mutate(score_mean=mean(c(score_screen1,score_screen2)),
   #          netgr_obs_mean=mean(c(netgr_obs_screen1,netgr_obs_screen2)))
 
+  ##### Adding whether an intended codon is a twist variant####
+  screen_compare_means=is_intended_adder(screen_compare_means)
   # write.csv(screen_compare_means,"Imat_Enrichment_bgmerged_2.22.23.csv")
   ##############
 

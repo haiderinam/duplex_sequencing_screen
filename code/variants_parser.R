@@ -21,16 +21,16 @@ variants_parser=function(input_df,totalcells=1,codon_table=read.csv("data/codon_
   codon_table2=codon_table%>%filter(Twist2%in%T)
   codon_table=codon_table%>%filter(Twist%in%T)
 
-
-  input_df_default=input_df%>%filter(protein_start<=494,alt_codon%in%codon_table$Codon)
-
-  if(max(input_df$protein_start)>=495){
-    input_df_extended=input_df%>%filter(protein_start>=495,alt_codon%in%codon_table2$Codon)
-    input_df_nonextended=input_df%>%filter(protein_start<=494,alt_codon%in%codon_table$Codon)
-    input_df_default=rbind(input_df_nonextended,input_df_extended)
-  }
-  # a=input_df_extended%>%filter(protein_start%in%497,alt_aa%in%c("A","D","G","P"))
-  input_df=input_df_default
+  # Filtering for twist codons:
+  # input_df_default=input_df%>%filter(protein_start<=494,alt_codon%in%codon_table$Codon)
+  #
+  # if(max(input_df$protein_start)>=495){
+  #   input_df_extended=input_df%>%filter(protein_start>=495,alt_codon%in%codon_table2$Codon)
+  #   input_df_nonextended=input_df%>%filter(protein_start<=494,alt_codon%in%codon_table$Codon)
+  #   input_df_default=rbind(input_df_nonextended,input_df_extended)
+  # }
+  # # a=input_df_extended%>%filter(protein_start%in%497,alt_aa%in%c("A","D","G","P"))
+  # input_df=input_df_default
 
 
 

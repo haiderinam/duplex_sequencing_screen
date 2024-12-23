@@ -10,18 +10,13 @@ knitr::opts_chunk$set(echo = TRUE)
 ```
 
 
-* Click [here](ABL_SM_CRISPR_Cut_Analyses.html) to view BCRABL Imatinib heatmaps  generated using CRISPR-cut libraries
-<img src="assets/ABL_SM_Crispr_heatmap.png" width="400" height="283"  alt="">  
+* Click [here](ABL_Region1_parser.html) to view the region 1 data parsing code on the CRISPR cut SM libraries. Code also contains solvent accessibility analyses on DMS data. 
 
 
 * Click [here](regions1234_spikeins_growthrates.html) to view growth rates from mCherry-tagged mutant standards that were spiked-in with the DMS library in our functional screens. The growth rates from these mutants help us normalize the screen for dose-response.  
 
 * Click [here](region234plottingcode.html) to view imatinib resistance heatmap and look at analyses of replicate correlations in our DMS screens.  
 <img src="assets/imatinib_heatmap.png" width="600" height="221"  alt="">  
-
-
-* Click [here](ABL_kinasefunction_data_parser.html) to view initial kinase function analyses.  
-<img src="assets/kinase_function_dist.png" width="300" height="213"  alt="">  
 
 
 * Click [here](ABL_cosmic_analysis_fullkinase.html) to view our analyses of imatinib resistance in the full ABL kinase. This includes heatmaps, scatterplots, boxplots, waterfall plots, all analyzing the imatinib resistance profile of the ABL kinase.  

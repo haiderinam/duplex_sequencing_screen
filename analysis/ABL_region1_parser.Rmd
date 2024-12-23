@@ -1,0 +1,625 @@
+---
+title: "ABL_region1_parser"
+author: "Haider Inam"
+date: '2023-03-22'
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+# knitr::opts_knit$set(root.dir = normalizePath(".."))
+
+library(stringr)
+library(dplyr)
+library(ggplot2)
+library(plotly)
+library(tictoc)
+library(doParallel)
+library(foreach)
+library(RColorBrewer)
+library(ggpubr)
+library(pROC)
+# 
+
+```
+
+```{r}
+#Cleanup code for plotting
+source("code/plotting/cleanup.R")
+source("code/cosmic_data_adder.R")
+source("code/compare_screens.R")
+source("code/compare_screens_archive.R")
+source("code/compare_screens_twosamples.R")
+source("code/merge_samples_twosamples.R")
+source("code/plotting/heatmap_plotting_function.R")
+```
+### Data parsing  
+
+```{r,eval=F}
+source("code/variantcaller/add_l298l.R")
+for(i in c(1:18)){
+  sample=paste("sample",i,sep = "")
+  # sample="sample1"
+  
+  input_df_nol298l=read.csv(paste("data/Consensus_Data/novogene_lane18/",sample,"/nol298l/duplex/variant_caller_outputs/variants_unique_ann.csv",sep=""))
+  input_df_l298l=read.csv(paste("data/Consensus_Data/novogene_lane18/",sample,"/l298l/duplex/variant_caller_outputs/variants_unique_ann.csv",sep=""))
+  
+  output_df=add_l298l(input_df_nol298l,input_df_l298l)
+  write.csv(output_df,
+            paste("data/Consensus_Data/novogene_lane18/",sample,"/duplex/variant_caller_outputs/variants_unique_ann.csv",sep = ""))  
+}
+
+input_df_nol298l=read.csv("data/Consensus_Data/novogene_lane18/sample9/nol298l/duplex/variant_caller_outputs/variants_unique_ann.csv")
+input_df_l298l=read.csv("data/Consensus_Data/novogene_lane18/sample9/l298l/duplex/variant_caller_outputs/variants_unique_ann.csv")
+  
+output_df=add_l298l(input_df_nol298l,input_df_l298l)
+write.csv(output_df,"data/Consensus_Data/novogene_lane18/sample9/duplex/variant_caller_outputs/variants_unique_ann.csv")  
+
+```
+
+```{r, eval=F}
+
+# rm(list=ls())
+cellcounts_matrix_dir="data/Consensus_Data/novogene_lane18/TwistRegion1Screen_CellCounts_Matrix.csv"
+comparisons=read.csv("data/Consensus_Data/novogene_lane18/TwistRegion1Screen_Comparisons_Todo.csv")
+# comparisons=comparisons%>%filter(Completed%in%"FALSE")
+
+for(i in 1:nrow(comparisons)){
+# for(i in 1:1){
+  # i=1
+  dirname=comparisons$dirname[i]
+  pathname=paste("output/ABLEnrichmentScreens/ABL_Region1_Lane18_Comparisons/",dirname,sep = "")
+  # Create directory if it doesn't already exist
+  if (!file.exists(pathname)){
+    dir.create(pathname)
+} 
+before_screen1_identifier=unlist(strsplit(comparisons$before_screen1_identifier[i],","))
+after_screen1_identifier=unlist(strsplit(comparisons$after_screen1_identifier[i],","))
+before_screen2_identifier=unlist(strsplit(comparisons$before_screen2_identifier[i],","))
+after_screen2_identifier=unlist(strsplit(comparisons$after_screen2_identifier[i],","))
+  # length(after_screen1_identifier)
+# screen_compare_means=compare_screens(comparisons$before_screen1_identifier[i],
+#                                      comparisons$after_screen1_identifier[i],
+#                                      comparisons$before_screen2_identifier[i],
+#                                      comparisons$after_screen2_identifier[i])
+screen_compare_means=compare_screens_archive(before_screen1_identifier,
+                                     after_screen1_identifier,
+                                     before_screen2_identifier,
+                                     after_screen2_identifier,
+                                     cellcounts_matrix_dir)
+# Adding a flag,"depleted", for when a mutant completely drops out of a screen in both replicates
+screen_compare_means=screen_compare_means%>%mutate(depleted=case_when(ct_screen1_after%in%0.5&&ct_screen2_after%in%0.5~"TRUE",
+                                                                      T~"FALSE"))
+
+
+
+screen_compare_means_forexport=apply(screen_compare_means,2,as.character)
+write.csv(screen_compare_means_forexport,file = paste("output/ABLEnrichmentScreens/ABL_Region1_Lane18_Comparisons/",dirname,"/screen_comparison_",dirname,".csv",sep=""))
+
+start_site=240
+end_site=322
+# Plot 1. What does the heatmap look like from the average of the net growth rate?
+heatmap_plotting_function(screen_compare_means%>%filter(is_intended%in%1),242,321,fill_variable = "netgr_obs_mean",fill_name = "Net growth rate")
+ggsave(paste("output/ABLEnrichmentScreens/ABL_Region1_Lane18_Comparisons/",dirname,"/plot1_heatmap.pdf",sep=""),width=10,height=6,units="in",useDingbats=F)
+
+# Plot 2a: What do the correlations look like for net growth rate (show mutants in text)?
+
+ggplot(screen_compare_means%>%filter(is_intended%in%1),aes(x=netgr_obs_screen1,y=netgr_obs_screen2,color=resmuts,label=species))+geom_text(size=2.5)+geom_abline()+cleanup+stat_cor(method = "pearson")+labs(color="Known\nResistant\nMutant")+scale_x_continuous("Net growth rate screen 1")+scale_y_continuous("Net growth rate screen 2")
+ggsave(paste("output/ABLEnrichmentScreens/ABL_Region1_Lane18_Comparisons/",dirname,"/plot2a_Netgrowthrate_correlations_text.pdf",sep=""),width=6,height=4,units="in",useDingbats=F)
+
+# Plot 2b: What do the correlations look like for enrichment scores (show mutants in points)?
+ggplot(screen_compare_means%>%filter(is_intended%in%1),aes(x=netgr_obs_screen1,y=netgr_obs_screen2,label=species))+geom_point(color="black",shape=21,size=2,aes(fill=resmuts))+geom_abline()+cleanup+stat_cor(method = "pearson")+labs(fill="Known\nResistant\nMutant")+scale_x_continuous("Net growth rate screen 1")+scale_y_continuous("Net growth rate screen 2")
+ggsave(paste("output/ABLEnrichmentScreens/ABL_Region1_Lane18_Comparisons/",dirname,"/plot2b_Netgrowthrate_correlations_points.pdf",sep=""),width=6,height=4,units="in",useDingbats=F)
+# Plot 2c: What do the correlations look like for enrichment scores (show mutants in text)?
+ggplot(screen_compare_means%>%filter(is_intended%in%1),aes(x=score_screen1,y=score_screen2,color=resmuts,label=species))+geom_text(size=2.5)+geom_abline()+cleanup+ stat_cor(method = "pearson")+labs(color="Known\nResistant\nMutant")+scale_x_continuous("Enrichment score screen 1")+scale_y_continuous("Enrichment score screen 2")
+ggsave(paste("output/ABLEnrichmentScreens/ABL_Region1_Lane18_Comparisons/",dirname,"/plot2c_Enrichmentscores_correlations_text.pdf",sep=""),width=6,height=4,units="in",useDingbats=F)
+
+
+# Plot 2d: What do the correlations look like for net growth rates (show mutants in text + add depleted flag)?
+ggplot(screen_compare_means%>%filter(is_intended%in%1,protein_start%in%c(start_site:end_site)),aes(x=netgr_obs_screen1,y=netgr_obs_screen2,label=species))+geom_point(color="black",shape=21,size=2,aes(fill=depleted),alpha=.7)+geom_abline()+cleanup+stat_cor(method = "pearson")+labs(fill="Depleting\nMutant")+scale_x_continuous("Net growth rate screen 1")+scale_y_continuous("Net growth rate screen 2")
+ggsave(paste("output/ABLEnrichmentScreens/ABL_Region1_Lane18_Comparisons/",dirname,"/plot2d_Netgrowthrate_correlations_depletedmutants_points.pdf",sep=""),width=6,height=4,units="in",useDingbats=F)
+
+# Plot 3a: Plots: what are the overall net growth rate distributions?
+ggplot(screen_compare_means%>%filter(is_intended%in%1),aes(x=netgr_obs_mean,fill=resmuts))+geom_density(alpha=0.7)+cleanup+labs(fill="Known\nResistant\nMutant")+scale_x_continuous("Mean net growth rate of screens")
+ggsave(paste("output/ABLEnrichmentScreens/ABL_Region1_Lane18_Comparisons/",dirname,"/plot3a_Netgrowthrate_distributions_resmuts.pdf",sep=""),width=6,height=4,units="in",useDingbats=F)
+# Plot 3b: Plots: what are the net growth rate distributions?
+
+library(reshape2)
+screen_compare_melt=melt(screen_compare_means%>%dplyr::select(species,netgr_obs_screen1,netgr_obs_screen2),id.vars = "species",measure.vars =c("netgr_obs_screen1","netgr_obs_screen2"),variable.name = "Condition",value.name = "netgr_obs")
+
+
+ggplot(screen_compare_melt,aes(x=netgr_obs,fill=Condition))+
+  geom_density(alpha=0.7)+
+  cleanup+
+  scale_x_continuous("Net growth rate observed")+
+  scale_fill_discrete(labels=c("Screen 1","Screen 2"))
+ggsave(paste("output/ABLEnrichmentScreens/ABL_Region1_Lane18_Comparisons/",dirname,"/plot3b_Netgrowthrate_distributions.pdf",sep=""),width=6,height=4,units="in",useDingbats=F)
+
+}
+
+# dirname="K562_Medium_rep1vs2"
+
+```
+
+### Solvent accessibility fitness scores  
+  
+Doing some quick analyses on buried hydrophobic vs exposed residues
+
+Quick analysis to do on the secondary structure:
+The buried hydrophobic core is probably going to be more susceptible to polar/hydrophilic substitutions, and not as much to hydrophobic substitutions... do you see that in the il3 independence data? Answer: yes, I see a slight singal but it's not huge
+```{r}
+dssp=read.csv("data/DSSP_SolventAccessibility_ABL/2hyy_dspp.csv",header = T)
+dssp=dssp%>%mutate(RESIDUE=as.numeric(RESIDUE),
+                   ACC=as.numeric(ACC),AA=gsub("<ca>","",AA),
+                   SS=case_when(STRUCTURE%in%c("E","B")~"b-sheet",
+                                STRUCTURE%in%c("H","G","I")~"a-helix",
+                                STRUCTURE%in%"T"~"turn",
+                                T~"undefined"))%>%dplyr::select(-"STRUCTURE")
+
+dssp=dssp%>%rename(protein_start=RESIDUE)
+
+il3=read.csv("output/ABLEnrichmentScreens/ABL_Region1_Lane18_Comparisons/cross-replicate/baf3_IL3_rep1vsrep2_ft/screen_comparison_baf3_IL3_low_rep1vsrep2_ft.csv")
+il3=il3%>%dplyr::select(species,protein_start,netgr_obs_mean)
+il3=il3%>%group_by(protein_start)%>%summarize(netgr_obs_mean=mean(netgr_obs_mean))
+
+il3_dssp=merge(il3,dssp,by="protein_start")
+il3_dssp=il3_dssp%>%mutate(exposed=case_when(ACC>=40~"Exposed",
+                                            T~"Buried"))
+# il3_dssp=il3_dssp%>%filter(exposed%in%"Exposed")
+ggplot(il3_dssp,aes(x=ACC))+geom_histogram()
+
+
+
+ggplot(il3_dssp,aes(x=protein_start,y=netgr_obs_mean,color=exposed))+
+  geom_point()+
+  facet_wrap(~exposed,nrow=2)+
+  scale_y_continuous("Mean net growth rate at residue")+
+  scale_x_continuous("Residue on the ABL Kinase")+
+  labs(color="Solvent \nAccessibility")+
+  cleanup+theme(legend.position = c(.9,.85))+
+  theme(
+  strip.background = element_blank(),
+  strip.text.x = element_blank()
+)+theme(legend.background = element_rect(
+                                  size=0.5, linetype="solid", 
+                                  colour ="black"))
+# ggsave("data/DSSP_SolventAccessibility_ABL/il3solvent_accessibility_v1.pdf",width=6,height = 4,units="in",useDingbats=F)
+
+
+ggplot(il3_dssp,aes(x=protein_start,y=netgr_obs_mean,color=exposed))+
+  geom_point()+
+  # facet_wrap(~exposed,nrow=2)+
+  scale_y_continuous("Mean net growth rate at residue")+
+  scale_x_continuous("Residue on the ABL Kinase")+
+  labs(color="Solvent \nAccessibility")+cleanup
+# ggsave("data/DSSP_SolventAccessibility_ABL/il3solvent_accessibility_v2.pdf",width=6,height = 4,units="in",useDingbats=F)
+
+
+ggplot(il3_dssp,aes(x=ACC,y=netgr_obs_mean,color=exposed))+
+  geom_point()+
+  scale_y_continuous("Mean net growth rate at residue")+
+  scale_x_continuous("DSSP Solvent Accessibility at Residue")+
+  cleanup+
+  labs(color="Solvent \nAccessibility")+
+  theme(legend.position = c(.9,.25))+
+  theme(legend.background = element_rect(
+                                  size=0.5, linetype="solid", 
+                                  colour ="black"))
+# ggsave("data/DSSP_SolventAccessibility_ABL/il3solvent_accessibility_v3.pdf",width=6,height = 4,units="in",useDingbats=F)
+
+
+
+il3=read.csv("output/ABLEnrichmentScreens/ABL_Region1_Lane18_Comparisons/cross-replicate/baf3_IL3_rep1vsrep2_ft/screen_comparison_baf3_IL3_low_rep1vsrep2_ft.csv")
+il3=il3%>%dplyr::select(species,ref_aa,protein_start,alt_aa,netgr_obs_mean)
+
+
+il3_dssp=merge(il3,dssp,by.x=c("protein_start","ref_aa"),by.y=c("protein_start","AA"))
+il3_dssp=il3_dssp%>%mutate(exposed=case_when(ACC>=40~"Exposed",
+                                            T~"Buried"))
+
+# il3_dssp=il3_dssp%>%mutate(hydrophobic=case_when(alt_aa%in%c("A","V","I","M","L","F","Y","W")~"hydrophobic",
+#                                                  T~"other"))
+ggplot(il3_dssp,aes(x=alt_aa,y=netgr_obs_mean))+geom_boxplot()+facet_wrap(~exposed)
+ggplot(il3_dssp,aes(x=exposed,y=netgr_obs_mean))+geom_boxplot()+facet_wrap(~exposed)
+
+
+ggplot(il3_dssp,aes(x=factor(protein_start),y=netgr_obs_mean,fill=exposed))+
+  geom_boxplot()+
+  # facet_wrap(~exposed,nrow=2)+
+  scale_y_continuous("Mean net growth rate at residue")+
+  scale_x_discrete("Residue on the ABL Kinase")+
+  labs(fill="Solvent \nAccessibility")+cleanup+
+  theme(axis.text.x=element_text(angle=90, hjust=1))
+
+```
+
+
+
+Doing some quick analyses on buried hydrophobic vs exposed residues
+```{r,eval=F,include=F}
+dssp=read.csv("data/DSSP_SolventAccessibility_ABL/2gqg_dspp.csv",header = T)
+dssp=dssp%>%mutate(RESIDUE=as.numeric(RESIDUE),ACC=as.numeric(ACC),AA=gsub("<ca>","",AA))
+dssp=dssp%>%rename(protein_start=RESIDUE)
+
+il3=read.csv("output/ABLEnrichmentScreens/ABL_Region1_Lane18_Comparisons/cross-replicate/baf3_IL3_rep1vsrep2_ft/screen_comparison_baf3_IL3_low_rep1vsrep2_ft.csv")
+il3=il3%>%select(species,protein_start,netgr_obs_mean)
+il3=il3%>%group_by(protein_start)%>%summarize(netgr_obs_mean=mean(netgr_obs_mean))
+
+il3_dssp=merge(il3,dssp,by="protein_start")
+il3_dssp=il3_dssp%>%mutate(exposed=case_when(ACC>=40~"Exposed",
+                                            T~"Buried"))
+ggplot(il3_dssp,aes(x=ACC))+geom_histogram()
+
+
+
+ggplot(il3_dssp,aes(x=protein_start,y=netgr_obs_mean,color=exposed))+
+  geom_point()+
+  facet_wrap(~exposed,nrow=2)+
+  scale_y_continuous("Mean net growth rate at residue")+
+  scale_x_continuous("Residue on the ABL Kinase")+
+  labs(color="Solvent \nAccessibility")+
+  cleanup+theme(legend.position = c(.9,.85))+
+  theme(
+  strip.background = element_blank(),
+  strip.text.x = element_blank()
+)+theme(legend.background = element_rect(
+                                  size=0.5, linetype="solid", 
+                                  colour ="black"))
+# ggsave("data/DSSP_SolventAccessibility_ABL/il3solvent_accessibility_v1.pdf",width=6,height = 4,units="in",useDingbats=F)
+
+
+ggplot(il3_dssp,aes(x=protein_start,y=netgr_obs_mean,color=exposed))+
+  geom_point()+
+  # facet_wrap(~exposed,nrow=2)+
+  scale_y_continuous("Mean net growth rate at residue")+
+  scale_x_continuous("Residue on the ABL Kinase")+
+  labs(color="Solvent \nAccessibility")+cleanup
+# ggsave("data/DSSP_SolventAccessibility_ABL/il3solvent_accessibility_v2.pdf",width=6,height = 4,units="in",useDingbats=F)
+
+
+ggplot(il3_dssp,aes(x=ACC,y=netgr_obs_mean,color=exposed))+
+  geom_point()+
+  scale_y_continuous("Mean net growth rate at residue")+
+  scale_x_continuous("DSSP Solvent Accessibility at Residue")+
+  cleanup+
+  labs(color="Solvent \nAccessibility")+
+  theme(legend.position = c(.9,.25))+
+  theme(legend.background = element_rect(
+                                  size=0.5, linetype="solid", 
+                                  colour ="black"))
+# ggsave("data/DSSP_SolventAccessibility_ABL/il3solvent_accessibility_v3.pdf",width=6,height = 4,units="in",useDingbats=F)
+```
+Doing some quick DDG analysis
+```{r}
+ddg=read.table("data/DDG_ABL/2hyy_ddg.tsv")
+colnames(ddg)=c("species","ddg","ddg_sd")
+ddg=ddg%>%mutate(protein_start=234+as.numeric(gsub("[^0-9]","",species)),
+                 ref_aa=substr(species,1,1),
+                 alt_aa=sub(".+(.)$", "\\1", species),
+                 species=paste(ref_aa,protein_start,alt_aa,sep = ""))
+# class(ddg$protein_start)
+ddg=ddg%>%filter(protein_start%in%c(242:322))
+
+il3=read.csv("output/ABLEnrichmentScreens/ABL_Region1_Lane18_Comparisons/cross-replicate/baf3_IL3_rep1vsrep2_ft/screen_comparison_baf3_IL3_low_rep1vsrep2_ft.csv")
+il3=il3%>%dplyr::select(species,protein_start,netgr_obs_mean)
+ddgil3=merge(ddg,il3,by=c("species","protein_start"))
+ggplot(ddgil3,aes(x=ddg,y=netgr_obs_mean))+geom_point()
+ggplot(ddgil3,aes(x=ddg,y=netgr_obs_mean,label=species))+geom_text()
+```
+
+### BaF3 vs K562 correlations. 
+  
+#### Includes t test to compare distributions of sanger mutants vs resistant mutants
+
+Looking at important sanger mutants across BaF3s and K562s
+Includes T tests for sanger boxplots
+
+```{r}
+# Analyzing the Sanger data 4.22.2023
+sanger=read.csv("data/Cosmic_ABL/ABL_Cosmic_Gene_mutations.csv",header = T)
+sanger=sanger%>%dplyr::rename(protein_start=Position,species=AA.Mutation,sanger.count=Count)%>%filter(Type%in%"Substitution - Missense")%>%dplyr::select(protein_start,species,sanger.count)
+sanger=sanger%>%mutate(species=gsub("p.","",species),ref_aa=substring(species,1,1),
+                       alt_aa=substring(species, nchar(species), nchar(species)))
+sanger=sanger%>%mutate(sanger.present=T)
+sanger=sanger%>%filter(protein_start%in%242:520)
+# sanger=resmuts_adder(sanger)
+sum(sanger[sanger$resmuts%in%T,"sanger.count"])
+sum(sanger[sanger$resmuts%in%F,"sanger.count"])
+# There are a total of 1884 patients with mutations in the kianse. 1193 of these patients have known clinically resistant ImatR mutations. However, 691 of these patients fall into the other category
+
+# K562
+data=read.csv("output/ABLEnrichmentScreens/ABL_Region1_Lane18_Comparisons/cross-replicate/k562_imat_medium_rep1vsrep2/screen_comparison_k562_imat_medium_rep1vsrep2.csv",header = T,stringsAsFactors = F)
+data=data%>%rowwise()%>%mutate(netgr_obs_mean.k562=mean(netgr_obs_screen1,netgr_obs_screen2),netgr_obs_sd.k562=sd(c(netgr_obs_screen1,netgr_obs_screen2)))
+data.k562=data%>%dplyr::select(species,protein_start,ref_aa,alt_aa,n_nuc_min,netgr_obs_mean.k562,netgr_obs_sd.k562)
+# Baf3
+data=read.csv("output/ABLEnrichmentScreens/ABL_Region1_Lane18_Comparisons/cross-replicate/baf3_Imat_medium_rep1vsrep2_ft/screen_comparison_baf3_Imat_medium_rep1vsrep2_ft.csv",header = T,stringsAsFactors = F)
+data=data%>%rowwise()%>%mutate(netgr_obs_mean.baf3=mean(netgr_obs_screen1,netgr_obs_screen2),netgr_obs_sd.baf3=sd(c(netgr_obs_screen1,netgr_obs_screen2)))
+data.baf3=data%>%dplyr::select(species,protein_start,ref_aa,alt_aa,n_nuc_min,netgr_obs_mean.baf3,netgr_obs_sd.baf3)
+
+data=merge(data.k562,data.baf3,by=c("species","protein_start","ref_aa","alt_aa","n_nuc_min"),all=T)
+# data$sanger.present=F
+# data$sanger.count=0
+data=merge(data,sanger,by=c("species","protein_start","ref_aa","alt_aa"),all=T)
+
+source("code/resmuts_adder.R")
+data=resmuts_adder(data)
+
+data=data%>%mutate(cosmic_present=sanger.present)
+# data=data%>%mutate(alt_aa=substring(species, nchar(species), nchar(species)))
+data$resmut_cosmic="neither"
+data[data$cosmic_present%in%TRUE,"resmut_cosmic"]="cosmic"
+data[data$resmuts%in%TRUE,"resmut_cosmic"]="resmut"
+data$resmut_cosmic=factor(data$resmut_cosmic,levels=c("neither","cosmic","resmut"))
+
+
+data.forttest=data%>%filter(protein_start>=242,protein_start<=322,n_nuc_min%in%1)
+t.test(data.forttest[data.forttest$resmut_cosmic%in%"neither","netgr_obs_mean.baf3"],
+       data.forttest[data.forttest$resmut_cosmic%in%"cosmic","netgr_obs_mean.baf3"])
+
+t.test(data.forttest[data.forttest$resmut_cosmic%in%"neither","netgr_obs_mean.baf3"],
+       data.forttest[data.forttest$resmut_cosmic%in%"resmut","netgr_obs_mean.baf3"])
+
+t.test(data.forttest[data.forttest$resmut_cosmic%in%"neither","netgr_obs_mean.k562"],
+       data.forttest[data.forttest$resmut_cosmic%in%"cosmic","netgr_obs_mean.k562"])
+
+t.test(data.forttest[data.forttest$resmut_cosmic%in%"neither","netgr_obs_mean.k562"],
+       data.forttest[data.forttest$resmut_cosmic%in%"resmut","netgr_obs_mean.k562"])
+
+
+ggplot(data%>%filter(sanger.present%in%T,n_nuc_min%in%1),aes(x=netgr_obs_mean.baf3,y=netgr_obs_mean.k562))+
+  geom_point()+
+  stat_cor(method="pearson")
+
+ggplot(data%>%filter(sanger.present%in%T,n_nuc_min%in%1),aes(x=netgr_obs_mean.baf3,y=netgr_obs_mean.k562,label=species,color=resmuts))+
+  geom_text(size=1.6)+
+  # stat_cor(method="pearson")+
+  cleanup+
+  scale_x_continuous("Net Growth Rate Baf3")+
+  scale_y_continuous("Net Growth Rate K562")+
+  scale_color_manual(values=c("orange","red"))+
+  theme(legend.position = "none")
+# ggsave("output/SM_Imatinib_Plots/baf3_k562_sanger_correlation.pdf",width=3,height=3,units = "in",useDingbats=F)
+
+
+
+```
+
+
+### BaF3 K562s ROC curves
+  
+Doing ROC analyses between BaF3s and K562s
+```{r}
+smdata.k562=read.csv("output/ABLEnrichmentScreens/ABL_Region1_Lane18_Comparisons/cross-replicate/k562_imat_high_rep1vsrep2/screen_comparison_k562_imat_high_rep1vsrep2.csv")
+# smdata=read.csv("output/ABLEnrichmentScreens/ABL_Region1_Lane18_Comparisons/cross-replicate/k562_imat_low_rep1vsrep2/screen_comparison_k562_imat_low_rep1vsrep2.csv")
+# smdata=read.csv("output/ABLEnrichmentScreens/ABL_Region1_Lane18_Comparisons/cross-replicate/k562_imat_medium_rep1vsrep2/screen_comparison_k562_imat_medium_rep1vsrep2.csv")
+smdata=read.csv("output/ABLEnrichmentScreens/ABL_Region1_Lane18_Comparisons/cross-replicate/baf3_imat_low_rep1vsrep2_ft/screen_comparison_baf3_imat_low_rep1vsrep2_ft.csv")
+# smdata=read.csv("output/ABLEnrichmentScreens/ABL_Region1_Lane18_Comparisons/cross-replicate/baf3_imat_medium_rep1vsrep2_ft/screen_comparison_baf3_imat_medium_rep1vsrep2_ft.csv")
+smdata.baf3=read.csv("output/ABLEnrichmentScreens/ABL_Region1_Lane18_Comparisons/cross-replicate/baf3_imat_high_rep1vsrep2_ft/screen_comparison_baf3_imat_high_rep1vsrep2_ft.csv")
+smdata.baf3=cosmic_data_adder(smdata.baf3)
+smdata.k562=cosmic_data_adder(smdata.k562)
+
+smdata.baf3=smdata%>%filter(!species%in%"V299L")
+smdata.baf3=smdata.baf3%>%filter(n_nuc_min%in%1)
+smdata.k562=smdata.k562%>%filter(n_nuc_min%in%1)
+
+smdata.baf3=smdata.baf3%>%rowwise()%>%mutate(netgr_obs_mean=mean(netgr_obs_screen1,netgr_obs_screen2))
+smdata.baf3=smdata.baf3%>%rowwise()%>%mutate(netgr_obs_mean=mean(netgr_obs_screen1,netgr_obs_screen2))
+# Demonstrating that the SM data works better at predicting residue exposure than the BE data
+# smdata_roc=smdata%
+
+# glm.fit.sm=glm(as.numeric(smdata$cosmic_present)~smdata$netgr_obs_mean,family=binomial)
+
+glm.fit.baf3=glm(as.numeric(smdata.baf3$resmuts)~smdata.baf3$netgr_obs_mean,family=binomial)
+glm.fit.k562=glm(as.numeric(smdata.k562$resmuts)~smdata.k562$netgr_obs_mean,family=binomial)
+smdata.baf3$glm_fits=glm.fit.baf3$fitted.values
+smdata.k562$glm_fits=glm.fit.k562$fitted.values
+# roc(as.numeric(smdata$cosmic_present),smdata$glm_fits,plot=T,legacy.axes=T,percent=T,xlab="False Positive Percentage",ylab="True
+#     Positive Percentage",print.auc=T)
+roc(as.numeric(smdata.baf3$resmuts),smdata.baf3$glm_fits,plot=T,legacy.axes=T,percent=T,xlab="False Positive Percentage",ylab="True Positive Percentage",print.auc=T)
+roc(as.numeric(smdata.k562$resmuts),smdata.k562$glm_fits,plot=T,legacy.axes=T,percent=T,xlab="False Positive Percentage",ylab="True Positive Percentage",print.auc=T)
+# The GLM in this case looks a little weird, probably because there are so many negative datapoints
+# ggplot(smdata.baf3,aes(x=netgr_obs_mean,y=as.numeric(resmuts)))+geom_point()+geom_line(aes(x=netgr_obs_mean,y=glm_fits))
+# ggplot(smdata.k562,aes(x=netgr_obs_mean,y=as.numeric(resmuts)))+geom_point()+geom_line(aes(x=netgr_obs_mean,y=glm_fits))
+
+par(pty="s")
+roc(as.numeric(smdata.baf3$resmuts),smdata.baf3$glm_fits,plot=T,legacy.axes=T,percent=T,xlab="False Positive Percentage",ylab="True Positive Percentage",print.auc=T,col="#3937E3",lwd=4)
+
+# plot.roc(as.numeric(be_lfc.sm$DSSP.Buried),be_lfc.sm$glm_fits,legacy.axes=T,percent=T,xlab="False Positive Percentage",ylab="True Positive Percentage",print.auc=T,col="#378BE3",add=T,lwd=4,print.auc.y=45)
+plot.roc(as.numeric(smdata.k562$resmuts),smdata.k562$glm_fits,legacy.axes=T,percent=T,xlab="False Positive Percentage",ylab="True Positive Percentage",print.auc=T,col="#378BE3",add=T,lwd=4,print.auc.y=45)
+par(pty="m")
+```
+
+
+### VUDR Pie Chart, clinical abundance waterfall
+   
+Making piechart that shows that VUDR take up 36%
+```{r}
+# 
+sanger_forpiechart=resmuts_adder(sanger)
+sanger_forpiechart$category="VUDR"
+sanger_forpiechart=sanger_forpiechart%>%mutate(category=case_when(resmuts%in%T~species,
+                                                                  T~category))
+
+
+
+sanger_forpiechart=sanger_forpiechart%>%group_by(category)%>%summarize(count=sum(sanger.count))
+sanger_forpiechart=sanger_forpiechart%>%arrange(desc(count))
+sanger_forpiechart$category=factor(sanger_forpiechart$category,levels = as.character(sanger_forpiechart$category[order((sanger_forpiechart$count),decreasing = T)]))
+
+#Plotting the normalized dose response curves
+getPalette = colorRampPalette(brewer.pal(22, "Spectral"))
+
+library(RColorBrewer)
+library("NatParksPalettes")
+ggplot(sanger_forpiechart,aes(x="",y=count,fill=category))+
+  geom_bar(width=1,stat="identity")+
+  coord_polar("y", start=0)+
+  # theme_minimal()+
+  theme_void()+
+  # scale_fill_manual(values=natparks.pals("Yellowstone", 3))
+  scale_fill_manual(values = getPalette(length(unique(sanger_forpiechart$category))))
+# ggsave("output/SM_Imatinib_Plots/sanger_piechart.pdf",width=4,height=3,units="in",useDingbats=F)
+
+```
+
+
+Making histogram of top clinically prevalent sanger mutants
+```{r}
+library(forcats)
+# Analyzing the Sanger data 4.22.2023
+sanger=read.csv("data/Cosmic_ABL/ABL_Cosmic_Gene_mutations.csv",header = T)
+sanger=sanger%>%dplyr::rename(protein_start=Position,species=AA.Mutation,sanger.count=Count)%>%filter(Type%in%"Substitution - Missense")%>%dplyr::select(protein_start,species,sanger.count)
+sanger=sanger%>%mutate(species=gsub("p.","",species),ref_aa=substring(species,1,1),
+                       alt_aa=substring(species, nchar(species), nchar(species)))
+sanger=sanger%>%mutate(sanger.present=T)
+
+sanger=sanger%>%group_by(species)%>%summarize(protein_start=mean(protein_start),sanger.count=sum(sanger.count))
+sanger$resmuts=F
+sanger[sanger$species%in%c("E355A","D276G","H396R","F317L","F359I","E459K","G250E","F359C","F359V","M351T","L248V","E355G","Q252H","Y253F","F486S","H396P","E255K","Y253H","T315I","E255V","M244V","V299L","L387M"),"resmuts"]=T
+
+
+ggplot(sanger%>%filter(resmuts%in%T),aes(fct_reorder(species, -sanger.count),y=sanger.count,fill=resmuts))+
+  geom_col(color="black",alpha=0.8)+
+  scale_x_discrete("Mutant Name")+
+  scale_y_continuous("Clinical Abundance")+
+  scale_fill_manual(values=c("red"))+
+  cleanup+
+  theme(legend.position = "none",
+        axis.text.x=element_text(angle=90,hjust=.5,vjust=.5),
+        axis.title.x=element_blank())
+# ggsave("output/SM_Imatinib_Plots/clinical_abundance_zoom.pdf",width=5,height=3,units="in",useDingbats=F)
+
+ggplot(sanger,aes(fct_reorder(species, -sanger.count),y=sanger.count,fill=resmuts))+
+  geom_col(alpha=0.8)+
+  scale_x_discrete("Mutant Name")+
+  scale_y_continuous("Clinical Abundance")+
+  scale_fill_manual(values=c("gray90","red"))+
+  # cleanup+
+  theme(legend.position = "none",
+        axis.text.x=element_text(size=2,angle=90,hjust=.5,vjust=.5),
+        axis.title.x=element_blank())
+# ggsave("output/SM_Imatinib_Plots/clinical_abundance.pdf",width=14,height=3,units="in",useDingbats=F)
+
+ggplot(sanger,aes(fct_reorder(species, -sanger.count),y=sanger.count,fill=resmuts))+
+  geom_col()+
+  scale_x_discrete("Mutant Name")+
+  scale_y_continuous("Clinical Abundance")+
+  scale_fill_manual(values=c("gray90","red"))+
+  theme(legend.position = "none",
+        axis.text.x=element_text(angle=90,hjust=.5,vjust=.5),
+        axis.title.x=element_blank())
+
+```
+
+### SSCS vs NGS on region 1 data
+
+Doing quick correlation of lane 18b sample 4 NGS vs SSCS
+```{r}
+ngs=read.csv("data/Consensus_Data/novogene_lane18/sample4/ngs/variant_caller_outputs/variants_unique_ann.csv")
+ngs=ngs%>%filter(protein_start%in%c(242:272))%>%mutate(maf=ct/depth)%>%dplyr::select(ref_aa,protein_start,alt_aa,alt_codon,maf)
+sscs=read.csv("data/Consensus_Data/novogene_lane18/sample4/sscs/variant_caller_outputs/variants_unique_ann.csv")
+sscs=sscs%>%filter(protein_start%in%c(242:272))%>%mutate(maf=ct/depth)%>%dplyr::select(ref_aa,protein_start,alt_aa,alt_codon,maf)
+
+ngs_sscs=merge(ngs,sscs,by=c("ref_aa","protein_start","alt_aa","alt_codon"))
+ngs_sscs=ngs_sscs%>%mutate(species=paste(ref_aa,protein_start,alt_aa,sep=""))
+# ngs_sscs=ngs_sscs%>%filter(alt_codon%in%twist_alt_codon)
+
+# plotly=ggplot(ngs_sscs,aes(x=maf.x,y=maf.y))+geom_point()+scale_x_continuous("NGS",trans="log10")+scale_y_continuous("SSCS",trans="log10")
+# ggplotly(plotly)
+
+plotly=ggplot(ngs_sscs,aes(x=maf.x,y=maf.y,label=species))+geom_text()+scale_x_continuous("NGS",trans="log10")+scale_y_continuous("SSCS",trans="log10")+geom_abline()
+ggplotly(plotly)
+
+plotly=ggplot(ngs_sscs,aes(x=maf.x,y=maf.y,label=species))+geom_text()+scale_x_continuous("NGS")+scale_y_continuous("SSCS")+geom_abline()
+ggplotly(plotly)
+
+x=ngs%>%filter(protein_start%in%255,alt_aa%in%"L",alt_codon%in%"CTG")
+x=ngs_sscs%>%filter(species%in%"E255L")
+codon_table=read.csv("data/codon_table.csv",header = T,stringsAsFactors = F)
+
+  twist_codons=codon_table%>%filter(Twist%in%T)
+  # twist_alt_codon=twist_codons[twist_codons$Letter%in%alt_aa,"Codon"]
+twist_alt_codon=twist_codons[,"Codon"]
+```
+
+```{r}
+
+sample10=read.csv("data/Consensus_Data/novogene_lane18/sample10/ngs/variant_caller_outputs/variants_unique_ann.csv")
+# sample10=sample10%>%filter(protein_start%in%c(242:272))%>%mutate(maf=ct/depth)%>%dplyr::select(ref_aa,protein_start,alt_aa,alt_codon,maf.d0=maf)
+sample10=sample10%>%
+  # filter(protein_start%in%c(242:272))%>%
+  filter(protein_start%in%c(242:322))%>%
+  mutate(maf=ct/depth,
+         species=paste(ref_aa,protein_start,alt_aa,sep=""))%>%
+  dplyr::select(type,ref_aa,protein_start,alt_aa,alt_codon,species,maf.d0=maf)
+sample10=sample10%>%filter(alt_codon%in%twist_alt_codon)%>%
+  group_by(type,ref_aa,protein_start,alt_aa,alt_codon,species)%>%
+  summarize(maf.d0=max(maf.d0))
+
+sample4=read.csv("data/Consensus_Data/novogene_lane18/sample4/ngs/variant_caller_outputs/variants_unique_ann.csv")
+sample4=sample4%>%
+  # filter(protein_start%in%c(242:272))%>%
+  filter(protein_start%in%c(242:322))%>%
+  mutate(maf=ct/depth,
+         species=paste(ref_aa,protein_start,alt_aa,sep=""))%>%
+  dplyr::select(type,ref_aa,protein_start,alt_aa,alt_codon,species,maf.screen1=maf)
+sample4=sample4%>%filter(alt_codon%in%twist_alt_codon)%>%
+  group_by(type,ref_aa,protein_start,alt_aa,alt_codon,species)%>%
+  summarize(maf.screen1=max(maf.screen1))
+
+
+sample5=read.csv("data/Consensus_Data/novogene_lane18/sample5/ngs/variant_caller_outputs/variants_unique_ann.csv")
+sample5=sample5%>%
+  # filter(protein_start%in%c(242:272))%>%
+  filter(protein_start%in%c(242:322))%>%
+  mutate(maf=ct/depth,
+         species=paste(ref_aa,protein_start,alt_aa,sep=""))%>%
+  dplyr::select(type,ref_aa,protein_start,alt_aa,alt_codon,species,maf.screen2=maf)
+sample5=sample5%>%filter(alt_codon%in%twist_alt_codon)%>%
+  group_by(type,ref_aa,protein_start,alt_aa,alt_codon,species)%>%
+  summarize(maf.screen2=max(maf.screen2))
+
+
+# sample5=sample5%>%filter(protein_start%in%c(242:272))%>%mutate(maf=ct/depth)%>%dplyr::select(ref_aa,protein_start,alt_aa,alt_codon,maf.screen2=maf)
+
+baf3_low=merge(sample10,sample4,by=c("type","ref_aa","protein_start","alt_aa","alt_codon"))
+baf3_low=merge(baf3_low,sample5,by=c("type","ref_aa","protein_start","alt_aa","alt_codon"))
+# baf3_low=baf3_low%>%filter(alt_codon%in%twist_alt_codon)
+baf3_low=baf3_low%>%mutate(netgr_screen1=log(maf.screen1*25546/(maf.d0*54))/144,
+                           netgr_screen2=log(maf.screen2*22471/(maf.d0*54))/144)
+
+plotly=ggplot(baf3_low,aes(x=netgr_screen1,y=netgr_screen2))+geom_point()+scale_x_continuous(trans="log10")+scale_y_continuous(trans="log10")+facet_wrap(~type)
+ggplotly(plotly)
+source("code/resmuts_adder.R")
+baf3_low=resmuts_adder(baf3_low)
+plotly=ggplot(baf3_low,aes(x=netgr_screen1,y=netgr_screen2,label=species,color=resmuts))+geom_text()+scale_x_continuous(trans="log10")+scale_y_continuous(trans="log10")
+ggplotly(plotly)
+cor(baf3_low$netgr_screen1,baf3_low$netgr_screen2)
+
+class(baf3_low$netgr_screen1)
+baf3_low=baf3_low%>%mutate(netgr_obs_mean=(netgr_screen1+netgr_screen2)/2)
+
+glm.fit.baf3=glm(as.numeric(baf3_low$resmuts)~baf3_low$netgr_obs_mean,family=binomial)
+baf3_low$glm_fits=glm.fit.baf3$fitted.values
+roc(as.numeric(baf3_low$resmuts),baf3_low$glm_fits,plot=T,legacy.axes=T,percent=T,xlab="False Positive Percentage",ylab="True Positive Percentage",print.auc=T)
+
+baf3_low2=baf3_low%>%filter(!protein_start%in%c(289:306))%>%dplyr::select(ref_aa,protein_start,alt_aa,species,netgr_obs_mean)
+# baf3_low=
+  
+smdata=read.csv("output/ABLEnrichmentScreens/ABL_Region1_Lane18_Comparisons/cross-replicate/baf3_imat_low_rep1vsrep2_ft/screen_comparison_baf3_imat_low_rep1vsrep2_ft.csv")
+smdata=smdata%>%filter(!ct_screen1_after%in%.5,!ct_screen1_after%in%.5)
+smdata=smdata%>%filter(!protein_start%in%c(289:306))%>%dplyr::select(ref_aa,protein_start,alt_aa,species,netgr_obs_mean)
+
+  
+baf3_low2=merge(baf3_low2,smdata,by=c("ref_aa","protein_start","alt_aa","species"),all = T)
+baf3_low2=baf3_low2%>%filter(!ref_aa==alt_aa)
+baf3_low2$ngsonly=F
+baf3_low2[baf3_low2$netgr_obs_mean.y%in%NA,"ngsonly"]=T
+baf3_low2[baf3_low2$netgr_obs_mean.y%in%NA,"netgr_obs_mean.y"]=.01
+  
+ggplot(baf3_low2,aes(x=netgr_obs_mean.x,y=netgr_obs_mean.y,label=species,color=ngsonly))+geom_text()+stat_cor(method = "pearson")
+x=baf3_low2%>%filter(netgr_obs_mean.y%in%NA)
+
+smdata=read.csv("output/ABLEnrichmentScreens/ABL_Region1_Lane18_Comparisons/cross-replicate/baf3_imat_low_rep1vsrep2_ft/screen_comparison_baf3_imat_low_rep1vsrep2_ft.csv")
+ggplot(smdata,aes(x=ct_screen1_after,y=netgr_obs_mean))+geom_point()+scale_x_continuous(trans="log10")
+```

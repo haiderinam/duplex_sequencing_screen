@@ -20,16 +20,18 @@ heatmap_plotting_function=function(df_forplot,resi_start,resi_end,fill_variable=
   twist2=twist%>%filter(Twist2%in%T)
   twist=twist%>%filter(Twist%in%T)
 
-  if(resi_end>=495){
-    df_forplot_extended=df_forplot%>%filter(protein_start%in%c(495:512),
-                                            alt_codon%in%twist2$Codon,
-                                            !consequence_terms%in%"stop_gained")
-  }
   df_forplot=df_forplot%>%filter(protein_start%in%c(resi_start:resi_end),
                                  alt_codon%in%twist$Codon,
                                  !consequence_terms%in%"stop_gained",
                                  protein_start<=494)
-  df_forplot=rbind(df_forplot,df_forplot_extended)
+  if(resi_end>=495){
+    df_forplot_extended=df_forplot%>%filter(protein_start%in%c(495:512),
+                                            alt_codon%in%twist2$Codon,
+                                            !consequence_terms%in%"stop_gained")
+    df_forplot=rbind(df_forplot,df_forplot_extended)
+  }
+
+
 
   # df_forplot=df_forplot%>%
     # filter(alt_codon=case_when(protein_start<=494%in%twist$Codon,
