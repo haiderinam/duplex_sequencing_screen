@@ -7,7 +7,7 @@ output: html_document
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
-# knitr::opts_knit$set(root.dir = normalizePath(".."))
+knitr::opts_knit$set(root.dir = normalizePath(".."))
 # rm(list=ls())
 
 library(stringr)
@@ -25,6 +25,7 @@ library(pROC)
 ```{r}
 #Cleanup code for plotting
 source("code/plotting/cleanup.R")
+source("code/is_intended_adder.R")
 # source("code/compare_screens.R")
 source("code/merge_samples.R")
 source("code/plotting/heatmap_plotting_function.R")
@@ -449,7 +450,7 @@ il3_1_vsil3_2_all=il3_1_vsil3_2_all%>%dplyr::select(-c("X",
 #                                              score.IL3.1=score_screen1,score.IL3.2=score_screen2)
 il3_1_vsil3_2_all=il3_1_vsil3_2_all%>%dplyr::select(c("species","consequence_terms"),"ref_aa",everything())
 
-
+a=il3_1_vsil3_2_all%>%filter(protein_start%in%245,is_intended%in%1)
 ############# Imatinib low (300nM) screens  ############# 
 
 r1=read.csv("output/ABLEnrichmentScreens/ABL_Region1_Lane18_Comparisons/cross-replicate/baf3_Imat_low_rep1vsrep2_ft/screen_comparison_baf3_Imat_low_rep1vsrep2_ft.csv")
@@ -596,7 +597,7 @@ imathigh_1_vsimathigh_2_all=imathigh_1_vsimathigh_2_all%>%dplyr::select(-"deplet
 ##############################Adding F359C data##########################
 #######################IL3 Data################
 tsi_il3=read.csv("output/ABLEnrichmentScreens/IL3_Enrichment_bgmerged_2.20.23.csv",header = T,stringsAsFactors = F)
-tsi_il3=tsi_il3%>%filter(!((ct_screen2_after%in%0.5)&(ct_screen1_after%in%0.5)))
+tsi_il3=tsi_il3%>%filter(protein_start%in%c(354:361),!((ct_screen2_after%in%0.5)&(ct_screen1_after%in%0.5)))
 tsi_il3=tsi_il3%>%dplyr::select(-c("X",
                                    "alt_start_pos",
                                    "score_mean"))
@@ -616,7 +617,7 @@ il3_1_vsil3_2_all <- il3_1_vsil3_2_all %>%
   dplyr::relocate(is_intended, .after = n_nuc_min)
 #######################Imatinib 300nM####################
 tsi_imatinib=read.csv("output/ABLEnrichmentScreens/Imat_Enrichment_bgmerged_2.22.23.csv",header = T,stringsAsFactors = F)
-tsi_imatinib=tsi_imatinib%>%filter(!((ct_screen2_after%in%0.5)&(ct_screen1_after%in%0.5)))
+tsi_imatinib=tsi_imatinib%>%filter(protein_start%in%c(354:361),!((ct_screen2_after%in%0.5)&(ct_screen1_after%in%0.5)))
 tsi_imatinib=tsi_imatinib%>%dplyr::select(-c("X",
                                    "alt_start_pos",
                                    "score_mean"))
