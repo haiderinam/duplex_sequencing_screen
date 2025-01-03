@@ -602,7 +602,7 @@ tsi_il3=tsi_il3%>%dplyr::select(-c("X",
                                    "alt_start_pos",
                                    "score_mean"))
 tsi_il3=tsi_il3%>%dplyr::select(c("species","consequence_terms"),"ref_aa",everything())
-tsi_il3=tsi_il3%>%mutate(netgr_obs_mean=mean(c(netgr_obs_screen1,netgr_obs_screen2)))
+tsi_il3=tsi_il3%>%rowwise()%>%mutate(netgr_obs_mean=mean(c(netgr_obs_screen1,netgr_obs_screen2)))
 tsi_il3=is_intended_adder(tsi_il3)
 
 
@@ -622,7 +622,7 @@ tsi_imatinib=tsi_imatinib%>%dplyr::select(-c("X",
                                    "alt_start_pos",
                                    "score_mean"))
 tsi_imatinib=tsi_imatinib%>%dplyr::select(c("species","consequence_terms"),"ref_aa",everything())
-tsi_imatinib=tsi_imatinib%>%mutate(netgr_obs_mean=mean(c(netgr_obs_screen1,netgr_obs_screen2)))
+tsi_imatinib=tsi_imatinib%>%rowwise()%>%mutate(netgr_obs_mean=mean(c(netgr_obs_screen1,netgr_obs_screen2)))
 tsi_imatinib=is_intended_adder(tsi_imatinib)
 
 

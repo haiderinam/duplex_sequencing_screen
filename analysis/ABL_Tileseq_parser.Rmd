@@ -359,28 +359,45 @@ data=data%>%
                                   T~netgr_obs_screen2),
          netgr_obs_corr_screen2=case_when(ct_screen2_after%in%0.5~-Inf,
                                   T~netgr_obs_corr_screen2))
+source("code/plotting/heatmap_plotting_function.R")
 
 ################Plot 1a#################
 heatmap_plotting_function(data%>%mutate(netgr_obs_mean=case_when(netgr_obs_mean>=.06~.06,
                                                                  netgr_obs_mean<=0~0,
                                                     T~netgr_obs_mean)),242,512,fill_variable = "netgr_obs_mean",fill_name = "Net growth rate")+
   scale_x_continuous(name="Residue on the ABL Kinase",limits=c(242,512),expand=c(0,0))+
-  scale_fill_gradient2(low="blue",mid ="#9999FF",midpoint=.03, high ="red",name="Net growth rate")+theme(legend.position = "none")
+  scale_fill_gradient2(low="blue",mid ="#9999FF",midpoint=.03, high ="red",name="Net growth \nrate")+
+  theme(legend.position = c(0.92,0.45),
+        legend.title = element_text(size=8),
+        legend.text = element_text(size=8),
+        axis.text.x=element_text(color="black",size=8),
+        axis.title.x=element_blank(),
+        axis.title.y=element_blank(),
+        axis.text.y=element_text(color="black",size=8),
+        plot.margin=grid::unit(c(1,1,1,1), "mm"))
 
-ggsave(paste(dirname,"1a.baf3_imatinib_heatmap_netgr_",dose,"_",seqtech,"_",date,".pdf",sep=""),width=16,height=4,units="in",useDingbats=F)
+ggsave(paste(dirname,"1a.baf3_imatinib_heatmap_netgr_",dose,"_",seqtech,"_",date,".pdf",sep=""),width=7,height=2.5,units="in",useDingbats=F)
 
 ################Plot 1b#################
+
 heatmap_plotting_function(data%>%mutate(netgr_obs_mean=case_when(netgr_obs_mean_corr>=.06~.06,
                                                                  netgr_obs_mean_corr<=0~0,
-                                                    T~netgr_obs_mean)),242,512,fill_variable = "netgr_obs_mean",fill_name = "Net growth rate")+
+T~netgr_obs_mean_corr)),242,512,fill_variable = "netgr_obs_mean",fill_name = "Net growth rate")+
   scale_x_continuous(name="Residue on the ABL Kinase",limits=c(242,512),expand=c(0,0))+
-  scale_fill_gradient2(low="blue",mid ="#9999FF",midpoint=.03, high ="red",name="Net growth rate")+theme(legend.position = "none")
+  scale_fill_gradient2(low="blue",mid ="#9999FF",midpoint=.03, high ="red",name="Net growth \nrate")+
+  theme(legend.position = c(0.92,0.45),
+        legend.title = element_text(size=8),
+        legend.text = element_text(size=8),
+        axis.text.x=element_text(color="black",size=8),
+        axis.title.x=element_blank(),
+        axis.title.y=element_blank(),
+        axis.text.y=element_text(color="black",size=8),
+        plot.margin=grid::unit(c(1,1,1,1), "mm"))
 
-ggsave(paste(dirname,"1b.baf3_imatinib_heatmap_netgr_corrected_",dose,"_",seqtech,"_",date,".pdf",sep=""),width=16,height=4,units="in",useDingbats=F)
-
+ggsave(paste(dirname,"1a.baf3_imatinib_heatmap_netgr_corrected_",dose,"_",seqtech,"_",date,".pdf",sep=""),width=7,height=2.5,units="in",useDingbats=F)
 ################Plot 2a#################
-#   a=data%>%filter(is_intended%in%1)
-ggplot(data%>%filter(protein_start>=242,protein_start<=512),aes(x=netgr_obs_mean,fill=resmuts))+
+a=data%>%filter(protein_start>=242,protein_start<=512,!species%in%c("V299L"),resmuts%in%T,dose%in%"600nM")
+ggplot(data%>%filter(protein_start>=242,protein_start<=512,!species%in%c("V299L")),aes(x=netgr_obs_mean,fill=resmuts))+
   geom_density(alpha=.7)+
   scale_x_continuous(bquote('Net Growth Rate '(Hours^-1)),limits=c(-.03,.09))+
   scale_y_continuous("Density")+
@@ -390,7 +407,7 @@ ggplot(data%>%filter(protein_start>=242,protein_start<=512),aes(x=netgr_obs_mean
 
 ggsave(paste(dirname,"2a.baf3_imatinib_histograms_netgr_",dose,"_",seqtech,"_",date,".pdf",sep=""),width=4,height=4,units="in",useDingbats=F)
 ################Plot 2b#################
-ggplot(data%>%filter(protein_start>=242,protein_start<=512),aes(x=netgr_obs_mean_corr,fill=resmuts))+
+ggplot(data%>%filter(protein_start>=242,protein_start<=512,!species%in%c("V299L")),aes(x=netgr_obs_mean_corr,fill=resmuts))+
   geom_density(alpha=.7)+
   scale_x_continuous(bquote('Net Growth Rate '(Hours^-1)),limits=c(-.03,.09))+
   scale_y_continuous("Density")+
@@ -454,10 +471,18 @@ ggplot(standards%>%filter(!protein_start%in%c(354:361)),aes(x=.055-drug_effect,y
   # scale_y_continuous("Observed Net Growth Rate (Hrs-1) \nDMS Screen",limits=c(-0.01,.06))+
   scale_x_continuous("Predicted Net Growth Rate (Hrs-1) \nClonal IC50",limits=c(-0.02,.065))+
   scale_y_continuous("Observed Net Growth Rate (Hrs-1) \nDMS Screen",limits=c(-0.02,.065))+
-  stat_cor(method="pearson")+
+  stat_cor(method="pearson",size=2)+
   geom_abline(linetype="dashed")+
-  cleanup
-ggsave(paste(dirname,"4a.baf3_imatinib_mutantstandards_netgr_",dose,"_",seqtech,"_",date,".pdf",sep=""),width=3,height = 3,units="in",useDingbats=F)
+  cleanup+
+  theme(legend.position = c(0.92,0.45),
+        legend.title = element_text(size=8),
+        legend.text = element_text(size=8),
+        axis.text.x=element_text(color="black",size=8),
+        axis.title.x=element_blank(),
+        axis.title.y=element_blank(),
+        axis.text.y=element_text(color="black",size=8),
+        plot.margin=grid::unit(c(1,1,1,1), "mm"))
+ggsave(paste(dirname,"4a.baf3_imatinib_mutantstandards_netgr_",dose,"_",seqtech,"_",date,".pdf",sep=""),width=2.5,height = 2.5,units="in",useDingbats=F)
 
 ################Plot 4b#################
 ggplot(standards%>%filter(!protein_start%in%c(354:361)),aes(x=.055-drug_effect,y=netgr_obs_mean_corr,label=species))+
@@ -466,10 +491,41 @@ ggplot(standards%>%filter(!protein_start%in%c(354:361)),aes(x=.055-drug_effect,y
   # scale_y_continuous("Observed Net Growth Rate (Hrs-1) \nDMS Screen",limits=c(-0.01,.06))+
   scale_x_continuous("Predicted Net Growth Rate (Hrs-1) \nClonal IC50",limits=c(-0.02,.065))+
   scale_y_continuous("Observed Net Growth Rate (Hrs-1) \nDMS Screen",limits=c(-0.02,.065))+
-  stat_cor(method="pearson")+
+  stat_cor(method="pearson",size=2)+
   geom_abline(linetype="dashed")+
-  cleanup
-ggsave(paste(dirname,"4b.baf3_imatinib_mutantstandards_netgr_corrected_",dose,"_",seqtech,"_",date,".pdf",sep=""),width=3,height = 3,units="in",useDingbats=F)
+  cleanup+
+  theme(legend.position = c(0.92,0.45),
+        legend.title = element_text(size=8),
+        legend.text = element_text(size=8),
+        axis.text.x=element_text(color="black",size=8),
+        axis.title.x=element_blank(),
+        axis.title.y=element_blank(),
+        axis.text.y=element_text(color="black",size=8),
+        plot.margin=grid::unit(c(1,1,1,1), "mm"))
+ggsave(paste(dirname,"4b.baf3_imatinib_mutantstandards_netgr_corrected_",dose,"_",seqtech,"_",date,".pdf",sep=""),width=2.5,height = 2.5,units="in",useDingbats=F)
+
+
+################Plot 4c#################
+ggplot(standards%>%filter(!protein_start%in%c(354:361)),aes(x=.055-drug_effect,y=netgr_obs_mean_corr,label=species))+
+  stat_cor(method="pearson",size=2,color="blue",vjust=3)+
+  geom_text(size=2,color="blue")+
+  geom_text(size=2,color="red",aes(y=netgr_obs_mean))+
+  stat_cor(method="pearson",size=2,aes(y=netgr_obs_mean),color="red")+
+  # scale_x_continuous("Predicted Net Growth Rate (Hrs-1) \nClonal IC50",limits=c(-0.01,.06))+
+  # scale_y_continuous("Observed Net Growth Rate (Hrs-1) \nDMS Screen",limits=c(-0.01,.06))+
+  scale_x_continuous("Predicted Net Growth Rate (Hrs-1) \nClonal IC50",limits=c(-0.02,.065))+
+  scale_y_continuous("Observed Net Growth Rate (Hrs-1) \nDMS Screen",limits=c(-0.02,.065))+
+  geom_abline(linetype="dashed")+
+  cleanup+
+  theme(legend.position = c(0.92,0.45),
+        legend.title = element_text(size=8),
+        legend.text = element_text(size=8),
+        axis.text.x=element_text(color="black",size=8),
+        axis.title.x=element_blank(),
+        axis.title.y=element_blank(),
+        axis.text.y=element_text(color="black",size=8),
+        plot.margin=grid::unit(c(1,1,1,1), "mm"))
+ggsave(paste(dirname,"4c.baf3_imatinib_mutantstandards_netgr_corrected_",dose,"_",seqtech,"_",date,".pdf",sep=""),width=2.5,height = 2.5,units="in",useDingbats=F)
 
 ################Plot 5a#################
 ggplot(data%>%filter(!species%in%c("V299L"),protein_start>=242,protein_start<=512),aes(x=resmut_cosmic,y=netgr_obs_mean,fill=resmut_cosmic))+
@@ -517,8 +573,12 @@ ggplot(data_merged%>%filter(!species%in%"V299L",n_nuc_min%in%1),aes(x=resmut_cos
   geom_jitter(color="black", size=.5,width=.1, alpha=0.9)+
   scale_fill_manual(values=c("gray90","gray50","red"))+
   scale_y_continuous(name=bquote('Net Growth Rate '(Hours^-1)),limits=c(-0.02,.09))+
-  scale_x_discrete("",labels=c("Undetected","Pre-existing\n ALL","Known\nResistant\n Variant"))+cleanup+theme(legend.position = "none")
-ggsave(paste(dirname,"6a.baf3_imatinib_pre-existingALL_netgr_",dose,"_",seqtech,"_",date,".pdf",sep=""),width=4,height=4,units="in",useDingbats=F)
+  scale_x_discrete("",labels=c("Undetected","Pre-existing\n ALL","Known\nResistant\n Variant"))+cleanup+theme(legend.position = "none",
+        axis.text.x=element_text(color="black",size=8),
+        axis.title.y=element_blank(),
+        axis.text.y=element_text(color="black",size=8),
+        plot.margin=grid::unit(c(1,1,1,1), "mm"))
+ggsave(paste(dirname,"6a.baf3_imatinib_pre-existingALL_netgr_",dose,"_",seqtech,"_",date,".pdf",sep=""),width=3,height=3,units="in",useDingbats=F)
 
 ################Plot 6b#################
 ggplot(data_merged%>%filter(!species%in%"V299L",n_nuc_min%in%1),aes(x=resmut_cosmic,y=netgr_obs_mean_corr,fill=resmut_cosmic))+
