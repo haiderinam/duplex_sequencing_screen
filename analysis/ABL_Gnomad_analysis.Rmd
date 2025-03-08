@@ -7,7 +7,7 @@ output: html_document
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
-knitr::opts_knit$set(root.dir = normalizePath(".."))
+# knitr::opts_knit$set(root.dir = normalizePath(".."))
 # rm(list=ls())
 
 library(stringr)
@@ -126,59 +126,6 @@ ref_genomic_coordinates=ref_genomic_coordinates%>%
   mutate(codon=ref_search(start-ref_offset,end-ref_offset))
 ref_genomic_coordinates=ref_genomic_coordinates%>%filter(!codon%in%"")
 ```
-
-```{r}
-library(ggplot2)
-library(grid)
-library(dplyr)
-# library(ggplotify)
-
-
-# Example dataset
-set.seed(123)
-data <- data.frame(
-  x = 1:5,
-  y = runif(5, 0, 1),
-  group = c("A", "B", "C", "D", "E")
-)
-
-# Sample ethnicity distribution for each point
-ethnicity_data <- list(
-  data.frame(ethnicity = c("A", "B", "C"), value = c(50, 30, 20)),
-  data.frame(ethnicity = c("A", "B", "C"), value = c(40, 40, 20)),
-  data.frame(ethnicity = c("A", "B", "C"), value = c(60, 20, 20)),
-  data.frame(ethnicity = c("A", "B", "C"), value = c(30, 50, 20)),
-  data.frame(ethnicity = c("A", "B", "C"), value = c(20, 50, 30))
-)
-
-# Function to create pie chart grob
-make_pie_grob <- function(data) {
-  p <- ggplot(data, aes(x = "", y = value, fill = ethnicity)) +
-    geom_bar(stat = "identity", width = 1) +
-    coord_polar("y") +
-    theme_void() +
-    theme(legend.position = "none")
-  
-  gridExtra::as.grob(p)
-}
-
-# Base scatter plot
-p <- ggplot(data, aes(x, y)) +
-  geom_blank() +  # Keeps the base plot structure
-  theme_minimal()
-
-# Add pie charts at each point
-for (i in 1:nrow(data)) {
-  pie_grob <- make_pie_grob(ethnicity_data[[i]])
-  p <- p + annotation_custom(pie_grob, xmin = data$x[i] - 0.4, xmax = data$x[i] + 0.4, 
-                             ymin = data$y[i] - 0.05, ymax = data$y[i] + 0.05)
-}
-
-# Show plot
-print(p)
-```
-
-
 
 MAIN GNOMAD ANALYSIS
 ```{r}
@@ -417,7 +364,7 @@ ggplot(imatdata_gnomad%>%filter(dose%in%"1200nM")%>%arrange(desc(rank)),aes(x=sp
         axis.text.y = element_text(angle = 90, hjust = 0.5, vjust = 0.5))
 
 
-ggsave("output/ABLEnrichmentScreens/ABL_Region234_Comparisons/sm_imatinib_plots/gnomad_enabled_mutants.pdf",width=7,height = 4, units="in",useDingbats=F)
+# ggsave("output/ABLEnrichmentScreens/ABL_Region234_Comparisons/sm_imatinib_plots/gnomad_enabled_mutants.pdf",width=7,height = 4, units="in",useDingbats=F)
 
 ggplot(imatdata_gnomad%>%arrange(desc(rank)),aes(x=species,y=netgr_obs_mean_corr,label=species))+
   geom_point(color="black",size=2,shape=21,aes(fill=dose))+
@@ -434,7 +381,7 @@ ggplot(imatdata_gnomad%>%arrange(desc(rank)),aes(x=species,y=netgr_obs_mean_corr
         axis.text.x = element_blank(),
         axis.ticks.x = element_blank(),
         axis.text.y = element_text(angle = 90, hjust = 0.5, vjust = 0.5))
-ggsave("output/ABLEnrichmentScreens/ABL_Region234_Comparisons/sm_imatinib_plots/gnomad_enabled_mutants_bydose.pdf",width=7,height = 4, units="in",useDingbats=F)
+# ggsave("output/ABLEnrichmentScreens/ABL_Region234_Comparisons/sm_imatinib_plots/gnomad_enabled_mutants_bydose.pdf",width=7,height = 4, units="in",useDingbats=F)
 
 
 imatdata_gnomad <- imatdata_gnomad %>%
@@ -498,9 +445,9 @@ clinvar=clinvar%>%filter(residue>=242,residue<=510)
 
 clinvar=clinvar%>%mutate(Clinical.significance..Last.reviewed.=
                            strsplit(Clinical.significance..Last.reviewed.,"\\(")[[1]][1])
-a=clinvar%>%group_by(Clinical.significance..Last.reviewed.)%>%summarise(ct=n())
+# a=clinvar%>%group_by(Clinical.significance..Last.reviewed.)%>%summarise(ct=n())
 
-b=clinvar%>%filter(Clinical.significance..Last.reviewed.%in%"Uncertain significance")
+# b=clinvar%>%filter(Clinical.significance..Last.reviewed.%in%"Uncertain significance")
 # There are 15 clinvar variants of unknown significance
 # write.csv(b,"clinvar_vus_mutants.csv")
 ```
@@ -575,6 +522,8 @@ ggplot(gnomad_enrichment_melt%>%filter(!ancestry%in%"af.european.nonfin",!ancest
 
 Making a few piecharts for the paper
 ```{r}
+imatdata=read.csv("output/ABLEnrichmentScreens/ABL_Region1234_Tileseq/data/TileSeq_full_kinase_alldoses_with_lfc_corrected_netgrowths.csv",header = T,stringsAsFactors = F)
+imatdata=imatdata%>%filter(ct_screen1_before>=5)
 library(tools)
 gnomad_sum=gnomad_enrichment_melt%>%group_by(ancestry)%>%summarize(sum_freq=sum(af))
 gnomad_sum=gnomad_sum%>%rowwise()%>%
@@ -598,7 +547,7 @@ ggplot(gnomad_sum, aes(x="", y=sum_freq, fill=ancestry)) +
             position = position_stack(vjust = 0.5),size=3.2) +
   # geom_text(aes(y = ypos, label = round(sum_freq,2)), color = "black", size=4) +
   scale_fill_brewer(palette="Set3")
-ggsave("output/ABLEnrichmentScreens/ABL_Region234_Comparisons/sm_imatinib_plots/gnomad_piecharts.pdf",width=2.5,height = 2.5, units="in",useDingbats=F)
+# ggsave("output/ABLEnrichmentScreens/ABL_Region234_Comparisons/sm_imatinib_plots/gnomad_piecharts.pdf",width=2.5,height = 2.5, units="in",useDingbats=F)
 source("code/resmuts_adder.R")
 imatdata=resmuts_adder(imatdata)
 ggplot(imatdata%>%filter(dose%in%"1200nM",!protein_start%in%"359",!species%in%"V299L"),aes(y=netgr_obs_mean_corr,fill=resmuts))+
@@ -615,11 +564,6 @@ ggplot(imatdata%>%filter(dose%in%"1200nM",!protein_start%in%"359",!species%in%"V
   scale_fill_manual(values = c("gray90","red"))
 # ggsave("output/ABLEnrichmentScreens/ABL_Region234_Comparisons/sm_imatinib_plots/gnomad_distributions.pdf",width=1,height = 4, units="in",useDingbats=F)
 
-
-```
-
-```{r}
-binom.test(2,20000,0.05)
 
 ```
 
