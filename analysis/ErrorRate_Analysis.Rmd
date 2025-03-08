@@ -142,6 +142,24 @@ ggplot(sample10_duplex_simple%>%
   theme(legend.position = "none")
 
 # ggsave("errorrates.pdf",width=8,height=8,units="in",useDingbats=F)  
+library(scales)
+
+ggplot(sample10_duplex_simple%>%
+         filter(!consensus%in%"SSCS",protein_start>=118,protein_start<=600,!protein_start%in%c(411,493,321,417),ct>=2)%>%
+         mutate(mutant=paste(protein_start,alt_aa)),aes(x=protein_start,y=maf,color=error_status))+
+  geom_col(aes(position="dodge"))+
+  facet_wrap(~consensus,ncol=1)+
+  scale_color_manual(values = c("blue","red"))+
+  theme_bw()+
+  scale_x_continuous(name="Position on ABL")+
+  scale_y_continuous(limits=c(0,.01),name="MAF",labels = scientific_format())+
+  theme(legend.position = "none",
+        strip.background = element_blank(),
+        strip.text.x = element_blank(),
+        axis.title.x = element_blank(),
+        axis.title.y = element_blank(),
+        axis.text.y = element_text(size = 9))
+ggsave("output/ABLEnrichmentScreens/ABL_Region1234_Tileseq/lane18b_rerun_comparisons/dcsvstileseqfigures/plot9_errorrates.pdf",width=7,height=4,units="in",useDingbats=F)
 ```
 
 Analyzing the TP53 data for errors (aka unintended codons)
@@ -180,6 +198,8 @@ ggplot(tp53_data%>%
   scale_fill_manual(values=c("blue","red"))+
   cleanup+
   theme(legend.position = "none")
+
+ggsave("output/ABLEnrichmentScreens/ABL_Region1234_Tileseq/lane18b_rerun_comparisons/dcsvstileseqfigures/plot6d_gpp_tp53_ngs_untreated.pdf",width=3.5,height=2.5,units="in",useDingbats=F)
 # ggsave("tp53_untreated.pdf",width=4,height=3,units="in",useDingbats=F)
 
 #########Nutlin-3 Treated A549s experiment 1#########

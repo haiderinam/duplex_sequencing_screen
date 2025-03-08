@@ -7,7 +7,7 @@ output: html_document
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
-# knitr::opts_knit$set(root.dir = normalizePath(".."))
+knitr::opts_knit$set(root.dir = normalizePath(".."))
 # rm(list=ls())
 
 library(stringr)
@@ -20,6 +20,17 @@ library(foreach)
 library(RColorBrewer)
 library(ggpubr)
 library(pROC)
+library(reshape2)
+
+cleanup=theme_bw() +
+  theme(plot.title = element_text(hjust=.5),
+        panel.grid.major = element_blank(),
+        panel.grid.major.y = element_blank(),
+        panel.background = element_blank(),
+        # axis.line = element_line(color = "black"),
+        axis.text = element_text(face="bold",color="black",size="11"),
+        text=element_text(size=11,face="bold"),
+        axis.title=element_text(face="bold",size="11"))
 
 ```
 
@@ -49,19 +60,24 @@ Looking at mutant candidates for dose escalation
 ```{r}
   
 # low
-a=read.csv("output/ABLEnrichmentScreens/ABL_Region1_Lane18_Comparisons/cross-replicate/baf3_Imat_low_rep1vsrep2_ft/screen_comparison_baf3_Imat_low_rep1vsrep2_ft.csv",header = T,stringsAsFactors = F)
-
+# a=read.csv("output/ABLEnrichmentScreens/ABL_Region1_Lane18_Comparisons/cross-replicate/baf3_Imat_low_rep1vsrep2_ft/screen_comparison_baf3_Imat_low_rep1vsrep2_ft.csv",header = T,stringsAsFactors = F)
+a=read.csv("output/ABLEnrichmentScreens/ABL_Region1234_Tileseq/data/TileSeq_full_kinase_alldoses_with_lfc_corrected_netgrowths.csv",header = T,stringsAsFactors = F)
+a=a%>%filter(dose%in%"300nM",is_intended%in%1,protein_start%in%c(242:322))
 a=a%>%filter(species%in%candidates)
 a=a%>%dplyr::select(species,netgr_obs_mean)
 a$dose=300
 # medium
-b=read.csv("output/ABLEnrichmentScreens/ABL_Region1_Lane18_Comparisons/cross-replicate/baf3_Imat_medium_rep1vsrep2_ft/screen_comparison_baf3_Imat_medium_rep1vsrep2_ft.csv",header = T,stringsAsFactors = F)
+# b=read.csv("output/ABLEnrichmentScreens/ABL_Region1_Lane18_Comparisons/cross-replicate/baf3_Imat_medium_rep1vsrep2_ft/screen_comparison_baf3_Imat_medium_rep1vsrep2_ft.csv",header = T,stringsAsFactors = F)
+b=read.csv("output/ABLEnrichmentScreens/ABL_Region1234_Tileseq/data/TileSeq_full_kinase_alldoses_with_lfc_corrected_netgrowths.csv",header = T,stringsAsFactors = F)
+b=b%>%filter(dose%in%"600nM",is_intended%in%1,protein_start%in%c(242:322))
 
 b=b%>%filter(species%in%candidates)
 b=b%>%dplyr::select(species,netgr_obs_mean)
 b$dose=600
 # High
-c=read.csv("output/ABLEnrichmentScreens/ABL_Region1_Lane18_Comparisons/cross-replicate/baf3_Imat_high_rep1vsrep2_ft/screen_comparison_baf3_Imat_high_rep1vsrep2_ft.csv",header = T,stringsAsFactors = F)
+# c=read.csv("output/ABLEnrichmentScreens/ABL_Region1_Lane18_Comparisons/cross-replicate/baf3_Imat_high_rep1vsrep2_ft/screen_comparison_baf3_Imat_high_rep1vsrep2_ft.csv",header = T,stringsAsFactors = F)
+c=read.csv("output/ABLEnrichmentScreens/ABL_Region1234_Tileseq/data/TileSeq_full_kinase_alldoses_with_lfc_corrected_netgrowths.csv",header = T,stringsAsFactors = F)
+c=c%>%filter(dose%in%"1200nM",is_intended%in%1,protein_start%in%c(242:322))
 
 c=c%>%filter(species%in%candidates)
 c=c%>%dplyr::select(species,netgr_obs_mean)
@@ -69,15 +85,17 @@ c$dose=1200
 
 
 # No drug
-d=read.csv("output/ABLEnrichmentScreens/ABL_Region1_Lane18_Comparisons/cross-replicate/baf3_IL3_rep1vsrep2_ft/screen_comparison_baf3_IL3_low_rep1vsrep2_ft.csv",header = T,stringsAsFactors = F)
-
+# d=read.csv("output/ABLEnrichmentScreens/ABL_Region1_Lane18_Comparisons/cross-replicate/baf3_IL3_rep1vsrep2_ft/screen_comparison_baf3_IL3_low_rep1vsrep2_ft.csv",header = T,stringsAsFactors = F)
+d=read.csv("output/ABLEnrichmentScreens/ABL_Region1234_Tileseq/data/TileSeq_full_kinase_alldoses_with_lfc_corrected_netgrowths.csv",header = T,stringsAsFactors = F)
+d=d%>%filter(dose%in%"il3",is_intended%in%1,protein_start%in%c(242:322))
 d=d%>%filter(species%in%candidates)
 d=d%>%dplyr::select(species,netgr_obs_mean)
 d$dose=0
 
 # No drug
-e=read.csv("output/ABLEnrichmentScreens/ABL_Region1_Lane18_Comparisons/cross-replicate/baf3_IL3_rep1vsrep2_ft/screen_comparison_baf3_IL3_low_rep1vsrep2_ft.csv",header = T,stringsAsFactors = F)
-
+# e=read.csv("output/ABLEnrichmentScreens/ABL_Region1_Lane18_Comparisons/cross-replicate/baf3_IL3_rep1vsrep2_ft/screen_comparison_baf3_IL3_low_rep1vsrep2_ft.csv",header = T,stringsAsFactors = F)
+e=read.csv("output/ABLEnrichmentScreens/ABL_Region1234_Tileseq/data/TileSeq_full_kinase_alldoses_with_lfc_corrected_netgrowths.csv",header = T,stringsAsFactors = F)
+e=e%>%filter(dose%in%"il3",is_intended%in%1,protein_start%in%c(242:322))
 e=e%>%filter(species%in%candidates)
 e=e%>%dplyr::select(species,netgr_wodrug=netgr_obs_mean)
 
@@ -110,6 +128,97 @@ ggplotly(plotly)
 
 Plotting IC50 fitnesses
 ```{r}
+data=read.csv("data/IC50s_verification/IC50HeatMap_verification_Elvin.csv",header = T,stringsAsFactors = F)
 
+data=melt(data,id.vars="species",measure.vars = c("X39","X78","X156","X312","X625","X1250","X2500","X5000","X10000"),variable.name = "dose",value.name = "response")
+data$dose=as.character(data$dose)
+data$response=as.numeric(data$response)
+data=data%>%
+  rowwise()%>%
+  mutate(dose=as.numeric(strsplit(dose,split="X")[[1]][2]),
+         dose=dose/1000)
+
+data_sum=data%>%
+  group_by(species,dose)%>%
+  summarize(response_u=mean(response),
+            response_sd=sd(response))
+
+data_sum_1250=data_sum%>%filter(dose==1.250)
+data_sum$species=factor(data_sum$species,levels = as.character(data_sum_1250$species[order((data_sum_1250$response_u),decreasing = T)]))
+
+getPalette = colorRampPalette(brewer.pal(9, "Spectral"))
+
+
+ggplot(data_sum,aes(x=dose,y=response_u))+
+  geom_ribbon(aes(ymin=response_u-response_sd,
+                  ymax=response_u+response_sd,
+                  fill=species),
+              alpha=.7)+
+  geom_line(linetype="dashed",aes(color=species),color="black")+
+  geom_point(color="black",shape=21,aes(fill=species))+
+
+  facet_wrap(~species)+
+  scale_x_continuous(trans="log10")+
+  cleanup+
+  theme(legend.position = "none")+
+  scale_fill_manual(values=getPalette(length(unique(data_sum$species))))
+ggsave("data/IC50s_verification/IC50sonoly.pdf",width=6,height=6,useDingbats=F)
+
+#Downloading DMS IC50 imputations
+data_dms=read.csv("data/IC50s_verification/1.19.25_screen_with_alpha_relvial_after_inc_444_760_916_ALL.csv",header = T,stringsAsFactors = F)
+
+data_dms=data_dms%>%filter(species%in%unique(data$species))
+
+# data_dms=data_dms%>%filter(species%in%"E255K")
+
+# data_dms=data_dms%>%dplyr::select()
+
+library(tidyr)
+library(dplyr)
+
+# Assuming df is your dataframe
+data_dms_long <- data_dms %>%
+  pivot_longer(
+    cols = starts_with("X"), 
+    names_to = c("Dose", ".value"),
+    names_pattern = "X(\\d+)\\.(.+)"
+  ) %>%
+  mutate(Dose = as.numeric(Dose))  # Convert Dose to numeric for easier analysis
+# data_dms_long2=data_dms_long
+data_dms_long=data_dms_long%>%filter(Dose%in%seq(10,4000,50))
+data_dms_long=data_dms_long%>%mutate(Dose=Dose/1000)
+
+data_dms_long_1250=data_dms_long%>%filter(Dose==1.26)
+data_dms_long$species=factor(data_dms_long$species,levels = as.character(data_dms_long_1250$species[order((data_dms_long_1250$rel.viab),decreasing = T)]))
+
+getPalette = colorRampPalette(brewer.pal(9, "Spectral"))
+# data_dms_long=data_dms_long%>%mutate(rel.viab.1200=)
+ggplot(data_dms_long,aes(x=Dose,y=rel.viab))+
+  geom_line(aes(color=species))+
+  facet_wrap(~species)+
+  cleanup+
+  scale_x_continuous(trans = "log10")+
+  scale_color_manual(values=getPalette(length(unique(data_dms_long$species))))
+
+
+ggplot(data_sum,aes(x=dose,y=response_u))+
+  geom_ribbon(aes(ymin=response_u-response_sd,
+                  ymax=response_u+response_sd,
+                  fill=species),
+              alpha=.7)+
+  geom_line(data=data_dms_long,aes(x=Dose,y=rel.viab,color=species),color="black")+
+  # geom_line(linetype="dashed",aes(color=species),color="black")+
+  # geom_point(color="black",shape=21,aes(fill=species))+
+
+  facet_wrap(~species)+
+  scale_x_continuous(trans="log10")+
+  cleanup+
+  theme(legend.position = "none",
+        axis.text.x=element_text(angle=90,hjust=.5,vjust=.5),)+
+  scale_fill_manual(values=getPalette(length(unique(data_sum$species))))+
+  scale_color_manual(values=getPalette(length(unique(data_sum$species))))+
+  geom_vline(xintercept = 0.930,linetype="dashed")
+
+ggsave("data/IC50s_verification/IC50s_clonalvsdms.pdf",width=6,height=6,useDingbats=F)
 ```
 

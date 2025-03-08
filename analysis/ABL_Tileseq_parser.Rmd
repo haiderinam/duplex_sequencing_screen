@@ -340,7 +340,7 @@ seqtech="sscs"
 
 ```
 
-
+### Part 4: Making plots
 ```{r}
 alldata=read.csv("output/ABLEnrichmentScreens/ABL_Region1234_Tileseq/data/TileSeqandSSCS_full_kinase_alldoses_with_lfc_corrected_netgrowths_12192024.csv",header = T,stringsAsFactors = F)[-1]
 dose_curr=dose
@@ -513,8 +513,8 @@ ggplot(standards%>%filter(!protein_start%in%c(354:361)),aes(x=.055-drug_effect,y
   stat_cor(method="pearson",size=2,aes(y=netgr_obs_mean),color="red")+
   # scale_x_continuous("Predicted Net Growth Rate (Hrs-1) \nClonal IC50",limits=c(-0.01,.06))+
   # scale_y_continuous("Observed Net Growth Rate (Hrs-1) \nDMS Screen",limits=c(-0.01,.06))+
-  scale_x_continuous("Predicted Net Growth Rate (Hrs-1) \nClonal IC50",limits=c(-0.02,.065))+
-  scale_y_continuous("Observed Net Growth Rate (Hrs-1) \nDMS Screen",limits=c(-0.02,.065))+
+  scale_x_continuous("Predicted Net Growth Rate (Hrs-1) \nClonal IC50",limits=c(-0.026,.075))+
+  scale_y_continuous("Observed Net Growth Rate (Hrs-1) \nDMS Screen",limits=c(-0.026,.075))+
   geom_abline(linetype="dashed")+
   cleanup+
   theme(legend.position = c(0.92,0.45),
