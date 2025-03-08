@@ -151,7 +151,10 @@ editor_options:
 
 
 * Click [here](dose_escalation_verification.html) to view our validation IC50s with hits from the DMS screens.  
-
+  
+* Click [here](ErrorRates_Tileseq_NGS_Duplex_SSCS.html) to view our analyses on error rates in Tileseq vs NGS vs Duplex sequencing.  
+<img src="assets/tileseq_errorrates.png" width="300" height="300"  alt="">  
+  
 * Click [here](Adding_Confidence_Intervals.html) to view our analyses on the error rates in spike-in data when using LFCs vs Net growth rates.  
 <img src="assets/percent_error.png" width="400" height="209"  alt="">  
 
