@@ -36,7 +36,7 @@ cleanup=theme_bw() +
 source("code/cosmic_data_adder.R")
 ```
 
-FUNCTION 1
+## Function 1
 ```{r}
 # Now that I have the ALT Codon from each gnomad codon, I am going to figure out the subset of amino acids that are possible at an n_nuc of 1 from the alt codon and from the ref codon.
 codon_table=read.csv("data/codon_table.csv",header = T,stringsAsFactors = F)
@@ -92,7 +92,7 @@ gnomad_unique_AAs=function(refseq_codon,gnomad_codon){
 ```
 
 
-FUNCTION 2
+## Function 2
 ####Reading and processing the reference txt and csv file
 ```{r}
 # #############For ABL#############
@@ -127,7 +127,8 @@ ref_genomic_coordinates=ref_genomic_coordinates%>%
 ref_genomic_coordinates=ref_genomic_coordinates%>%filter(!codon%in%"")
 ```
 
-MAIN GNOMAD ANALYSIS
+# Main gnomad analysis
+## Data parsing
 ```{r}
 # rm(list=ls())
 # gnomad=read.csv("data/Gnomad_ABL/gnomAD_v2.1.1_ENSG00000097007_2023_03_03_02_21_35.csv")
@@ -268,7 +269,7 @@ imatdata=imatdata%>%filter(ct_screen1_before>=5)
 imatdata=imatdata%>%filter(is_intended%in%1,!(species=="R332M"& alt =="ATG"),!(species=="R460N"& alt =="AAC"))
 #######Adding clinical prevalence predictions###############
 resistance_predictions=read.csv("output/ABLEnrichmentScreens/ABL_Region1234_Tileseq/data/Tileseq_clinical_predictions_2.2.25.csv",header = T,stringsAsFactors = F)
-resistance_predictions=resistance_predictions%>%dplyr::select(species,ref_aa,protein_start,alt_aa,fill_value,alpha.444)
+resistance_predictions=resistance_predictions%>%dplyr::select(species,ref_aa,protein_start,alt_aa,fill_value,alpha.444,alpha.760,alpha.916)
 resistance_predictions=resistance_predictions%>%filter(!ref_aa%in%NA)
 imatdata=merge(imatdata,resistance_predictions,by=c("species","ref_aa","protein_start","alt_aa"))
 ###################################
@@ -283,7 +284,7 @@ imatdata=merge(imatdata,resistance_predictions,by=c("species","ref_aa","protein_
 imatdata=merge(imatdata,gnomad_enabled,by=c("protein_start","alt_aa"),all.x=T)
 imatdata[imatdata$gnomad_enabled%in%NA,"gnomad_enabled"]=F
 
-imatdata_gnomad=imatdata%>%filter(gnomad_enabled%in%T)%>%dplyr::select(dose,species,ref_aa,protein_start,alt_aa,netgr_obs_mean,netgr_obs_mean_corr,species_enabler,gnomad_enabled,Allele.Frequency.Gnomad,fill_value,alpha.444)
+imatdata_gnomad=imatdata%>%filter(gnomad_enabled%in%T)%>%dplyr::select(dose,species,ref_aa,protein_start,alt_aa,netgr_obs_mean,netgr_obs_mean_corr,species_enabler,gnomad_enabled,Allele.Frequency.Gnomad,fill_value,alpha.444,alpha.760,alpha.916)
 # imatdata_gnomad=imatdata_gnomad%>%filter(protein_start%in%c(247,473))
 
 # The following line of code gives you the percentile rankings of the net growth rate distribution
@@ -331,8 +332,8 @@ imatdata_gnomad=imatdata_gnomad%>%filter(!dose%in%"il3")
 imatdata_gnomad <- imatdata_gnomad %>%
   mutate(species = fct_reorder(species, -rank, .desc = TRUE))
 
-ggplot(imatdata_gnomad,aes(x=species,y=netgr_obs_mean_corr,color=dose))+
-  geom_point()
+# ggplot(imatdata_gnomad,aes(x=species,y=netgr_obs_mean_corr,color=dose))+
+#   geom_point()
 
 netgr_average=imatdata_gnomad%>%dplyr::select(dose,species_enabler,species,netgr_obs_mean_corr,rank)
 netgr_average=netgr_average%>%filter(dose%in%"1200nM")
@@ -342,6 +343,9 @@ imatdata_gnomad$fill_value=factor(imatdata_gnomad$fill_value,
                                               "444nM",
                                               "760nM",
                                               "916nM"))
+```
+## Data Plotting 
+```{r}
 ggplot(imatdata_gnomad%>%filter(dose%in%"1200nM")%>%arrange(desc(rank)),aes(x=species,y=netgr_obs_mean_corr,label=species))+
   # geom_point(color="black",size=2,shape=21,aes(fill=fill_value))+
   geom_col(color="black",aes(fill=fill_value),position = position_dodge(1))+
@@ -362,8 +366,6 @@ ggplot(imatdata_gnomad%>%filter(dose%in%"1200nM")%>%arrange(desc(rank)),aes(x=sp
         axis.text.x = element_blank(),
         axis.ticks.x = element_blank(),
         axis.text.y = element_text(angle = 90, hjust = 0.5, vjust = 0.5))
-
-
 # ggsave("output/ABLEnrichmentScreens/ABL_Region234_Comparisons/sm_imatinib_plots/gnomad_enabled_mutants.pdf",width=7,height = 4, units="in",useDingbats=F)
 
 ggplot(imatdata_gnomad%>%arrange(desc(rank)),aes(x=species,y=netgr_obs_mean_corr,label=species))+
@@ -388,7 +390,7 @@ imatdata_gnomad <- imatdata_gnomad %>%
   mutate(species = fct_reorder(species, -rank, .desc = TRUE))
 # imatdata_gnomad=imatdata_gnomad%>%arrange(desc(rank))
 library(tidyverse)
-quartz(type = 'pdf', file ='output/ABLEnrichmentScreens/ABL_Region234_Comparisons/sm_imatinib_plots/gnomad_enabled_mutants_penetrance.pdf',width=7,height = 4)
+# quartz(type = 'pdf', file ='output/ABLEnrichmentScreens/ABL_Region234_Comparisons/sm_imatinib_plots/gnomad_enabled_mutants_penetrance.pdf',width=7,height = 4)
 
 ggplot(imatdata_gnomad%>%filter(dose%in%"1200nM")%>%arrange(desc(rank)),aes(x=reorder(species, -netgr_obs_mean_corr),y=netgr_obs_mean_corr,label=species,size=Allele.Frequency.Gnomad))+
   geom_point(color="black",fill="gray90",shape=21)+
@@ -413,6 +415,7 @@ ggplot(imatdata_gnomad%>%filter(dose%in%"1200nM")%>%arrange(desc(rank)),aes(x=re
 
 
 imatdata_gnomad=imatdata_gnomad%>%mutate(species_name=paste(species,species_enabler,sep="\u27a1"))
+
 ggplot(imatdata_gnomad%>%arrange(desc(rank)),aes(x=reorder(species_name, -netgr_obs_mean_corr),y=netgr_obs_mean_corr,label=species,size=Allele.Frequency.Gnomad))+
   geom_point(color="black",fill="gray90",shape=21)+
   scale_x_discrete("SNP-enabled ABL mutant")+
@@ -422,77 +425,68 @@ ggplot(imatdata_gnomad%>%arrange(desc(rank)),aes(x=reorder(species_name, -netgr_
         axis.text.x = element_text(angle = 90, hjust = 0.5, vjust = 0.5),
         axis.text.y = element_text(angle = 90, hjust = 0.5, vjust = 0.5))
 # ggsave("output/ABLEnrichmentScreens/ABL_Region234_Comparisons/sm_imatinib_plots/gnomad_enabled_mutants_penetrance3.pdf",width=7,height = 4, units="in",useDingbats=F)
-
-
-
 ```
 
-
 ```{r}
-# Looking at Clinvar mutants
-library(stringr)
-clinvar=read.csv("data/Clinvar_ABL/clinvar_result.csv",header = T)
-clinvar=clinvar%>%filter(!Protein.change%in%"")
-clinvar=clinvar%>%rowwise()%>%mutate(Protein.change=strsplit(Protein.change,",")[[1]][1],
-                                     ref_aa=substr(Protein.change,1,1),
-                                     residue=as.numeric(gsub("([0-9]+).*$", "\\1", sub('.', '', Protein.change))),
-                                     alt_aa=str_sub(Protein.change,-1,-1))
+imatdata_gnomad=imatdata_gnomad%>%mutate(netgr.444=0.055-alpha.444,
+                                         netgr.760=0.055-alpha.760,
+                                         netgr.916=0.055-alpha.916)
+imatdata_gnomad=imatdata_gnomad%>%group_by(dose)%>%mutate(rank_netgr760=rank(-netgr.760))
+imatdata_gnomad=imatdata_gnomad%>%group_by(dose)%>%mutate(rank_alpha444=rank(alpha.444))
+
+netgr_average=imatdata_gnomad%>%dplyr::select(dose,species_enabler,species,alpha.444,rank_alpha444)
+netgr_average=netgr_average%>%filter(dose%in%"1200nM")
 
 
-# clinvar=clinvar%>%filter(residue>=242,residue<=510)
-# therefore, out of the 226 clinvar mutants, 63 are present inside the ABL kinase and 163 are outside the kinase
-clinvar=clinvar%>%filter(residue>=242,residue<=510)
 
-clinvar=clinvar%>%mutate(Clinical.significance..Last.reviewed.=
-                           strsplit(Clinical.significance..Last.reviewed.,"\\(")[[1]][1])
-# a=clinvar%>%group_by(Clinical.significance..Last.reviewed.)%>%summarise(ct=n())
+imatdata_gnomad <- imatdata_gnomad %>%
+  mutate(species = fct_reorder(species, -rank_alpha444, .desc = TRUE))
+ggplot(imatdata_gnomad%>%filter(dose%in%"1200nM")%>%arrange(desc(rank_alpha444)),aes(x=species,y=alpha.444,label=species))+
+  # geom_point(color="black",size=2,shape=21,aes(fill=fill_value))+
+  geom_col(color="black",aes(fill=fill_value),position = position_dodge(1))+
+  geom_text(data = netgr_average, aes(x = species, y = ifelse(alpha.444 > 0,
+                           alpha.444 + 0.0025, # Move text above positive bars
+                           alpha.44 - 0.0025), # Move text below negative bars))+,
+                           label = species),
+            size = 2, color = "red",
+            angle=90)+
+  scale_x_discrete("SNP-enabled ABL mutant")+
+  scale_y_continuous("Drug kill rate (Hrs ^-1)\n at frontline dose")+
+  scale_fill_manual(values = c("#f7f7f7",
+                               "#1f78b4",
+                               "#f46d43",
+                               "#a50026"))+
+  cleanup+
+  theme(legend.position = "none",
+        axis.text.x = element_blank(),
+        axis.ticks.x = element_blank(),
+        axis.text.y = element_text(angle = 90, hjust = 0.5, vjust = 0.5),
+        axis.title.y=element_blank())
+# ggsave("output/ABLEnrichmentScreens/ABL_Region234_Comparisons/sm_imatinib_plots/gnomad_enabled_mutants.pdf",width=7,height = 4, units="in",useDingbats=F)
 
-# b=clinvar%>%filter(Clinical.significance..Last.reviewed.%in%"Uncertain significance")
-# There are 15 clinvar variants of unknown significance
-# write.csv(b,"clinvar_vus_mutants.csv")
-```
+# imatdata_gnomad <- imatdata_gnomad %>%
+#   mutate(species = fct_reorder(species, -rank_netgr760, .desc = TRUE))
+# ggplot(imatdata_gnomad%>%filter(dose%in%"1200nM")%>%arrange(desc(rank)),aes(x=species,y=netgr.760,label=species))+
+#   # geom_point(color="black",size=2,shape=21,aes(fill=fill_value))+
+#   geom_col(color="black",aes(fill=fill_value),position = position_dodge(1))+
+#   # geom_text(data = netgr_average, aes(x = species, y = ifelse(netgr_obs_mean_corr > 0, 
+#   #                          netgr_obs_mean_corr + 0.01, # Move text above positive bars
+#   #                          netgr_obs_mean_corr - 0.01), # Move text below negative bars))+,
+#   #                          label = species),
+#   #           size = 2, color = "red",
+#   #           angle=90)+
+#   scale_x_discrete("SNP-enabled ABL mutant")+
+#   scale_y_continuous("Net growth rate (Hrs ^-1)")+
+#   scale_fill_manual(values = c("#f7f7f7",
+#                                "#1f78b4",
+#                                "#f46d43",
+#                                "#a50026"))+
+#   cleanup+
+#   theme(legend.position = "none",
+#         axis.text.x = element_blank(),
+#         axis.ticks.x = element_blank(),
+#         axis.text.y = element_text(angle = 90, hjust = 0.5, vjust = 0.5))
 
-
-Looking at ALL BCRABL mutants detected at pre-treatment according to short et al
-```{r}
-
-shortdata=read.csv("data/Short_et_al_fig1/short_et_al_3.12.23.csv",header = T,stringsAsFactors = F)
-shortdata=shortdata%>%filter(!Classification%in%c("Silent","Nonsense"))
-shortdata=shortdata%>%mutate(ref_aa=str_sub(Species,1,1),
-                             protein_start=str_sub(Species,2,4),
-                             alt_aa=str_sub(Species,-1,-1),
-                             short_mutant=T)%>%
-  dplyr::select(-c("Index","Classification","ref_aa"))
-
-
-imatdata=read.csv("output/ABLEnrichmentScreens/Imatinib_Enrichment_2.20.23_v2.csv",header = T,stringsAsFactors = F)
-imatdata=read.csv("output/ABLEnrichmentScreens/IL3_Enrichment_bgmerged_2.20.23.csv",header = T,stringsAsFactors = F)
-# imatdata=imatdata%>%rowwise()%>%mutate(netgr_obs_mean=mean(netgr_obs.x,netgr_obs.y))
-imatdata=imatdata%>%rowwise()%>%mutate(netgr_obs_mean=mean(netgr_obs_screen1,netgr_obs_screen2))
-imatdata=cosmic_data_adder(imatdata)
-
-imatdata=merge(imatdata,shortdata,by=c("protein_start","alt_aa"),all=T)
-imatdata[imatdata$short_mutant%in%NA,"short_mutant"]=F
-
-
-plotly=ggplot(imatdata%>%filter(protein_start>=242,protein_start<=494,n_nuc_min%in%1),aes(x=reorder(species,-netgr_obs_mean),y=netgr_obs_mean,fill=short_mutant))+geom_col()+theme(axis.text.x=element_text(angle=90, hjust=1))+scale_y_continuous(name="Net Growth Rate")+scale_x_discrete(name="Mutant")+scale_fill_manual(name="Detection Status",labels=c("Not detected","Detected"),values=c("gray","orange"))+cleanup+theme(legend.position = "none")
-ggplotly(plotly)
-
-
-b=imatdata%>%filter(!netgr_obs_mean%in%NA)
-a=imatdata%>%filter(short_mutant%in%T,!netgr_obs_mean%in%NA,cosmic_present%in%F,resmuts%in%F)
-a=imatdata%>%filter(short_mutant%in%T,!netgr_obs_mean%in%NA)
-
-a=shortdata%>%filter(protein_start%in%c(242:494))
-median(a$netgr_obs_mean)
-ggplot(imatdata%>%filter(!species%in%"T315I",protein_start>=242,protein_start<=494,n_nuc_min%in%1,netgr_obs_mean>=-.02),aes(x=short_mutant,y=netgr_obs_mean,fill=short_mutant))+
-  geom_violin(color="black")+
-  geom_boxplot(color="black",width=.1)+
-  # geom_boxplot(color="black")+
-  scale_fill_manual(values=c("gray90","orange"))+theme(legend.position = "none")+scale_y_continuous("Net Growth Rate")+scale_x_discrete("Short et al Ph+ ALL Status",labels=c("Not Detected","Detected"))
-
-
-# t.test(a$netgr_obs_mean,b$netgr_obs_mean)
 ```
 The following analysis needs to be completed as of 7.7.24
 Looking at which segments of the population are differentially affected by the gnomad mutants
@@ -520,7 +514,8 @@ ggplot(gnomad_enrichment_melt%>%filter(!ancestry%in%"af.european.nonfin",!ancest
   scale_y_continuous(trans="log10")+cleanup
 ```
 
-Making a few piecharts for the paper
+
+## Piecharts
 ```{r}
 imatdata=read.csv("output/ABLEnrichmentScreens/ABL_Region1234_Tileseq/data/TileSeq_full_kinase_alldoses_with_lfc_corrected_netgrowths.csv",header = T,stringsAsFactors = F)
 imatdata=imatdata%>%filter(ct_screen1_before>=5)
@@ -565,5 +560,104 @@ ggplot(imatdata%>%filter(dose%in%"1200nM",!protein_start%in%"359",!species%in%"V
 # ggsave("output/ABLEnrichmentScreens/ABL_Region234_Comparisons/sm_imatinib_plots/gnomad_distributions.pdf",width=1,height = 4, units="in",useDingbats=F)
 
 
+gnomad=gnomad%>%mutate(Allele.Count.Sum=case_when(Allele.Count%in%1~"1",))
+nrow(gnomad[gnomad[,"Allele.Count"]==1,]) #Number of people with mutants only seen once
+nrow(gnomad[gnomad[,"Allele.Count"]==2,]) #Number of people with mutants seen twice
+sum(gnomad[gnomad[,"Allele.Count"]>=2,"Allele.Count"]) #Number of people with mutants seen more than twice
+152194-sum(gnomad[gnomad[,"Allele.Count"]>=2,"Allele.Count"]) #Number of people with mutants never seen in ABL
+# There are 152194 alleles in most ABL stuff in gnomad data. This means that 152194/2 = 76097 people were seen with mutations in ABL
+
+# gnomad_piechart=data.frame(
+#   Allele.Count=c("0","1","2",">2"),
+#   Allele.Number=c(133467,95,64,18727)
+# )
+gnomad_piechart=data.frame(
+  Allele.Count=c("0",">1"),
+  Allele.Number=c(57139,18886)
+)
+
+# gnomad_piechart$Allele.Count=factor(gnomad_piechart$Allele.Count,levels=c(">2","0","1","2"))
+# gnomad_piechart$Allele.Number=as.numeric(gnomad_piechart$Allele.Number)
+
+ggplot(gnomad_piechart, aes(x="", y=Allele.Number,fill=Allele.Count)) +
+  # geom_bar(stat="identity", width=1, color="white") +
+    geom_col(color = "black") +
+  coord_polar("y", start=2.3) +
+  theme_void() + 
+  theme(legend.position="none")+
+  scale_fill_manual(values = c("#3953A4","gray70"))
+# ggsave("output/ABLEnrichmentScreens/ABL_Region234_Comparisons/sm_imatinib_plots/gnomad_piechart_overall_percentage.pdf",width=1.5,height = 1.5, units="in",useDingbats=F)
+
 ```
+
+
+
+## Clinvar mutants
+```{r}
+# Looking at Clinvar mutants
+library(stringr)
+clinvar=read.csv("data/Clinvar_ABL/clinvar_result.csv",header = T)
+clinvar=clinvar%>%filter(!Protein.change%in%"")
+clinvar=clinvar%>%rowwise()%>%mutate(Protein.change=strsplit(Protein.change,",")[[1]][1],
+                                     ref_aa=substr(Protein.change,1,1),
+                                     residue=as.numeric(gsub("([0-9]+).*$", "\\1", sub('.', '', Protein.change))),
+                                     alt_aa=str_sub(Protein.change,-1,-1))
+
+
+# clinvar=clinvar%>%filter(residue>=242,residue<=510)
+# therefore, out of the 226 clinvar mutants, 63 are present inside the ABL kinase and 163 are outside the kinase
+clinvar=clinvar%>%filter(residue>=242,residue<=510)
+
+clinvar=clinvar%>%mutate(Clinical.significance..Last.reviewed.=
+                           strsplit(Clinical.significance..Last.reviewed.,"\\(")[[1]][1])
+# a=clinvar%>%group_by(Clinical.significance..Last.reviewed.)%>%summarise(ct=n())
+
+# b=clinvar%>%filter(Clinical.significance..Last.reviewed.%in%"Uncertain significance")
+# There are 15 clinvar variants of unknown significance
+# write.csv(b,"clinvar_vus_mutants.csv")
+```
+
+## Short et al PH+ALL mutants
+Looking at ALL BCRABL mutants detected at pre-treatment according to short et al
+```{r}
+
+shortdata=read.csv("data/Short_et_al_fig1/short_et_al_3.12.23.csv",header = T,stringsAsFactors = F)
+shortdata=shortdata%>%filter(!Classification%in%c("Silent","Nonsense"))
+shortdata=shortdata%>%mutate(ref_aa=str_sub(Species,1,1),
+                             protein_start=str_sub(Species,2,4),
+                             alt_aa=str_sub(Species,-1,-1),
+                             short_mutant=T)%>%
+  dplyr::select(-c("Index","Classification","ref_aa"))
+
+
+imatdata=read.csv("output/ABLEnrichmentScreens/Imatinib_Enrichment_2.20.23_v2.csv",header = T,stringsAsFactors = F)
+imatdata=read.csv("output/ABLEnrichmentScreens/IL3_Enrichment_bgmerged_2.20.23.csv",header = T,stringsAsFactors = F)
+# imatdata=imatdata%>%rowwise()%>%mutate(netgr_obs_mean=mean(netgr_obs.x,netgr_obs.y))
+imatdata=imatdata%>%rowwise()%>%mutate(netgr_obs_mean=mean(netgr_obs_screen1,netgr_obs_screen2))
+imatdata=cosmic_data_adder(imatdata)
+
+imatdata=merge(imatdata,shortdata,by=c("protein_start","alt_aa"),all=T)
+imatdata[imatdata$short_mutant%in%NA,"short_mutant"]=F
+
+
+plotly=ggplot(imatdata%>%filter(protein_start>=242,protein_start<=494,n_nuc_min%in%1),aes(x=reorder(species,-netgr_obs_mean),y=netgr_obs_mean,fill=short_mutant))+geom_col()+theme(axis.text.x=element_text(angle=90, hjust=1))+scale_y_continuous(name="Net Growth Rate")+scale_x_discrete(name="Mutant")+scale_fill_manual(name="Detection Status",labels=c("Not detected","Detected"),values=c("gray","orange"))+cleanup+theme(legend.position = "none")
+ggplotly(plotly)
+
+
+b=imatdata%>%filter(!netgr_obs_mean%in%NA)
+a=imatdata%>%filter(short_mutant%in%T,!netgr_obs_mean%in%NA,cosmic_present%in%F,resmuts%in%F)
+a=imatdata%>%filter(short_mutant%in%T,!netgr_obs_mean%in%NA)
+
+a=shortdata%>%filter(protein_start%in%c(242:494))
+median(a$netgr_obs_mean)
+ggplot(imatdata%>%filter(!species%in%"T315I",protein_start>=242,protein_start<=494,n_nuc_min%in%1,netgr_obs_mean>=-.02),aes(x=short_mutant,y=netgr_obs_mean,fill=short_mutant))+
+  geom_violin(color="black")+
+  geom_boxplot(color="black",width=.1)+
+  # geom_boxplot(color="black")+
+  scale_fill_manual(values=c("gray90","orange"))+theme(legend.position = "none")+scale_y_continuous("Net Growth Rate")+scale_x_discrete("Short et al Ph+ ALL Status",labels=c("Not Detected","Detected"))
+
+
+# t.test(a$netgr_obs_mean,b$netgr_obs_mean)
+```
+
 
