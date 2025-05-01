@@ -8,7 +8,7 @@ output: html_document
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 # knitr::opts_knit$set(root.dir=rprojroot::find_rstudio_root_file())
-
+knitr::opts_knit$set(root.dir = normalizePath(".."))
 
 ```
 
@@ -224,6 +224,7 @@ ggplot(data=sol_comb_doses,aes(y=log(count),x=time,color=factor(mutant)))+geom_l
 
 sol_comb_doses=sol_comb_doses%>%group_by(dose,time)%>%mutate(total=sum(count))%>%group_by(dose,time,mutant)%>%mutate(proportion=count/total)
 
+
 ###Looking at the proportion of mutants given various starting doses
 ggplot(data=sol_comb_doses,aes(time,proportion))+geom_col(aes(fill=mutant))+geom_line(aes(y=total/max(sol_comb_doses$total)))+scale_y_continuous(sec.axis = sec_axis(~.*max(sol_comb_doses$total), name = "Total Count"))+facet_wrap(~dose)+cleanup+scale_fill_manual(values = getPalette(length(unique(sol_comb_doses$mutant))))
 
@@ -252,46 +253,70 @@ ggplotly(x)
 # ggsave("enrichment_simulations_3mutants.pdf",width = 4,height = 3,units = "in",useDingbats=F)  
 
 ########Analysis trying to show that there is a real depletion effecf:
+sol_comb_doses$mutant=factor(sol_comb_doses$mutant,levels=c("T315I","L248V","E355A"))
 ggplot(sol_comb_doses%>%filter(time<=6,dose%in%1.2),aes(x=time,y=proportion,group=mutant))+
   geom_line()+
   geom_point(color="black",shape=21,size=2,aes(fill=factor(mutant)))+
   cleanup+
-  discrete_scale("fill", "manual", palette_Dark2)+
-  discrete_scale("color", "manual", palette_Dark2)+
+  scale_fill_manual(values = getPalette(3))+
+  # discrete_scale("fill", "manual", palette_Dark2)+
+  # discrete_scale("color", "manual", palette_Dark2)+
   scale_y_continuous(name="Mutant Allele Fraction")+
   scale_x_continuous(name="Time (Days)")+
   theme(legend.position = "none",
         axis.title = element_text(face="bold",size=10),
-        axis.text = element_text(face="plain",size=9))
+        axis.text = element_text(face="plain",size=9),
+        axis.title.x = element_blank(),
+        axis.title.y = element_blank())
 
-# ggsave("enrichment_simulations_3mutant_MAF.pdf",width=2,height=2,units="in",useDingbats=F)
+ggsave("output/Enrichmentsimulations/enrichment_simulations_3mutant_MAF.pdf",width=2,height=2,units="in",useDingbats=F)
 
 ggplot(sol_comb_doses%>%filter(time<=6,dose%in%1.2),aes(x=time,y=count,group=mutant))+
   geom_line()+
   geom_point(color="black",shape=21,size=2,aes(fill=factor(mutant)))+
   cleanup+
-  discrete_scale("fill", "manual", palette_Dark2)+
-  discrete_scale("color", "manual", palette_Dark2)+
+  # discrete_scale("fill", "manual", palette_Dark2)+
+  scale_fill_manual(values = getPalette(3))+
+  # discrete_scale("color", "manual", palette_Dark2)+
   scale_y_continuous(name="Mutant Count",trans="log10",breaks=c(1e7,1e8,1e9,1e10),labels=parse(text=c("10^7","10^8","10^9","10^10")))+
   # scale_y_continuous(name="Mutant Count",breaks=c(0,1e10,2e10),labels=parse(text=c("0","10^10","2*10^10")))+
   scale_x_continuous(name="Time (Days)")+
   theme(legend.position = "none",
         axis.title = element_text(face="bold",size=10),
-        axis.text = element_text(face="plain",size=9))
-# ggsave("enrichment_simulations_3mutant_count.pdf",width=2,height=2,units="in",useDingbats=F)
+        axis.text = element_text(face="plain",size=9),
+        axis.title.x = element_blank(),
+        axis.title.y = element_blank())
+ggsave("output/Enrichmentsimulations/enrichment_simulations_3mutant_count.pdf",width=2,height=2,units="in",useDingbats=F)
 
-ggplot(sol_comb_doses%>%filter(dose%in%1.2)%>%filter(time%in%c(0,3)),aes(x=(factor(time)),y=proportion,fill=factor(mutant)))+geom_col(color="black")+facet_wrap(~mutant)+cleanup+discrete_scale("fill", "manual", palette_Dark2)+
+
+
+
+
+ggplot(sol_comb_doses%>%filter(dose%in%1.2)%>%filter(time%in%c(0,3,6)),aes(x=(factor(time)),y=proportion,fill=factor(mutant)))+
+  geom_col(color="black")+
+  facet_wrap(~mutant)+
+  cleanup+
+  # discrete_scale("fill", "manual", palette_Dark2)+
+  scale_fill_manual(values = getPalette(3))+
   scale_y_continuous(name="Mutant Allele Fraction",expand = c(0.01,0))+
   scale_x_discrete(name="Time (Days)")+
   theme(strip.text = element_blank(),
         legend.position = "none",
         axis.title = element_text(face="bold",size=10),
-        axis.text = element_text(face="plain",size=9))
-# ggsave("allele_freq_enrichment_sim.pdf",width=3,height=2,units="in",useDingbats=F)
+        axis.text = element_text(face="plain",size=9),
+        axis.title.x=element_blank(),
+        axis.title.y=element_blank())
+ggsave("output/Enrichmentsimulations/allele_freq_enrichment_sim.pdf",width=2.5,height=2,units="in",useDingbats=F)
 
-ggplot(sol_comb_doses%>%filter(dose%in%1.2)%>%filter(time%in%c(0,3)),aes(x=(factor(time)),y=count,fill=factor(mutant)))+geom_col(color="black")+facet_wrap(~mutant)+cleanup+discrete_scale("fill", "manual", palette_Dark2)+
+
+
+ggplot(sol_comb_doses%>%filter(dose%in%1.2)%>%filter(time%in%c(0,3,6)),aes(x=(factor(time)),y=count,fill=factor(mutant)))+geom_col(color="black")+
+  facet_wrap(~mutant)+
+  cleanup+
+  # discrete_scale("fill", "manual", palette_Dark2)+
+  scale_fill_manual(values = getPalette(3))+
   scale_y_continuous(name="Estimated Counts",
-                     expand = c(0.01,0),
+                     expand = c(0.4,1),
                      trans="log10",
                      # limits=c(10^5,10^11),
                      breaks=c(1e6,1e7,1e8,1e9,1e10),
@@ -300,10 +325,83 @@ ggplot(sol_comb_doses%>%filter(dose%in%1.2)%>%filter(time%in%c(0,3)),aes(x=(fact
   theme(strip.text = element_blank(),
         legend.position = "none",
         axis.title = element_text(face="bold",size=10),
-        axis.text = element_text(face="plain",size=9))+
-  coord_cartesian(ylim = c(10^6, 10^9))
-# ggsave("count_enrichment_sim.pdf",width=3,height=2,units="in",useDingbats=F)
+        axis.text = element_text(face="plain",size=9),
+        axis.title.x=element_blank(),
+        axis.title.y=element_blank())+
+  coord_cartesian(ylim = c(10^7, 10^9))
+ggsave("output/Enrichmentsimulations/count_enrichment_sim.pdf",width=2.5,height=2,units="in",useDingbats=F)
 
 
+
+
+data=sol_comb_doses%>%filter(dose%in%1.2,time%in%c(3,6))
+data=data%>%
+  mutate(lfc=log(proportion/0.333,2),
+         netgr=log(count/1e7)/(time*24))
+data$mutant=factor(data$mutant,levels=c("T315I","L248V","E355A"))
+
+
+ggplot(data,aes(x=time,y=lfc,fill=mutant))+
+  # geom_col(position=position_dodge(1))+
+  geom_col(color="black",position=position_dodge(1))+
+  scale_fill_manual(values = getPalette(3))+
+  facet_wrap(~mutant)+
+  cleanup+
+  scale_y_continuous("Expected log2 fold-change",
+                     expand = c(0.01,0))+
+  scale_x_continuous("Treatment duration (days)",
+                     breaks = c(3,6))+
+  theme(strip.text = element_blank(),
+        legend.position = "none",
+        axis.title = element_text(face="bold",size=10),
+        axis.text = element_text(face="plain",size=9),
+        axis.title.x=element_blank(),
+        axis.title.y = element_blank())
+ggsave("output/Enrichmentsimulations/lfc_enrichment_sim.pdf",width=2.5,height=2,units="in",useDingbats=F)
+
+getPalette = colorRampPalette(brewer.pal(9, "Spectral"))
+
+ggplot(data,aes(x=time,y=netgr,fill=mutant))+
+  geom_col(color="black",position=position_dodge(1))+
+  scale_fill_manual(values = getPalette(3))+
+  facet_wrap(~mutant)+
+  cleanup+
+  scale_y_continuous("Expected net growth rate (Hrs-1)",
+                     expand = c(0.01,0))+
+  scale_x_continuous("Treatment duration (days)",
+                     breaks=c(3,6))+
+  theme(strip.text = element_blank(),
+        legend.position = "none",
+        axis.title = element_text(face="bold",size=10),
+        axis.text = element_text(face="plain",size=9),
+        axis.title.x=element_blank(),
+        axis.title.y = element_blank())
+ggsave("output/Enrichmentsimulations/netgr_enrichment_sim.pdf",width=2.5,height=2,units="in",useDingbats=F)
 
 ```
+
+
+```{r}
+
+
+facet_wrap(~mutant)+
+  cleanup+
+  # discrete_scale("fill", "manual", palette_Dark2)+
+  scale_fill_manual(values = getPalette(3))+
+  scale_y_continuous(name="Estimated Counts",
+                     expand = c(0.4,1),
+                     trans="log10",
+                     # limits=c(10^5,10^11),
+                     breaks=c(1e6,1e7,1e8,1e9,1e10),
+                     labels=parse(text=c("10^6","10^7","10^8","10^9","10^10")))+
+  scale_x_discrete(name="Time (Days)")+
+  theme(strip.text = element_blank(),
+        legend.position = "none",
+        axis.title = element_text(face="bold",size=10),
+        axis.text = element_text(face="plain",size=9),
+        axis.title.x=element_blank(),
+        axis.title.y=element_blank())+
+  coord_cartesian(ylim = c(10^7, 10^9))
+
+```
+

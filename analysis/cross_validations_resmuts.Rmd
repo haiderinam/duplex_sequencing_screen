@@ -1,0 +1,179 @@
+---
+title: "cross_validations_resmuts"
+author: "Haider Inam"
+date: '2025-04-13'
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_knit$set(root.dir = normalizePath(".."))
+# rm(list=ls())
+
+library(stringr)
+library(dplyr)
+library(ggplot2)
+library(plotly)
+library(tictoc)
+library(doParallel)
+library(foreach)
+library(RColorBrewer)
+library(reshape2)
+
+#Cleanup code for plotting
+cleanup=theme_bw() +
+  theme(plot.title = element_text(hjust=.5),
+        panel.grid.major = element_blank(),
+        panel.grid.major.y = element_blank(),
+        panel.background = element_blank(),
+        # axis.line = element_line(color = "black"),
+        axis.text = element_text(face="bold",color="black",size="11"),
+        text=element_text(size=11,face="bold"),
+        axis.title=element_text(face="bold",size="11"))
+```
+
+
+```{r}
+#Here, I am reformatting Marta's dataframe so that it's not 2,000 columns wide HAHA
+#SlightlySalty
+data=read.csv("output/ABLEnrichmentScreens/ABL_Region1234_Tileseq/data/cross_validations/all_corrected/DMS_all_corrected_training_set.csv")[-1]
+screen.df=data
+
+
+library(tidyverse)
+
+# Step 1: Pivot the dataframe longer
+long.df <- data %>%
+  pivot_longer(
+    cols = -c(type,
+              species,
+              ref_aa,
+              protein_start,
+              alt_aa,
+              dose.low,
+              netgr_corr_rep1.low,
+              netgr_corr_rep2.low,
+              dose.medium,
+              netgr_corr_rep1.medium,
+              netgr_corr_rep2.medium,
+              dose.high,
+              netgr_corr_rep1.high,
+              netgr_corr_rep2.high,
+              dose.il3,
+              netgr_obs_rep1.il3,
+              netgr_obs_rep2.il3,
+              cosmic_count,
+              cosmic_present,
+              resmuts,
+              IC50,
+              Hill.slope,
+              convergence,
+              RSS),
+    names_to = c("dose", "measurement"),
+    names_pattern = "X(\\d+)\\.(rel\\.viab|alpha)",
+    values_to = "value"
+  )
+
+# Step 2: Pivot wider to separate rel.viab and alpha into their own columns
+clean.df <- long.df %>%
+  pivot_wider(
+    names_from = measurement,
+    values_from = value
+  )
+```
+
+
+```{r}
+# glm.fit=glm(screen.df$resmuts~screen.df[["X300.rel.viab"]],family="binomial")
+# 
+# screen.df$glm.fit.values=glm.fit$fitted.values
+# # screen.df$glm.fit.values
+# 
+# ggplot(screen.df,aes(x=X300.rel.viab,y=resmuts,label=species))+
+#   geom_point()+
+#   geom_text_repel()+
+#   geom_line(color="red",aes(y=glm.fit.values))
+# 
+# screen.df$pred.rel.viab=predict(glm.fit,type = "response")
+# roc_obj <- roc(screen.df$resmuts, screen.df$pred.rel.viab,plot=T,legacy.axes=T,percent=T,xlab="False Positive Percentage",ylab="True Positive Percentage",print.auc=T,col="#3937E3",lwd=4)
+# 
+# plot(roc_obj)
+# coords(roc_obj, "best", ret = "threshold", best.method = "youden", input = "threshold")
+# 
+# coords(roc_obj, "best", ret = c("threshold", "sensitivity", "specificity", "youden"), best.method = "youden")
+```
+
+
+```{r}
+set.seed(100 + j + i)
+
+dose.rnge <- sort(unique(c(seq(10, 10000, by = 10), 444, 760, 916)))
+dose.rnge <- sort(unique(c(seq(10, 10000, by = 100))))
+
+# Initialize outer results dataframe before the loop
+data.out <- data.frame(
+  iter = integer(),
+  dose = numeric(),
+  threshold = numeric(),
+  sensitivity = numeric(),
+  specificity = numeric(),
+  youden = numeric()
+)
+
+for (i in dose.rnge) {
+  clean.df.dose <- clean.df %>% filter(dose %in% i)
+  clean.df.dose.resistant=clean.df.dose%>%filter(resmuts%in%T)
+  clean.df.dose.sensitive=clean.df.dose%>%filter(resmuts%in%F)
+
+  # Skip this dose if there are not enough rows to sample
+  if (nrow(clean.df.dose) < 18) next
+
+  for (j in 1:10) {
+    # Downsample the 17 resistant mutants to choose 14
+    train_idx <- sample(nrow(clean.df.dose.resistant), 14, replace = FALSE)
+    # train_idx <- sample(nrow(clean.df.dose), 17, replace = FALSE)
+    
+    # Create training and testing sets
+    data.train.resistant <- clean.df.dose.resistant[train_idx, ]
+    data.test.resistant <- clean.df.dose.resistant[-train_idx, ]  # everything NOT in training set
+    # Downsample the 5 sensitive mutants to choose 4
+    train_idx <- sample(nrow(clean.df.dose.sensitive), 4, replace = FALSE)
+    # train_idx <- sample(nrow(clean.df.dose), 17, replace = FALSE)
+    
+    # Create training and testing sets
+    data.train.sensitive <- clean.df.dose.sensitive[train_idx, ]
+    data.test.sensitive <- clean.df.dose.sensitive[-train_idx, ]  # everything NOT in training set
+    
+    #Combining sensitive and resistant mutants
+    data.train=rbind(data.train.resistant,data.train.sensitive)
+    data.test=rbind(data.test.resistant,data.test.sensitive)
+    
+
+    # Fit logistic regression
+    glm.fit <- glm(resmuts ~ rel.viab, data = data.train, family = "binomial")
+
+    # Predict
+    data.test$pred.rel.viab <- predict(glm.fit,newdata = data.test, type = "response")
+
+    # ROC and Youden
+    roc_obj <- roc(data.test$resmuts, data.test$pred.rel.viab)
+    coords_output <- coords(roc_obj, "best",
+                            ret = c("threshold", "sensitivity", "specificity", "youden"),
+                            best.method = "youden")
+
+    # Append to outer data frame
+    data.out <- rbind(data.out, data.frame(
+      iter = j,
+      dose = i,
+      threshold = coords_output$threshold,
+      sensitivity = coords_output$sensitivity,
+      specificity = coords_output$specificity,
+      youden = coords_output$youden
+    ))
+  }
+}
+
+ggplot(data.out,aes(x=factor(dose),y=threshold))+geom_boxplot()
+
+```
+
