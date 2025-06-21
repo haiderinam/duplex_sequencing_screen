@@ -1,13 +1,40 @@
 ---
 title: "Adding_Confidence_Intervals"
 author: "Haider Inam"
-date: "8/14/2020"
+date: "6/15/2025"
 output: html_document
 ---
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_knit$set(root.dir = normalizePath(".."))
 # knitr::opts_knit$set(root.dir=rprojroot::find_rstudio_root_file())
+
+
+# rm(list=ls())
+
+library(stringr)
+library(dplyr)
+library(ggplot2)
+library(plotly)
+library(tictoc)
+library(doParallel)
+library(foreach)
+library(RColorBrewer)
+library(ggpubr)
+library(pROC)
+library(reshape2)
+library(dr4pl)
+
+cleanup=theme_bw() +
+  theme(plot.title = element_text(hjust=.5),
+        panel.grid.major = element_blank(),
+        panel.grid.major.y = element_blank(),
+        panel.background = element_blank(),
+        # axis.line = element_line(color = "black"),
+        axis.text = element_text(face="bold",color="black",size="11"),
+        text=element_text(size=11,face="bold"),
+        axis.title=element_text(face="bold",size="11"))
 ```
 This RMD file should serve to generate processed versions of all the data that goes into Figure 3 of the paper.
 The aim here is to take in predicted growth rate confidence intervals, and  generate expected count data from them. The other aim is to take dose-normalized data (for microvariations) and add columns for normal vs normalized. The final aim is to include count-types of log-fold enrichment, enrich2, and our counts. One subaim is to also add Day 0 MAF counts of M3 as the ones for M5 and M7. And of M6 for M4 and of Sp_Enu_4 for Sp_Enu_3
@@ -33,16 +60,6 @@ library(drc)
 # library(EnsDb.Hsapiens.v86) #Loading this with Dplyr commands seems to throw an error in Rmd
 
 ######################Cleanup for GGPlot2#########################################
-cleanup=theme_bw() +
-  theme(plot.title = element_text(hjust=.5),
-        panel.grid.major = element_blank(),
-        panel.grid.major.y = element_blank(),
-        panel.background = element_blank(),
-        axis.line = element_line(color = "black"),
-        text=element_text(size=11,face="bold"),
-        axis.text = element_text(color="black",size="9"),
-        axis.title=element_text(face="bold",color="black",size="10"))
-
 net_gr_wodrug=.055
 conc_for_predictions=.8
 ```
@@ -58,10 +75,16 @@ ic50data_all_sum=read.csv("output/ic50data_all_confidence_intervals_raw_data.csv
 
 #First, creating day 0 values for M4,M5,M7, and sp_enu_3. So M5's and M7's D0 counts are M3's. And M4's D0 counts are M6's. Sp_Enu_3's D0 counts are Sp_Enu_4's D0 counts.
 M3D0=twinstrand_maf_merge%>%filter(experiment=="M3",time_point=="D0")
+M3D0_v2=M3D0%>%filter(!mutant%in%NA)
+M3D0_v2=M3D0_v2%>%dplyr::select(mutant,AltDepth)
+# M3D6=twinstrand_maf_merge%>%filter(experiment=="M3",time_point=="D3")
 M5D0=M3D0%>%mutate(experiment="M5")
 M7D0=M3D0%>%mutate(experiment="M7")
 M6D0=twinstrand_maf_merge%>%filter(experiment=="M6",time_point=="D0")
+M6D0_v2=M6D0%>%filter(!mutant%in%NA)
+M6D0_v2=M6D0_v2%>%dplyr::select(mutant,AltDepth)
 M4D0=M6D0%>%mutate(experiment="M4")
+
 Enu4_D0=twinstrand_maf_merge%>%filter(experiment=="Enu_4",time_point=="D0")
 Enu3_D0=Enu4_D0%>%mutate(experiment="Enu_3")
 twinstrand_maf_merge=rbind(twinstrand_maf_merge,M5D0,M7D0,M4D0,Enu3_D0)
@@ -72,7 +95,7 @@ wt_count=twinstrand_maf_merge2%>%group_by(experiment,time_point)%>%summarize(wt_
 twinstrand_maf_merge2=merge(twinstrand_maf_merge2,wt_count,by = c("experiment","time_point"))
 twinstrand_maf_merge2=twinstrand_maf_merge2%>%mutate(MAF_enrich2=(AltDepth/wt_count))
 twinstrand_maf_merge=twinstrand_maf_merge2
-############################Addding Log-Fold Enrichment (Shendure's Metric)#################
+############################Addding Log-Fold Enrichment#################
 
 twinstrand_maf_merge=twinstrand_maf_merge%>%filter(experiment%in%c("M3","M5","M7"))%>%mutate(MAF=AltDepth/Depth)
 # twinstrand_maf_merge=twinstrand_maf_merge%>%filter(experiment%in%c("Enu_3","Enu_4"))%>%mutate(MAF=AltDepth/Depth)
@@ -163,6 +186,64 @@ twinstrand_simple_errorbars=twinstrand_simple_merge%>%
 
 ```
 
+Demonstrating that the duplex depths achieved were low
+```{r}
+# rm(list=ls())
+twinstrand_maf_merge=read.csv("output/twinstrand_maf_merge.csv",header = T,stringsAsFactors = F)
+# twinstrand_maf_merge=read.csv("../output/twinstrand_maf_merge.csv",header = T,stringsAsFactors = F,row.names = 1)
+
+# ic50data_all_sum=read.csv("../output/ic50data_all_confidence_intervals_raw_data.csv",row.names = 1)
+ic50data_all_sum=read.csv("output/ic50data_all_confidence_intervals_raw_data.csv",row.names = 1)
+
+
+#First, creating day 0 values for M4,M5,M7, and sp_enu_3. So M5's and M7's D0 counts are M3's. And M4's D0 counts are M6's. Sp_Enu_3's D0 counts are Sp_Enu_4's D0 counts.
+M3D0=twinstrand_maf_merge%>%filter(experiment=="M3",time_point=="D0")
+M3D0_v2=M3D0%>%filter(!mutant%in%NA)
+M3D0_v2=M3D0_v2%>%dplyr::select(mutant,AltDepth)
+M3D0_v2$experiment="1:1,000"
+# M3D6=twinstrand_maf_merge%>%filter(experiment=="M3",time_point=="D3")
+
+M6D0=twinstrand_maf_merge%>%filter(experiment=="M6",time_point=="D0")
+M6D0_v2=M6D0%>%filter(!mutant%in%NA)
+M6D0_v2=M6D0_v2%>%dplyr::select(mutant,AltDepth)
+M6D0_v2$experiment="1:5,000"
+
+m3m6d0=rbind(M3D0_v2,M6D0_v2)
+a=m3m6d0%>%filter(experiment%in%"1:5,000")
+# Adding a residue column
+m3m6d0$residue <- stringr::str_extract(m3m6d0$mutant, "\\d+")
+# Reordering the mutant factor levels based on residue
+m3m6d0 <- m3m6d0 %>%
+  group_by(experiment)%>%
+  mutate(mutant = factor(mutant, levels = mutant[order(residue)]))
+# Plotting
+ggplot(m3m6d0%>%filter(!mutant%in%"D276G"), aes(x = mutant, y = AltDepth)) +
+  geom_col() +
+  facet_wrap(~experiment) +
+  scale_y_continuous("Mutant depth of coverage") +
+  cleanup +
+  theme_minimal() +
+  theme(
+    axis.title.x = element_blank(),
+    axis.text.x = element_text(angle = 90, hjust = 0.5, vjust = 0.5)
+  )
+ggplot(m3m6d0%>%filter(!mutant%in%"D276G"),aes(x=mutant,y=AltDepth))+
+  geom_col()+
+  facet_wrap(~experiment,strip.position = "top")+
+  scale_y_continuous("Mutant depth of coverage")+
+  cleanup+
+  # theme_minimal()+
+  theme(axis.title.x = element_blank(),
+        axis.text.x=element_text(angle=90,hjust=.5,vjust=.5),
+        strip.placement = "inside",         # Places the facet label inside
+        strip.background = element_blank(), # Removes gray background
+        strip.text = element_text(size = 12, face = "bold")
+)
+# ggsave("output/spikeins/duplexdepths.pdf",width=6,height=4,units="in",useDingbats=F)
+```
+
+
+
 Making growthrates dataframe for all experiment types
 ```{r}
 
@@ -193,15 +274,25 @@ twinstrand_simple_melt_merge=merge(twinstrand_simple_melt,ic50data_long%>%dplyr:
 getPalette = colorRampPalette(brewer.pal(9, "Spectral"))
 ####In the plots below, the dashed line is the mean prediction form the IC50s. Points are what we see in the spike-in experiment
 ####MAF Raw
-ggplot(twinstrand_simple_errorbars%>%filter(count_type%in%"MAF",correction_status%in%"netgr_obs",!mutant%in%c("E355A")),aes(x=time/24,y=count_mean,fill=factor(mutant)))+
+label_positions <- twinstrand_simple_errorbars%>%filter(count_type%in%"MAF",correction_status%in%"netgr_obs") %>%
+  group_by(mutant) %>%
+  summarise(
+    x = 0,             # consistent left edge on log10 scale
+    y = 1,           # high enough for all panels
+    label = unique(mutant)
+  )
+
+ggplot(twinstrand_simple_errorbars%>%filter(count_type%in%"MAF",correction_status%in%"netgr_obs"),aes(x=time/24,y=count_mean,fill=factor(mutant)))+
   geom_line(aes(y=sd_mean_pred),linetype="dashed")+
   geom_line(aes(y=sd_ll_pred))+
   geom_line(aes(y=sd_ul_pred))+
-  geom_ribbon(aes(color=factor(mutant),ymin=count_mean-count_sd,ymax=count_mean+count_sd,alpha=.3))+
+  geom_ribbon(aes(ymin=count_mean-count_sd,ymax=count_mean+count_sd,alpha=.3))+
   geom_point(colour="black",shape=21,size=2,aes(fill=factor(mutant)))+
+  geom_text(data = label_positions, aes(x = x, y = y, label = label),
+            inherit.aes = FALSE, hjust = 0, vjust = 1, fontface = "bold", size = 3.5) +
   # geom_errorbar(aes(ymin=count_mean-count_sd,ymax=count_mean+count_sd),width=.9)+
-  facet_wrap(~mutant,ncol=4)+
-  scale_y_continuous(trans="log10",name="Count")+
+  facet_wrap(~mutant,nrow=3)+
+  scale_y_continuous(trans="log10",name="Mutant allele fraction",label = trans_format("log10", math_format(10^.x)))+
   scale_x_continuous(name="Time (Days)",breaks=c(0,3,6))+
   cleanup+
   scale_fill_manual(values = getPalette(length(unique(twinstrand_merge_forplot$mutant))))+
@@ -213,6 +304,8 @@ ggplot(twinstrand_simple_errorbars%>%filter(count_type%in%"MAF",correction_statu
         # axis.title.x = element_blank(),
         # axis.title.y=element_blank()
         )
+
+ggsave("output/spikeins/maf_fig_raw_081525.pdf",width=6,height=3,units="in",useDingbats=F)
 # ggsave("pooled_maf_fig_raw_081520.pdf",width=4,height=4,units="in",useDingbats=F)
 
 ####Total Mutant Raw
@@ -273,7 +366,7 @@ ggplot(twinstrand_simple_errorbars%>%filter(count_type%in%"MAF_enrich2",correcti
   geom_point(colour="black",shape=21,size=2,aes(fill=factor(mutant)))+
   # geom_errorbar(aes(ymin=count_mean-count_sd,ymax=count_mean+count_sd),width=.9)+
   facet_wrap(~mutant,ncol=4)+
-  scale_y_continuous(trans="log10",name="Count")+
+  scale_y_continuous(trans="log10",name="Count",label = trans_format("log10", math_format(10^.x)))+
   scale_x_continuous(name="Time (Days)",breaks=c(0,3,6))+
   cleanup+
   scale_fill_manual(values = getPalette(length(unique(twinstrand_merge_forplot$mutant))))+
@@ -286,6 +379,45 @@ ggplot(twinstrand_simple_errorbars%>%filter(count_type%in%"MAF_enrich2",correcti
         # axis.title.y=element_blank()
         )
 # ggsave("pooled_maf_wt_fig_raw_081520.pdf",width=4,height=4,units="in",useDingbats=F)
+
+```
+
+```{r}
+
+####Total Mutant Raw
+label_positions <- twinstrand_simple_errorbars%>%filter(count_type%in%"totalmutant",correction_status%in%"netgr_obs") %>%
+  group_by(mutant) %>%
+  summarise(
+    x = 2.5,             # consistent left edge on log10 scale
+    y = 1000,           # high enough for all panels
+    label = unique(mutant)
+  )
+
+ggplot(twinstrand_simple_errorbars%>%filter(count_type%in%"totalmutant",correction_status%in%"netgr_obs"),aes(x=time/24,y=count_mean,fill=factor(mutant)))+
+  geom_line(aes(y=sd_mean_pred),linetype="dashed")+
+  geom_line(aes(y=sd_ll_pred))+
+  geom_line(aes(y=sd_ul_pred))+
+  geom_ribbon(aes(ymin=count_mean-count_sd,ymax=count_mean+count_sd,alpha=.3))+
+  geom_point(colour="black",shape=21,size=2,aes(fill=factor(mutant)))+
+  geom_text(data = label_positions, aes(x = x, y = y, label = label),
+            inherit.aes = FALSE, hjust = 0, vjust = 1, fontface = "bold", size = 3.5) +
+  # geom_errorbar(aes(ymin=count_mean-count_sd,ymax=count_mean+count_sd),width=.9)+
+  facet_wrap(~mutant,nrow=3)+
+  scale_y_continuous(trans="log10",name="Total mutant count",
+                     label = trans_format("log10", math_format(10^.x)))+
+  scale_x_continuous(name="Time (Days)",breaks=c(0,3,6))+
+  cleanup+
+  scale_fill_manual(values = getPalette(length(unique(twinstrand_merge_forplot$mutant))))+
+  scale_color_manual(values = getPalette(length(unique(twinstrand_merge_forplot$mutant))))+
+  theme(legend.position = "none",
+        axis.text.y = element_text(face = "bold",size=11),
+        # axis.ticks.y = element_blank(),
+        strip.text=element_blank()
+        # axis.title.x = element_blank(),
+        # axis.title.y=element_blank()
+        )
+
+ggsave("output/spikeins/pooled_growth_fig_raw_061725.pdf",width=6,height=3,units="in",useDingbats=F)
 
 ```
 

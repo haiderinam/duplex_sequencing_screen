@@ -35,51 +35,54 @@ cleanup=theme_bw() +
 
 ```{r}
 #Here, I am reformatting Marta's dataframe so that it's not 2,000 columns wide HAHA
-#SlightlySalty
-data=read.csv("output/ABLEnrichmentScreens/ABL_Region1234_Tileseq/data/cross_validations/all_corrected/DMS_all_corrected_training_set.csv")[-1]
-screen.df=data
 
-
-library(tidyverse)
-
-# Step 1: Pivot the dataframe longer
-long.df <- data %>%
-  pivot_longer(
-    cols = -c(type,
-              species,
-              ref_aa,
-              protein_start,
-              alt_aa,
-              dose.low,
-              netgr_corr_rep1.low,
-              netgr_corr_rep2.low,
-              dose.medium,
-              netgr_corr_rep1.medium,
-              netgr_corr_rep2.medium,
-              dose.high,
-              netgr_corr_rep1.high,
-              netgr_corr_rep2.high,
-              dose.il3,
-              netgr_obs_rep1.il3,
-              netgr_obs_rep2.il3,
-              cosmic_count,
-              cosmic_present,
-              resmuts,
-              IC50,
-              Hill.slope,
-              convergence,
-              RSS),
-    names_to = c("dose", "measurement"),
-    names_pattern = "X(\\d+)\\.(rel\\.viab|alpha)",
-    values_to = "value"
-  )
-
-# Step 2: Pivot wider to separate rel.viab and alpha into their own columns
-clean.df <- long.df %>%
-  pivot_wider(
-    names_from = measurement,
-    values_from = value
-  )
+dataparser=function(df_location){
+  data=read.csv(df_location)[-1]
+  screen.df=data
+  
+  
+  library(tidyverse)
+  
+  # Step 1: Pivot the dataframe longer
+  long.df <- data %>%
+    pivot_longer(
+      cols = -c(type,
+                species,
+                ref_aa,
+                protein_start,
+                alt_aa,
+                dose.low,
+                netgr_corr_rep1.low,
+                netgr_corr_rep2.low,
+                dose.medium,
+                netgr_corr_rep1.medium,
+                netgr_corr_rep2.medium,
+                dose.high,
+                netgr_corr_rep1.high,
+                netgr_corr_rep2.high,
+                dose.il3,
+                netgr_obs_rep1.il3,
+                netgr_obs_rep2.il3,
+                # cosmic_count,
+                # cosmic_present,
+                resmuts,
+                IC50,
+                Hill.slope,
+                convergence,
+                RSS),
+      names_to = c("dose", "measurement"),
+      names_pattern = "X(\\d+)\\.(rel\\.viab|alpha)",
+      values_to = "value"
+    )
+  
+  # Step 2: Pivot wider to separate rel.viab and alpha into their own columns
+  clean.df <- long.df %>%
+    pivot_wider(
+      names_from = measurement,
+      values_from = value
+    )
+clean.df
+}
 ```
 
 
@@ -103,24 +106,43 @@ clean.df <- long.df %>%
 # coords(roc_obj, "best", ret = c("threshold", "sensitivity", "specificity", "youden"), best.method = "youden")
 ```
 
-
+ALL CORRECTED
 ```{r}
-set.seed(100 + j + i)
+tic()
+df_location="output/ABLEnrichmentScreens/ABL_Region1234_Tileseq/data/cross_validations/all_corrected/DMS_all_corrected_training_set.csv"
+clean.df=dataparser(df_location)
+# class(clean.df$rel.viab)
+# set.seed(100 + j + i)
+# Inputs:
+# dose.rnge <- sort(unique(c(seq(10, 10000, by = 10), 444, 760, 916)))
+dose.rnge <- sort(unique(c(seq(10, 10000, by = 20),444, 760, 916)))
+# train_percent=80 # In this case, for train set choose 14 resistant mutants out of 17 and 4 sensitive out of 5
+train_percent=50 # In this case, for train set choose 8 resistant mutants out of 17 and 3 sensitive out of 5
 
-dose.rnge <- sort(unique(c(seq(10, 10000, by = 10), 444, 760, 916)))
-dose.rnge <- sort(unique(c(seq(10, 10000, by = 100))))
 
 # Initialize outer results dataframe before the loop
-data.out <- data.frame(
+data.out.singlethreshold <- data.frame(
   iter = integer(),
   dose = numeric(),
   threshold = numeric(),
   sensitivity = numeric(),
   specificity = numeric(),
-  youden = numeric()
+  youden = numeric(),
+  auc = numeric()
+)
+
+data.out.bestthreshold <- data.frame(
+  iter = integer(),
+  dose = numeric(),
+  threshold = numeric(),
+  sensitivity = numeric(),
+  specificity = numeric(),
+  youden = numeric(),
+  auc = numeric()
 )
 
 for (i in dose.rnge) {
+  # i=10
   clean.df.dose <- clean.df %>% filter(dose %in% i)
   clean.df.dose.resistant=clean.df.dose%>%filter(resmuts%in%T)
   clean.df.dose.sensitive=clean.df.dose%>%filter(resmuts%in%F)
@@ -128,19 +150,28 @@ for (i in dose.rnge) {
   # Skip this dose if there are not enough rows to sample
   if (nrow(clean.df.dose) < 18) next
 
-  for (j in 1:10) {
-    # Downsample the 17 resistant mutants to choose 14
-    train_idx <- sample(nrow(clean.df.dose.resistant), 14, replace = FALSE)
-    # train_idx <- sample(nrow(clean.df.dose), 17, replace = FALSE)
+  for (j in 1:20) {
+    # j=1
+    if(train_percent==50){
+      # Downsample the 17 resistant mutants to choose 14
+      train_idx <- sample(nrow(clean.df.dose.resistant), 8, replace = FALSE)
+      # Downsample the 5 sensitive mutants to choose 4
+      train_idx <- sample(nrow(clean.df.dose.sensitive), 3, replace = FALSE)
+    }
+    if(train_percent==80){
+      # Downsample the 17 resistant mutants to choose 14
+      train_idx <- sample(nrow(clean.df.dose.resistant), 14, replace = FALSE)
+      # Downsample the 5 sensitive mutants to choose 4
+      train_idx <- sample(nrow(clean.df.dose.sensitive), 4, replace = FALSE)
+    }
     
-    # Create training and testing sets
+    
+    # Create training and testing sets for resistant
     data.train.resistant <- clean.df.dose.resistant[train_idx, ]
     data.test.resistant <- clean.df.dose.resistant[-train_idx, ]  # everything NOT in training set
-    # Downsample the 5 sensitive mutants to choose 4
-    train_idx <- sample(nrow(clean.df.dose.sensitive), 4, replace = FALSE)
-    # train_idx <- sample(nrow(clean.df.dose), 17, replace = FALSE)
     
-    # Create training and testing sets
+    
+    # Create training and testing sets for sensitive
     data.train.sensitive <- clean.df.dose.sensitive[train_idx, ]
     data.test.sensitive <- clean.df.dose.sensitive[-train_idx, ]  # everything NOT in training set
     
@@ -149,31 +180,428 @@ for (i in dose.rnge) {
     data.test=rbind(data.test.resistant,data.test.sensitive)
     
 
-    # Fit logistic regression
-    glm.fit <- glm(resmuts ~ rel.viab, data = data.train, family = "binomial")
+    # Fit logistic regression on train set
+    glm.fit <- suppressWarnings(glm(resmuts ~ rel.viab, data = data.train, family = "binomial"))
+    # class(data.train$rel.viab)
 
-    # Predict
+    # Predict on test set
     data.test$pred.rel.viab <- predict(glm.fit,newdata = data.test, type = "response")
 
     # ROC and Youden
-    roc_obj <- roc(data.test$resmuts, data.test$pred.rel.viab)
-    coords_output <- coords(roc_obj, "best",
+    roc_obj <- suppressMessages(roc(data.test$resmuts, data.test$pred.rel.viab))
+    coords_output.bestthreshold <- suppressWarnings(coords(roc_obj, "best",
                             ret = c("threshold", "sensitivity", "specificity", "youden"),
-                            best.method = "youden")
+                            best.method = "youden"))
+    
+    coords_output.singlethreshold <- suppressWarnings(coords(roc_obj, x = 0.5, input = "threshold",
+  ret = c("threshold", "sensitivity", "specificity", "youden"))
+)
 
     # Append to outer data frame
-    data.out <- rbind(data.out, data.frame(
+    # data.out.bestthreshold <- rbind(data.out.bestthreshold, data.frame(
+    #   iter = j,
+    #   dose = i,
+    #   threshold = coords_output.bestthreshold$threshold,
+    #   sensitivity = coords_output.bestthreshold$sensitivity,
+    #   specificity = coords_output.bestthreshold$specificity,
+    #   youden = coords_output.bestthreshold$youden,
+    #   auc = auc(roc_obj)
+    # ))
+      
+    data.out.singlethreshold <- rbind(data.out.singlethreshold, data.frame(
       iter = j,
       dose = i,
-      threshold = coords_output$threshold,
-      sensitivity = coords_output$sensitivity,
-      specificity = coords_output$specificity,
-      youden = coords_output$youden
+      threshold = coords_output.singlethreshold$threshold,
+      sensitivity = coords_output.singlethreshold$sensitivity,
+      specificity = coords_output.singlethreshold$specificity,
+      youden = coords_output.singlethreshold$youden,
+      auc = auc(roc_obj)
     ))
   }
 }
 
-ggplot(data.out,aes(x=factor(dose),y=threshold))+geom_boxplot()
+data.out.all.allcorrected=data.out.singlethreshold
+# Calculating the median of all data
+data.out.summarized.allcorrected=data.out.singlethreshold%>%
+  group_by(dose)%>%
+  summarize(auc=median(auc),
+            specificity=median(specificity),
+            sensitivity=median(sensitivity))
+toc()
+```
+
+UNCORRECTED LOW
+```{r}
+df_location="output/ABLEnrichmentScreens/ABL_Region1234_Tileseq/data/cross_validations/uncorrected_low/DMS_uncorrected_low_training_set.csv"
+clean.df=dataparser(df_location)
+# class(clean.df$rel.viab)
+# set.seed(100 + j + i)
+# Inputs:
+# dose.rnge <- sort(unique(c(seq(10, 10000, by = 10), 444, 760, 916)))
+dose.rnge <- sort(unique(c(seq(10, 10000, by = 20),444, 760, 916)))
+# train_percent=80 # In this case, for train set choose 14 resistant mutants out of 17 and 4 sensitive out of 5
+train_percent=50 # In this case, for train set choose 8 resistant mutants out of 17 and 3 sensitive out of 5
+
+
+# Initialize outer results dataframe before the loop
+data.out.singlethreshold <- data.frame(
+  iter = integer(),
+  dose = numeric(),
+  threshold = numeric(),
+  sensitivity = numeric(),
+  specificity = numeric(),
+  youden = numeric(),
+  auc = numeric()
+)
+
+data.out.bestthreshold <- data.frame(
+  iter = integer(),
+  dose = numeric(),
+  threshold = numeric(),
+  sensitivity = numeric(),
+  specificity = numeric(),
+  youden = numeric(),
+  auc = numeric()
+)
+
+for (i in dose.rnge) {
+  # i=10
+  clean.df.dose <- clean.df %>% filter(dose %in% i)
+  clean.df.dose.resistant=clean.df.dose%>%filter(resmuts%in%T)
+  clean.df.dose.sensitive=clean.df.dose%>%filter(resmuts%in%F)
+
+  # Skip this dose if there are not enough rows to sample
+  if (nrow(clean.df.dose) < 18) next
+
+  for (j in 1:20) {
+    # j=1
+    if(train_percent==50){
+      # Downsample the 17 resistant mutants to choose 14
+      train_idx <- sample(nrow(clean.df.dose.resistant), 8, replace = FALSE)
+      # Downsample the 5 sensitive mutants to choose 4
+      train_idx <- sample(nrow(clean.df.dose.sensitive), 3, replace = FALSE)
+    }
+    if(train_percent==80){
+      # Downsample the 17 resistant mutants to choose 14
+      train_idx <- sample(nrow(clean.df.dose.resistant), 14, replace = FALSE)
+      # Downsample the 5 sensitive mutants to choose 4
+      train_idx <- sample(nrow(clean.df.dose.sensitive), 4, replace = FALSE)
+    }
+    
+    
+    # Create training and testing sets for resistant
+    data.train.resistant <- clean.df.dose.resistant[train_idx, ]
+    data.test.resistant <- clean.df.dose.resistant[-train_idx, ]  # everything NOT in training set
+    
+    
+    # Create training and testing sets for sensitive
+    data.train.sensitive <- clean.df.dose.sensitive[train_idx, ]
+    data.test.sensitive <- clean.df.dose.sensitive[-train_idx, ]  # everything NOT in training set
+    
+    #Combining sensitive and resistant mutants
+    data.train=rbind(data.train.resistant,data.train.sensitive)
+    data.test=rbind(data.test.resistant,data.test.sensitive)
+    
+
+    # Fit logistic regression on train set
+    glm.fit <- suppressWarnings(glm(resmuts ~ rel.viab, data = data.train, family = "binomial"))
+    # class(data.train$rel.viab)
+
+    # Predict on test set
+    data.test$pred.rel.viab <- predict(glm.fit,newdata = data.test, type = "response")
+
+    # ROC and Youden
+    roc_obj <- suppressMessages(roc(data.test$resmuts, data.test$pred.rel.viab))
+    coords_output.bestthreshold <- suppressWarnings(coords(roc_obj, "best",
+                            ret = c("threshold", "sensitivity", "specificity", "youden"),
+                            best.method = "youden"))
+    
+    coords_output.singlethreshold <- suppressWarnings(coords(roc_obj, x = 0.5, input = "threshold",
+  ret = c("threshold", "sensitivity", "specificity", "youden"))
+)
+
+    # Append to outer data frame
+    # data.out.bestthreshold <- rbind(data.out.bestthreshold, data.frame(
+    #   iter = j,
+    #   dose = i,
+    #   threshold = coords_output.bestthreshold$threshold,
+    #   sensitivity = coords_output.bestthreshold$sensitivity,
+    #   specificity = coords_output.bestthreshold$specificity,
+    #   youden = coords_output.bestthreshold$youden,
+    #   auc = auc(roc_obj)
+    # ))
+      
+    data.out.singlethreshold <- rbind(data.out.singlethreshold, data.frame(
+      iter = j,
+      dose = i,
+      threshold = coords_output.singlethreshold$threshold,
+      sensitivity = coords_output.singlethreshold$sensitivity,
+      specificity = coords_output.singlethreshold$specificity,
+      youden = coords_output.singlethreshold$youden,
+      auc = auc(roc_obj)
+    ))
+  }
+}
+
+data.out.all.uncorrected.low=data.out.singlethreshold
+# Calculating the median of all data
+data.out.summarized.uncorrected.low=data.out.singlethreshold%>%
+  group_by(dose)%>%
+  summarize(auc=median(auc),
+            specificity=median(specificity),
+            sensitivity=median(sensitivity))
+```
+
+
+
+UNCORRECTED LOW MEDIUM
+```{r}
+tic()
+df_location="output/ABLEnrichmentScreens/ABL_Region1234_Tileseq/data/cross_validations/uncorrected_low_medium/DMS_uncorrected_medium_training_set.csv"
+clean.df=dataparser(df_location)
+# class(clean.df$rel.viab)
+# set.seed(100 + j + i)
+# Inputs:
+# dose.rnge <- sort(unique(c(seq(10, 10000, by = 10), 444, 760, 916)))
+dose.rnge <- sort(unique(c(seq(10, 10000, by = 20),444, 760, 916)))
+# train_percent=80 # In this case, for train set choose 14 resistant mutants out of 17 and 4 sensitive out of 5
+train_percent=50 # In this case, for train set choose 8 resistant mutants out of 17 and 3 sensitive out of 5
+
+
+# Initialize outer results dataframe before the loop
+data.out.singlethreshold <- data.frame(
+  iter = integer(),
+  dose = numeric(),
+  threshold = numeric(),
+  sensitivity = numeric(),
+  specificity = numeric(),
+  youden = numeric(),
+  auc = numeric()
+)
+
+data.out.bestthreshold <- data.frame(
+  iter = integer(),
+  dose = numeric(),
+  threshold = numeric(),
+  sensitivity = numeric(),
+  specificity = numeric(),
+  youden = numeric(),
+  auc = numeric()
+)
+
+for (i in dose.rnge) {
+  # i=10
+  clean.df.dose <- clean.df %>% filter(dose %in% i)
+  clean.df.dose.resistant=clean.df.dose%>%filter(resmuts%in%T)
+  clean.df.dose.sensitive=clean.df.dose%>%filter(resmuts%in%F)
+
+  # Skip this dose if there are not enough rows to sample
+  if (nrow(clean.df.dose) < 18) next
+
+  for (j in 1:20) {
+    # j=1
+    if(train_percent==50){
+      # Downsample the 17 resistant mutants to choose 14
+      train_idx <- sample(nrow(clean.df.dose.resistant), 8, replace = FALSE)
+      # Downsample the 5 sensitive mutants to choose 4
+      train_idx <- sample(nrow(clean.df.dose.sensitive), 3, replace = FALSE)
+    }
+    if(train_percent==80){
+      # Downsample the 17 resistant mutants to choose 14
+      train_idx <- sample(nrow(clean.df.dose.resistant), 14, replace = FALSE)
+      # Downsample the 5 sensitive mutants to choose 4
+      train_idx <- sample(nrow(clean.df.dose.sensitive), 4, replace = FALSE)
+    }
+    
+    
+    # Create training and testing sets for resistant
+    data.train.resistant <- clean.df.dose.resistant[train_idx, ]
+    data.test.resistant <- clean.df.dose.resistant[-train_idx, ]  # everything NOT in training set
+    
+    
+    # Create training and testing sets for sensitive
+    data.train.sensitive <- clean.df.dose.sensitive[train_idx, ]
+    data.test.sensitive <- clean.df.dose.sensitive[-train_idx, ]  # everything NOT in training set
+    
+    #Combining sensitive and resistant mutants
+    data.train=rbind(data.train.resistant,data.train.sensitive)
+    data.test=rbind(data.test.resistant,data.test.sensitive)
+    
+
+    # Fit logistic regression on train set
+    glm.fit <- suppressWarnings(glm(resmuts ~ rel.viab, data = data.train, family = "binomial"))
+    # class(data.train$rel.viab)
+
+    # Predict on test set
+    data.test$pred.rel.viab <- predict(glm.fit,newdata = data.test, type = "response")
+
+    # ROC and Youden
+    roc_obj <- suppressMessages(roc(data.test$resmuts, data.test$pred.rel.viab))
+    coords_output.bestthreshold <- suppressWarnings(coords(roc_obj, "best",
+                            ret = c("threshold", "sensitivity", "specificity", "youden"),
+                            best.method = "youden"))
+    
+    coords_output.singlethreshold <- suppressWarnings(coords(roc_obj, x = 0.5, input = "threshold",
+  ret = c("threshold", "sensitivity", "specificity", "youden"))
+)
+
+    # Append to outer data frame
+    # data.out.bestthreshold <- rbind(data.out.bestthreshold, data.frame(
+    #   iter = j,
+    #   dose = i,
+    #   threshold = coords_output.bestthreshold$threshold,
+    #   sensitivity = coords_output.bestthreshold$sensitivity,
+    #   specificity = coords_output.bestthreshold$specificity,
+    #   youden = coords_output.bestthreshold$youden,
+    #   auc = auc(roc_obj)
+    # ))
+      
+    data.out.singlethreshold <- rbind(data.out.singlethreshold, data.frame(
+      iter = j,
+      dose = i,
+      threshold = coords_output.singlethreshold$threshold,
+      sensitivity = coords_output.singlethreshold$sensitivity,
+      specificity = coords_output.singlethreshold$specificity,
+      youden = coords_output.singlethreshold$youden,
+      auc = auc(roc_obj)
+    ))
+  }
+}
+
+
+data.out.all.uncorrected.medium=data.out.singlethreshold
+# Calculating the median of all data
+data.out.summarized.uncorrected.medium=data.out.singlethreshold%>%
+  group_by(dose)%>%
+  summarize(auc=median(auc),
+            specificity=median(specificity),
+            sensitivity=median(sensitivity))
+
+toc()
+```
+
+
+
+```{r}
+data.out.all.allcorrected$correction="allcorrected"
+data.out.all.uncorrected.low$correction="mediumhigh"
+data.out.all.uncorrected.medium$correction="highonly"
+data.out.all=rbind(data.out.all.allcorrected,
+                   data.out.all.uncorrected.low,
+                   data.out.all.uncorrected.medium)
+# write.csv(data.out.all,"crossval_results.csv")
+
+data.out.summarized.allcorrected$correction="allcorrected"
+data.out.summarized.uncorrected.low$correction="mediumhigh"
+data.out.summarized.uncorrected.medium$correction="highonly"
+
+data.out.summarized=rbind(data.out.summarized.allcorrected,
+                          data.out.summarized.uncorrected.low,
+                          data.out.summarized.uncorrected.medium)
+write.csv(data.out.summarized,"crossval_results_summarized.csv")
+```
+
+
+```{r}
+ggplot(data.out.summarized,aes(x=dose,y=auc,color=correction,fill=correction))+
+  # geom_point()+
+  geom_line()+theme(axis.text.x=element_text(angle=90,hjust=.5,vjust=.5))+scale_x_continuous(trans="log10")+
+  cleanup
+
+ggplot(data.out.summarized,aes(x=dose,y=sensitivity,color=correction,fill=correction))+
+  # geom_point()+
+  geom_line()+theme(axis.text.x=element_text(angle=90,hjust=.5,vjust=.5))+scale_x_continuous(trans="log10")+
+  cleanup
+ggplot(data.out.summarized,aes(x=dose,y=specificity,color=correction,fill=correction))+
+  # geom_point()+
+  geom_line()+theme(axis.text.x=element_text(angle=90,hjust=.5,vjust=.5))+scale_x_continuous(trans="log10")+
+  cleanup
+
+```
+```{r}
+# data.out.summarized=data.out.all%>%
+  # group_by(dose,)
+
+data.out.summarized=data.out.all%>%
+  group_by(dose,correction)%>%
+  summarize(auc.sd=sd(auc),
+            auc=mean(auc),
+            specificity.sd=sd(specificity),
+            specificity=mean(specificity),
+            sensitivity.sd=sd(sensitivity),
+            sensitivity=mean(sensitivity),
+            )
+
+ggplot(data.out.summarized,aes(x=dose,color=correction,fill=correction))+
+  geom_line(linetype="dashed",aes(y=auc))+
+  geom_ribbon(aes(ymin=auc-auc.sd,
+                  ymax=auc+auc.sd),
+              alpha=.3,
+              color=NA)+
+  theme(legend.position = "bottom-left")+
+  # scale_x_continuous(trans="log10")+
+  cleanup+
+  theme(
+    legend.position = c(0.15, 0.15),         # Bottom-left inside plot
+    legend.background = element_rect(fill = "white", color = "black"),
+    legend.title = element_text(size = 10),
+    legend.text = element_text(size = 9)
+  )
+ggsave("output/ABLEnrichmentScreens/ABL_Region1234_Tileseq/data/cross_validations/crossval_simulations_auc.pdf",units = "in",width=6,height=6,useDingbats=F)
+
+ggplot(data.out.summarized,aes(x=dose,color=correction,fill=correction))+
+  geom_line(linetype="dashed",aes(y=sensitivity))+
+  geom_ribbon(aes(ymin=sensitivity-sensitivity.sd,
+                  ymax=sensitivity+sensitivity.sd),
+              alpha=.3,
+              color=NA)+
+  theme(legend.position = "bottom-left")+
+  scale_x_continuous(trans="log10")+
+  cleanup+
+  theme(
+    legend.position = c(0.15, 0.15),         # Bottom-left inside plot
+    legend.background = element_rect(fill = "white", color = "black"),
+    legend.title = element_text(size = 10),
+    legend.text = element_text(size = 9)
+  )
+ggsave("output/ABLEnrichmentScreens/ABL_Region1234_Tileseq/data/cross_validations/crossval_simulations_sensitivity.pdf",units = "in",width=6,height=6,useDingbats=F)
+
+
+ggplot(data.out.summarized,aes(x=dose,color=correction,fill=correction))+
+  geom_line(linetype="dashed",aes(y=sensitivity))+
+  geom_ribbon(aes(ymin=sensitivity-sensitivity.sd,
+                  ymax=sensitivity+sensitivity.sd),
+              alpha=.3,
+              color=NA)+
+  theme(legend.position = "bottom-left")+
+  cleanup+
+  theme(
+    legend.position = c(0.15, 0.15),         # Bottom-left inside plot
+    legend.background = element_rect(fill = "white", color = "black"),
+    legend.title = element_text(size = 10),
+    legend.text = element_text(size = 9)
+  )
+ggsave("output/ABLEnrichmentScreens/ABL_Region1234_Tileseq/data/cross_validations/crossval_simulations_sensitivity_logscale.pdf",units = "in",width=6,height=6,useDingbats=F)
+
+
+
+
+
+ggplot(data.out.summarized,aes(x=dose,color=correction,fill=correction))+
+  geom_line(linetype="dashed",aes(y=specificity))+
+  geom_ribbon(aes(ymin=specificity-specificity.sd,
+                  ymax=specificity+specificity.sd),
+              alpha=.3,
+              color=NA)+
+  theme(legend.position = "bottom-left")+
+  cleanup+
+  theme(
+    legend.position = c(0.15, 0.15),         # Bottom-left inside plot
+    legend.background = element_rect(fill = "white", color = "black"),
+    legend.title = element_text(size = 10),
+    legend.text = element_text(size = 9)
+  )
+ggsave("output/ABLEnrichmentScreens/ABL_Region1234_Tileseq/data/cross_validations/crossval_simulations_specificity.pdf",units = "in",width=6,height=6,useDingbats=F)
 
 ```
 

@@ -7,7 +7,7 @@ output: html_document
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
-# knitr::opts_knit$set(root.dir = normalizePath(".."))
+knitr::opts_knit$set(root.dir = normalizePath(".."))
 # rm(list=ls())
 
 library(stringr)
@@ -173,7 +173,7 @@ gnomad=gnomad%>%filter(!residue%in%NA,residue<=516)
 #Aim is to create a list of gnomad enabled mutants, i.e. mutants that would have required multi-nucleotide variants before, but are now a single nucleotide away
 # First: Make a function that calculates all possible amino acid substitutions for a given ref codon at a hamming distance of 1.
 #A key pessimistic question to ask is: for any given residue, how many amino acid substitution types are only possible with two nucleotide substitutions? If basically every amino acid susbtitution is possible with a single nucleotide change, then it doesn't really matter if you make more possible with MNVs.
-gnomad_simple=gnomad%>%select(Position,Reference,Alternate,Protein.Consequence,residue,Transcript.Consequence,VEP.Annotation,Allele.Count)
+gnomad_simple=gnomad%>%dplyr::select(Position,Reference,Alternate,Protein.Consequence,residue,Transcript.Consequence,VEP.Annotation,Allele.Count)
 gnomad_simple=gnomad_simple%>%
   rowwise()%>%
   mutate(residue=substr(gsub("p\\.","",Protein.Consequence),4,6),
@@ -190,7 +190,7 @@ gnomad_simple=gnomad_simple%>%
 # If its position 1: paste ALT with Second two Nucleotides
 # If its position 2: paste first nucleotide, ALT nucleotide, and third nucleotide
 # If it's position 3: paste second two nucleotides with the ALT nucleotide
-a=gnomad%>%filter(Position%in%c(130862953:130862953))
+# a=gnomad%>%filter(Position%in%c(130862953:130862953))
 # ref_genomic_coordinates[(130854922-ref_genomic_coordinates$start)%in%c(0,1,2),"codon"])[[1]]
 gnomad_simple=gnomad_simple%>%
   rowwise()%>%
@@ -268,7 +268,8 @@ imatdata=imatdata%>%filter(ct_screen1_before>=5)
 
 imatdata=imatdata%>%filter(is_intended%in%1,!(species=="R332M"& alt =="ATG"),!(species=="R460N"& alt =="AAC"))
 #######Adding clinical prevalence predictions###############
-resistance_predictions=read.csv("output/ABLEnrichmentScreens/ABL_Region1234_Tileseq/data/Tileseq_clinical_predictions_2.2.25.csv",header = T,stringsAsFactors = F)
+# resistance_predictions=read.csv("output/ABLEnrichmentScreens/ABL_Region1234_Tileseq/data/Tileseq_clinical_predictions_2.2.25.csv",header = T,stringsAsFactors = F)
+resistance_predictions=read.csv("output/ABLEnrichmentScreens/ABL_Region1234_Tileseq/data/Tileseq_clinical_predictions_5.26.25.csv",header = T,stringsAsFactors = F)
 resistance_predictions=resistance_predictions%>%dplyr::select(species,ref_aa,protein_start,alt_aa,fill_value,alpha.444,alpha.760,alpha.916)
 resistance_predictions=resistance_predictions%>%filter(!ref_aa%in%NA)
 imatdata=merge(imatdata,resistance_predictions,by=c("species","ref_aa","protein_start","alt_aa"))
@@ -343,6 +344,8 @@ imatdata_gnomad$fill_value=factor(imatdata_gnomad$fill_value,
                                               "444nM",
                                               "760nM",
                                               "916nM"))
+
+
 ```
 ## Data Plotting 
 ```{r}
@@ -383,7 +386,7 @@ ggplot(imatdata_gnomad%>%arrange(desc(rank)),aes(x=species,y=netgr_obs_mean_corr
         axis.text.x = element_blank(),
         axis.ticks.x = element_blank(),
         axis.text.y = element_text(angle = 90, hjust = 0.5, vjust = 0.5))
-# ggsave("output/ABLEnrichmentScreens/ABL_Region234_Comparisons/sm_imatinib_plots/gnomad_enabled_mutants_bydose.pdf",width=7,height = 4, units="in",useDingbats=F)
+ggsave("output/ABLEnrichmentScreens/ABL_Region234_Comparisons/sm_imatinib_plots/gnomad_enabled_mutants_bydose.pdf",width=7,height = 4, units="in",useDingbats=F)
 
 
 imatdata_gnomad <- imatdata_gnomad %>%
@@ -425,6 +428,15 @@ ggplot(imatdata_gnomad%>%arrange(desc(rank)),aes(x=reorder(species_name, -netgr_
         axis.text.x = element_text(angle = 90, hjust = 0.5, vjust = 0.5),
         axis.text.y = element_text(angle = 90, hjust = 0.5, vjust = 0.5))
 # ggsave("output/ABLEnrichmentScreens/ABL_Region234_Comparisons/sm_imatinib_plots/gnomad_enabled_mutants_penetrance3.pdf",width=7,height = 4, units="in",useDingbats=F)
+imatdata_gnomad=imatdata_gnomad%>%arrange(rank)
+imatdata_gnomad=imatdata_gnomad%>%
+  relocate(rank,.before = dose)%>%
+  relocate(Allele.Frequency.Gnomad,.before=dose)%>%
+  relocate(species_enabler,.after = species)
+  
+# write.csv(imatdata_gnomad,"output/gnomad_vudrs.csv")
+
+# write.csv(gnomad,"output/gnomad_vudrs_byethnicities.csv")
 ```
 
 ```{r}
@@ -437,7 +449,12 @@ imatdata_gnomad=imatdata_gnomad%>%group_by(dose)%>%mutate(rank_alpha444=rank(alp
 netgr_average=imatdata_gnomad%>%dplyr::select(dose,species_enabler,species,alpha.444,rank_alpha444)
 netgr_average=netgr_average%>%filter(dose%in%"1200nM")
 
-
+a=imatdata_gnomad%>%filter(dose%in%"1200nM")
+d=a%>%filter(protein_start%in%473)
+b=read.csv("data/IC50s_verification/IC50HeatMap_verification_Elvin.csv",header = T,stringsAsFactors = F)
+b=b%>%group_by(species)%>%summarize(n=n())
+c=a%>%filter(species%in%b$species)
+c=a%>%filter(species_enabler%in%b$species)
 
 imatdata_gnomad <- imatdata_gnomad %>%
   mutate(species = fct_reorder(species, -rank_alpha444, .desc = TRUE))
@@ -462,7 +479,7 @@ ggplot(imatdata_gnomad%>%filter(dose%in%"1200nM")%>%arrange(desc(rank_alpha444))
         axis.ticks.x = element_blank(),
         axis.text.y = element_text(angle = 90, hjust = 0.5, vjust = 0.5),
         axis.title.y=element_blank())
-# ggsave("output/ABLEnrichmentScreens/ABL_Region234_Comparisons/sm_imatinib_plots/gnomad_enabled_mutants.pdf",width=7,height = 4, units="in",useDingbats=F)
+ggsave("output/ABLEnrichmentScreens/ABL_Region234_Comparisons/sm_imatinib_plots/gnomad_enabled_mutants.pdf",width=7,height = 4, units="in",useDingbats=F)
 
 # imatdata_gnomad <- imatdata_gnomad %>%
 #   mutate(species = fct_reorder(species, -rank_netgr760, .desc = TRUE))
@@ -512,6 +529,8 @@ ggplot(gnomad_enrichment_melt%>%filter(!ancestry%in%"af.european.nonfin",!ancest
   # geom_violin()+
   geom_point()+
   scale_y_continuous(trans="log10")+cleanup
+
+write.csv(gnomad_enrichment_melt,"output/gnomad_vudrs_byethnicities_melted.csv")
 ```
 
 

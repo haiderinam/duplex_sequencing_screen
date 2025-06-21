@@ -14,6 +14,7 @@ knitr::opts_knit$set(root.dir = normalizePath(".."))
 
 ####Please change required directories this chunk if compiling in R rather than RmD
 ```{r}
+
 #Inputs:
 conc_for_predictions=0.8
 net_gr_wodrug=0.055
@@ -50,7 +51,7 @@ cleanup=theme_bw() +
         panel.grid.major = element_blank(),
         panel.grid.major.y = element_blank(),
         panel.background = element_blank(),
-        axis.line = element_line(color = "black"),
+        # axis.line = element_line(color = "black"),
         axis.text = element_text(face="bold",color="black",size="11"),
         text=element_text(size=11,face="bold"),
         axis.title=element_text(face="bold",size="11"))
@@ -106,27 +107,56 @@ plotly=ggplot(ic50data_long,aes(x=conc,y=y,color=factor(species)))+
 
 ggplotly(plotly)
 ```
+```{r}
+dr4pl_df=function(data){
+  # Input: This function needs a dataframe with the following columns:
+  # species
+  # y (relative viability)
+  # conc
+  # Outputs:
+  # IC50
+  # Hill Slope
+  # Residual sum of squares
+  # y_model (response at the specified dose)
+  #Next: Appproximating Response from dose (inverse of the prediction)
+  # Force max and min values to be (near) 1 and 0, respectively
+  ic50.ll4=fit = dr4pl(y~conc,
+              method.init="logistic",
+              data = data %>% filter(species == species_curr),
+              init.parm = dr4pl_theta(.99,50,-2,0.01),
+              upperl=c(1,55,0,0.02),lowerl=c(0.98,0.01,-Inf,0))
+
+  ## Record parameters
+  rsdls = residuals(fit)
+  IC50.i=coef(fit)[2]
+  hill.i=coef(fit)[3]
+  ic50data_species_specific$IC50 = coef(fit)[2]
+  ic50data_species_specific$Hill.slope = coef(fit)[3]
+  ic50data_species_specific$convergence = fit$convergence
+  ic50data_species_specific$RSS = sum(rsdls^2)
+
+  ###Getting predictions
+  ic50data_species_specific=ic50data_species_specific%>%
+    group_by(conc)%>%
+    mutate(y_model=MeanResponse(theta = c(1, IC50.i, hill.i, 0), x = conc))
+  ic50data_species_specific
+}
+```
+
 ###Dose response curve fitting with 4-parameter logistic
 ####First iteration: Have a y_model for only the drug concentrations Chuan used
 Essentially, all this is doing is adding a column for y-model to IC50data_long. Default was just y (proportion alive).
 ```{r}
+library(dr4pl)
 ########Four parameter logistic########
 #Reference: https://journals.plos.org/plosone/article/file?type=supplementary&id=info:doi/10.1371/journal.pone.0146021.s001
-#In short: For each dose in each species, get the response
+#For each dose in each species, get the response
 # rm(list=ls())
 ic50data_long_model=data.frame()
 for (species_curr in sort(unique(ic50data_long$species))){
   ic50data_species_specific=ic50data_long%>%filter(species==species_curr)
-  x=ic50data_species_specific$conc
-  y=ic50data_species_specific$y
-  #Next: Appproximating Response from dose (inverse of the prediction)
-  ic50.ll4=drm(y~conc,data=ic50data_long%>%filter(species==species_curr),fct=LL.3(fixed=c(NA,1,NA)))
-    b=coef(ic50.ll4)[1]
-    c=0
-    d=1
-    e=coef(ic50.ll4)[2]
-  ###Getting predictions
-  ic50data_species_specific=ic50data_species_specific%>%group_by(conc)%>%mutate(y_model=c+((d-c)/(1+exp(b*(log(conc)-log(e))))))
+
+  ic50data_species_specific=dr4pl_df(ic50data_species_specific)
   ic50data_species_specific=data.frame(ic50data_species_specific) #idk why I have to end up doing this
   ic50data_long_model=rbind(ic50data_long_model,ic50data_species_specific)
 }
@@ -137,18 +167,84 @@ ic50data_long_625=ic50data_long%>%filter(conc==.625)
 ic50data_long$species=factor(ic50data_long$species,levels = as.character(ic50data_long_625$species[order((ic50data_long_625$y_model),decreasing = T)]))
 
 #Adding drug effect
-##########Changed this on 2/20. Using y from 4 parameter logistic rather than raw values
 ic50data_long=ic50data_long%>%
-  # filter(!species=="Wt")%>%
   mutate(drug_effect=-log(y_model)/72)
-# write.csv(ic50data_long,"ic50_growthratepredictions_forIvan.csv")
 #Adding Net growth rate
 ic50data_long$netgr_pred=net_gr_wodrug-ic50data_long$drug_effect
+
+ic50data_long_alldoses=ic50data_long
+
+ic50data_long_alldoses_sum=ic50data_long_alldoses%>%
+  group_by(species)%>%summarize(Hill.Slope=mean(Hill.slope),
+                                     IC50=mean(IC50))
 ```
+
+#### What happens if we use 3 doses, not 12?
+5.12.2025 update
+```{r}
+library(dr4pl)
+########Four parameter logistic########
+#Reference: https://journals.plos.org/plosone/article/file?type=supplementary&id=info:doi/10.1371/journal.pone.0146021.s001
+#For each dose in each species, get the response
+# rm(list=ls())
+ic50data_long_model=data.frame()
+for (species_curr in sort(unique(ic50data_long$species))){
+  ic50data_species_specific=ic50data_long%>%filter(species==species_curr)
+  ic50data_species_specific_3doses=ic50data_species_specific%>%filter(conc%in%c(0.019531,0.312500,0.625000,1.250000))
+  
+  
+  #Next: Appproximating Response from dose (inverse of the prediction)
+  # Force max and min values to be (near) 1 and 0, respectively
+  ic50.ll4=fit = dr4pl(y~conc,
+              method.init="logistic",
+              data = ic50data_species_specific_3doses,
+              init.parm = dr4pl_theta(.99,50,-2,0.01),
+              upperl=c(1,55,0,0.02),lowerl=c(0.98,0.01,-Inf,0))
+
+  ## Record parameters
+  rsdls = residuals(fit)
+  IC50.i=coef(fit)[2]
+  hill.i=coef(fit)[3]
+  ic50data_species_specific$IC50 = coef(fit)[2]
+  ic50data_species_specific$Hill.slope = coef(fit)[3]
+  ic50data_species_specific$convergence = fit$convergence
+  ic50data_species_specific$RSS = sum(rsdls^2)
+
+  ###Getting predictions
+  ic50data_species_specific=ic50data_species_specific%>%
+    group_by(conc)%>%
+    mutate(y_model=MeanResponse(theta = c(1, IC50.i, hill.i, 0), x = conc))
+  
+  
+  # MeanResponse(theta = c(1, IC50.i, hill.i, 0), x = 0.0019131)
+  ic50data_species_specific=data.frame(ic50data_species_specific) #idk why I have to end up doing this
+  ic50data_long_model=rbind(ic50data_long_model,ic50data_species_specific)
+}
+ic50data_long=ic50data_long_model
+
+#In the next step, I'm ordering mutants by decreasing resposne to the 625nM dose. Then I use this to change the levels of the species factor from more to less resistant. This helps with ggplot because now I can color the mutants with decreasing resistance
+ic50data_long_625=ic50data_long%>%filter(conc==.625)
+ic50data_long$species=factor(ic50data_long$species,levels = as.character(ic50data_long_625$species[order((ic50data_long_625$y_model),decreasing = T)]))
+
+#Adding drug effect
+ic50data_long=ic50data_long%>%
+  mutate(drug_effect=-log(y_model)/72)
+#Adding Net growth rate
+ic50data_long$netgr_pred=net_gr_wodrug-ic50data_long$drug_effect
+
+# ic50data_long_alldoses=ic50data_long
+
+
+ic50data_long_3doses=ic50data_long
+ic50data_long_3doses_sum=ic50data_long_3doses%>%
+  group_by(species)%>%summarize(Hill.Slope=mean(Hill.slope),
+                                     IC50=mean(IC50))
+```
+
 ####Plotting modeled dose responses  
 ```{r}
 getPalette = colorRampPalette(brewer.pal(9, "Spectral"))
-plotly=ggplot(ic50data_long,aes(x=conc,color=factor(species)))+
+plotly=ggplot(ic50data_long_3doses,aes(x=conc,color=factor(species)))+
   facet_wrap(~factor(species))+
   geom_line(aes(y=y_model))+
   geom_point(aes(y=y))+
@@ -157,12 +253,106 @@ plotly=ggplot(ic50data_long,aes(x=conc,color=factor(species)))+
   scale_color_manual(values = getPalette(length(unique(ic50data_long$species))))
 ggplotly(plotly)
 ```
-Here I'm going to plot dose-responses with actual data and predicted data
+
+Combining the logistic regression predictions from 12 dose and 3 dose data
 ```{r}
+ic50data_long_sum_combined=merge(ic50data_long_alldoses_sum,ic50data_long_3doses_sum,by="species",suffixes = c(".12conc",".3conc"))
+ic50data_long_sum_combined$species=as.character(ic50data_long_sum_combined$species)
+```
+
+
+```{r}
+
+# Combining all dose predictions from the 12-dose and the 3-lose logistic regressions
+ic50data_long_alldoses=ic50data_long_alldoses%>%dplyr::select(-c(mutant,
+                                                                 drug_effect,
+                                                                 netgr_pred,
+                                                                 Hill.slope,
+                                                                 IC50))
+
+ic50data_long_3doses=ic50data_long_3doses%>%dplyr::select(-c(mutant,
+                                                                 drug_effect,
+                                                                 netgr_pred,
+                                                                 Hill.slope,
+                                                                 IC50))
+
+ic50data_long_combined=merge(ic50data_long_alldoses,ic50data_long_3doses,by=c("conc","species","y"),suffixes = c(".12conc",".3conc"))
+
+
+
+
+ic50data_long_combined$species <- gsub("_maxi$", "", ic50data_long_combined$species)
+
+ic50data_long_combined$species <- gsub("_H$", "", ic50data_long_combined$species)
+
+ic50data_long_combined_625=ic50data_long_combined%>%filter(conc==.625)
+ic50data_long_combined$species=factor(ic50data_long_combined$species,levels = as.character(ic50data_long_combined_625$species[order((ic50data_long_combined_625$y_model.12conc),decreasing = T)]))
+
+label_positions <- ic50data_long_combined %>%
+  group_by(species) %>%
+  summarise(
+    x = 0.03,             # consistent left edge on log10 scale
+    y = 0.125,           # high enough for all panels
+    label = unique(species)
+  )
+
+getPalette = colorRampPalette(brewer.pal(22, "Spectral"))
+ggplot(ic50data_long_combined,aes(x=conc,color=species))+
+  geom_line(color="black",aes(y=y))+
+  geom_line(aes(y=y_model.12conc))+
+  geom_line(linetype="dashed",aes(y=y_model.3conc))+
+  facet_wrap(~species)+
+  scale_y_continuous("Relative viability")+
+  scale_x_continuous("Concentration (uM)",trans="log10")+
+  geom_text(data = label_positions, aes(x = x, y = y, label = label),
+            inherit.aes = FALSE, hjust = 0, vjust = 1, fontface = "bold", size = 3.5) +
+  cleanup+
+  theme(legend.position = "none",
+        strip.text = element_blank(),
+        axis.text.y=element_text(size = 8))+
+  scale_color_manual(values =getPalette(length(unique(ic50data_long_combined$species))))
+
+# ggsave("output/ic50_fits/3dose_regression.pdf",width=8,height=7,units="in",useDingbats=F)
 
 ```
 
-####Plotting species changes in dose responses over different concentrations  
+```{r}
+ggplot(ic50data_long_sum_combined,aes(x=IC50.12conc,
+                                      y=IC50.3conc,
+                                      label = species))+
+  geom_point()+
+  scale_x_continuous("IC50 (uM) from fit of 12 point DRC",
+                     limits=c(0,1.6),
+                     breaks=c(0,0.3,0.6,0.9,1.5))+
+  scale_y_continuous("IC50 (uM) from fit of 3 point DRC",
+                     limits=c(0,1.6),
+                     breaks=c(0,0.3,0.6,0.9,1.5))+
+  geom_abline(linetype="dashed")+
+  stat_cor(method="spearman")+
+  cleanup+
+  theme(legend.position="none")
+# ggsave("output/ic50_fits/ic50_3vs12.pdf",width=3,height = 3,units="in",useDingbats=F)
+
+
+ggplot(ic50data_long_sum_combined,aes(x=Hill.Slope.12conc,
+                                      y=Hill.Slope.3conc,
+                                      label = species))+
+  geom_point()+
+  # geom_label_repel()+
+  scale_x_continuous("Hill Slope from fit of 12 point DRC",
+                     limits = c(-6,0))+
+  scale_y_continuous("Hill Slope from fit of 3 point DRC",
+                     limits = c(-6,0))+
+  geom_abline(linetype="dashed")+
+  stat_cor(method="spearman")+
+  cleanup
+
+# ggsave("output/ic50_fits/hill_3vs12.pdf",width=3,height = 3,units="in",useDingbats=F)
+```
+
+
+
+####Plotting changes in dose-response over different doses across species.
 ```{r}
 plotly=ggplot(ic50data_long,aes(x=species,y=y_model))+
   facet_wrap(~factor(conc))+
@@ -183,7 +373,12 @@ ic50.model.pred=data.frame(matrix(NA,nrow=length(conc.list)*length(unique(ic50da
 for(species_curr in sort(unique(ic50data_long$mutant))){
   ic50data_species_specific=ic50data_long%>%filter(mutant==species_curr)
   #Next: Appproximating Response from dose (inverse of the prediction)
-  ic50.ll4=drm(y~conc,data=ic50data_species_specific,fct=LL.3(fixed=c(NA,1,NA)))
+  # ic50.ll4=drm(y~conc,data=ic50data_species_specific,fct=LL.3(fixed=c(NA,1,NA)))
+  ic50.ll4=drm(
+  y ~ conc,
+  data = ic50data_species_specific %>% filter(species == species_curr),
+  fct = LL.4(fixed = c(1, 0, NA, NA))
+)
   #Extracting coefficients
   b=coef(ic50.ll4)[1]
   c=0
@@ -233,10 +428,6 @@ head(ic50data_all_conc)
 # write.csv(ic50data_all_conc,"ic50data_all_conc.csv")
 ```
 
-Next, I'm going to look a little closely at the errors we typically see in dose response curves:
-```{r}
-
-```
 
 Below, I'm going to plot dose response curves with errorbars representing real day to day variation. 
 ```{r}
@@ -301,18 +492,18 @@ ggplot(ic50heatmap_sd%>%filter(mutant%in%"Wt",conc>=.1),aes(x=conc,y=y_mean))+ge
 ```{r}
 ggplot(ic50heatmap_melt%>%filter(mutant%in%"Wt"),aes(x=conc,y=y))+geom_point(color="black",size=1.5,shape=21,fill="#5941A9")+scale_x_continuous("Dose (uM)",trans="log10")+scale_y_continuous("Response")+cleanup
 # +geom_vline(xintercept = 0.6,linetype="dashed")
-ggsave("bcrablwt_dose_response_points.pdf",width=2,height=2,units="in",useDingbats=F)
+# ggsave("bcrablwt_dose_response_points.pdf",width=2,height=2,units="in",useDingbats=F)
 
 
 ggplot(ic50heatmap_melt%>%filter(mutant%in%"Wt")%>%group_by(conc)%>%summarize(y=mean(y)),aes(x=conc,y=y))+geom_point(color="black",size=1.5,shape=21,fill="#5941A9")+scale_x_continuous("Dose (uM)",trans="log10")+scale_y_continuous("Response")+cleanup
 # +geom_vline(xintercept = 0.6,linetype="dashed")
-ggsave("bcrablwt_dose_response_mean.pdf",width=2,height=2,units="in",useDingbats=F)
+# ggsave("bcrablwt_dose_response_mean.pdf",width=2,height=2,units="in",useDingbats=F)
 
 x=ic50heatmap_melt%>%filter(mutant%in%"Wt",conc%in%0.31250000)
-  ```
-
+```
 
 ```{r}
+
 ################Looking at the typical error in dose-response#######
 plotly=ggplot(ic50heatmap_sd%>%filter(conc%in%.625),aes(x=mutant,y=y_mean))+geom_point()+geom_errorbar(aes(ymin=y_mean-y_sd,ymax=y_mean+y_sd))
 ggplotly(plotly)
@@ -320,7 +511,14 @@ ggplotly(plotly)
 Wt=ic50heatmap_sd%>%filter(mutant%in%"Wt")
 conc=Wt$conc
 
-ic50.ll4=drm(y_mean~conc,data=ic50heatmap_sd%>%filter(mutant%in%"Wt"),fct=LL.3(fixed=c(NA,1,NA)))
+# ic50.ll4=drm(y_mean~conc,data=ic50heatmap_sd%>%filter(mutant%in%"Wt"),fct=LL.3(fixed=c(NA,1,NA)))
+    
+ic50.ll4=drm(
+  y ~ conc,
+  data = ic50heatmap_sd%>%filter(mutant%in%"Wt"),
+  fct = LL.4(fixed = c(1, 0, NA, NA))
+)
+    
     b=coef(ic50.ll4)[1]
     c=0
     d=1
